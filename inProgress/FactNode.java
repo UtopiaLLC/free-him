@@ -1,5 +1,5 @@
 import java.util.Random;
-import Target;
+import java.util.ArrayList;
 
 /**
  * A model class representing a ship.
@@ -46,7 +46,7 @@ public class FactNode {
 	 *
 	 * @param value the visibility of the FactNode
 	 */
-	public boolean setVisible(bool value){
+	public void setVisible(boolean value){
 		visible = value;
 	}
 
@@ -73,7 +73,7 @@ public class FactNode {
 	 *
 	 * @param value whether the FactNode has been scanned
 	 */
-	public boolean setScanned(bool value){
+	public void setScanned(boolean value){
 		scanned = value;
 	}
 
