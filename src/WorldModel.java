@@ -6,10 +6,10 @@ public class WorldModel {
 	private Player player;
 	private List<Target> targets;
 
-	// List of infonodes that can be displayed
-	private List<InfoNode> to_display;
-	// List of infonodes that can be interacted with (hacked or scanned)
-	private List<InfoNode> to_interact;
+	// List of factnodes that can be displayed
+	private List<FactNode> to_display;
+	// List of factnodes that can be interacted with (hacked or scanned)
+	private List<FactNode> to_interact;
 
 	private int n_days;
 
@@ -18,8 +18,8 @@ public class WorldModel {
 
 		targets = TargetFactory.initialize();
 
-		to_display = new ArrayList<InfoNode>();
-		to_interact = new ArrayList<InfoNode>();
+		to_display = new ArrayList<FactNode>();
+		to_interact = new ArrayList<FactNode>();
 		for(Target t : targets) {
 			to_display.addAll(t.displayableNodes());
 			to_interact.addAll(t.interactableNodes());
