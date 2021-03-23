@@ -21,8 +21,10 @@ public class WorldModel {
 		to_display = new ArrayList<FactNode>();
 		to_interact = new ArrayList<FactNode>();
 		for(Target t : targets) {
-			to_display.addAll(t.displayableNodes());
-			to_interact.addAll(t.interactableNodes());
+			for(String fact_id : t.firstNodes()) {
+				to_display.add(t.getFactNode());
+				to_interact.add(t.getFactNode());
+			}
 		}
 
 		n_days = 0;
