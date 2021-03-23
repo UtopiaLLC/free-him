@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Random;
-import FactNode;
 
 /**
  * "Enemy" representation.
@@ -51,7 +50,7 @@ public class TargetModel {
 	private ArrayList<String> firstNodes;
 
 	/** Constant for inverse Paranoia check, made every (INV_PARANOIA_CONSTANT - paranoia) turns */
-	private static final int INV_PARANOIA_CONSTANT = 10;
+	private static final int INV_PARANOIA_CONSTANT = 5;
 	/** Instance of Random class, to be used whenever a random number is needed */
 	private Random rand;
 
@@ -175,68 +174,6 @@ public class TargetModel {
 	}
 
 	/**
-	 * Returns the FactNode in podDict with the given name as the key.
-	 * 
-	 * @param nodeName	Name of the node to get
-	 * @return 			FactNode with the given name
-	 */
-	private FactNode getFactNode(String nodeName) {
-		return podDict.get(nodeName);
-	}
-
-	/**
-	 * Used to threaten the target with the fact stored at the given node.
-	 * 
-	 * If the fact can be used to threaten, moves the target to the Threatened state, resets the
-	 * countdown to the next Paranoia check, increases stress accordingly, and returns the damage
-	 * dealt by the fact. Otherwise, does nothing and returns 0.
-	 * 
-	 * @param fact	Name of the node where the threatening fact is stored
-	 * @return 		Amount of stress damage dealt by threatening with fact
-	 */
-	public int threaten(String fact) {
-		int stressDmg = getFactNode(fact).getPlayerStressDmg();
-		// If fact deals nonzero threaten damage
-		if (stressDmg != 0) {
-			// Move target to threatened
-			state = TargetState.THREATENED;
-			// Reset countdown to next Paranoia check
-			countdown = paranoia;
-		}
-		// Return amount of stress damage dealt (can be 0)
-		return stressDmg;
-	}
-
-	/**
-	 * Used to expose a fact about the target, which is stored at the given node.
-	 * 
-	 * Marks fact as exposed, and returns the amount of expose damage dealt. If the
-	 * fact deals nonzero stress damage, moves target to Paranoid and deals stress
-	 * damage times the expose multiplier.
-	 * 
-	 * @param fact	Name of the node where the to-be-exposed fact is stored
-	 * @return 		Amount of stress damage dealt by exposing with fact
-	 */
-	public int expose(String fact) {
-		FactNode factNode = getFactNode(fact);
-		// Set fact to exposed
-		factNode.setExposed(true);
-		int stressDmg = factNode.getPlayerStressDmg(true);
-		// If exposing deals nonzero damage
-		if (stressDmg != 0) {
-			// Move target to Paranoid and reset countdown
-			state = TargetState.PARANOID;
-			countdown = paranoia;
-		}
-		// Return amount of expose damage dealt (can be 0)
-		return stressDmg;
-	}
-
-	/**
-	 * TODO: a whole bunch of getters for a FactNode in podDict
-	 */
-
-	/**
 	 * Handles target AI behavior at the end of each round, then returns the target's state in the next round.
 	 * This function should be called for every target at the end of every round.
 	 * 
@@ -284,5 +221,77 @@ public class TargetModel {
 		// Return new state
 		return state;
 	}
+
+	/**
+	 * SKILL FUNCTIONS
+	 */
+
+	/**
+	 * Helper function that returns the FactNode in podDict with the given name as the key.
+	 * 
+	 * @param nodeName	Name of the node to get
+	 * @return 			FactNode with the given name
+	 */
+	private FactNode getFactNode(String nodeName) {
+		return podDict.get(nodeName);
+	}
+
+	/**
+	 * Used to threaten the target with the fact stored at the given node.
+	 * 
+	 * If the fact can be used to threaten, moves the target to the Threatened state, resets the
+	 * countdown to the next Paranoia check, increases stress accordingly, and returns the damage
+	 * dealt by the fact. Otherwise, does nothing and returns 0.
+	 * 
+	 * @param fact	Name of the node where the threatening fact is stored
+	 * @return 		Amount of stress damage dealt by threatening with fact
+	 */
+	public int threaten(String fact) {
+		int stressDmg = getFactNode(fact).getTargetStressDmg();
+		// If fact deals nonzero threaten damage
+		if (stressDmg != 0) {
+			// Move target to threatened
+			state = TargetState.THREATENED;
+			// Reset countdown to next Paranoia check
+			countdown = paranoia;
+		}
+		// Return amount of stress damage dealt (can be 0)
+		return stressDmg;
+	}
+
+	/**
+	 * Used to expose a fact about the target, which is stored at the given node.
+	 * 
+	 * Marks fact as exposed, and returns the amount of stress damage dealt. If the
+	 * fact deals nonzero stress damage, moves target to Paranoid.
+	 * 
+	 * @param fact	Name of the node where the to-be-exposed fact is stored
+	 * @return 		Amount of stress damage dealt by exposing with fact
+	 */
+	public int expose(String fact) {
+		FactNode factNode = getFactNode(fact);
+		// Set fact to exposed
+		factNode.setExposed(true);
+		int stressDmg = factNode.getTargetStressDmg();
+		// If exposing deals nonzero damage
+		if (stressDmg != 0) {
+			// Move target to Paranoid and reset countdown
+			state = TargetState.PARANOID;
+			countdown = paranoia;
+		}
+		// Return amount of expose damage dealt (can be 0)
+		return stressDmg;
+	}
+
+	/**
+	 * TODO: a whole bunch of getters for a FactNode in podDict
+	 * 
+	 * getChildren(string nodeName), returns names of children nodes
+	 * getTitle(string nodeName), returns title of node
+	 * scan
+	 * - return content, summary
+	 * getNodes(), returns array of names
+	 */
+
 
 }
