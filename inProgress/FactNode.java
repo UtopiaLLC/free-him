@@ -8,6 +8,9 @@ import java.util.ArrayList;
  * still a passive model.
  */
 public class FactNode {
+	/** String representing the shorthand name for a FactNode, used to refer to the node and as the dictionary key in TargetModel */
+	private String name;
+
 	/** String representing the device/account name ex. “Patrick’s Social Media Account.” */
 	private String title;
 
@@ -25,6 +28,9 @@ public class FactNode {
 
 	/** Boolean representing whether the current FactNode has been scanned yet. */
 	private boolean scanned;
+
+	/** Boolean representing whether the current Fact has been exposed yet. */
+	private boolean exposed;
 
 	/** Integer representing the amount of stress damage exposing this fact deals to the parent Target. */
 	private int targetStressDmg;
@@ -75,6 +81,33 @@ public class FactNode {
 	 */
 	public void setScanned(boolean value){
 		scanned = value;
+	}
+
+	/**
+	 * Returns whether the current Fact has been exposed yet
+	 *
+	 * @return whether the current Fact has been exposed yet
+	 */
+	public boolean getExposed(){
+		return exposed;
+	}
+
+	/**
+	 * Sets whether the Fact has been exposed
+	 *
+	 * @param value whether the Fact has been exposed
+	 */
+	public void setExposed(boolean value){
+		exposed = value;
+	}
+
+	/**
+	 * Returns the name of the FactNode
+	 *
+	 * @return the name of the FactNode
+	 */
+	public String getName(){
+		return name;
 	}
 
 	/**
