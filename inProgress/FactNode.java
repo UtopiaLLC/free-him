@@ -38,7 +38,7 @@ public class FactNode {
 	 * @param path The filepath of the json to parse.
 	 */
 	public FactNode(String path) {
-		// not implemented
+		// Not implemented
 	}
 
 	/**
