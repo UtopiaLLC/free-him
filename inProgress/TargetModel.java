@@ -299,7 +299,7 @@ public class TargetModel {
 	 * @param fact   	Name of the node to get title
 	 * @return 			The title of the give FactNode
 	 */
-	private String[] getTitle(String fact) {
+	public String[] getTitle(String fact) {
 		return getFactNode(fact).getTitle();
 	}
 
@@ -310,7 +310,7 @@ public class TargetModel {
 	 * @return 			String[] which contains the names of FactNodes 
 	 * associated with the target.
 	 */
-	private String[] getNodes() {
+	public String[] getNodes() {
 		String[podDict.size()] result;
 		// Iterate through the list of FactNodes
 		int index = 0;
@@ -329,7 +329,7 @@ public class TargetModel {
 	 * @return 			String[] which contains the names of children of 
 	 * nodeName
 	 */
-	private String[] getChildren(String fact) {
+	public String[] getChildren(String fact) {
 		FactNode factNode = getFactNode(fact);
 		// Set fact to exposed
 		ArrayList<FactNode> children = factNode.getChildren();
