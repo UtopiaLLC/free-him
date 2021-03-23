@@ -293,5 +293,73 @@ public class TargetModel {
 	 * getNodes(), returns array of names
 	 */
 
+	/**
+	 * Helper function that returns title of given FactNode name. 
+	 * 
+	 * @param fact   	Name of the node to get title
+	 * @return 			The title of the give FactNode
+	 */
+	private String[] getTitle(String fact) {
+		return getFactNode(fact).getTitle();
+	}
 
+	/**
+	 * Helper function that returns list of names FactNodes associated 
+	 * with the target.
+	 * 
+	 * @return 			String[] which contains the names of FactNodes 
+	 * associated with the target.
+	 */
+	private String[] getNodes() {
+		String[podDict.size()] result;
+		// Iterate through the list of FactNodes
+		int index = 0;
+		for(String key:podDict.ketSet()){
+			FactNode factNode = getFactNode(fact);
+			result[index] = factNode.getName();
+			index++;
+		}
+		return result;
+	}
+
+	/**
+	 * Helper function that returns list of names of children nodes. 
+	 * 
+	 * @param fact   	Name of the node to get list of children
+	 * @return 			String[] which contains the names of children of 
+	 * nodeName
+	 */
+	private String[] getChildren(String fact) {
+		FactNode factNode = getFactNode(fact);
+		// Set fact to exposed
+		ArrayList<FactNode> children = factNode.getChildren();
+		String[children.size()] result;
+		// Filling up the result with names of children.
+		for(int i = 0; i < children.size(); i++){
+			result[i] = children.get(i).getName();
+		}
+		return result;
+	}
+
+	/**
+	 * Use to scan a FactNode.
+	 * 
+	 * Marks fact as scanned, and returns the content and summary stored in the 
+	 * FactNode.
+	 * 
+	 * @param fact	Name of the node where the to-be-scanned fact is stored
+	 * @return 		String[], first entry is the content, second
+	 * entry is the summary of the FactNode.
+	 */
+	public String[] scan(String fact) {
+		FactNode factNode = getFactNode(fact);
+		// Set fact to exposed
+		factNode.setScanned(true);
+		String[2] result;
+		// Adding the content and summary to the result
+		result[0] = factNode.getContent();
+		result[1] = factNode.getSummary();
+		// Return amount of expose damage dealt (can be 0)
+		return result;
+	}
 }
