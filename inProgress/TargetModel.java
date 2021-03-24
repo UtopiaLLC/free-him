@@ -49,10 +49,43 @@ public class TargetModel {
 	/** Array of node names representing the nodes that are immediately visible when the target first becomes available */
 	private ArrayList<String> firstNodes;
 
+	/**
+	 * TODO: implement data structure for combos
+	 * 
+	 * A combo has four main properties:
+	 * - relatedFacts: a list of FactNode names representing the facts that form a combo
+	 * - overwrite: a String representing the FactNode name whose data should be overwritten when the combo is completed
+	 * - comboSummary: a String representing the new summary that the summary of [overwrite] should be replaced with
+	 * - comboStressDamage: an integer representing the new stress damage that the stress damage of [overwrite] should be replaced with
+	 * 
+	 * You can implement this however, but I think it might be easiest to make an inner class called Combo with these properties, then
+	 * have an array of combos be a field of TargetModel.
+	 */
+
 	/** Constant for inverse Paranoia check, made every (INV_PARANOIA_CONSTANT - paranoia) turns */
 	private static final int INV_PARANOIA_CONSTANT = 5;
 	/** Instance of Random class, to be used whenever a random number is needed */
 	private Random rand;
+
+	/************************************************* TARGET CONSTRUCTOR *************************************************/
+
+	/**
+	 * Creates a new Target with the given JSON data.
+	 * 
+	 * All information about a target and their respective pod is stored in a JSON, that is
+	 * passed into this constructor, where it is parsed. The relevant FactNodes are also
+	 * created here.
+	 *
+	 * @param data		The JSON with all the target's data.
+	 */
+	public TargetModel() {
+		// TODO
+
+		countdown = paranoia;
+		rand = new Random();
+	}
+
+	/************************************************* TARGET METHODS *************************************************/
 
 	/**
 	 * Returns the name of this target.
@@ -90,18 +123,6 @@ public class TargetModel {
 	}
 
 	/**
-	 * Returns the list of nodes in this target's pod.
-	 * 
-	 * Nodes are accounts, devices, etc. that are associated with the target and give
-	 * more information about the target upon scanning.
-	 *
-	 * @return array of names in this target's pod.
-	 */
-	public ArrayList<String> getFirstNodes() {
-		return firstNodes;
-	}
-
-	/**
 	 * Returns the maximum stress level of this target.
 	 * 
 	 * When the target's stress reaches maxStress, the target becomes Defeated.
@@ -121,22 +142,6 @@ public class TargetModel {
 	 */
 	public int getSuspicion() {
 		return suspicion;
-	}
-
-	/**
-	 * Creates a new Target with the given JSON data.
-	 * 
-	 * All information about a target and their respective pod is stored in a JSON, that is
-	 * passed into this constructor, where it is parsed. The relevant FactNodes are also
-	 * created here.
-	 *
-	 * @param data		The JSON with all the target's data.
-	 */
-	public TargetModel() {
-		// TODO
-
-		countdown = paranoia;
-		rand = new Random();
 	}
 
 	/**
@@ -220,11 +225,9 @@ public class TargetModel {
 		}
 		// Return new state
 		return state;
-	}
+	}	
 
-	/**
-	 * SKILL FUNCTIONS
-	 */
+	/************************************************* FACTNODE METHODS *************************************************/
 
 	/**
 	 * Helper function that returns the FactNode in podDict with the given name as the key.
@@ -235,6 +238,108 @@ public class TargetModel {
 	private FactNode getFactNode(String nodeName) {
 		return podDict.get(nodeName);
 	}
+
+	/**
+	 * Returns the list of names of the first nodes in this target's pod.
+	 * 
+	 * The first nodes are the ones that are visible immediately after the target is spawned in. This DOES NOT
+	 * return the names of all the nodes in the pod.
+	 * 
+	 * Nodes are accounts, devices, etc. that are associated with the target and give more information about
+	 * the target upon scanning. A node's name is an internal keyword used to identify a node, which can be
+	 * passed into other TargetModel methods to achieve different things.
+	 *
+	 * @return		Array of names of the first nodes in this target's pod.
+	 */
+	public ArrayList<String> getFirstNodes() {
+		return firstNodes;
+	}
+
+	/**
+	 * Returns list of the names of all the facts in the current target's pod.
+	 * 
+	 * Nodes are accounts, devices, etc. that are associated with the target and give more information about
+	 * the target upon scanning. A node's name is an internal keyword used to identify a node, which can be
+	 * passed into other TargetModel methods to achieve different things.
+	 * 
+	 * @return 		Array of names of all the nodes in the target's pod.
+	 */
+	public String[] getNodes() {
+		// TODO: VSCode says this doesn't work for me
+		String[podDict.size()] result;
+		// Iterate through the list of FactNodes
+		int index = 0;
+		for(String key:podDict.keySet()){
+			FactNode factNode = getFactNode(fact);
+			result[index] = factNode.getName();
+			index++;
+		}
+		return result;
+	}
+
+
+	/**
+	 * Returns the title of the node that the given fact is stored in.
+	 * 
+	 * The title of a fact's node is what should be displayed when hovering over the node.
+	 * 
+	 * Ex. "King County Court Records," "Torchlight Personnel File", etc.
+	 * 
+	 * @param name   	Name of the fact whose node's title we want
+	 * @return 			Title of the node that the given fact is stored at
+	 */
+	public String getTitle(String name) {
+		return getFactNode(name).getTitle();
+	}
+
+	/**
+	 * Returns the content stored in the node with the given name.
+	 * 
+	 * The content of the node is what is shown to the player when the node is scanned, representing the information
+	 * stored within that node. It is also what is shown if the player revisits the node to read it again.
+	 * 
+	 * @param name	Name of the node whose content we want
+	 * @return 		Content stored at the given node
+	 */
+	public String getContent(String name) {
+		return getFactNode(name).getContent();
+	}
+
+	/**
+	 * Returns the summary stored in the node with the given name.
+	 * 
+	 * The summary is what is stored in the player's notebook, so they can see a more concise version of the facts
+	 * they've learned without having to reread each node.
+	 * 
+	 * @param name	Name of the node whose summary we want
+	 * @return 		Summary stored at the given node
+	 */
+	public String getSummary(String name) {
+		return getFactNode(name).getSummary();
+	}
+
+	/**
+	 * Returns list of names of child nodes for the given node.
+	 * 
+	 * A given node's children are the nodes that are made visible when the given node is scanned.
+	 * 
+	 * @param name   	Name of the node whose children we want
+	 * @return 			String[] of the names of children of the given node
+	 */
+	public String[] getChildren(String name) {
+		// TODO: VSCode says this doesn't work for me
+		FactNode factNode = getFactNode(name);
+		// Get children of FactNode
+		ArrayList<FactNode> children = factNode.getChildren();
+		String[children.size()] result;
+		// Filling up the result with names of children
+		for(int i = 0; i < children.size(); i++){
+			result[i] = children.get(i).getName();
+		}
+		return result;
+	}
+
+	/************************************************* SKILL METHODS *************************************************/
 
 	/**
 	 * Used to threaten the target with the fact stored at the given node.
@@ -262,16 +367,14 @@ public class TargetModel {
 	/**
 	 * Used to expose a fact about the target, which is stored at the given node.
 	 * 
-	 * Marks fact as exposed, and returns the amount of stress damage dealt. If the
-	 * fact deals nonzero stress damage, moves target to Paranoid.
+	 * Returns the amount of stress damage dealt. If the fact deals nonzero stress
+	 * damage, moves target to Paranoid.
 	 * 
 	 * @param fact	Name of the node where the to-be-exposed fact is stored
 	 * @return 		Amount of stress damage dealt by exposing with fact
 	 */
 	public int expose(String fact) {
 		FactNode factNode = getFactNode(fact);
-		// Set fact to exposed
-		factNode.setExposed(true);
 		int stressDmg = factNode.getTargetStressDmg();
 		// If exposing deals nonzero damage
 		if (stressDmg != 0) {
@@ -283,83 +386,32 @@ public class TargetModel {
 		return stressDmg;
 	}
 
-	/**
-	 * TODO: a whole bunch of getters for a FactNode in podDict
-	 * 
-	 * getChildren(string nodeName), returns names of children nodes
-	 * getTitle(string nodeName), returns title of node
-	 * scan
-	 * - return content, summary
-	 * getNodes(), returns array of names
-	 */
+	/************************************************* COMBO METHODS *************************************************/
 
 	/**
-	 * Helper function that returns title of given FactNode name. 
+	 * Checks if a given fact is part of a combo with any other of the given facts, and if so, updates
+	 * the relevant information accordingly.
 	 * 
-	 * @param fact   	Name of the node to get title
-	 * @return 			The title of the give FactNode
+	 * If a fact is part of a combo, then the node whose name is the "overwrite" property of the combo will
+	 * have its summary and stress damage replaced with the summary and stress damage stored in the combo, and
+	 * this function will return true. Otherwise, nothing happens and the function returns false.
+	 * 
+	 * If a fact is part of multiple combos, the combo that should be kept is the one with the most number of
+	 * related facts that form that combo. For example, if a fact is part of a two-fact combo and a three-fact
+	 * combo, the three-fact combo will be the one that applies.
+	 * 
+	 * @param newDmg	New value to set the stress damage of a fact to
+	 * @param name		Name of fact to set the stress damage of
 	 */
-	public String[] getTitle(String fact) {
-		return getFactNode(fact).getTitle();
-	}
+	public boolean checkForCombo(String name, ArrayList<String> facts) {
+		// TODO
+		// Note that if a fact is in fact part of a combo, after replacing the fact's summary and stress
+		// damage with that of the combo, the combo should be deleted from this target. If there are multiple
+		// combos that contain the fact, all the combos that are the same length or less should be deleted.
 
-	/**
-	 * Helper function that returns list of names FactNodes associated 
-	 * with the target.
-	 * 
-	 * @return 			String[] which contains the names of FactNodes 
-	 * associated with the target.
-	 */
-	public String[] getNodes() {
-		String[podDict.size()] result;
-		// Iterate through the list of FactNodes
-		int index = 0;
-		for(String key:podDict.ketSet()){
-			FactNode factNode = getFactNode(fact);
-			result[index] = factNode.getName();
-			index++;
-		}
-		return result;
-	}
-
-	/**
-	 * Helper function that returns list of names of children nodes. 
-	 * 
-	 * @param fact   	Name of the node to get list of children
-	 * @return 			String[] which contains the names of children of 
-	 * nodeName
-	 */
-	public String[] getChildren(String fact) {
-		FactNode factNode = getFactNode(fact);
-		// Set fact to exposed
-		ArrayList<FactNode> children = factNode.getChildren();
-		String[children.size()] result;
-		// Filling up the result with names of children.
-		for(int i = 0; i < children.size(); i++){
-			result[i] = children.get(i).getName();
-		}
-		return result;
-	}
-
-	/**
-	 * Use to scan a FactNode.
-	 * 
-	 * Marks fact as scanned, and returns the content and summary stored in the 
-	 * FactNode.
-	 * 
-	 * @param fact	Name of the node where the to-be-scanned fact is stored
-	 * @return 		String[], first entry is the content, second
-	 * entry is the summary of the FactNode.
-	 */
-	public String[] scan(String fact) {
-		FactNode factNode = getFactNode(fact);
-		// Set fact to exposed
-		factNode.setScanned(true);
-		String[2] result;
-		// Adding the content and summary to the result
-		result[0] = factNode.getContent();
-		result[1] = factNode.getSummary();
-		// Return amount of expose damage dealt (can be 0)
-		return result;
+		// For example, say we have facts A, B, and C, with the combos AB, AC, and ABC, and A is "overwrite" for all three.
+		// checkForCombo(A, [B]): A's summary and stressDmg are replaced with those of combo AB. Combos AB and AC are deleted.
+		// checkForCombo(A, [B, C]): A's summary and stressDmg are replaced with those of combo ABC. Combos AB, AC, and ABC are deleted.
+		return false;
 	}
 }

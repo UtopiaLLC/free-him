@@ -23,6 +23,8 @@ public class FactNode {
 	/** ArrayList<FactNode> representing the nodes that are made visible when the current FactNode is scanned. */
 	private ArrayList<FactNode> children;
 
+	// TODO: remove visible, scanned, exposed and relevant functions if not used
+
 	/** Boolean representing whether the current FactNode has been made visible yet. */
 	private boolean visible;
 
@@ -44,7 +46,7 @@ public class FactNode {
 	 * @param path The filepath of the json to parse.
 	 */
 	public FactNode(String path) {
-		// Not implemented
+		// TODO
 	}
 
 	/**
