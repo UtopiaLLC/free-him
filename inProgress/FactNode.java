@@ -34,6 +34,13 @@ public class FactNode {
 	/** Boolean representing whether the current Fact has been exposed yet. */
 	private boolean exposed;
 
+	/** X- and Y-coordinates of this FactNode relative to the target */
+	private int nodeX;
+	private int nodeY;
+
+	/** Filepath to location of asset for this node */
+	private String assets;
+
 	/** Integer representing the amount of stress damage exposing this fact deals to the parent Target. */
 	private int targetStressDmg;
 	
@@ -41,7 +48,7 @@ public class FactNode {
 	private int playerStressDmg;
 
 	/**
-	 * Create FactNode with given json.
+	 * Creates a FactNode with the given parameters.
 	 *
 	 * @param path The filepath of the json to parse.
 	 */
@@ -140,12 +147,30 @@ public class FactNode {
 	}
 
 	/**
-	 * Returns the children of the FactNode
+	 * Returns the x-coordinate of the FactNode
 	 *
-	 * @return the children of the FactNode
+	 * @return the x-coordinate of the FactNode
 	 */
-	public ArrayList<FactNode> getChildren(){
-		return children;
+	public int getX(){
+		return nodeX;
+	}
+
+	/**
+	 * Returns the y-coordinate of the FactNode
+	 *
+	 * @return the y-coordinate of the FactNode
+	 */
+	public int getY(){
+		return nodeY;
+	}
+
+	/**
+	 * Returns the filepath to the location of the assets for the FactNode
+	 *
+	 * @return filepath to FactNode's assets location
+	 */
+	public String getAssetPath(){
+		return assets;
 	}
 
 	/**

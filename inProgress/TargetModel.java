@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Random;
+import com.badlogic.gdx.math.Vector2;
 
 /**
  * "Enemy" representation.
@@ -66,6 +67,8 @@ public class TargetModel {
 	private static final int INV_PARANOIA_CONSTANT = 5;
 	/** Instance of Random class, to be used whenever a random number is needed */
 	private Random rand;
+	/** Vector2 buffer, to be used instead of creating a new Vector2 every time */
+	private Vector2 vec;
 
 	/************************************************* TARGET CONSTRUCTOR *************************************************/
 
@@ -290,6 +293,32 @@ public class TargetModel {
 	 */
 	public String getTitle(String name) {
 		return getFactNode(name).getTitle();
+	}
+
+	/**
+	 * Returns the coordinates of a given node.
+	 * 
+	 * A node's coordinates are relative to the target's location, where the target is at the origin.
+	 * 
+	 * @param name   	Name of the fact whose node's location we want
+	 * @return 			Coordinates of the node, relative to the target's location
+	 */
+	public Vector2 getNodeCoords(String name) {
+		FactNode fn = getFactNode(name);
+		Vector2 nodeVec = new Vector2(fn.getX(), fn.getY());
+		return nodeVec;
+	}
+
+	/**
+	 * Returns the filepath to the location of the map assets for the node.
+	 * 
+	 * The filepath leads to a folder where all the frames for a node are stored.
+	 * 
+	 * @param name   	Name of the fact whose node's assets we want
+	 * @return 			Filepath to folder of node assets
+	 */
+	public String getNodeAssetPath(String name) {
+		return getFactNode(name).getAssetPath();
 	}
 
 	/**
