@@ -415,9 +415,9 @@ public class TargetModel {
 	 * have its summary and stress damage replaced with the summary and stress damage stored in the combo, and
 	 * this function will return true. Otherwise, nothing happens and the function returns false.
 	 * 
-	 * If a fact is part of multiple combos, the combo that should be kept is the one with the most number of
-	 * related facts that form that combo. For example, if a fact is part of a two-fact combo and a three-fact
-	 * combo, the three-fact combo will be the one that applies.
+	 * If a fact is part of multiple combos that overwrite the same node, the combo that is applied is the longest
+	 * one. If a fact is part of multiple combos that overwrite different nodes, then all unique combos are applied
+	 * (if some overwrite the same node, pick the longest).
 	 * 
 	 * @param newDmg	New value to set the stress damage of a fact to
 	 * @param name		Name of fact to set the stress damage of
@@ -431,6 +431,11 @@ public class TargetModel {
 		// For example, say we have facts A, B, and C, with the combos AB, AC, and ABC, and A is "overwrite" for all three.
 		// checkForCombo(A, [B]): A's summary and stressDmg are replaced with those of combo AB. Combos AB and AC are deleted.
 		// checkForCombo(A, [B, C]): A's summary and stressDmg are replaced with those of combo ABC. Combos AB, AC, and ABC are deleted.
+
+		// Also, an example for multiple combos: say we have facts A, B, and C with combos AC and BC, and "overwrite" is the first node in the combo.
+		// checkForCombo(C, [A, B]): A and B's summary and stressDmg are replaced with those of combos AC and BC, respectively. AB and BC are both deleted.
+		// Another example: combos AC, BC, BCD, first node is the "overwrite".
+		// checkForCombo(C, [A, B, D]): A and B's summary/stressDmg are replaced with those of combos AC and BCD, respectively. AB, BC, and BCD are all deleted.
 		return false;
 	}
 }
