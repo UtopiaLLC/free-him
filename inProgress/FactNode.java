@@ -20,26 +20,26 @@ public class FactNode {
 	/** String representing a summary of the important fact in the content. ex. “Patrick’s favorite color is red” */
 	private String summary;
 
-	/** ArrayList<FactNode> representing the nodes that are made visible when the current FactNode is scanned. */
-	private ArrayList<FactNode> children;
+	/** List of names of nodes that are made visible when the current FactNode is scanned. */
+	private ArrayList<String> children;
 
 	// TODO: remove visible, scanned, exposed and relevant functions if not used
-
+	
 	/** Boolean representing whether the current FactNode has been made visible yet. */
-	private boolean visible;
+	//private boolean visible;
 
 	/** Boolean representing whether the current FactNode has been scanned yet. */
-	private boolean scanned;
+	//private boolean scanned;
 
 	/** Boolean representing whether the current Fact has been exposed yet. */
-	private boolean exposed;
+	//private boolean exposed;
 
 	/** X- and Y-coordinates of this FactNode relative to the target */
 	private int nodeX;
 	private int nodeY;
 
 	/** Filepath to location of asset for this node */
-	private String assets;
+	private String assetPath;
 
 	/** Integer representing the amount of stress damage exposing this fact deals to the parent Target. */
 	private int targetStressDmg;
@@ -50,17 +50,44 @@ public class FactNode {
 	/**
 	 * Creates a FactNode with the given parameters.
 	 *
-	 * @param path The filepath of the json to parse.
+	 * @param n 		Name
+	 * @param t			Title
+	 * @param c			Content
+	 * @param s			Summary
+	 * @param cdren		List of node's children's names
+	 * @param x			X-coordinate
+	 * @param y			Y-coordinate
+	 * @param aPath		Filepath to node's assets
+	 * @param tsDmg		Target stress damage
+	 * @param psDmg		Player stress damage
 	 */
-	public FactNode(String path) {
-		// TODO
+	public FactNode(String n, String t, String c, String s, ArrayList<String> cdren, int x, int y, String aPath, int tsDmg, int psDmg) {
+		name = n;
+		title = t;
+		content = c;
+		summary = s;
+		children = cdren;
+		nodeX = x;
+		nodeY = y;
+		assetPath = aPath;
+		targetStressDmg = tsDmg;
+		playerStressDmg = psDmg;
+	}
+
+	/**
+	 * Returns list of names of this node's children
+	 *
+	 * @return list of node's children's names
+	 */
+	public ArrayList<String> getChildren(){
+		return children;
 	}
 
 	/**
 	 * Sets the visibility of the FactNode
 	 *
-	 * @param value the visibility of the FactNode
-	 */
+	 * param value the visibility of the FactNode
+	 *
 	public void setVisible(boolean value){
 		visible = value;
 	}
@@ -68,8 +95,8 @@ public class FactNode {
 	/**
 	 * Returns the visibility of the FactNode
 	 *
-	 * @return the visibility of the FactNode
-	 */
+	 * return the visibility of the FactNode
+	 *
 	public boolean getVisible(){
 		return visible;
 	}
@@ -77,8 +104,8 @@ public class FactNode {
 	/**
 	 * Returns whether the current FactNode has been scanned yet
 	 *
-	 * @return whether the current FactNode has been scanned yet
-	 */
+	 * return whether the current FactNode has been scanned yet
+	 *
 	public boolean getScanned(){
 		return scanned;
 	}
@@ -86,8 +113,8 @@ public class FactNode {
 	/**
 	 * Sets whether the FactNode has been scanned
 	 *
-	 * @param value whether the FactNode has been scanned
-	 */
+	 * param value whether the FactNode has been scanned
+	 *
 	public void setScanned(boolean value){
 		scanned = value;
 	}
@@ -95,8 +122,8 @@ public class FactNode {
 	/**
 	 * Returns whether the current Fact has been exposed yet
 	 *
-	 * @return whether the current Fact has been exposed yet
-	 */
+	 * return whether the current Fact has been exposed yet
+	 *
 	public boolean getExposed(){
 		return exposed;
 	}
@@ -104,11 +131,12 @@ public class FactNode {
 	/**
 	 * Sets whether the Fact has been exposed
 	 *
-	 * @param value whether the Fact has been exposed
-	 */
+	 * param value whether the Fact has been exposed
+	 *
 	public void setExposed(boolean value){
 		exposed = value;
 	}
+	*/
 
 	/**
 	 * Returns the name of the FactNode
@@ -170,7 +198,7 @@ public class FactNode {
 	 * @return filepath to FactNode's assets location
 	 */
 	public String getAssetPath(){
-		return assets;
+		return assetPath;
 	}
 
 	/**

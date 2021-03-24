@@ -267,7 +267,7 @@ public class TargetModel {
 	 * 
 	 * @return 		Array of names of all the nodes in the target's pod.
 	 */
-	public String[] getNodes() {
+	public ArrayList<String> getNodes() {
 		// TODO: VSCode says this doesn't work for me
 		String[podDict.size()] result;
 		// Iterate through the list of FactNodes
@@ -279,7 +279,6 @@ public class TargetModel {
 		}
 		return result;
 	}
-
 
 	/**
 	 * Returns the title of the node that the given fact is stored in.
@@ -353,19 +352,10 @@ public class TargetModel {
 	 * A given node's children are the nodes that are made visible when the given node is scanned.
 	 * 
 	 * @param name   	Name of the node whose children we want
-	 * @return 			String[] of the names of children of the given node
+	 * @return 			List of the names of children of the given node
 	 */
-	public String[] getChildren(String name) {
-		// TODO: VSCode says this doesn't work for me
-		FactNode factNode = getFactNode(name);
-		// Get children of FactNode
-		ArrayList<FactNode> children = factNode.getChildren();
-		String[children.size()] result;
-		// Filling up the result with names of children
-		for(int i = 0; i < children.size(); i++){
-			result[i] = children.get(i).getName();
-		}
-		return result;
+	public ArrayList<String> getChildren(String name) {
+		return getFactNode(name).getChildren();
 	}
 
 	/************************************************* SKILL METHODS *************************************************/
