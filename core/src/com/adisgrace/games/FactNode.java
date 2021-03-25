@@ -1,7 +1,6 @@
 package com.adisgrace.games;
 
-import java.util.Random;
-import java.util.ArrayList;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * A model class representing a ship.
@@ -23,7 +22,7 @@ public class FactNode {
 	private String summary;
 
 	/** List of names of nodes that are made visible when the current FactNode is scanned. */
-	private ArrayList<String> children;
+	private Array<String> children;
 
 	// TODO: remove visible, scanned, exposed and relevant functions if not used
 	
@@ -63,7 +62,7 @@ public class FactNode {
 	 * @param tsDmg		Target stress damage
 	 * @param psDmg		Player stress damage
 	 */
-	public FactNode(String n, String t, String c, String s, ArrayList<String> cdren, int x, int y, String aPath, int tsDmg, int psDmg) {
+	public FactNode(String n, String t, String c, String s, Array<String> cdren, int x, int y, String aPath, int tsDmg, int psDmg) {
 		name = n;
 		title = t;
 		content = c;
@@ -81,7 +80,7 @@ public class FactNode {
 	 *
 	 * @return list of node's children's names
 	 */
-	public ArrayList<String> getChildren(){
+	public Array<String> getChildren(){
 		return children;
 	}
 

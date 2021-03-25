@@ -1,13 +1,9 @@
-
 package com.adisgrace.games;
 
-import java.io.FileReader;
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Random;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * "Enemy" representation.
@@ -38,7 +34,7 @@ public class TargetModel {
 	/** The target's name */
 	private String name;
 	/**	Targets connected to the current target */
-	private ArrayList<String> neighbors;
+	private Array<String> neighbors;
 	/** Target's current stress level */
 	private int stress;
 	/** Target's maximum stress level (when stress reaches that point, target has been revenged) */
@@ -54,9 +50,9 @@ public class TargetModel {
 	/** Dictionary representing the nodes that are in the same pod as the target, where a node can be accessed with its name */
 	private HashMap<String, FactNode> podDict;
 	/** Array of node names representing the nodes that are immediately visible when the target first becomes available */
-	private ArrayList<String> firstNodes;
+	private Array<String> firstNodes;
 	/** Array of Target combos */
-	private ArrayList<Combo> combos;
+	private Array<Combo> combos;
 
 	/** Constant for inverse Paranoia check, made every (INV_PARANOIA_CONSTANT - paranoia) turns */
 	private static final int INV_PARANOIA_CONSTANT = 5;
@@ -74,10 +70,11 @@ public class TargetModel {
 	 * passed into this constructor, where it is parsed. The relevant FactNodes are also
 	 * created here.
 	 *
-//	 * @param data		The JSON with all the target's data.
+	 * //@param data		The JSON with all the target's data.
 	 */
 	public TargetModel() {
 		// TODO
+		// STORE ALL ARRAYS ALPHABETICALLY
 		/**
 		// Get parser for JSON
 		Object obj = new JSONParser().parse(new FileReader("./targets/PatrickWestfield.json"));
@@ -160,10 +157,9 @@ public class TargetModel {
 		firstNodes.sort(null);
 
 		// Iterate through combos in list
-
-		// When there are lists, sort alphabetically
-		System.out.println("test");
 		*/
+
+		System.out.println("test");
 
 		// Initialize other values
 		countdown = paranoia;
@@ -203,7 +199,7 @@ public class TargetModel {
 	 *
 	 * @return array of neighboring targets' names.
 	 */
-	public ArrayList<String> getNeighbors() {
+	public Array<String> getNeighbors() {
 		return neighbors;
 	}
 
@@ -336,7 +332,7 @@ public class TargetModel {
 	 *
 	 * @return		Array of names of the first nodes in this target's pod.
 	 */
-	public ArrayList<String> getFirstNodes() {
+	public Array<String> getFirstNodes() {
 		return firstNodes;
 	}
 
@@ -349,8 +345,8 @@ public class TargetModel {
 	 * 
 	 * @return 		Array of names of all the nodes in the target's pod.
 	 */
-	public ArrayList<String> getNodes() {
-		ArrayList<String> result = new ArrayList<>();
+	public Array<String> getNodes() {
+		Array<String> result = new Array<>();
 		// Iterate through the list of FactNodes
 		for(String key:podDict.keySet()){
 			FactNode factNode = getFactNode(key);
@@ -433,7 +429,7 @@ public class TargetModel {
 	 * @param name   	Name of the node whose children we want
 	 * @return 			List of the names of children of the given node
 	 */
-	public ArrayList<String> getChildren(String name) {
+	public Array<String> getChildren(String name) {
 		return getFactNode(name).getChildren();
 	}
 
@@ -498,7 +494,7 @@ public class TargetModel {
 	 */
 	private class Combo{
 		/** A list of FactNode names representing the facts that form a combo */
-		private ArrayList<String> relatedFacts;
+		private Array<String> relatedFacts;
 
 		/** A String representing the FactNode name whose data should be overwritten when the combo is completed */
 		private String overwrite;
@@ -521,12 +517,12 @@ public class TargetModel {
 		 * @param cs        A String representing the new summary that the summary of [overwrite] should be replaced with
 		 * @param cd        An integer representing the new stress damage that the stress damage of [overwrite] should be replaced with
 		 */
-		public Combo(ArrayList<String> facts, String ow, String cs, int cd) {
+		public Combo(Array<String> facts, String ow, String cs, int cd) {
 			relatedFacts = facts;
 			overwrite = ow;
 			comboSummary = cs;
 			comboStressDamage = cd;
-			length = facts.size();
+			length = facts.size;
 		}
 
 		/**
@@ -543,7 +539,7 @@ public class TargetModel {
 		 *
 		 * @return the facts that form the given combo.
 		 */
-		public ArrayList<String> getFacts() {
+		public Array<String> getFacts() {
 			return relatedFacts;
 		}
 
@@ -582,7 +578,7 @@ public class TargetModel {
 	 * @param name	    Given fact, checks if a given fact is part of a combo with any other of the given facts.
 	 * @param facts		Other given facts.
 	 */
-	public boolean checkForCombo(String name, ArrayList<String> facts) {
+	public boolean checkForCombo(String name, Array<String> facts) {
 		// Note that if a fact is in fact part of a combo, after replacing the fact's summary and stress
 		// damage with that of the combo, the combo should be deleted from this target. If there are multiple
 		// combos that contain the fact, all the combos that are the same length or less should be deleted.
@@ -612,17 +608,17 @@ public class TargetModel {
 					boolean isCombo = true;
 					// Checks if all facts in a combo are included
 					for (String comboFact: combo.getFacts()){
-						if (!facts.contains(comboFact)) isCombo = false;
+						if (!facts.contains(comboFact,true)) isCombo = false;
 					}
 					// Removes shorter combos
 					if (isCombo){
 						if (combo.length > longest.length){
 							// longer combo which overwrites f found, replaces and removes shorter combo
-							combos.remove(longest);
+							combos.removeValue(longest,true);
 							longest = combo;
 						}else {
 							// longer combo which overwrites f already made, removes shorter combo
-							combos.remove(combo);
+							combos.removeValue(combo,true);
 						}
 					}
 				}
@@ -633,7 +629,7 @@ public class TargetModel {
 				flag = true;
 			}
 			// remove activated combo
-			combos.remove(longest);
+			combos.removeValue(longest,true);
 		}
 		return flag;
 	}
