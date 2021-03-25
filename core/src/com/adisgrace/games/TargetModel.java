@@ -2,8 +2,12 @@ package com.adisgrace.games;
 
 import java.util.HashMap;
 import java.util.Random;
+
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.JsonReader;
 
 /**
  * "Enemy" representation.
@@ -58,86 +62,86 @@ public class TargetModel {
 	private static final int INV_PARANOIA_CONSTANT = 5;
 	/** Instance of Random class, to be used whenever a random number is needed */
 	private Random rand;
-	/** Vector2 buffer, to be used instead of creating a new Vector2 every time */
-	private Vector2 vec;
 
 	/************************************************* TARGET CONSTRUCTOR *************************************************/
 
 	/**
 	 * Creates a new Target with the given JSON data.
+	 *
+	 * The argument taken in should be a JSON filename in the format "FirstLast.json" and not
+	 * the JSON itself.
 	 * 
 	 * All information about a target and their respective pod is stored in a JSON, that is
 	 * passed into this constructor, where it is parsed. The relevant FactNodes are also
 	 * created here.
 	 *
-	 * //@param data		The JSON with all the target's data.
+	 * @param targetJSON		Name of the JSON with all the target's data.
 	 */
-	public TargetModel() {
+	public TargetModel(String targetJSON) {
 		// TODO
 		// STORE ALL ARRAYS ALPHABETICALLY
-		/**
+
 		// Get parser for JSON
-		Object obj = new JSONParser().parse(new FileReader("./targets/PatrickWestfield.json"));
-		// Cast to JSONObject
-		JSONObject json = (JSONObject) obj;
+		JsonValue json = new JsonReader().parse(Gdx.files.internal("targets/PatrickWestfield.json"));
 
 		// Get main properties of target
-		String targetName = (String) json.get("targetName");
-		int paranoia = ((Long) json.get("paranoia")).intValue();
-		int maxStress = ((Long) json.get("maxStress")).intValue();
+		name = json.getString("targetName");
+		paranoia = json.getInt("paranoia");
+		maxStress = json.getInt("maxStress");
 
 		// Initialize iterator for arrays
-		Iterator itr;
+		JsonValue.JsonIterator itr;
 
-		// Get neighbors and convert to JSONArray
-		JSONArray neighborsArr = (JSONArray) json.get("neighbors");
-		itr = neighborsArr.iterator();
-		ArrayList<String> neighbors = new ArrayList<String>();
-		// Iterate through neighbors and add to ArrayList of neihgbors
-		while (itr.hasNext()) {neighbors.add((String) itr.next());}
+		// Get neighbors
+		neighbors = new Array<String>();
+		JsonValue neighborArr = json.get("neighbors");
+		itr = neighborArr.iterator();
+		// Iterate through neighbors and add to ArrayList of neighbors
+		while (itr.hasNext()) {neighbors.add(itr.next().asString());}
 		// Sort alphabetically
-		neighbors.sort(null);
+		neighbors.sort();
 
-		System.out.println(targetName);
+		/**
+		System.out.println(name);
 		System.out.println(paranoia);
 		System.out.println(maxStress);
 		System.out.println(neighbors);
+		*/
 
-		// Get number of firstNodes
-		int firstNodesCount = ((Long) json.get("firstNodesCount")).intValue();
-		// Get nodes/firstNodes
-		JSONArray nodesArr = (JSONArray) json.get("pod");
-		//Iterator nodeItr = nodesArr.iterator();
+		// Get nodes
+		JsonValue nodesArr = json.get("pod");
 		itr = nodesArr.iterator();
+		// Get number of firstNodes
+		int firstNodesCount = json.getInt("firstNodesCount");
 
 		// Initializations
-		HashMap<String, FactNode> podDict = new HashMap<String, FactNode>();
-		ArrayList<String> firstNodes = new ArrayList<String>();
-		JSONArray nodeArr;
-		JSONObject node;
+		podDict = new HashMap<String, FactNode>();
+		firstNodes = new Array<String>();
+		JsonValue nodeArr;
+		JsonValue node;
 		int nodeX;
 		int nodeY;
-		ArrayList<String> children = new ArrayList<String>();
+		Array<String> children = new Array<String>();
 		FactNode fn;
 		String nodeName;
-		Iterator nodeItr;
+		JsonValue.JsonIterator nodeItr;
 
 		// Iterate through nodes in pod and map them to their names in podDict
 		while (itr.hasNext()) {
-			node = (JSONObject) itr.next();
+			node = itr.next();
 
 			// Get name
-			nodeName = (String) node.get("nodeName");
+			nodeName = node.getString("nodeName");
 			// Get coordinates
-			nodeArr = (JSONArray) node.get("coords");
+			nodeArr = node.get("coords");
 			nodeItr = nodeArr.iterator();
-			nodeX = ((Long) nodeItr.next()).intValue();
-			nodeY = ((Long) nodeItr.next()).intValue();
+			nodeX = nodeItr.next().asInt();
+			nodeY = nodeItr.next().asInt();
 			// Get children
-			nodeArr = (JSONArray) node.get("children");
+			nodeArr = node.get("children");
 			nodeItr = nodeArr.iterator();
-			while (nodeItr.hasNext()) {children.add((String) nodeItr.next());}
-			children.sort(null);
+			while (nodeItr.hasNext()) {children.add(nodeItr.next().asString());}
+			children.sort();
 			children.clear();
 
 			// If node is one of the first nodes, add it to firstNodes
@@ -147,21 +151,24 @@ public class TargetModel {
 			}
 
 			// Create FactNode
-			fn = new FactNode(nodeName, (String) node.get("title"), (String) node.get("content"),
-					(String) node.get("summary"), children, nodeX, nodeY, (String) node.get("assets"),
-					((Long) node.get("targetStressDamage")).intValue(), ((Long) node.get("playerStressDamage")).intValue());
+			fn = new FactNode(nodeName, node.getString("title"), node.getString("content"),
+					node.getString("summary"), children, nodeX, nodeY, node.getString("assets"),
+					node.getInt("targetStressDamage"), node.getInt("playerStressDamage"));
 
 			// Store FactNode in podDict, mapped to name
 			podDict.put(nodeName, fn);
 		}
-		firstNodes.sort(null);
+		firstNodes.sort();
 
-		// Iterate through combos in list
-		*/
+		// Get combos
+		//combos = new Array<Combo>();
 
-		System.out.println("test");
+		//System.out.println("end");
 
 		// Initialize other values
+		stress = 0;
+		suspicion = 0;
+		state = TargetState.UNAWARE;
 		countdown = paranoia;
 		rand = new Random();
 	}
