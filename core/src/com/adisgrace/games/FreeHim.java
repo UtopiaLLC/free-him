@@ -20,11 +20,6 @@ public class FreeHim extends Game implements ScreenListener {
 	}
 
 	@Override
-	public void render () {
-
-	}
-	
-	@Override
 	public void dispose () {
 
 	}

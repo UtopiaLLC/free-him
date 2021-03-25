@@ -14,22 +14,19 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 public class GameController implements Screen {
     private GameCanvas canvas;
     private Stage stage;
-//    private NodeMap map;
+    //  private NodeMap map;
     private OrthographicCamera camera;
     private ShapeRenderer shapeRenderer;
     private float currentZoom;
 
 
     public GameController() {
-        System.out.println("GameController constructor1");
         canvas = new GameCanvas();
         FitViewport viewport = new FitViewport(1280, 720);
-        System.out.println("GameController constructor2");
         viewport.setCamera(canvas.getCamera());
         currentZoom = canvas.getCamera().zoom;
         stage = new Stage(viewport);
         Gdx.input.setInputProcessor(stage);
-        System.out.println("GameController constructor3");
 
     }
 
@@ -40,14 +37,17 @@ public class GameController implements Screen {
 
     @Override
     public void render(float delta) {
-        System.out.println("render ");
+
         canvas.clear();
 
         moveCamera();
         canvas.begin();
         canvas.draw(new Texture(Gdx.files.internal("badlogic.jpg")),10f, 10f) ;
+        canvas.draw(new Texture(Gdx.files.internal("badlogic.jpg")),500f, 2000f) ;
+        canvas.draw(new Texture(Gdx.files.internal("badlogic.jpg")),1500f, 2000f) ;
+        canvas.draw(new Texture(Gdx.files.internal("badlogic.jpg")),2500f, 2500f) ;
+        canvas.draw(new Texture(Gdx.files.internal("badlogic.jpg")),1250f, 1000f) ;
 
-        canvas.draw(new Texture(Gdx.files.internal("badlogic.jpg")),1000f, 1000f) ;
         canvas.end();
         stage.act(delta);
         stage.draw();
@@ -81,7 +81,6 @@ public class GameController implements Screen {
 
     public void moveCamera() {
         camera = canvas.getCamera();
-        shapeRenderer.setProjectionMatrix(camera.combined);
         currentZoom = camera.zoom;
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
             camera.translate(0, 50*currentZoom);
