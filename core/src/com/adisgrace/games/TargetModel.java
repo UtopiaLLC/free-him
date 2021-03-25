@@ -75,14 +75,14 @@ public class TargetModel {
 	 * passed into this constructor, where it is parsed. The relevant FactNodes are also
 	 * created here.
 	 *
-	 * @param targetJSON		Name of the JSON with all the target's data.
+	 * @param targetJson		Name of the JSON with all the target's data.
 	 */
-	public TargetModel(String targetJSON) {
+	public TargetModel(String targetJson) {
 		// TODO
 		// STORE ALL ARRAYS ALPHABETICALLY
 
 		// Get parser for JSON
-		JsonValue json = new JsonReader().parse(Gdx.files.internal("targets/PatrickWestfield.json"));
+		JsonValue json = new JsonReader().parse(Gdx.files.internal("targets/" + targetJson));
 
 		// Get main properties of target
 		name = json.getString("targetName");
@@ -100,13 +100,6 @@ public class TargetModel {
 		while (itr.hasNext()) {neighbors.add(itr.next().asString());}
 		// Sort alphabetically
 		neighbors.sort();
-
-		/**
-		System.out.println(name);
-		System.out.println(paranoia);
-		System.out.println(maxStress);
-		System.out.println(neighbors);
-		*/
 
 		// Get nodes
 		JsonValue nodesArr = json.get("pod");
@@ -140,9 +133,9 @@ public class TargetModel {
 			// Get children
 			nodeArr = node.get("children");
 			nodeItr = nodeArr.iterator();
+			children.clear();
 			while (nodeItr.hasNext()) {children.add(nodeItr.next().asString());}
 			children.sort();
-			children.clear();
 
 			// If node is one of the first nodes, add it to firstNodes
 			if (firstNodesCount > 0) {
@@ -152,8 +145,9 @@ public class TargetModel {
 
 			// Create FactNode
 			fn = new FactNode(nodeName, node.getString("title"), node.getString("content"),
-					node.getString("summary"), children, nodeX, nodeY, node.getString("assets"),
-					node.getInt("targetStressDamage"), node.getInt("playerStressDamage"));
+					node.getString("summary"), new Array<String>(children), nodeX, nodeY,
+					node.getString("assets"),	node.getInt("targetStressDamage"),
+					node.getInt("playerStressDamage"));
 
 			// Store FactNode in podDict, mapped to name
 			podDict.put(nodeName, fn);
@@ -161,9 +155,28 @@ public class TargetModel {
 		firstNodes.sort();
 
 		// Get combos
-		//combos = new Array<Combo>();
+		// Initializations
+		combos = new Array<Combo>();
+		JsonValue combosArr = json.get("combos");
+		itr = combosArr.iterator();
+		Combo combo;
 
-		//System.out.println("end");
+		// Iterate through combos, create each as a Combo, then add to array of combos
+		while (itr.hasNext()) {
+			node = itr.next();
+
+			// Get related facts
+			nodeArr = node.get("relatedFacts");
+			nodeItr = nodeArr.iterator();
+			children.clear();
+			while (nodeItr.hasNext()) {children.add(nodeItr.next().asString());}
+			children.sort();
+
+			// Construct and store combo
+			combo = new Combo(new Array<String>(children), node.getString("overwrite"),
+					node.getString("comboSummary"), node.getInt("comboStressDamage"));
+			combos.add(combo);
+		}
 
 		// Initialize other values
 		stress = 0;
