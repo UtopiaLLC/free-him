@@ -1,5 +1,6 @@
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Random;
 import com.badlogic.gdx.math.Vector2;
 
@@ -46,22 +47,11 @@ public class TargetModel {
 	/** Current state of target */
 	private TargetState state;
 	/** Dictionary representing the nodes that are in the same pod as the target, where a node can be accessed with its name */
-	private Dictionary<String, FactNode> podDict;
+	private HashMap<String, FactNode> podDict;
 	/** Array of node names representing the nodes that are immediately visible when the target first becomes available */
 	private ArrayList<String> firstNodes;
-
-	/**
-	 * TODO: implement data structure for combos
-	 * 
-	 * A combo has four main properties:
-	 * - relatedFacts: a list of FactNode names representing the facts that form a combo
-	 * - overwrite: a String representing the FactNode name whose data should be overwritten when the combo is completed
-	 * - comboSummary: a String representing the new summary that the summary of [overwrite] should be replaced with
-	 * - comboStressDamage: an integer representing the new stress damage that the stress damage of [overwrite] should be replaced with
-	 * 
-	 * You can implement this however, but I think it might be easiest to make an inner class called Combo with these properties, then
-	 * have an array of combos be a field of TargetModel.
-	 */
+	/** Array of Target combos */
+	private ArrayList<Combo> combos;
 
 	/** Constant for inverse Paranoia check, made every (INV_PARANOIA_CONSTANT - paranoia) turns */
 	private static final int INV_PARANOIA_CONSTANT = 5;
@@ -268,14 +258,11 @@ public class TargetModel {
 	 * @return 		Array of names of all the nodes in the target's pod.
 	 */
 	public ArrayList<String> getNodes() {
-		// TODO: VSCode says this doesn't work for me
-		String[podDict.size()] result;
+		ArrayList<String> result = new ArrayList<>();
 		// Iterate through the list of FactNodes
-		int index = 0;
 		for(String key:podDict.keySet()){
-			FactNode factNode = getFactNode(fact);
-			result[index] = factNode.getName();
-			index++;
+			FactNode factNode = getFactNode(key);
+			result.add(factNode.getName());
 		}
 		return result;
 	}
@@ -408,6 +395,87 @@ public class TargetModel {
 	/************************************************* COMBO METHODS *************************************************/
 
 	/**
+	 * A combo has four main properties:
+	 * - relatedFacts: a list of FactNode names representing the facts that form a combo
+	 * - overwrite: a String representing the FactNode name whose data should be overwritten when the combo is completed
+	 * - comboSummary: a String representing the new summary that the summary of [overwrite] should be replaced with
+	 * - comboStressDamage: an integer representing the new stress damage that the stress damage of [overwrite] should be replaced with
+	 *
+	 * You can implement this however, but I think it might be easiest to make an inner class called Combo with these properties, then
+	 * have an array of combos be a field of TargetModel.
+	 */
+	private class Combo{
+		/** A list of FactNode names representing the facts that form a combo */
+		private ArrayList<String> relatedFacts;
+
+		/** A String representing the FactNode name whose data should be overwritten when the combo is completed */
+		private String overwrite;
+
+		/** A String representing the new summary that the summary of [overwrite] should be replaced with */
+		private String comboSummary;
+
+		 /** An integer representing the new stress damage that the stress damage of [overwrite] should be replaced with */
+		private int comboStressDamage;
+
+		/** An integer representing the length of the combo */
+		private int length;
+
+		/**
+		 * Creates a new Combo with the given data.
+		 *
+		 *
+		 * @param facts		A list of FactNode names representing the facts that form a combo.
+		 * @param ow        A String representing the FactNode name whose data should be overwritten when the combo is completed
+		 * @param cs        A String representing the new summary that the summary of [overwrite] should be replaced with
+		 * @param cd        An integer representing the new stress damage that the stress damage of [overwrite] should be replaced with
+		 */
+		public Combo(ArrayList<String> facts, String ow, String cs, int cd) {
+			relatedFacts = facts;
+			overwrite = ow;
+			comboSummary = cs;
+			comboStressDamage = cd;
+			length = facts.size();
+		}
+
+		/**
+		 * Creates a new Combo with the given data.
+		 */
+		public Combo() {
+			length = 0;
+		}
+
+		/**
+		 * Returns the facts that form the given combo.
+		 *
+		 * The facts are represented as an ArrayList of strings.
+		 *
+		 * @return the facts that form the given combo.
+		 */
+		public ArrayList<String> getFacts() {
+			return relatedFacts;
+		}
+
+		/**
+		 * Returns the fact whose data should be overwritten when the combo is completed
+		 *
+		 * @return A String representing the FactNode name whose data should be overwritten when the combo is completed
+		 */
+		public String getOverwrite() {
+			return overwrite;
+		}
+
+		/**
+		 * Completes the combo by setting the summary and stress damage of the node whose name is the "overwrite"
+		 * property of the combo with the summary and stress damage stored in the combo.
+		 */
+		private void activate(){
+			FactNode activated = getFactNode(overwrite);
+			activated.setSummary(comboSummary);
+			activated.setTargetStressDmg(comboStressDamage);
+		}
+	}
+
+	/**
 	 * Checks if a given fact is part of a combo with any other of the given facts, and if so, updates
 	 * the relevant information accordingly.
 	 * 
@@ -419,11 +487,10 @@ public class TargetModel {
 	 * one. If a fact is part of multiple combos that overwrite different nodes, then all unique combos are applied
 	 * (if some overwrite the same node, pick the longest).
 	 * 
-	 * @param newDmg	New value to set the stress damage of a fact to
-	 * @param name		Name of fact to set the stress damage of
+	 * @param name	    Given fact, checks if a given fact is part of a combo with any other of the given facts.
+	 * @param facts		Other given facts.
 	 */
 	public boolean checkForCombo(String name, ArrayList<String> facts) {
-		// TODO
 		// Note that if a fact is in fact part of a combo, after replacing the fact's summary and stress
 		// damage with that of the combo, the combo should be deleted from this target. If there are multiple
 		// combos that contain the fact, all the combos that are the same length or less should be deleted.
@@ -436,6 +503,46 @@ public class TargetModel {
 		// checkForCombo(C, [A, B]): A and B's summary and stressDmg are replaced with those of combos AC and BC, respectively. AB and BC are both deleted.
 		// Another example: combos AC, BC, BCD, first node is the "overwrite".
 		// checkForCombo(C, [A, B, D]): A and B's summary/stressDmg are replaced with those of combos AC and BCD, respectively. AB, BC, and BCD are all deleted.
-		return false;
+
+		// create bag of facts to check for combos
+		facts.add(name);
+
+		// flag which indicates if at least one combo has been activated
+		boolean flag = false;
+
+		// Iterate over each fact and check if it's overwritten
+		for (String f: facts){
+			// Iterate over each combo and check if it's activated
+			Combo longest = new Combo();
+			for (Combo combo: combos){
+				// Only checks combos whose overwrite = f
+				if (combo.getOverwrite() == f){
+					boolean isCombo = true;
+					// Checks if all facts in a combo are included
+					for (String comboFact: combo.getFacts()){
+						if (!facts.contains(comboFact)) isCombo = false;
+					}
+					// Removes shorter combos
+					if (isCombo){
+						if (combo.length > longest.length){
+							// longer combo which overwrites f found, replaces and removes shorter combo
+							combos.remove(longest);
+							longest = combo;
+						}else {
+							// longer combo which overwrites f already made, removes shorter combo
+							combos.remove(combo);
+						}
+					}
+				}
+			}
+			// activates combo and sets flag to true if there exists a combo which activates f
+			if (longest.length >0){
+				longest.activate();
+				flag = true;
+			}
+			// remove activated combo
+			combos.remove(longest);
+		}
+		return flag;
 	}
 }

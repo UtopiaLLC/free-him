@@ -175,6 +175,15 @@ public class FactNode {
 	}
 
 	/**
+	 * Sets the summary of the FactNode
+	 *
+	 * @param sum      the new summary of the FactNode
+	 */
+	public void setSummary(String sum){
+		summary = sum;
+	}
+
+	/**
 	 * Returns the x-coordinate of the FactNode
 	 *
 	 * @return the x-coordinate of the FactNode
@@ -217,5 +226,14 @@ public class FactNode {
 	 */
 	public int getTargetStressDmg(){
 		return targetStressDmg;
+	}
+
+	/**
+	 * Sets the summary of the FactNode
+	 *
+	 * @param dmg      the new TargetStressDmg of the FactNode
+	 */
+	public void setTargetStressDmg(int dmg){
+		targetStressDmg = dmg;
 	}
 }
