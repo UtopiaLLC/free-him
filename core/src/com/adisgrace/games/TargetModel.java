@@ -1,3 +1,5 @@
+package com.adisgrace.games;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,7 +71,7 @@ public class TargetModel {
 	 * passed into this constructor, where it is parsed. The relevant FactNodes are also
 	 * created here.
 	 *
-	 * @param data		The JSON with all the target's data.
+//	 * @param data		The JSON with all the target's data.
 	 */
 	public TargetModel() {
 		// TODO
@@ -162,7 +164,7 @@ public class TargetModel {
 	 * 
 	 * Suspicion is always within the range 0-100.
 	 *
-	 * @param s		Amount by which to increase target's suspicion
+	 * @param sus		Amount by which to increase target's suspicion
 	 */
 	public void addSuspicion(int sus) {
 		suspicion += sus;
