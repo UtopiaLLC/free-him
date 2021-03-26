@@ -22,6 +22,16 @@ public class WorldModel {
 	// Number of days elapsed from start of game
 	private int n_days;
 
+	/** Enumeration representing the game's current state */
+	protected enum GAMESTATE{
+		/** Player has won the game */
+		WIN,
+		/** Player had lost the game */
+		LOSE,
+		/** Player is still playing the game. Welcome to the game */
+		ONGOING
+	};
+
 	public World() {
 		player = new Player();
 
@@ -44,11 +54,23 @@ public class WorldModel {
 		Return true if game is still active, false if win or loss
 	*/
 
-	public boolean overwork() {
+	public GAMESTATE overwork() {
 
 	}
 
-	public boolean 
+	public boolean getGameState(){
+		for(Target t: targets){
+			if(t.getGameState() == )
+		}
+
+		if(!player.isLiving() || ){
+			
+		}else if(){
+
+		}else{
+
+		}
+	}
 
 	public boolean scan(String fact) {}
 
