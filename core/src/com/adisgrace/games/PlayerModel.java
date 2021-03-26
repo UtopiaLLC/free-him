@@ -18,6 +18,9 @@ public class PlayerModel {
 	private final float RELAX_STRESS_MEAN = 6;
 	private final float RELAX_STRESS_STDEV = 2;
 
+	private final float VTUBE_INCOME_MEAN = 20;
+	private final float VTUBER_INCOME_STDEV = 5;
+
 	private int action_points;
 	private float stress;
 	private float bitecoin;
@@ -182,6 +185,13 @@ public class PlayerModel {
 	public void relax(int action_points) {
 		this.decrementStress(action_points * RELAX_STRESS_MEAN 
 			+ rng.nextGaussian() * RELAX_STRESS_STDEV / action_points);
+	}
+
+	/**
+		Vtube function, make some money selling your virtual body on the internet
+	*/
+	public void vtube(){
+		this.incrementBitecoin(VTUBE_INCOME_MEAN + rng.nextGaussian() * RELAX_STRESS_STDEV);
 	}
 
 	/**
