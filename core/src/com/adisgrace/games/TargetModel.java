@@ -246,6 +246,17 @@ public class TargetModel {
 	}
 
 	/**
+	 * Returns the current state of this target.
+	 * 
+	 * State can be: UNAWARE, SUSPICIOUS, PARANOID, THREATENED, DEFEATED, GAMEOVER
+	 *
+	 * @return the target's current state
+	 */
+	public TargetState getState(){
+		return this.state;
+	}
+
+	/**
 	 * Increases the target's stress by the given amount.
 	 * 
 	 * Returns true if the target is still active after adding the stress, and false otherwise,
