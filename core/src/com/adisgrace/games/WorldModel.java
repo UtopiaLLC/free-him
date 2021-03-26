@@ -122,14 +122,43 @@ public class WorldModel {
 		return targets.get(targetName).getNodeCoords(fact).cpy().add(targetCoords.get(targetName));
 	}
 
+
+	/************************************************* PLAYER METHODS *************************************************/
+
 	/**
-		Skill functions
-		Return true if game is still active, false if win or loss
+	*	Calls the player's overwork function
+	*
+	*	@return the gamestate after this action
 	*/
-
 	public GAMESTATE overwork() {
-
+		if(!player.overwork()){
+			return GAMESTATE.LOSE;
+		}
+		
+		return GAMESTATE.ONGOING;
 	}
+
+	/**
+	*	Calls the player's vtube function
+	*
+	*	@return the gamestate after this action
+	*/
+	public GAMESTATE vtube(){
+		player.vtube();
+		return GAMESTATE.ONGOING;
+	}
+
+	/**
+	*	Calls the player's vtube function
+	*
+	*	@param ap 		the amount of action points that the player decides to spend on relaxing
+	*	@return 		the gamestate after this action
+	*/
+	public GAMESTATE relax(int ap){
+		player.relax(ap);
+		return GAMESTATE.ONGOING;
+	}
+
 
 	
 
