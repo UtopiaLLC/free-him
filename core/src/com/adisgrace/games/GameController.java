@@ -8,12 +8,17 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class GameController implements Screen {
     private GameCanvas canvas;
     private Stage stage;
+    private Skin skin;
+
     //  private NodeMap map;
     private OrthographicCamera camera;
     private ShapeRenderer shapeRenderer;
@@ -25,8 +30,15 @@ public class GameController implements Screen {
         FitViewport viewport = new FitViewport(1280, 720);
         viewport.setCamera(canvas.getCamera());
         currentZoom = canvas.getCamera().zoom;
+
+        skin = new Skin(Gdx.files.internal("skins/neon-ui.json"));
         stage = new Stage(viewport);
         Gdx.input.setInputProcessor(stage);
+
+        Table toolbar = new Table();
+        toolbar.setFillParent(true);
+
+        stage.addActor(toolbar);
 
     }
 
@@ -47,6 +59,8 @@ public class GameController implements Screen {
         canvas.draw(new Texture(Gdx.files.internal("badlogic.jpg")),1500f, 2000f) ;
         canvas.draw(new Texture(Gdx.files.internal("badlogic.jpg")),2500f, 2500f) ;
         canvas.draw(new Texture(Gdx.files.internal("badlogic.jpg")),1250f, 1000f) ;
+
+
 
         canvas.end();
         stage.act(delta);
