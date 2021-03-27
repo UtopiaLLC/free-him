@@ -39,6 +39,17 @@
             "playerStressDamage": 0
         },
         {
+            "nodeName": "divorce",
+            "title": "King County Court Records",
+            "coords": [-5,0],
+            "assets": "node",
+            "content": "According to court records, as of three months ago, he is divorced. His ex-husband’s name is Carl Westfield. The reason listed on the court filing is an irretrievable breakdown in the relationship.",
+            "summary": "Three months ago, Patrick divorced a man named Carl Westfield.",
+            "children": [],
+            "targetStressDamage": 5,
+            "playerStressDamage": 0
+        },
+        {
             "nodeName": "highschool",
             "title": "Alumni Records: Patrick's High School",
             "coords": [-2,-2],
