@@ -2,43 +2,46 @@ package com.adisgrace.games;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class GameController implements Screen {
     private GameCanvas canvas;
     private Stage stage;
+    private Stage toolbarStage;
     private Skin skin;
 
     //  private NodeMap map;
     private OrthographicCamera camera;
     private ShapeRenderer shapeRenderer;
     private float currentZoom;
-
+    TargetModel target;
 
     public GameController() {
         canvas = new GameCanvas();
-        FitViewport viewport = new FitViewport(1280, 720);
+        ExtendViewport viewport = new ExtendViewport(1280, 720);
         viewport.setCamera(canvas.getCamera());
         currentZoom = canvas.getCamera().zoom;
-
-        skin = new Skin(Gdx.files.internal("skins/neon-ui.json"));
         stage = new Stage(viewport);
-        Gdx.input.setInputProcessor(stage);
 
-        Table toolbar = new Table();
-        toolbar.setFillParent(true);
+        createToolbar();
 
-        stage.addActor(toolbar);
+        target = new TargetModel("PatrickWestfield.json");
+
+
 
     }
 
@@ -65,6 +68,8 @@ public class GameController implements Screen {
         canvas.end();
         stage.act(delta);
         stage.draw();
+        toolbarStage.act(delta);
+        toolbarStage.draw();
 
     }
 
@@ -91,6 +96,85 @@ public class GameController implements Screen {
     @Override
     public void dispose() {
 
+    }
+    // Move to an outside class eventually
+    public void createToolbar() {
+        ExtendViewport toolbarViewPort = new ExtendViewport(1280, 720);
+        toolbarStage = new Stage(toolbarViewPort);
+        skin = new Skin(Gdx.files.internal("skins/neon-ui.json"));
+
+        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(stage);
+        inputMultiplexer.addProcessor(toolbarStage);
+        Gdx.input.setInputProcessor(inputMultiplexer);
+
+        Table toolbar = new Table();
+        toolbar.bottom();
+        toolbar.setFillParent(true);
+
+        TextButton harass = new TextButton("Harass", skin, "default");
+        harass.setTransform(true);
+        harass.setScale(2.0f);
+        harass.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                System.out.println("You harassed me!");
+            }
+        });
+        TextButton threaten = new TextButton("Threaten", skin, "default");
+        threaten.setTransform(true);
+        threaten.setScale(2.0f);
+        threaten.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                System.out.println("You threatened me!");
+            }
+        });
+        TextButton expose = new TextButton("Expose", skin, "default");
+        expose.setTransform(true);
+        expose.setScale(2.0f);
+        expose.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                System.out.println("You exposed me!");
+            }
+        });
+        TextButton overwork = new TextButton("Overwork", skin, "default");
+        overwork.setTransform(true);
+        overwork.setScale(2.0f);
+        threaten.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                System.out.println("You overworked me!");
+            }
+        });
+        TextButton rest = new TextButton("Rest", skin, "default");
+        rest.setTransform(true);
+        rest.setScale(2.0f);
+        threaten.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                System.out.println("You rested me!");
+            }
+        });
+
+        toolbar.add(harass).expandX().padBottom(30);
+        toolbar.add(threaten).expandX().padBottom(30);
+        toolbar.add(expose).expandX().padBottom(30);
+        toolbar.add(overwork).expandX().padBottom(30);
+        toolbar.add(rest).expandX().padBottom(30);
+
+        toolbarStage.addActor(toolbar);
     }
 
     public void moveCamera() {
@@ -129,5 +213,15 @@ public class GameController implements Screen {
         camera.position.set(camX, camY, camera.position.z);
 
         camera.update();
+    }
+
+    public Vector2 screenCoords(Vector2 worldCoords) {
+        float oneOne = (float)Math.sqrt(3)/2;
+        float oneTwo = (float)Math.sqrt(3)/2;
+        float twoOne = (float)-1/2;
+        float twoTwo = (float)1/2;
+
+        //TODO implement this method for isometric coord thingies
+        return  new Vector2();
     }
 }
