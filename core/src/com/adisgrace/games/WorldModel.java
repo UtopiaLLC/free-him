@@ -207,6 +207,30 @@ public class WorldModel {
 		return "";
 	}
 
+	/**
+	 * Returns PlayerModel
+	 * @return player
+	 */
+	public PlayerModel getPlayer() {
+		return player;
+	}
+
+	/**
+	 * Returns map containing displayed nodes.
+	 * @return map of target_id -> node_id list
+	 */
+	public Map<String, Array<String>> getDisplayedNodes() {
+		return to_display;
+	}
+
+	/**
+	 * Returns list of targets
+	 * @return target_id list
+	 */
+	public Array<String> getTargets() {
+		return new Array<String>((String[])targets.keySet().toArray());
+	}
+
 	/************************************************* PLAYER METHODS *************************************************/
 
 	/**
