@@ -196,7 +196,7 @@ public class PlayerModel {
 	 * @return has the player overworked today
 	*/
 	public boolean canOverwork() {
-		return this.overworked_today;
+		return !this.overworked_today;
 	}
 
 	/**

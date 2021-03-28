@@ -201,10 +201,10 @@ public class WorldModel {
 		if(contents.get(targetname).containsKey(fact))
 			return this.viewFact(targetname, fact);
 		if(hackednodes.get(targetname).contains(fact, false))
-			this.scan(targetname, fact);
+			return this.scan(targetname, fact);
 		else
 			this.hack(targetname, fact);
-		return "";
+		    return "You successfully hack the node.";
 	}
 
 	/**
