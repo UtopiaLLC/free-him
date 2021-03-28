@@ -327,6 +327,7 @@ public class WorldModel {
 				contents.get(targetname).put(fact, targets.get(targetname).getContent(fact_));
 			}
 		exposablenodes.get(targetname).add(fact);
+        to_display.get(targetname).addAll(targets.get(targetname).getChildren(fact));
 		return targets.get(targetname).getContent(fact);
 	}
 
