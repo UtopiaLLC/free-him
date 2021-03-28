@@ -8,11 +8,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -52,6 +51,7 @@ public class GameController implements Screen {
     WorldModel world;
     private ActiveVerb activeVerb;
     private NodeView nodeView;
+    private Map<String, ImageButton> imageNodes;
 
     public GameController() {
         canvas = new GameCanvas();
@@ -73,7 +73,25 @@ public class GameController implements Screen {
         activeVerb = ActiveVerb.NONE;
 
         nodeView = new NodeView(stage, target, world);
-
+        imageNodes = nodeView.getImageNodes();
+        for(ImageButton button : imageNodes.values()) {
+            button.addListener(new ClickListener()
+            {
+                @Override
+                public void clicked(InputEvent event, float x, float y)
+                {
+                    Actor cbutton = (Actor)event.getListenerActor();
+                    //System.out.println(cbutton.getName());
+                    actOnNode(cbutton.getName());
+                }
+            });
+            button.remove();
+        }
+        Array<String> displayedNodes= world.getDisplayedNodes().get(target.getName());
+        for(String str : displayedNodes) {
+            stage.addActor(imageNodes.get(target.getName()+","+str));
+        }
+        stage.addActor(imageNodes.get(target.getName()));
 
     }
 
@@ -136,18 +154,18 @@ public class GameController implements Screen {
         toolbar.bottom();
         toolbar.setFillParent(true);
 
-        TextButton harass = new TextButton("Harass", skin, "default");
-        harass.setTransform(true);
-        harass.setScale(2.0f);
-        harass.addListener(new ClickListener()
-        {
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                System.out.println("You harassed me!");
-                activeVerb = ActiveVerb.HARASS;
-            }
-        });
+//        TextButton harass = new TextButton("Harass", skin, "default");
+//        harass.setTransform(true);
+//        harass.setScale(2.0f);
+//        harass.addListener(new ClickListener()
+//        {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y)
+//            {
+//                System.out.println("You harassed me!");
+//                activeVerb = ActiveVerb.HARASS;
+//            }
+//        });
         TextButton threaten = new TextButton("Threaten", skin, "default");
         threaten.setTransform(true);
         threaten.setScale(2.0f);
@@ -197,12 +215,24 @@ public class GameController implements Screen {
                 activeVerb = ActiveVerb.REST;
             }
         });
+        TextButton end = new TextButton("End Day", skin, "default");
+        end.setTransform(true);
+        end.setScale(2.0f);
+        end.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                world.nextTurn();
+            }
+        });
 
-        toolbar.add(harass).expandX().padBottom(30);
+        //toolbar.add(harass).expandX().padBottom(30);
         toolbar.add(threaten).expandX().padBottom(30);
         toolbar.add(expose).expandX().padBottom(30);
         toolbar.add(overwork).expandX().padBottom(30);
         toolbar.add(rest).expandX().padBottom(30);
+        toolbar.add(end).expandX().padBottom(10).padRight(20);
 
         toolbarStage.addActor(toolbar);
     }
@@ -231,9 +261,9 @@ public class GameController implements Screen {
         float camX = camera.position.x;
         float camY = camera.position.y;
 
-        Vector2 camMin = new Vector2(-1000f, -1000f);//(camera.viewportWidth/2, camera.viewportHeight/2);
+        Vector2 camMin = new Vector2(-1500f, -1500f);//(camera.viewportWidth/2, camera.viewportHeight/2);
         camMin.scl(camera.zoom/2); //bring to center and scale by the zoom level
-        Vector2 camMax = new Vector2(1000f, 1000f);
+        Vector2 camMax = new Vector2(1500f, 1500f);
         camMax.sub(camMin); //bring to center
 
         //keep camera within borders
@@ -243,6 +273,75 @@ public class GameController implements Screen {
         camera.position.set(camX, camY, camera.position.z);
 
         camera.update();
+    }
+
+    public void actOnNode(String nodeName) {
+        String[] nodeInfo = nodeName.split(",");
+        boolean isTarget = false;
+        if(nodeInfo.length == 1) {
+            isTarget = true;
+        }
+        switch (activeVerb) {
+            case NONE:
+                if(!isTarget) {
+//                    world.hack(nodeInfo[0], nodeInfo[1]);
+//                    world.scan(nodeInfo[0], nodeInfo[1]);
+//                    createDialogBox(world.viewFact(nodeInfo[0], nodeInfo[1]));
+                    if(world.getPlayer().canHack() && world.getPlayer().canScan()) {
+                        createDialogBox(world.interact(nodeInfo[0], nodeInfo[1]));
+                    } else {
+                        createDialogBox("Insufficient AP to hack or scan this node.");
+                    }
+
+                }
+                break;
+            case THREATEN:
+                if(isTarget) {
+
+                }
+
+                break;
+            case EXPOSE:
+                if(isTarget) {
+                    System.out.println(activeVerb);
+                    activeVerb = ActiveVerb.NONE;
+                }
+
+                break;
+            default:
+                System.out.println("You shall not pass");
+                break;
+        }
+    }
+
+    public void createDialogBox(String s) {
+        Dialog dialog = new Dialog("", skin);
+        dialog.getBackground().setMinWidth(500);
+        dialog.getBackground().setMinHeight(500);
+        Label l = new Label( s, skin );
+        l.setFontScale(2);
+        l.setWrap( true );
+        dialog.getContentTable().add( l ).prefWidth( 350 );
+        dialog.button("Ok", true); //sends "true" as the result
+        dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
+        dialog.show(toolbarStage);
+    }
+
+    public void confirmDialog(String s) {
+        Dialog dialog = new Dialog("Are you sure?", skin) {
+            public void result(Object obj) {
+                System.out.println("result "+obj);
+            }
+        };
+        dialog.getBackground().setMinWidth(300);
+        dialog.getBackground().setMinHeight(300);
+        Label l = new Label( s, skin );
+        l.setFontScale(2);
+        l.setWrap( true );
+        dialog.getContentTable().add( l ).prefWidth( 250 );
+        dialog.button("Yes", true); //sends "true" as the result
+        dialog.button("No", false);  //sends "false" as the result
+        dialog.show(toolbarStage);
     }
 
 
