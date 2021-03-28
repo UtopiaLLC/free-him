@@ -18,7 +18,27 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class GameController implements Screen {
+
+    /** Enumeration representing the active verb applied via toolbar */
+    public enum ActiveVerb {
+        /**  */
+        HARASS,
+        /**  */
+        THREATEN,
+        /**  */
+        EXPOSE,
+        /**  */
+        OVERWORK,
+        /**  */
+        REST,
+        /**  */
+        NONE
+    };
+
     private GameCanvas canvas;
     private Stage stage;
     private Stage toolbarStage;
@@ -29,6 +49,9 @@ public class GameController implements Screen {
     private ShapeRenderer shapeRenderer;
     private float currentZoom;
     TargetModel target;
+    WorldModel world;
+    private ActiveVerb activeVerb;
+    private NodeView nodeView;
 
     public GameController() {
         canvas = new GameCanvas();
@@ -41,6 +64,15 @@ public class GameController implements Screen {
 
         target = new TargetModel("PatrickWestfield.json");
 
+        Array<String> targetJsons = new Array<>();
+        targetJsons.add("PatrickWestfield.json");
+
+        Map<String, Vector2> targetCoords = new HashMap<>();
+        targetCoords.put("Patrick Westfield", new Vector2(0f, 0f));
+        world = new WorldModel(targetJsons, targetCoords);
+        activeVerb = ActiveVerb.NONE;
+
+        nodeView = new NodeView(stage, target, world);
 
 
     }
@@ -56,16 +88,8 @@ public class GameController implements Screen {
         canvas.clear();
 
         moveCamera();
-        canvas.begin();
-        canvas.draw(new Texture(Gdx.files.internal("badlogic.jpg")),10f, 10f) ;
-        canvas.draw(new Texture(Gdx.files.internal("badlogic.jpg")),500f, 2000f) ;
-        canvas.draw(new Texture(Gdx.files.internal("badlogic.jpg")),1500f, 2000f) ;
-        canvas.draw(new Texture(Gdx.files.internal("badlogic.jpg")),2500f, 2500f) ;
-        canvas.draw(new Texture(Gdx.files.internal("badlogic.jpg")),1250f, 1000f) ;
-
-
-
-        canvas.end();
+//        canvas.begin();
+//        canvas.end();
         stage.act(delta);
         stage.draw();
         toolbarStage.act(delta);
@@ -121,6 +145,7 @@ public class GameController implements Screen {
             public void clicked(InputEvent event, float x, float y)
             {
                 System.out.println("You harassed me!");
+                activeVerb = ActiveVerb.HARASS;
             }
         });
         TextButton threaten = new TextButton("Threaten", skin, "default");
@@ -132,6 +157,8 @@ public class GameController implements Screen {
             public void clicked(InputEvent event, float x, float y)
             {
                 System.out.println("You threatened me!");
+                activeVerb = ActiveVerb.THREATEN;
+
             }
         });
         TextButton expose = new TextButton("Expose", skin, "default");
@@ -143,28 +170,31 @@ public class GameController implements Screen {
             public void clicked(InputEvent event, float x, float y)
             {
                 System.out.println("You exposed me!");
+                activeVerb = ActiveVerb.EXPOSE;
             }
         });
         TextButton overwork = new TextButton("Overwork", skin, "default");
         overwork.setTransform(true);
         overwork.setScale(2.0f);
-        threaten.addListener(new ClickListener()
+        overwork.addListener(new ClickListener()
         {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
                 System.out.println("You overworked me!");
+                activeVerb = ActiveVerb.OVERWORK;
             }
         });
         TextButton rest = new TextButton("Rest", skin, "default");
         rest.setTransform(true);
         rest.setScale(2.0f);
-        threaten.addListener(new ClickListener()
+        rest.addListener(new ClickListener()
         {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
                 System.out.println("You rested me!");
+                activeVerb = ActiveVerb.REST;
             }
         });
 
@@ -201,9 +231,9 @@ public class GameController implements Screen {
         float camX = camera.position.x;
         float camY = camera.position.y;
 
-        Vector2 camMin = new Vector2(camera.viewportWidth/2, camera.viewportHeight/2);
+        Vector2 camMin = new Vector2(-1000f, -1000f);//(camera.viewportWidth/2, camera.viewportHeight/2);
         camMin.scl(camera.zoom/2); //bring to center and scale by the zoom level
-        Vector2 camMax = new Vector2(3000f, 3000f);
+        Vector2 camMax = new Vector2(1000f, 1000f);
         camMax.sub(camMin); //bring to center
 
         //keep camera within borders
@@ -215,13 +245,5 @@ public class GameController implements Screen {
         camera.update();
     }
 
-    public Vector2 screenCoords(Vector2 worldCoords) {
-        float oneOne = (float)Math.sqrt(3)/2;
-        float oneTwo = (float)Math.sqrt(3)/2;
-        float twoOne = (float)-1/2;
-        float twoTwo = (float)1/2;
 
-        //TODO implement this method for isometric coord thingies
-        return  new Vector2();
-    }
 }
