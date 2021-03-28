@@ -320,12 +320,19 @@ public class WorldModel {
 		summaries.get(targetname).put(fact, targets.get(targetname).getSummary(fact));
 		contents.get(targetname).put(fact, targets.get(targetname).getContent(fact));
 		// combo checking
-		Array<String> facts_known = new Array<String>((String[]) summaries.keySet().toArray());
-		for(String fact_ : facts_known)
-			if(targets.get(targetname).checkForCombo(fact_, facts_known)) {
+		//Array<String> facts_known = new Array<String>((String[]) summaries.keySet().toArray());
+		Array<String> facts_known = new Array<String>();
+		for(String key : summaries.keySet()) {
+			facts_known.add(key);
+		}
+		int factsSize = facts_known.size;
+		for(int i = 0; i < factsSize; i++) {
+			String fact_ = facts_known.get(i);
+			if (targets.get(targetname).checkForCombo(fact_, facts_known)) {
 				summaries.get(targetname).put(fact, targets.get(targetname).getSummary(fact_));
 				contents.get(targetname).put(fact, targets.get(targetname).getContent(fact_));
 			}
+		}
 		exposablenodes.get(targetname).add(fact);
         to_display.get(targetname).addAll(targets.get(targetname).getChildren(fact));
 		return targets.get(targetname).getContent(fact);

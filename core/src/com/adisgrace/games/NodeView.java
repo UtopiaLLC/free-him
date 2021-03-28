@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -39,7 +40,6 @@ public class NodeView {
         imageNodes = new HashMap<>();
         createImageNodes(target, targetNodes, targetCoords);
 
-
     }
 
     public Map<String, ImageButton> getImageNodes() {
@@ -66,20 +66,9 @@ public class NodeView {
             ImageButton button = new ImageButton(drawable); //Set the button up
             Vector2 pos = convertToIsometric(nodeCoords.get(i));
             button.setPosition(pos.x, pos.y);
-            button.setName(target.getName()+targetNodes.get(i));
+            button.setName(target.getName()+","+targetNodes.get(i));
 
-            button.addListener(new ClickListener()
-            {
-                @Override
-                public void clicked(InputEvent event, float x, float y)
-                {
-                    System.out.println("You clicked node!");
-                    Actor cbutton = (Actor)event.getTarget();
-                    System.out.println(cbutton.getX()+", "+cbutton.getY());
-
-                }
-            });
-            imageNodes.put(target.getName()+targetNodes.get(i), button);
+            imageNodes.put(target.getName()+","+targetNodes.get(i), button);
             stage.addActor(button);
         }
 
@@ -88,6 +77,7 @@ public class NodeView {
          ImageButton button = new ImageButton(drawable); //Set the button up
          Vector2 pos = convertToIsometric(targetCoords);
          button.setPosition(pos.x, pos.y);
+         button.setName(target.getName());
          imageNodes.put(target.getName(), button);
          stage.addActor(button);
 
