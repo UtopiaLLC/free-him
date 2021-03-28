@@ -53,14 +53,18 @@ public class GameController implements Screen {
     private NodeView nodeView;
     private Map<String, ImageButton> imageNodes;
 
+    // Label Stats
+    Label stress;
+    Label ap;
+    Label tStress;
+    Label tSusp;
+
     public GameController() {
         canvas = new GameCanvas();
         ExtendViewport viewport = new ExtendViewport(1280, 720);
         viewport.setCamera(canvas.getCamera());
         currentZoom = canvas.getCamera().zoom;
         stage = new Stage(viewport);
-
-        createToolbar();
 
         target = new TargetModel("PatrickWestfield.json");
 
@@ -93,6 +97,8 @@ public class GameController implements Screen {
         }
         stage.addActor(imageNodes.get(target.getName()));
 
+        createToolbar();
+
     }
 
     @Override
@@ -112,6 +118,7 @@ public class GameController implements Screen {
         stage.draw();
         toolbarStage.act(delta);
         toolbarStage.draw();
+        updateStats();
 
     }
 
@@ -199,8 +206,8 @@ public class GameController implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-                System.out.println("You overworked me!");
-                activeVerb = ActiveVerb.OVERWORK;
+                final String s = "overwork";
+                confirmDialog("Are you sure you want to overwork?", s);
             }
         });
         TextButton rest = new TextButton("Rest", skin, "default");
@@ -211,8 +218,8 @@ public class GameController implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-                System.out.println("You rested me!");
-                activeVerb = ActiveVerb.REST;
+                final String s = "rest";
+                confirmDialog("Are you sure you want to rest?", s);
             }
         });
         TextButton end = new TextButton("End Day", skin, "default");
@@ -223,6 +230,7 @@ public class GameController implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
+                createDialogBox("You ended the day after a long battle of psychological warfare.");
                 world.nextTurn();
             }
         });
@@ -234,7 +242,27 @@ public class GameController implements Screen {
         toolbar.add(rest).expandX().padBottom(30);
         toolbar.add(end).expandX().padBottom(10).padRight(20);
 
+        Table stats = new Table();
+        stress = new Label("Player Stress: " + Float.toString(world.getPlayer().getStress()), skin);
+        stress.setFontScale(2);
+        ap = new Label("AP: " + Float.toString(world.getPlayer().getAP()), skin);
+        ap.setFontScale(2);
+        tStress = new Label("Target Stress: " + Float.toString(target.getStress()), skin);
+        tStress.setFontScale(2);
+        tSusp = new Label("Target Suspicion: " + Float.toString(target.getSuspicion()), skin);
+        tSusp.setFontScale(2);
+
+        stats.top();
+        stats.setFillParent(true);
+
+        stats.add(stress).expandX().padTop(20);
+        stats.add(ap).expandX().padTop(20);
+        stats.add(tStress).expandX().padTop(20);
+        stats.add(tSusp).expandX().padTop(20);
+
+
         toolbarStage.addActor(toolbar);
+        toolbarStage.addActor(stats);
     }
 
     public void moveCamera() {
@@ -289,6 +317,7 @@ public class GameController implements Screen {
 //                    createDialogBox(world.viewFact(nodeInfo[0], nodeInfo[1]));
                     if(world.getPlayer().canHack() && world.getPlayer().canScan()) {
                         createDialogBox(world.interact(nodeInfo[0], nodeInfo[1]));
+                        reloadDisplayedNodes();
                     } else {
                         createDialogBox("Insufficient AP to hack or scan this node.");
                     }
@@ -327,10 +356,14 @@ public class GameController implements Screen {
         dialog.show(toolbarStage);
     }
 
-    public void confirmDialog(String s) {
+    public void confirmDialog(String s, final String function) {
         Dialog dialog = new Dialog("Are you sure?", skin) {
             public void result(Object obj) {
-                System.out.println("result "+obj);
+                if((boolean)obj) {
+                    callConfirmFunction(function);
+                } else {
+
+                }
             }
         };
         dialog.getBackground().setMinWidth(300);
@@ -342,7 +375,36 @@ public class GameController implements Screen {
         dialog.button("Yes", true); //sends "true" as the result
         dialog.button("No", false);  //sends "false" as the result
         dialog.show(toolbarStage);
+
     }
 
+    public void reloadDisplayedNodes() {
+        Array<String> displayedNodes= world.getDisplayedNodes().get(target.getName());
+        for(String str : displayedNodes) {
+            stage.addActor(imageNodes.get(target.getName()+","+str));
+        }
 
+    }
+
+    public void callConfirmFunction(String s) {
+        switch(s) {
+            case "overwork":
+                world.overwork();
+                createDialogBox("You overworked yourself and gained 2 AP at the cost of your sanity...");
+                break;
+            case "rest":
+                world.relax(1);
+                createDialogBox("You rested for 1 AP and decreased your stress!");
+                break;
+            default:
+                System.out.println("You shall not pass");
+        }
+    }
+
+    public void updateStats(){
+        stress.setText("Player Stress: " + Float.toString(world.getPlayer().getStress()));
+        ap.setText("AP: " + Float.toString(world.getPlayer().getAP()));
+        tStress.setText("Target Stress: " + Float.toString(target.getStress()));
+        tSusp.setText("Target Suspicion: " + Float.toString(target.getSuspicion()));
+    }
 }
