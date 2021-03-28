@@ -204,7 +204,7 @@ public class WorldModel {
 			return this.scan(targetname, fact);
 		else
 			this.hack(targetname, fact);
-		return "";
+		    return "You successfully hack the node.";
 	}
 
 	/**
