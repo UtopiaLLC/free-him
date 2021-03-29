@@ -169,9 +169,11 @@ public class PlayerModel {
 	 * @return is the player alive
 	 */
 	public boolean nextTurn() {
+		this.overworked_today = false;
 		this.action_points = Math.max(DAILY_AP, action_points);
 		this.decrementBitecoin(DAILY_BITECOIN_COST);
 		this.incrementStress((float)rng.nextGaussian() * DREAM_STRESS_STDEV);
+		this.stress = Math.max(0f, this.stress);
 		return this.isLiving();
 	}
 

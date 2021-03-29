@@ -325,7 +325,7 @@ public class WorldModel {
 		for(String key : summaries.keySet()) {
 			facts_known.add(key);
 		}
-		int factsSize = facts_known.size;
+		int factsSize = facts_known.size; //////////////////////////////
 		for(int i = 0; i < factsSize; i++) {
 			String fact_ = facts_known.get(i);
 			if (targets.get(targetname).checkForCombo(fact_, facts_known)) {
