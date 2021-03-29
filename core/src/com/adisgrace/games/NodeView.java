@@ -17,10 +17,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class NodeView {
+    /** stage is a Scene2d scene graph that contains all hierarchies of Scene2d Actors */
     private Stage stage;
-
+    /** nodeCoords contains all world coordinates for each fact node and target node */
     private Array<Vector2> nodeCoords;
-
+    /** imageNodes contains all ImageButtons for each fact node and target node
+     *  The key is a string concatenation of [targetName,factNodeName] or [targetName]
+     *  The value is the corresponding ImageButton
+     */
     private Map<String, ImageButton> imageNodes;
 
 
@@ -42,10 +46,26 @@ public class NodeView {
 
     }
 
+    /**
+     * Gets the map of all ImageNodes.
+     *
+     * imageNodes contains all ImageButtons for each fact node and target node
+     *      The key is a string concatenation of [targetName,factNodeName] or [targetName].
+     *      The value is the corresponding ImageButton.
+     *
+     * @return imageNodes
+     */
     public Map<String, ImageButton> getImageNodes() {
         return imageNodes;
     }
 
+    /**
+     * Scales world node coordinates to have more distance between each node.
+     * @param targetCoords
+     * @param add
+     * @param multiply
+     * @return targetCoords with scaling, in world coordinates
+     */
     private Vector2 scaleNodeCoordinates(Vector2 targetCoords, float add, float multiply){
         targetCoords.add(targetCoords.x * multiply, targetCoords.y * multiply);
         targetCoords.add(add, add);
@@ -57,6 +77,12 @@ public class NodeView {
         return targetCoords;
     }
 
+    /**
+     * Adds information about ImageButtons to the imageNodes Map
+     * @param target
+     * @param targetNodes
+     * @param targetCoords
+     */
     private void createImageNodes(TargetModel target, Array<String> targetNodes, Vector2 targetCoords) {
         TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("node/green.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
@@ -84,6 +110,11 @@ public class NodeView {
 
     }
 
+    /**
+     * Converts world coordinates to isometric coordinates
+     * @param worldCoords
+     * @return the isocmetric coordinates
+     */
     public Vector2 convertToIsometric(Vector2 worldCoords) {
         float oneOne = (float)Math.sqrt(3)/2;
         float oneTwo = (float)Math.sqrt(3)/2;
@@ -93,7 +124,6 @@ public class NodeView {
         ans.x = oneOne * worldCoords.x + oneTwo * worldCoords.y;
         ans.y = twoOne * worldCoords.x + twoTwo * worldCoords.y;
 
-        //implement this method for isometric coord thingies
         return ans;
     }
 
