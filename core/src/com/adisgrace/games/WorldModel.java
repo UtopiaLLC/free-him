@@ -301,7 +301,7 @@ public class WorldModel {
 			throw new RuntimeException("Node is undiscovered, or has already been hacked");
 		if(!player.canHack())
 			throw new RuntimeException("Insufficient AP to hack");
-		if(rng.nextDouble() < 0.1){
+		if(rng.nextDouble() < 0.2){
 			targets.get(targetname).addSuspicion(25);
 			return false;
 		}
