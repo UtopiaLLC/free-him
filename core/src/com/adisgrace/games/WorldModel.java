@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.math.Vector2;
+import java.util.Random;
 
 public class WorldModel {
 
@@ -39,6 +40,9 @@ public class WorldModel {
 
 	// Number of days elapsed from start of game
 	private int n_days;
+
+	// Random number generator, only used for hacking success chance
+	private Random rng;
 
 	/** Enumeration representing the game's current state */
 	protected enum GAMESTATE{
@@ -81,6 +85,7 @@ public class WorldModel {
 //			}
 		}
 		n_days = 0;
+		rng = new Random();
 	}
 
 	/**
@@ -203,8 +208,9 @@ public class WorldModel {
 		if(hackednodes.get(targetname).contains(fact, false))
 			return this.scan(targetname, fact);
 		else
-			this.hack(targetname, fact);
-		    return "You successfully hack the node.";
+			if(this.hack(targetname, fact)
+		    		return "You successfully hack the node.";
+			else return ("You fail to hack the node. " + targetname + " begins to catch wind of your activities.");
 	}
 
 	/**
@@ -285,9 +291,9 @@ public class WorldModel {
 	 * May throw runtime exceptions if provided invalid inputs
 	 * @param targetname target to hack
 	 * @param fact particular node id of target to hack
-	 * @return gamestate after this action
+	 * @return was the hack successful?
 	 */
-	public GAMESTATE hack(String targetname, String fact){
+	public boolean hack(String targetname, String fact){
 		if(!targets.containsKey(targetname))
 			throw new RuntimeException("Invalid target");
 		if(!to_display.get(targetname).contains(fact, false)
@@ -295,9 +301,13 @@ public class WorldModel {
 			throw new RuntimeException("Node is undiscovered, or has already been hacked");
 		if(!player.canHack())
 			throw new RuntimeException("Insufficient AP to hack");
+		if(rng.nextDouble() < 0.1){
+			targets.get(targetname).addSuspicion(25);
+			return false;
+		}
 		player.hack();
 		hackednodes.get(targetname).add(fact);
-		return GAMESTATE.ONGOING;
+		return true;
 	}
 
 	/**
