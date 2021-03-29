@@ -24,39 +24,51 @@ public class GameController implements Screen {
 
     /** Enumeration representing the active verb applied via toolbar */
     public enum ActiveVerb {
-        /**  */
+        /**  Linked to Harass mode; Harass needs to be applied to a node after it has been clicked */
         HARASS,
-        /**  */
+        /**  Linked to Threaten mode; Threaten needs to be applied to a node after it has been clicked */
         THREATEN,
-        /**  */
+        /**  Linked to Expose mode; Expose needs to be applied to a node after it has been clicked */
         EXPOSE,
-        /**  */
+        /**  Linked to Overwork mode; Overwork needs to be applied */
         OVERWORK,
-        /**  */
+        /**  Linked to Relax mode; Relax needs to be applied */
         REST,
-        /**  */
+        /**  Linked to hack and scan commands*/
         NONE
     };
 
+    /** canvas is the primary view class of the game */
     private GameCanvas canvas;
+    /** stage is a Scene2d scene graph that contains all hierarchies of Scene2d Actors */
     private Stage stage;
+    /** stage is a Scene2d scene graph that contains all hierarchies of Scene2d Actors specifically for the toolbar and
+     * the HUD.
+     */
     private Stage toolbarStage;
+    /** skin is the button skin for use in the toolbar */
     private Skin skin;
-
-    //  private NodeMap map;
+    /** camera controls panning the node map */
     private OrthographicCamera camera;
-    private ShapeRenderer shapeRenderer;
+    /** currentZoom controls how much the camera is zoomed in or out */
     private float currentZoom;
+    /** target is the specific target being attacked */
     TargetModel target;
+    /** world is a variable that links to all the models in the project */
     WorldModel world;
+    /** activeVerb is the state of the toolbar buttons i.e. which button clicked or not clicked */
     private ActiveVerb activeVerb;
+    /** nodeView is the view class that exposes all nodes in the map */
     private NodeView nodeView;
+    /** imageNodes contains all ImageButtons for each fact node and target node */
     private Map<String, ImageButton> imageNodes;
-
-    // Label Stats
+    /** stress is the dialog label for stress */
     Label stress;
+    /** ap is the dialog label for ap */
     Label ap;
+    /** tStress is the dialog label for tStress */
     Label tStress;
+    /** tSusp is the dialog label for tSusp */
     Label tSusp;
 
     public GameController() {
@@ -107,6 +119,9 @@ public class GameController implements Screen {
     }
 
     @Override
+    /**
+     * renders the game display at consistent time steps
+     */
     public void render(float delta) {
 
         canvas.clear();
@@ -146,8 +161,12 @@ public class GameController implements Screen {
     public void dispose() {
 
     }
-    // Move to an outside class eventually
+
+    /**
+     * createToolbar creates a fixed toolbar with buttons linked to each of the player skills
+     */
     public void createToolbar() {
+        // Move to an outside class eventually
         ExtendViewport toolbarViewPort = new ExtendViewport(1280, 720);
         toolbarStage = new Stage(toolbarViewPort);
         skin = new Skin(Gdx.files.internal("skins/neon-ui.json"));
@@ -303,6 +322,11 @@ public class GameController implements Screen {
         camera.update();
     }
 
+    /**
+     * Controls what actions the game needs to take on a specified node based on the
+     * activeVerb that was clicked
+     * @param nodeName
+     */
     public void actOnNode(String nodeName) {
         String[] nodeInfo = nodeName.split(",");
         boolean isTarget = false;
@@ -343,6 +367,10 @@ public class GameController implements Screen {
         }
     }
 
+    /**
+     * Creates a dialog box with [s] at a reasonably-sized height and width
+     * @param s
+     */
     public void createDialogBox(String s) {
         Dialog dialog = new Dialog("", skin);
         dialog.getBackground().setMinWidth(500);
@@ -356,6 +384,12 @@ public class GameController implements Screen {
         dialog.show(toolbarStage);
     }
 
+    /**
+     * Displays a dialog box where the user can confirm whether or not they want
+     * to proceed with a particular action
+     * @param s
+     * @param function
+     */
     public void confirmDialog(String s, final String function) {
         Dialog dialog = new Dialog("Are you sure?", skin) {
             public void result(Object obj) {
@@ -378,6 +412,9 @@ public class GameController implements Screen {
 
     }
 
+    /**
+     * Display all fact nodes of a target node that is visible
+     */
     public void reloadDisplayedNodes() {
         Array<String> displayedNodes= world.getDisplayedNodes().get(target.getName());
         for(String str : displayedNodes) {
@@ -386,6 +423,10 @@ public class GameController implements Screen {
 
     }
 
+    /**
+     * Displays a dialog based on what active verb was clicked.
+     * @param s
+     */
     public void callConfirmFunction(String s) {
         switch(s) {
             case "overwork":
@@ -401,6 +442,9 @@ public class GameController implements Screen {
         }
     }
 
+    /**
+     * Updates the stats HUD with current values
+     */
     public void updateStats(){
         stress.setText("Player Stress: " + Float.toString(world.getPlayer().getStress()));
         ap.setText("AP: " + Float.toString(world.getPlayer().getAP()));
