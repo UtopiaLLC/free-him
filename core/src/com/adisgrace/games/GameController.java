@@ -83,14 +83,13 @@ public class GameController implements Screen {
         currentZoom = canvas.getCamera().zoom;
         stage = new Stage(viewport);
 
-        target = new TargetModel("PatrickWestfield.json");
-
         Array<String> targetJsons = new Array<>();
         targetJsons.add("PatrickWestfield.json");
 
         Map<String, Vector2> targetCoords = new HashMap<>();
         targetCoords.put("Patrick Westfield", new Vector2(0f, 0f));
         world = new WorldModel(targetJsons, targetCoords);
+        target = world.getTarget("Patrick Westfield");
         activeVerb = ActiveVerb.NONE;
 
         nodeView = new NodeView(stage, target, world);
