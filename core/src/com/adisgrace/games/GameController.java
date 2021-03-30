@@ -83,14 +83,15 @@ public class GameController implements Screen {
         currentZoom = canvas.getCamera().zoom;
         stage = new Stage(viewport);
 
+        // Create and store targets in array
         Array<String> targetJsons = new Array<>();
         targetJsons.add("PatrickWestfield.json");
 
-        Map<String, Vector2> targetCoords = new HashMap<>();
-        targetCoords.put("Patrick Westfield", new Vector2(0f, 0f));
-        world = new WorldModel(targetJsons, targetCoords);
-        target = world.getTarget("Patrick Westfield");
+        // Create new WorldModel with given target JSONs
+        world = new WorldModel(targetJsons);
         activeVerb = ActiveVerb.NONE;
+
+        target = world.getTarget("Patrick Westfield");
 
         nodeView = new NodeView(stage, target, world);
         imageNodes = nodeView.getImageNodes();

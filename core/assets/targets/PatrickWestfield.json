@@ -1,5 +1,6 @@
 {
     "targetName": "Patrick Westfield",
+    "loc": [0,0],
     "paranoia": 3,
     "maxStress": 100,
     "neighbors": ["Shelby Vance", "Nate Trujillo"],

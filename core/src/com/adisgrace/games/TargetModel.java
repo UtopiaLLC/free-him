@@ -37,6 +37,9 @@ public class TargetModel {
 
 	/** The target's name */
 	private String name;
+	/** The target's location in world coordinates */
+	private int locX;
+	private int locY;
 	/**	Targets connected to the current target */
 	private Array<String> neighbors;
 	/** Target's current stress level */
@@ -100,6 +103,12 @@ public class TargetModel {
 		while (itr.hasNext()) {neighbors.add(itr.next().asString());}
 		// Sort alphabetically
 		neighbors.sort();
+
+		// Get target coordinates
+		neighborArr = json.get("loc");
+		itr = neighborArr.iterator();
+		locX = itr.next().asInt();
+		locY = itr.next().asInt();
 
 		// Get nodes
 		JsonValue nodesArr = json.get("pod");
@@ -208,6 +217,28 @@ public class TargetModel {
 	 */
 	public int getStress() {
 		return stress;
+	}
+
+	/**
+	 * Returns the x-coordinate of the target's location.
+	 *
+	 * Coordinates are in world coordinates. Node coordinates treat this coordinate as the center.
+	 *
+	 * @return the target's x-coordinate.
+	 */
+	public int getX() {
+		return locX;
+	}
+
+	/**
+	 * Returns the y-coordinate of the target's location.
+	 *
+	 * Coordinates are in world coordinates. Node coordinates treat this coordinate as the center.
+	 *
+	 * @return the target's y-coordinate.
+	 */
+	public int getY() {
+		return locY;
 	}
 
 	/**
