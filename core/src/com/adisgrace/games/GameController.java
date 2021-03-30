@@ -74,6 +74,7 @@ public class GameController implements Screen {
     private Label money;
 
     private boolean ended = false;
+    private boolean nodeFreeze = false;
 
     public GameController() {
         canvas = new GameCanvas();
@@ -130,9 +131,14 @@ public class GameController implements Screen {
 
         canvas.clear();
 
+        // Was supposed to freeze nodes and stop action if game ended or if popup window exists... Didn't work yet.
         if(!ended) {
             moveCamera();
-            stage.act(delta);
+            if(!nodeFreeze) {
+                stage.act(delta);
+            } else {
+
+            }
             toolbarStage.act(delta);
         }
 //        canvas.begin();
@@ -412,7 +418,11 @@ public class GameController implements Screen {
      * @param s
      */
     public void createDialogBox(String s) {
-        Dialog dialog = new Dialog("", skin);
+        Dialog dialog = new Dialog("", skin) {
+            public void result(Object obj) {
+                nodeFreeze = false;
+            }
+        };
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
         Label l = new Label( s, skin );
@@ -426,6 +436,7 @@ public class GameController implements Screen {
         dialog.button("Ok", true); //sends "true" as the result
         dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         dialog.show(toolbarStage);
+        nodeFreeze = true;
     }
 
     /**
@@ -453,6 +464,7 @@ public class GameController implements Screen {
         dialog.button("Yes", true); //sends "true" as the result
         dialog.button("No", false);  //sends "false" as the result
         dialog.show(toolbarStage);
+
 
     }
 
