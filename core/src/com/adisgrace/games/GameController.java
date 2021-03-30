@@ -379,6 +379,9 @@ public class GameController implements Screen {
         if(nodeInfo.length == 1) {
             isTarget = true;
         }
+        if(ended || nodeFreeze) {
+            return;
+        }
         switch (activeVerb) {
             case NONE:
                 if(!isTarget) {
