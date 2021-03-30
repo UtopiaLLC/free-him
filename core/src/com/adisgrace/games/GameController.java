@@ -209,31 +209,31 @@ public class GameController implements Screen {
 //                activeVerb = ActiveVerb.HARASS;
 //            }
 //        });
-        TextButton threaten = new TextButton("Threaten", skin, "default");
-        threaten.setTransform(true);
-        threaten.setScale(2.0f);
-        threaten.addListener(new ClickListener()
-        {
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                System.out.println("You threatened me!");
-                activeVerb = ActiveVerb.THREATEN;
-
-            }
-        });
-        TextButton expose = new TextButton("Expose", skin, "default");
-        expose.setTransform(true);
-        expose.setScale(2.0f);
-        expose.addListener(new ClickListener()
-        {
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                System.out.println("You exposed me!");
-                activeVerb = ActiveVerb.EXPOSE;
-            }
-        });
+//        TextButton threaten = new TextButton("Threaten", skin, "default");
+//        threaten.setTransform(true);
+//        threaten.setScale(2.0f);
+//        threaten.addListener(new ClickListener()
+//        {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y)
+//            {
+//                System.out.println("You threatened me!");
+//                activeVerb = ActiveVerb.THREATEN;
+//
+//            }
+//        });
+//        TextButton expose = new TextButton("Expose", skin, "default");
+//        expose.setTransform(true);
+//        expose.setScale(2.0f);
+//        expose.addListener(new ClickListener()
+//        {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y)
+//            {
+//                System.out.println("You exposed me!");
+//                activeVerb = ActiveVerb.EXPOSE;
+//            }
+//        });
         TextButton overwork = new TextButton("Overwork", skin, "default");
         overwork.setTransform(true);
         overwork.setScale(2.0f);
@@ -244,6 +244,18 @@ public class GameController implements Screen {
             {
                 final String s = "overwork";
                 confirmDialog("Are you sure you want to overwork?", s);
+            }
+        });
+        TextButton otherJobs = new TextButton("Do other jobs", skin, "default");
+        otherJobs.setTransform(true);
+        otherJobs.setScale(2.0f);
+        otherJobs.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                final String s = "otherJobs";
+                confirmDialog("Are you sure you want to do other jobs?", s);
             }
         });
         TextButton relax = new TextButton("Relax", skin, "default");
@@ -272,10 +284,11 @@ public class GameController implements Screen {
         });
 
         //toolbar.add(harass).expandX().padBottom(30);
-        toolbar.add(threaten).expandX().padBottom(30);
-        toolbar.add(expose).expandX().padBottom(30);
-        toolbar.add(overwork).expandX().padBottom(30);
-        toolbar.add(relax).expandX().padBottom(30);
+//        toolbar.add(threaten).expandX().padBottom(10);
+//        toolbar.add(expose).expandX().padBottom(10);
+        toolbar.add(overwork).expandX().padBottom(10);
+        toolbar.add(otherJobs).expandX().padBottom(10);
+        toolbar.add(relax).expandX().padBottom(10);
         toolbar.add(end).expandX().padBottom(10).padRight(20);
 
         Table stats = new Table();
@@ -295,15 +308,22 @@ public class GameController implements Screen {
 
         stats.add(stress).expandX().padTop(20);
         stats.add(ap).expandX().padTop(20);
-        stats.add(tStress).expandX().padTop(20);
-        stats.add(tSusp).expandX().padTop(20);
         stats.add(money).expandX().padTop(20);
+        stats.row();
+        stats.add(tStress).expandX().padTop(10);
+        stats.add(tSusp).expandX().padTop(10);
+
 
 
         toolbarStage.addActor(toolbar);
         toolbarStage.addActor(stats);
     }
 
+    /**
+     * Moves the camera based on the Input Keys
+     * Also allows for zooming + scales the movement and bounds based on zooming
+     *
+     */
     public void moveCamera() {
         camera = canvas.getCamera();
         currentZoom = camera.zoom;
@@ -463,6 +483,14 @@ public class GameController implements Screen {
                     createDialogBox("You rested for 1 AP and decreased your stress!");
                 } else {
                     createDialogBox("Insufficient AP to relax.");
+                }
+                break;
+            case "otherJobs":
+                if(world.getPlayer().canVtube()) {
+                    world.vtube();
+                    createDialogBox("You did some other jobs and earned some more bitecoin for yourself!");
+                } else {
+                    createDialogBox("Insufficient AP to do other jobs");
                 }
                 break;
             default:

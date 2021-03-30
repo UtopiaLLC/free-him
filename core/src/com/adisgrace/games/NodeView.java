@@ -113,7 +113,7 @@ public class NodeView {
     /**
      * Converts world coordinates to isometric coordinates
      * @param worldCoords
-     * @return the isocmetric coordinates
+     * @return the isometric coordinates
      */
     public Vector2 convertToIsometric(Vector2 worldCoords) {
         float oneOne = (float)Math.sqrt(3)/2;
