@@ -51,6 +51,18 @@ public class WorldModel {
 		ONGOING
 	};
 
+	/** Enum representing different verbs */
+	protected enum Verb {
+		VIEWFACT,
+		SCAN,
+		HACK,
+		RELAX,
+		NEXTTURN,
+		OVERWORK,
+		THREATEN,
+		VTUBE
+	}
+
 	/**
 	 * Constructs a WorldModel from a list of targets.
 	 * @param targetJsons Array of target json filenames
@@ -218,13 +230,13 @@ public class WorldModel {
 	 * @param fact particular node id of target that would be interacted with
 	 * @return int representing resulting verb of interaction
 	 */
-	public int interactionType(String targetname, String fact){
+	public Verb interactionType(String targetname, String fact){
 		if(contents.get(targetname).containsKey(fact))
-			return 2;
+			return Verb.VIEWFACT;
 		if(hackednodes.get(targetname).contains(fact, false))
-			return 1;
+			return Verb.SCAN;
 		else
-			return 0;
+			return Verb.HACK;
 	}
 
 	/**
