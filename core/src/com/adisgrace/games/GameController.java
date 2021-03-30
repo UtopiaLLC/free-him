@@ -63,13 +63,17 @@ public class GameController implements Screen {
     /** imageNodes contains all ImageButtons for each fact node and target node */
     private Map<String, ImageButton> imageNodes;
     /** stress is the dialog label for stress */
-    Label stress;
+    private Label stress;
     /** ap is the dialog label for ap */
-    Label ap;
+    private Label ap;
     /** tStress is the dialog label for tStress */
-    Label tStress;
+    private Label tStress;
     /** tSusp is the dialog label for tSusp */
-    Label tSusp;
+    private Label tSusp;
+    /** money is the dialog label for money */
+    private Label money;
+
+    private boolean ended = false;
 
     public GameController() {
         canvas = new GameCanvas();
@@ -126,14 +130,27 @@ public class GameController implements Screen {
 
         canvas.clear();
 
-        moveCamera();
+        if(!ended) {
+            moveCamera();
+            stage.act(delta);
+            toolbarStage.act(delta);
+        }
 //        canvas.begin();
 //        canvas.end();
-        stage.act(delta);
+
         stage.draw();
-        toolbarStage.act(delta);
+
         toolbarStage.draw();
         updateStats();
+
+        if(world.getGameState() == WorldModel.GAMESTATE.LOSE && !ended) {
+            createDialogBox("YOU LOSE!");
+            ended = true;
+
+        } else if (world.getGameState() == WorldModel.GAMESTATE.WIN && !ended) {
+            createDialogBox("You Win!");
+            ended = true;
+        }
 
     }
 
@@ -270,6 +287,8 @@ public class GameController implements Screen {
         tStress.setFontScale(2);
         tSusp = new Label("Target Suspicion: " + Float.toString(target.getSuspicion()), skin);
         tSusp.setFontScale(2);
+        money = new Label ("Bitecoin: " + Float.toString(world.getPlayer().getBitecoin()), skin);
+        money.setFontScale(2);
 
         stats.top();
         stats.setFillParent(true);
@@ -278,6 +297,7 @@ public class GameController implements Screen {
         stats.add(ap).expandX().padTop(20);
         stats.add(tStress).expandX().padTop(20);
         stats.add(tSusp).expandX().padTop(20);
+        stats.add(money).expandX().padTop(20);
 
 
         toolbarStage.addActor(toolbar);
@@ -458,5 +478,6 @@ public class GameController implements Screen {
         ap.setText("AP: " + Float.toString(world.getPlayer().getAP()));
         tStress.setText("Target Stress: " + Float.toString(target.getStress()));
         tSusp.setText("Target Suspicion: " + Float.toString(target.getSuspicion()));
+        money.setText("Bitecoin: " + Float.toString(world.getPlayer().getBitecoin()));
     }
 }
