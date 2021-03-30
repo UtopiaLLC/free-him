@@ -385,11 +385,26 @@ public class GameController implements Screen {
 //                    world.hack(nodeInfo[0], nodeInfo[1]);
 //                    world.scan(nodeInfo[0], nodeInfo[1]);
 //                    createDialogBox(world.viewFact(nodeInfo[0], nodeInfo[1]));
-                    if(world.getPlayer().canHack() && world.getPlayer().canScan()) {
-                        createDialogBox(world.interact(nodeInfo[0], nodeInfo[1]));
-                        reloadDisplayedNodes();
-                    } else {
-                        createDialogBox("Insufficient AP to hack or scan this node.");
+                    switch (world.interactionType(nodeInfo[0], nodeInfo[1])) {
+                        case HACK:
+                            if(world.getPlayer().canHack()) {
+                                createDialogBox(world.interact(nodeInfo[0], nodeInfo[1]));
+                                reloadDisplayedNodes();
+                            } else {
+                                createDialogBox("Insufficient AP to hack this node.");
+                            }
+                            break;
+                        case SCAN:
+                            if(world.getPlayer().canScan()) {
+                                createDialogBox(world.interact(nodeInfo[0], nodeInfo[1]));
+                                reloadDisplayedNodes();
+                            } else {
+                                createDialogBox("Insufficient AP to scan this node.");
+                            }
+                            break;
+                        case VIEWFACT:
+                            createDialogBox(world.interact(nodeInfo[0], nodeInfo[1]));
+                            break;
                     }
 
                 }
