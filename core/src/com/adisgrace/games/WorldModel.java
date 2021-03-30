@@ -222,9 +222,9 @@ public class WorldModel {
 		if(contents.get(targetname).containsKey(fact))
 			return 2;
 		if(hackednodes.get(targetname).contains(fact, false))
-			return 0;
-		else
 			return 1;
+		else
+			return 0;
 	}
 
 	/**
