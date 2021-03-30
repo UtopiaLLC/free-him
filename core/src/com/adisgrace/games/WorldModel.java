@@ -237,6 +237,15 @@ public class WorldModel {
 		return new Array<String>((String[])targets.keySet().toArray());
 	}
 
+	/**
+	 * Returns a particular TargetModel
+	 * @param targetname name of target
+	 * @return attached TargetModel
+	 */
+	public TargetModel getTarget(String targetname){
+		return targets.get(targetname);
+	}
+
 	/************************************************* PLAYER METHODS *************************************************/
 
 	/**
