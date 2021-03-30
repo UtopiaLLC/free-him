@@ -35,9 +35,6 @@ public class WorldModel {
 	// Modified for combos
 	private Map<String, Map<String, String>> contents;
 
-	// Map of target world coordinates
-	private Map<String, Vector2> targetCoords;
-
 	// Number of days elapsed from start of game
 	private int n_days;
 
@@ -55,13 +52,11 @@ public class WorldModel {
 	};
 
 	/**
-	 * Constructs a WorldModel from a list of targets and their positions on the displayed map.
+	 * Constructs a WorldModel from a list of targets.
 	 * @param targetJsons Array of target json filenames
-	 * @param targetCoords Map of target_name->coords for exactly the targets described by the jsons
 	 */
-	public WorldModel(Array<String> targetJsons, Map<String, Vector2> targetCoords) {
+	public WorldModel(Array<String> targetJsons) {
 		player = new PlayerModel();
-		this.targetCoords = new HashMap<String, Vector2>(targetCoords);
 		targets = new HashMap<String, TargetModel>();
 		to_display = new HashMap<String, Array<String>>();
 		hackednodes = new HashMap<String, Array<String>>();
@@ -69,8 +64,11 @@ public class WorldModel {
 		summaries = new HashMap<String, Map<String, String>>();
 		contents = new HashMap<String, Map<String, String>>();
 //        TargetModel target;
+
+		// Go through all targets given
 		for(String t : targetJsons) {
 			this.addTarget(t);
+
 //		    target = new TargetModel(t);
 //			targets.put(t, target);
 //			summaries.put(t, new HashMap<String, String>());
@@ -84,6 +82,9 @@ public class WorldModel {
 //				// summary.get(t).put(fact, target.getSummary(fact));
 //			}
 		}
+
+
+
 		n_days = 0;
 		rng = new Random();
 	}
@@ -133,7 +134,7 @@ public class WorldModel {
 	 * @return 				Vector world coordinates of the target's origin
 	 */
 	public Vector2 getWorldCoordinates(String targetName){
-		return targetCoords.get(targetName);
+		return new Vector2(targets.get(targetName).getX(),targets.get(targetName).getY());
 	}
 
 	/**
@@ -144,7 +145,7 @@ public class WorldModel {
 	 * @return 				Vector world coordinates of the target fact's origin
 	 */
 	public Vector2 getWorldCoordinates(String targetName, String fact){
-		return targets.get(targetName).getNodeCoords(fact).cpy().add(targetCoords.get(targetName));
+		return targets.get(targetName).getNodeCoords(fact).cpy().add(getWorldCoordinates(targetName));
 	}
 
 	/************************************************* CONTROLLER METHODS *************************************************/
@@ -166,8 +167,6 @@ public class WorldModel {
 		for(String fact: target.getFirstNodes()){
 			to_display.get(t).add(fact);
 		}
-		if(!targetCoords.containsKey(t))
-			targetCoords.put(t, new Vector2());
 	}
 
 	/**
@@ -187,7 +186,6 @@ public class WorldModel {
 		for(String fact: target.getFirstNodes()){
 			to_display.get(t).add(fact);
 		}
-		targetCoords.put(t, coords.cpy());
 	}
 
 	/**
