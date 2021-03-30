@@ -214,6 +214,22 @@ public class WorldModel {
 	}
 
 	/**
+	 * Interaction that would result from calling interact(targetname,fact)
+	 * Returns 0 for hack, 1 for scan, and 2 for viewFact
+	 * @param targetname  target that would be interacted with
+	 * @param fact particular node id of target that would be interacted with
+	 * @return int representing resulting verb of interaction
+	 */
+	public int interactionType(String targetname, String fact){
+		if(contents.get(targetname).containsKey(fact))
+			return 2;
+		if(hackednodes.get(targetname).contains(fact, false))
+			return 0;
+		else
+			return 1;
+	}
+
+	/**
 	 * Returns PlayerModel
 	 * @return player
 	 */
