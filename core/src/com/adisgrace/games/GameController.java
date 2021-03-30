@@ -249,7 +249,7 @@ public class GameController implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-                createDialogBox("You ended the day after a long battle of psychological warfare.");
+                createDialogBox("You end the day after a long battle of psychological warfare.");
                 world.nextTurn();
             }
         });
@@ -376,7 +376,11 @@ public class GameController implements Screen {
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
         Label l = new Label( s, skin );
-        l.setFontScale(2);
+        if(s.length() > 50) {
+            l.setFontScale(1.5f);
+        }else {
+            l.setFontScale(2f);
+        }
         l.setWrap( true );
         dialog.getContentTable().add( l ).prefWidth( 350 );
         dialog.button("Ok", true); //sends "true" as the result
