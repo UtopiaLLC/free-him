@@ -301,11 +301,13 @@ public class WorldModel {
 			throw new RuntimeException("Node is undiscovered, or has already been hacked");
 		if(!player.canHack())
 			throw new RuntimeException("Insufficient AP to hack");
+		player.hack();
 		if(rng.nextDouble() < 0.2){
+			System.out.println("Suspicion before " + targets.get(targetname).getSuspicion());
 			targets.get(targetname).addSuspicion(25);
+			System.out.println("Suspicion after " + targets.get(targetname).getSuspicion());
 			return false;
 		}
-		player.hack();
 		hackednodes.get(targetname).add(fact);
 		return true;
 	}
