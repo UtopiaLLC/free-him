@@ -229,16 +229,16 @@ public class GameController implements Screen {
                 confirmDialog("Are you sure you want to overwork?", s);
             }
         });
-        TextButton rest = new TextButton("Rest", skin, "default");
-        rest.setTransform(true);
-        rest.setScale(2.0f);
-        rest.addListener(new ClickListener()
+        TextButton relax = new TextButton("Relax", skin, "default");
+        relax.setTransform(true);
+        relax.setScale(2.0f);
+        relax.addListener(new ClickListener()
         {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-                final String s = "rest";
-                confirmDialog("Are you sure you want to rest?", s);
+                final String s = "relax";
+                confirmDialog("Are you sure you want to relax?", s);
             }
         });
         TextButton end = new TextButton("End Day", skin, "default");
@@ -258,7 +258,7 @@ public class GameController implements Screen {
         toolbar.add(threaten).expandX().padBottom(30);
         toolbar.add(expose).expandX().padBottom(30);
         toolbar.add(overwork).expandX().padBottom(30);
-        toolbar.add(rest).expandX().padBottom(30);
+        toolbar.add(relax).expandX().padBottom(30);
         toolbar.add(end).expandX().padBottom(10).padRight(20);
 
         Table stats = new Table();
@@ -433,9 +433,13 @@ public class GameController implements Screen {
                 world.overwork();
                 createDialogBox("You overworked yourself and gained 2 AP at the cost of your sanity...");
                 break;
-            case "rest":
-                world.relax(1);
-                createDialogBox("You rested for 1 AP and decreased your stress!");
+            case "relax":
+                if(world.getPlayer().canRelax()) {
+                    world.relax(1);
+                    createDialogBox("You rested for 1 AP and decreased your stress!");
+                } else {
+                    createDialogBox("Insufficient AP to relax.");
+                }
                 break;
             default:
                 System.out.println("You shall not pass");

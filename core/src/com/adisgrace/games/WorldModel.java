@@ -208,7 +208,7 @@ public class WorldModel {
 		if(hackednodes.get(targetname).contains(fact, false))
 			return this.scan(targetname, fact);
 		else
-			if(this.hack(targetname, fact)
+			if(this.hack(targetname, fact))
 		    		return "You successfully hack the node.";
 			else return ("You fail to hack the node. " + targetname + " begins to catch wind of your activities.");
 	}
