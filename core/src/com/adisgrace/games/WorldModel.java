@@ -386,6 +386,17 @@ public class WorldModel {
 	}
 
 	/**
+	 * Returns all facts connected to a given fact
+	 * @param targetName name of target who "owns" fact to be viewed
+	 * @param fact fact identifier
+	 * @return an Array of facts connected to fact
+	 */
+	public Array<String> getConnections(String targetName, String fact){
+		TargetModel target = targets.get(targetName);
+		return target.getChildren(fact);
+	}
+
+	/**
 	 * View contents of a known fact
 	 * @param targetname name of target who "owns" fact to be viewed
 	 * @param fact fact identifier
