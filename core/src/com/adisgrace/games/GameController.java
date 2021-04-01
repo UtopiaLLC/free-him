@@ -198,8 +198,9 @@ public class GameController implements Screen {
         skin = new Skin(Gdx.files.internal("skins/neon-ui.json"));
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
-        inputMultiplexer.addProcessor(stage);
         inputMultiplexer.addProcessor(toolbarStage);
+        inputMultiplexer.addProcessor(stage);
+
         Gdx.input.setInputProcessor(inputMultiplexer);
 
         Table toolbar = new Table();
