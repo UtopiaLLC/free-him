@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -13,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -134,12 +136,13 @@ public class GameController implements Screen {
         // Was supposed to freeze nodes and stop action if game ended or if popup window exists... Didn't work yet.
         if(!ended) {
             moveCamera();
+            toolbarStage.act(delta);
             if(!nodeFreeze) {
                 stage.act(delta);
             } else {
 
             }
-            toolbarStage.act(delta);
+
         }
 //        canvas.begin();
 //        canvas.end();
@@ -441,6 +444,9 @@ public class GameController implements Screen {
                 nodeFreeze = false;
             }
         };
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+        dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
         Label l = new Label( s, skin );
@@ -464,7 +470,7 @@ public class GameController implements Screen {
      * @param function
      */
     public void confirmDialog(String s, final String function) {
-        Dialog dialog = new Dialog("Are you sure?", skin) {
+        Dialog dialog = new Dialog("", skin) {
             public void result(Object obj) {
                 if((boolean)obj) {
                     callConfirmFunction(function);
@@ -473,6 +479,9 @@ public class GameController implements Screen {
                 }
             }
         };
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+        dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(300);
         dialog.getBackground().setMinHeight(300);
         Label l = new Label( s, skin );
