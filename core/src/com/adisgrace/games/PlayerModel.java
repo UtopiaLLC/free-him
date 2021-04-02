@@ -161,7 +161,7 @@ public class PlayerModel {
 		@return is the player alive
 	*/
 	public boolean isLiving() {
-		return (this.stress < MAX_STRESS) && (this.bitecoin >= 0);
+		return (this.stress < MAX_STRESS) && ((int)this.bitecoin > 0);
 	}
 
 	/**

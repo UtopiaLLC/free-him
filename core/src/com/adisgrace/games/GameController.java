@@ -303,15 +303,15 @@ public class GameController implements Screen {
         toolbar.add(end).expandX().padBottom(10).padRight(20);
 
         Table stats = new Table();
-        stress = new Label("Player Stress: " + Float.toString(world.getPlayer().getStress()), skin);
+        stress = new Label("Player Stress: " + Integer.toString((int)(world.getPlayer().getStress())), skin);
         stress.setFontScale(2);
-        ap = new Label("AP: " + Float.toString(world.getPlayer().getAP()), skin);
+        ap = new Label("AP: " + Integer.toString(world.getPlayer().getAP()), skin);
         ap.setFontScale(2);
-        tStress = new Label("Target Stress: " + Float.toString(target.getStress()), skin);
+        tStress = new Label("Target Stress: " + Integer.toString(target.getStress()), skin);
         tStress.setFontScale(2);
-        tSusp = new Label("Target Suspicion: " + Float.toString(target.getSuspicion()), skin);
+        tSusp = new Label("Target Suspicion: " + Integer.toString(target.getSuspicion()), skin);
         tSusp.setFontScale(2);
-        money = new Label ("Bitecoin: " + Float.toString(world.getPlayer().getBitecoin()), skin);
+        money = new Label ("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()), skin);
         money.setFontScale(2);
 
         stats.top();
@@ -550,10 +550,10 @@ public class GameController implements Screen {
      * Updates the stats HUD with current values
      */
     public void updateStats(){
-        stress.setText("Player Stress: " + Float.toString(world.getPlayer().getStress()));
-        ap.setText("AP: " + Float.toString(world.getPlayer().getAP()));
-        tStress.setText("Target Stress: " + Float.toString(target.getStress()));
-        tSusp.setText("Target Suspicion: " + Float.toString(target.getSuspicion()));
-        money.setText("Bitecoin: " + Float.toString(world.getPlayer().getBitecoin()));
+        stress.setText("Player Stress: " + Integer.toString((int)world.getPlayer().getStress()));
+        ap.setText("AP: " + Integer.toString(world.getPlayer().getAP()));
+        tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
+        tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));
+        money.setText("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()));
     }
 }
