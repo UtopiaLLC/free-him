@@ -84,6 +84,7 @@ public class GameController implements Screen {
         viewport.setCamera(canvas.getCamera());
         currentZoom = canvas.getCamera().zoom;
         stage = new Stage(viewport);
+        canvas.getCamera().zoom = 1.5f;
 
         // Create and store targets in array
         Array<String> targetJsons = new Array<>();
@@ -338,21 +339,28 @@ public class GameController implements Screen {
         camera = canvas.getCamera();
         currentZoom = camera.zoom;
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
-            camera.translate(0, 50*currentZoom);
+            camera.translate(0, 12*currentZoom);
         }if(Gdx.input.isKeyPressed(Input.Keys.A)) {
-            camera.translate(-50*currentZoom, 0);
+            camera.translate(-12*currentZoom, 0);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.S)) {
-            camera.translate(0, -50*currentZoom);
+            camera.translate(0, -12*currentZoom);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            camera.translate(50*currentZoom, 0);
+            camera.translate(12*currentZoom, 0);
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.E)) {
-            camera.zoom = (.9f)*currentZoom;
+            camera.zoom = (.99f)*currentZoom;
         } if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            camera.zoom = (1.1f)*currentZoom;
+            camera.zoom = (1.01f)*currentZoom;
+        }
+
+        if(camera.zoom > 4.0f) {
+            camera.zoom = 4.0f;
+        }
+        if(camera.zoom < 1.0f) {
+            camera.zoom = 1.0f;
         }
 
         float camX = camera.position.x;
