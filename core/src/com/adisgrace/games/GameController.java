@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -16,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -78,9 +80,13 @@ public class GameController implements Screen {
     private boolean ended = false;
     private boolean nodeFreeze = false;
 
+    private static final float MINWORLDWIDTH = 300; //1280
+    private static final float MINWORLDHEIGHT = 400; //720
+
     public GameController() {
         canvas = new GameCanvas();
-        ExtendViewport viewport = new ExtendViewport(1280, 720);
+//        Gdx.graphics.getWidth();
+        ExtendViewport viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         viewport.setCamera(canvas.getCamera());
         currentZoom = canvas.getCamera().zoom;
         stage = new Stage(viewport);
@@ -147,8 +153,9 @@ public class GameController implements Screen {
 //        canvas.begin();
 //        canvas.end();
 
+        stage.getViewport().apply();
         stage.draw();
-
+        toolbarStage.getViewport().apply();
         toolbarStage.draw();
         updateStats();
 
@@ -165,8 +172,24 @@ public class GameController implements Screen {
 
     @Override
     public void resize(int width, int height) {
+        //access viewports and change size
+//        toolbarStage.setViewport(new ExtendViewport(width, height));
+//        stage.setViewport(new ExtendViewport(width, height));
+        toolbarStage.getViewport().update(width,height);
+        stage.getViewport().update(width,height, true);
 
     }
+
+//    public void resize (int width, int height) {
+//        Vector2 size = Scaling.fit.apply(300, 400, width, height);
+//        int viewportX = (int)(width - size.x) / 2;
+//        int viewportY = (int)(height - size.y) / 2;
+//        int viewportWidth = (int)size.x;
+//        int viewportHeight = (int)size.y;
+//        Gdx.gl.glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
+//        ExtendViewport view = new ExtendViewport(800, 480, true, viewportX, viewportY, viewportWidth, viewportHeight);
+//        stage.setViewport();
+//    }
 
     @Override
     public void pause() {
@@ -193,7 +216,7 @@ public class GameController implements Screen {
      */
     public void createToolbar() {
         // Move to an outside class eventually
-        ExtendViewport toolbarViewPort = new ExtendViewport(1280, 720);
+        ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         toolbarStage = new Stage(toolbarViewPort);
         skin = new Skin(Gdx.files.internal("skins/neon-ui.json"));
 
