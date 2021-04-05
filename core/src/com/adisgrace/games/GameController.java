@@ -202,7 +202,6 @@ public class GameController implements Screen {
         inputMultiplexer.addProcessor(stage);
 
         Gdx.input.setInputProcessor(inputMultiplexer);
-
         Table toolbar = new Table();
         toolbar.bottom();
         toolbar.setFillParent(true);
@@ -293,6 +292,19 @@ public class GameController implements Screen {
             }
         });
 
+        TextButton notebook = new TextButton("Notebook", skin, "default");
+        notebook.setTransform(true);
+        notebook.setScale(2.0f);
+        notebook.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                final String s = "notebook";
+                confirmDialog("Are you sure you want to open notebook?", s);
+            }
+        });
+
         //toolbar.add(harass).expandX().padBottom(30);
 //        toolbar.add(threaten).expandX().padBottom(10);
 //        toolbar.add(expose).expandX().padBottom(10);
@@ -300,6 +312,7 @@ public class GameController implements Screen {
         toolbar.add(otherJobs).expandX().padBottom(10);
         toolbar.add(relax).expandX().padBottom(10);
         toolbar.add(end).expandX().padBottom(10).padRight(20);
+        toolbar.add(notebook).expandX().padBottom(10);
 
         Table stats = new Table();
         stress = new Label("Player Stress: " + Float.toString(world.getPlayer().getStress()), skin);
@@ -533,6 +546,8 @@ public class GameController implements Screen {
                     createDialogBox("Insufficient AP to do other jobs");
                 }
                 break;
+            case "notebook":
+                createDialogBox("You opened the notebook!");
             default:
                 System.out.println("You shall not pass");
         }
