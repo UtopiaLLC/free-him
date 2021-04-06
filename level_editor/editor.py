@@ -1,4 +1,7 @@
 import json
+import tkinter as tk
+
+
 
 class Target:
     def __init__(self, contents = None):
@@ -65,6 +68,60 @@ class FactNode:
     #     pass
 
 
+class View:
+    def __init__(self):
+        self.root = tk.Tk('main')
+        self.canvas = tk.Canvas(self.root, height=1000, width=1000, bg='white')
+        self.root.title('very serious legit level editor')
+        self.canvas.pack(fill=tk.BOTH, expand=True)
+        self.canvas.bind('<Configure>', self.draw_grid)
+        self.canvas.bind('<Button-1>', self.draw_object)
+        self.root.mainloop()
+
+    def draw_grid(self, event = None, rows = 13, cols = 13):
+        w = self.canvas.winfo_width()
+        h = self.canvas.winfo_height()
+        self.canvas.delete('grid_line')
+        #self.canvas.delete('grid_line')
+
+        for i in range(0, w, int(w/rows)):
+            self.canvas.create_line([i, 0], [i, h], tag = 'grid_line')
+        
+        for i in range(0, h, int(h/cols)):
+            self.canvas.create_line([0, i], [w, i], tag = 'grid_line')
+
+        #self.canvas.create_text(w/2, h/2 , font = "WingDings", text = 'T', tag = 'target')
+
+    def draw_object(self, event, row= 1, col= 1):
+        w = self.canvas.winfo_width()
+        h = self.canvas.winfo_height()
+        self.canvas.delete('target')
+        self.canvas.create_text((w/13)* , (h/13) , font = "WingDings", text = 'T', tag = 'target')
+
+    def open_gui(self, active_element):
+        if isinstance(active_element, Target):
+            # open menu with fields
+            pass
+        elif isinstance(active_element, FactNode):
+            # open menu with fields
+            pass
+        else:
+            pass
+
+    def close_gui(self, active_element):
+        if isinstance(active_element, Target):
+            # save contents
+            pass
+        elif isinstance(active_element, FactNode):
+            # save contents
+            pass
+        else:
+            pass
+
+class Controller:
+    def __init__(self):
+        self.a = 'b'
+        
 class Level:
     def __init__(self, file = None):
         if file == None:
@@ -76,26 +133,8 @@ class Level:
             self.factnodes = { FactNode(contents = cont) for cont in jason['factnodes'] }
         self.active_element = None 
         self.drawing = False # self.drawing if drawing a FactNode path
+        self.view = View()
 
-    def open_gui(self):
-        if self.active_element.isInstance(Target):
-            # open menu with fields
-            pass
-        elif self.active_element.isInstance(FactNode):
-            # open menu with fields
-            pass
-        else:
-            pass
-
-    def close_gui(self):
-        if self.active_element.isInstance(Target):
-            # save contents
-            pass
-        elif self.active_element.isInstance(FactNode):
-            # save contents
-            pass
-        else:
-            pass
 
     def element_at(self, pos):
         pos = (int(pos[0]), int(pos[1]))
@@ -117,4 +156,5 @@ class Level:
             self.active_element.open_gui()
 
 
-
+l = Level()
+l.view.draw_object()
