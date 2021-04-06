@@ -7,6 +7,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.particles.ParticleSorter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -35,10 +36,6 @@ public class GameController implements Screen {
         THREATEN,
         /**  Linked to Expose mode; Expose needs to be applied to a node after it has been clicked */
         EXPOSE,
-        /**  Linked to Overwork mode; Overwork needs to be applied */
-        OVERWORK,
-        /**  Linked to Relax mode; Relax needs to be applied */
-        REST,
         /**  Linked to hack and scan commands*/
         NONE
     };
@@ -80,6 +77,9 @@ public class GameController implements Screen {
 
     private boolean ended = false;
     private boolean nodeFreeze = false;
+
+    private Dialog blackmailDialog;
+    private boolean getRidOfBlackmail;
 
     private static final float MINWORLDWIDTH = 300; //1280
     private static final float MINWORLDHEIGHT = 400; //720
@@ -167,6 +167,11 @@ public class GameController implements Screen {
         } else if (world.getGameState() == WorldModel.GAMESTATE.WIN && !ended) {
             createDialogBox("You Win!");
             ended = true;
+        }
+
+        if(getRidOfBlackmail) {
+            blackmailDialog.hide();
+            getRidOfBlackmail = false;
         }
 
     }
@@ -262,9 +267,7 @@ public class GameController implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-//                System.out.println("You harassed me!");
-//                activeVerb = ActiveVerb.HARASS;
-                createDialogBox("You clicked something that hasn't been implemented yet.");
+                activeVerb = ActiveVerb.HARASS;
             }
         });
         ImageButton threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -276,9 +279,8 @@ public class GameController implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-//                System.out.println("You threatened me!");
-//                activeVerb = ActiveVerb.THREATEN;
-                createDialogBox("You clicked something that hasn't been implemented yet.");
+
+                activeVerb = ActiveVerb.THREATEN;
 
             }
         });
@@ -291,9 +293,7 @@ public class GameController implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-//                System.out.println("You exposed me!");
-//                activeVerb = ActiveVerb.EXPOSE;
-                createDialogBox("You clicked something that hasn't been implemented yet.");
+                activeVerb = ActiveVerb.EXPOSE;
             }
         });
         ImageButton overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -510,16 +510,41 @@ public class GameController implements Screen {
 
                 }
                 break;
+            case HARASS:
+                if(isTarget) {
+                    if(world.getPlayer().canHarass()) {
+                        createDialogBox("Harass isn't implemented yet... thank Brian :)");
+                        activeVerb = ActiveVerb.NONE;
+                    }
+                    else {
+                        createDialogBox("Insufficient AP to harass the target.");
+                        activeVerb = ActiveVerb.NONE;
+                    }
+                }
+                break;
             case THREATEN:
                 if(isTarget) {
-
+                    if(world.getPlayer().canThreaten()) {
+                        getBlackmailFact("Select a fact to threaten the player with.");
+                    }
+                    else {
+                        createDialogBox("Insufficient AP to threaten the target.");
+                        activeVerb = ActiveVerb.NONE;
+                    }
                 }
 
                 break;
             case EXPOSE:
                 if(isTarget) {
-                    System.out.println(activeVerb);
-                    activeVerb = ActiveVerb.NONE;
+                    if(isTarget) {
+                        if(world.getPlayer().canExpose()) {
+                            getBlackmailFact("Select a fact to expose the player with.");
+                        }
+                        else {
+                            createDialogBox("Insufficient AP to expose the target.");
+                            activeVerb = ActiveVerb.NONE;
+                        }
+                    }
                 }
 
                 break;
@@ -580,6 +605,7 @@ public class GameController implements Screen {
             l.setFontScale(2f);
         }
         l.setWrap( true );
+        dialog.getContentTable().add( l ).prefWidth( 350 );
         dialog.setMovable(true);
 
         Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
@@ -597,6 +623,7 @@ public class GameController implements Screen {
         table.row();
         for (int i = 0; i < scannedFacts.size; i++) {
             Label k = new Label(scannedFacts.get(i), skin);
+            k.setFontScale(1.3f);
             k.setWrap(true);
             table.add(k).prefWidth(350);
             table.row();
@@ -615,6 +642,84 @@ public class GameController implements Screen {
         dialog.button("Ok", true); //sends "true" as the result
         dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         dialog.show(toolbarStage);
+        nodeFreeze = true;
+    }
+
+    /**
+     *
+     * @param s
+     */
+    public void getBlackmailFact(String s) {
+        blackmailDialog = new Dialog("Notebook", skin) {
+            public void result(Object obj) {
+                nodeFreeze = false;
+                activeVerb = ActiveVerb.NONE;
+            }
+        };
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+        blackmailDialog.setBackground(drawable);
+        blackmailDialog.getBackground().setMinWidth(500);
+        blackmailDialog.getBackground().setMinHeight(500);
+        Label l = new Label( s, skin );
+        if(s.length() > 50) {
+            l.setFontScale(1.5f);
+        }else {
+            l.setFontScale(2f);
+        }
+        l.setWrap( true );
+        blackmailDialog.setMovable(true);
+        blackmailDialog.getContentTable().add( l ).prefWidth( 350 );
+        Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
+        Map<String, String> summaryToFacts = new HashMap<String, String>();
+        Array<String> scannedFacts = new Array<>();
+
+        Table table = blackmailDialog.getContentTable();
+        if (factSummaries.keySet().size() == 0) {
+            scannedFacts.add("No facts scanned yet!");
+        }
+        for (String fact_ : factSummaries.keySet()) {
+            scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
+            summaryToFacts.put(world.viewFactSummary(target.getName(), fact_), fact_);
+        }
+        table.setFillParent(false);
+
+        table.row();
+        for (int i = 0; i < scannedFacts.size; i++) {
+            Label k = new Label(scannedFacts.get(i), skin);
+            k.setWrap(true);
+            k.setName(target.getName() + "," + summaryToFacts.get(scannedFacts.get(i)));
+            k.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    Actor cbutton = (Actor)event.getListenerActor();
+                    String[] info = cbutton.getName().split(",");
+                    getRidOfBlackmail = true;
+                    switch (activeVerb) {
+                        case HARASS:
+
+                        case THREATEN:
+                            world.threaten(info[0], info[1]);
+                            activeVerb = ActiveVerb.NONE;
+                            createDialogBox("You threatened the target!");
+                            break;
+                        case EXPOSE:
+                            world.expose(info[0], info[1]);
+                            activeVerb = ActiveVerb.NONE;
+                            createDialogBox("You exposed the target!");
+                            break;
+                        default:
+                            System.out.println("This shouldn't be happening.");
+                    }
+                }
+            });
+            table.add(k).prefWidth(350);
+            table.row();
+        }
+
+        blackmailDialog.button("Cancel", true); //sends "true" as the result
+        blackmailDialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
+        blackmailDialog.show(toolbarStage);
         nodeFreeze = true;
     }
 
@@ -668,8 +773,12 @@ public class GameController implements Screen {
     public void callConfirmFunction(String s) {
         switch(s) {
             case "overwork":
-                world.overwork();
-                createDialogBox("You overworked yourself and gained 2 AP at the cost of your sanity...");
+                if(world.getPlayer().canOverwork()) {
+                    world.overwork();
+                    createDialogBox("You overworked yourself and gained 2 AP at the cost of your sanity...");
+                } else {
+                    createDialogBox("You cannot overwork anymore today!");
+                }
                 break;
             case "relax":
                 if(world.getPlayer().canRelax()) {
@@ -690,6 +799,7 @@ public class GameController implements Screen {
             case "notebook":
 //                createDialogBox("You opened the notebook!");
                 createNotebook("You opened the notebook!");
+                break;
             default:
                 System.out.println("You shall not pass");
         }
