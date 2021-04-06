@@ -94,8 +94,8 @@ class FactNode:
 
 
 class View:
-    def __init__(self):
-        self.controller = None
+    def __init__(self, controller):
+        self.controller = controller
         self.root = tk.Tk('main')
         self.canvas = tk.Canvas(self.root, height=1000, width=1000, bg='white')
         self.root.title('very serious legit level editor')
@@ -105,8 +105,6 @@ class View:
         self.canvas.bind('<Button-2>', self.open_new_menu)
         self.root.mainloop()
         
-    def add_controller(self, controller):
-        self.controller = controller
 
     def draw_everything(self, event = None, rows = rol_num, cols = col_num):
         w = self.canvas.winfo_width()
@@ -248,9 +246,8 @@ class Level:
 
 
 m = Level()
-v = View()
 c = Controller()
+v = View(c)
 
 m.add_view(v)
-v.add_controller(c)
 c.add_level(m)
