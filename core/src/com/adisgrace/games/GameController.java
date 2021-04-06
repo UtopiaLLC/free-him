@@ -324,7 +324,7 @@ public class GameController implements Screen {
         ImageButton end = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         end.setTransform(true);
-        end.setScale(.25f);
+        end.setScale(.5f);
         end.addListener(new ClickListener()
         {
             @Override
@@ -337,7 +337,7 @@ public class GameController implements Screen {
         ImageButton settings = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         settings.setTransform(true);
-        settings.setScale(.25f);
+        settings.setScale(.5f);
         settings.addListener(new ClickListener()
         {
             @Override
@@ -349,7 +349,7 @@ public class GameController implements Screen {
         ImageButton notebook = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         notebook.setTransform(true);
-        notebook.setScale(.25f);
+        notebook.setScale(.5f);
         notebook.addListener(new ClickListener()
         {
             @Override
@@ -359,6 +359,7 @@ public class GameController implements Screen {
                 confirmDialog("Are you sure you want to open notebook?", s);
             }
         });
+
 
         Table toolbar = new Table();
         toolbar.bottom();
@@ -384,10 +385,11 @@ public class GameController implements Screen {
         skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills);
         skillBar.add(relax).width(skillBar.getWidth()/numSkills);
 
+        end.align(Align.bottomRight);
         rightSide.add(end).width(rightSide.getWidth());
-        rightSide.row();
+//        rightSide.row();
         rightSide.add(notebook).width(rightSide.getWidth());
-        rightSide.row();
+//        rightSide.row();
         rightSide.add(settings).width(rightSide.getWidth());
 
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth());
@@ -399,65 +401,6 @@ public class GameController implements Screen {
         toolbarStage.addActor(createStats());
     }
 
-    public void create() {
-//        stage = new Stage(ne());
-        //stage.setDebugAll(true);
-
-        Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
-        Container<Table> tableContainer = new Container<Table>();
-
-        float sw = Gdx.graphics.getWidth();
-        float sh = Gdx.graphics.getHeight();
-
-        float cw = sw * 0.7f;
-        float ch = sh * 0.5f;
-
-        tableContainer.setSize(cw, ch);
-        tableContainer.setPosition((sw - cw) / 2.0f, (sh - ch) / 2.0f);
-        tableContainer.fillX();
-
-        Table table = new Table(skin);
-
-        Label topLabel = new Label("A LABEL", skin);
-        topLabel.setAlignment(Align.center);
-        Slider slider = new Slider(0, 100, 1, false, skin);
-        Label anotherLabel = new Label("ANOTHER LABEL", skin);
-        anotherLabel.setAlignment(Align.center);
-
-        CheckBox checkBoxA = new CheckBox("Checkbox Left", skin);
-        CheckBox checkBoxB = new CheckBox("Checkbox Center", skin);
-        CheckBox checkBoxC = new CheckBox("Checkbox Right", skin);
-
-        Table buttonTable = new Table(skin);
-
-        TextButton buttonA = new TextButton("LEFT", skin);
-        TextButton buttonB = new TextButton("RIGHT", skin);
-
-        table.row().colspan(3).expandX().fillX();
-        table.add(topLabel).fillX();
-        table.row().colspan(3).expandX().fillX();
-        table.add(slider).fillX();
-        table.row().colspan(3).expandX().fillX();
-        table.add(anotherLabel).fillX();
-        table.row().expandX().fillX();
-
-        table.add(checkBoxA).expandX().fillX();
-        table.add(checkBoxB).expandX().fillX();
-        table.add(checkBoxC).expandX().fillX();
-        table.row().expandX().fillX();;
-
-        table.add(buttonTable).colspan(3);
-
-        buttonTable.pad(16);
-        buttonTable.row().fillX().expandX();
-        buttonTable.add(buttonA).width(cw/3.0f);
-        buttonTable.add(buttonB).width(cw/3.0f);
-
-        tableContainer.setActor(table);
-        stage.addActor(tableContainer);
-
-        Gdx.input.setInputProcessor(stage);
-    }
 
     private Table createStats() {
         Table stats = new Table();
