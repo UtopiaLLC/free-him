@@ -212,6 +212,7 @@ public class GameController implements Screen {
 
     }
 
+
     /**
      * createToolbar creates a fixed toolbar with buttons linked to each of the player skills
      */
@@ -231,26 +232,11 @@ public class GameController implements Screen {
         float height = Gdx.graphics.getHeight();
 
 
-        Table toolbar = new Table();
-        toolbar.bottom();
-        //toolbar.setFillParent(true);
-        toolbar.setSize(width, .25f*height);
+
 
         TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         //toolbar.setBackground(drawable);
-
-        Table leftSide = new Table();
-        Table skillBar = new Table();
-        Table rightSide = new Table();
-
-        leftSide.setSize(toolbar.getWidth()*.25f, toolbar.getHeight());
-        skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
-        rightSide.setSize(toolbar.getWidth()*.15f, toolbar.getHeight()/3);
-
-        ProgressBar stressBar = new ProgressBar(0f, 100f, 1f, true, skin);
-        stressBar.setValue(50);
-        leftSide.add(stressBar).left();
 
 
         ImageButton harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -374,6 +360,21 @@ public class GameController implements Screen {
             }
         });
 
+        Table toolbar = new Table();
+        toolbar.bottom();
+        toolbar.setSize(width, .25f*height);
+        Table leftSide = new Table();
+        Table skillBar = new Table();
+        Table rightSide = new Table();
+
+        leftSide.setSize(toolbar.getWidth()*.25f, toolbar.getHeight());
+        skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
+        rightSide.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
+
+        ProgressBar stressBar = new ProgressBar(0f, 100f, 1f, true, skin);
+        stressBar.setValue(50);
+        leftSide.add(stressBar).left();
+
         int numSkills = 6;
 
         skillBar.add(harass).width(skillBar.getWidth()/numSkills);
@@ -394,7 +395,71 @@ public class GameController implements Screen {
         toolbar.add(rightSide).right().width(.15f*toolbar.getWidth());
         rightSide.debug();
 
+        toolbarStage.addActor(toolbar);
+        toolbarStage.addActor(createStats());
+    }
 
+    public void create() {
+//        stage = new Stage(ne());
+        //stage.setDebugAll(true);
+
+        Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
+        Container<Table> tableContainer = new Container<Table>();
+
+        float sw = Gdx.graphics.getWidth();
+        float sh = Gdx.graphics.getHeight();
+
+        float cw = sw * 0.7f;
+        float ch = sh * 0.5f;
+
+        tableContainer.setSize(cw, ch);
+        tableContainer.setPosition((sw - cw) / 2.0f, (sh - ch) / 2.0f);
+        tableContainer.fillX();
+
+        Table table = new Table(skin);
+
+        Label topLabel = new Label("A LABEL", skin);
+        topLabel.setAlignment(Align.center);
+        Slider slider = new Slider(0, 100, 1, false, skin);
+        Label anotherLabel = new Label("ANOTHER LABEL", skin);
+        anotherLabel.setAlignment(Align.center);
+
+        CheckBox checkBoxA = new CheckBox("Checkbox Left", skin);
+        CheckBox checkBoxB = new CheckBox("Checkbox Center", skin);
+        CheckBox checkBoxC = new CheckBox("Checkbox Right", skin);
+
+        Table buttonTable = new Table(skin);
+
+        TextButton buttonA = new TextButton("LEFT", skin);
+        TextButton buttonB = new TextButton("RIGHT", skin);
+
+        table.row().colspan(3).expandX().fillX();
+        table.add(topLabel).fillX();
+        table.row().colspan(3).expandX().fillX();
+        table.add(slider).fillX();
+        table.row().colspan(3).expandX().fillX();
+        table.add(anotherLabel).fillX();
+        table.row().expandX().fillX();
+
+        table.add(checkBoxA).expandX().fillX();
+        table.add(checkBoxB).expandX().fillX();
+        table.add(checkBoxC).expandX().fillX();
+        table.row().expandX().fillX();;
+
+        table.add(buttonTable).colspan(3);
+
+        buttonTable.pad(16);
+        buttonTable.row().fillX().expandX();
+        buttonTable.add(buttonA).width(cw/3.0f);
+        buttonTable.add(buttonB).width(cw/3.0f);
+
+        tableContainer.setActor(table);
+        stage.addActor(tableContainer);
+
+        Gdx.input.setInputProcessor(stage);
+    }
+
+    private Table createStats() {
         Table stats = new Table();
         stress = new Label("Player Stress: " + Float.toString(world.getPlayer().getStress()), skin);
         stress.setFontScale(2);
@@ -416,12 +481,9 @@ public class GameController implements Screen {
         stats.row();
         stats.add(tStress).expandX().padTop(10);
         stats.add(tSusp).expandX().padTop(10);
-
-
-
-        toolbarStage.addActor(toolbar);
-        toolbarStage.addActor(stats);
+        return stats;
     }
+
 
     /**
      * Moves the camera based on the Input Keys
