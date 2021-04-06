@@ -84,6 +84,7 @@ public class GameController implements Screen {
         viewport.setCamera(canvas.getCamera());
         currentZoom = canvas.getCamera().zoom;
         stage = new Stage(viewport);
+        canvas.getCamera().zoom = 1.5f;
 
         // Create and store targets in array
         Array<String> targetJsons = new Array<>();
@@ -302,15 +303,15 @@ public class GameController implements Screen {
         toolbar.add(end).expandX().padBottom(10).padRight(20);
 
         Table stats = new Table();
-        stress = new Label("Player Stress: " + Float.toString(world.getPlayer().getStress()), skin);
+        stress = new Label("Player Stress: " + Integer.toString((int)(world.getPlayer().getStress())), skin);
         stress.setFontScale(2);
-        ap = new Label("AP: " + Float.toString(world.getPlayer().getAP()), skin);
+        ap = new Label("AP: " + Integer.toString(world.getPlayer().getAP()), skin);
         ap.setFontScale(2);
-        tStress = new Label("Target Stress: " + Float.toString(target.getStress()), skin);
+        tStress = new Label("Target Stress: " + Integer.toString(target.getStress()), skin);
         tStress.setFontScale(2);
-        tSusp = new Label("Target Suspicion: " + Float.toString(target.getSuspicion()), skin);
+        tSusp = new Label("Target Suspicion: " + Integer.toString(target.getSuspicion()), skin);
         tSusp.setFontScale(2);
-        money = new Label ("Bitecoin: " + Float.toString(world.getPlayer().getBitecoin()), skin);
+        money = new Label ("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()), skin);
         money.setFontScale(2);
 
         stats.top();
@@ -338,21 +339,28 @@ public class GameController implements Screen {
         camera = canvas.getCamera();
         currentZoom = camera.zoom;
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
-            camera.translate(0, 50*currentZoom);
+            camera.translate(0, 12*currentZoom);
         }if(Gdx.input.isKeyPressed(Input.Keys.A)) {
-            camera.translate(-50*currentZoom, 0);
+            camera.translate(-12*currentZoom, 0);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.S)) {
-            camera.translate(0, -50*currentZoom);
+            camera.translate(0, -12*currentZoom);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            camera.translate(50*currentZoom, 0);
+            camera.translate(12*currentZoom, 0);
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.E)) {
-            camera.zoom = (.9f)*currentZoom;
+            camera.zoom = (.99f)*currentZoom;
         } if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            camera.zoom = (1.1f)*currentZoom;
+            camera.zoom = (1.01f)*currentZoom;
+        }
+
+        if(camera.zoom > 4.0f) {
+            camera.zoom = 4.0f;
+        }
+        if(camera.zoom < 1.0f) {
+            camera.zoom = 1.0f;
         }
 
         float camX = camera.position.x;
@@ -542,10 +550,10 @@ public class GameController implements Screen {
      * Updates the stats HUD with current values
      */
     public void updateStats(){
-        stress.setText("Player Stress: " + Float.toString(world.getPlayer().getStress()));
-        ap.setText("AP: " + Float.toString(world.getPlayer().getAP()));
-        tStress.setText("Target Stress: " + Float.toString(target.getStress()));
-        tSusp.setText("Target Suspicion: " + Float.toString(target.getSuspicion()));
-        money.setText("Bitecoin: " + Float.toString(world.getPlayer().getBitecoin()));
+        stress.setText("Player Stress: " + Integer.toString((int)world.getPlayer().getStress()));
+        ap.setText("AP: " + Integer.toString(world.getPlayer().getAP()));
+        tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
+        tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));
+        money.setText("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()));
     }
 }
