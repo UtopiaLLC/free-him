@@ -482,8 +482,8 @@ public class GameController implements Screen {
      * Creates a dialog box with [s] at a reasonably-sized height and width
      * @param s
      */
-    public void createSideMenu(String s) {
-        Dialog dialog = new Dialog("", skin) {
+    public void createNotebook(String s) {
+        Dialog dialog = new Dialog("Notebook", skin) {
             public void result(Object obj) {
                 nodeFreeze = false;
             }
@@ -502,40 +502,36 @@ public class GameController implements Screen {
         l.setWrap( true );
         dialog.setMovable(true);
 
-        Array<String> visibleFactNames = world.getVisibleFacts(target.getName());
-        Array<String> visibleFacts = new Array<>();
-        Table table = new Table();
+        Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
+        Array<String> scannedFacts = new Array<>();
 
-        try {
-            for (int i = 0; i < visibleFactNames.size; i++) {
-                visibleFacts.add(world.viewFactSummary(target.getName(), visibleFactNames.get(i)));
-            }
-        } catch (Exception e) {
-            System.out.println("catch " + e);
-            table.add(new Label("No information found yet!", skin));
+        Table table = dialog.getContentTable();
+        if (factSummaries.keySet().size() == 0) {
+            scannedFacts.add("No facts scanned yet!");
         }
-
+        for (String fact_ : factSummaries.keySet()) {
+            scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
+        }
         table.setFillParent(false);
-        ScrollPane sp = new ScrollPane(table);
-        sp.setScrollingDisabled(true, false);
-        sp.setOverscroll(false, false);
-        sp.setFillParent(false);
 
         table.row();
-        table.add(l).prefWidth(350);
-
-        for (int i = 0; i < visibleFacts.size; i++) {
-            table.add(new Label(visibleFacts.get(i), skin));
+        for (int i = 0; i < scannedFacts.size; i++) {
+            Label k = new Label(scannedFacts.get(i), skin);
+            k.setWrap(true);
+            table.add(k).prefWidth(350);
             table.row();
         }
-        dialog.add(sp);
+//        table.align(Align.topLeft);
+//        ScrollPane sp = new ScrollPane(table);
+//        sp.setScrollingDisabled(true, false);
+//        sp.setOverscroll(false, false);
+//        sp.setFillParent(true);
+//        dialog.addActor(sp);
 
-//        dialog.add(table).expandX();
-//        dialog.button("Done");
+//        dialog.getTitleTable().align(Align.right );
 
+//                add(new Label("Notebook", skin)).center();
 
-//        dialog.getContentTable().add( l );
-//        dialog.getContentTable().add( l ).prefWidth( 350 );
         dialog.button("Ok", true); //sends "true" as the result
         dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         dialog.show(toolbarStage);
@@ -613,7 +609,7 @@ public class GameController implements Screen {
                 break;
             case "notebook":
 //                createDialogBox("You opened the notebook!");
-                createSideMenu("You opened the notebook!");
+                createNotebook("You opened the notebook!");
             default:
                 System.out.println("You shall not pass");
         }
