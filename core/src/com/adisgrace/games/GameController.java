@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -229,6 +230,7 @@ public class GameController implements Screen {
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight();
 
+
         Table toolbar = new Table();
         toolbar.bottom();
         //toolbar.setFillParent(true);
@@ -367,7 +369,8 @@ public class GameController implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-                createDialogBox("You clicked something that hasn't been implemented yet.");
+                final String s = "notebook";
+                confirmDialog("Are you sure you want to open notebook?", s);
             }
         });
 
@@ -390,7 +393,6 @@ public class GameController implements Screen {
         toolbar.add(skillBar).width(.6f*toolbar.getWidth());
         toolbar.add(rightSide).right().width(.15f*toolbar.getWidth());
         rightSide.debug();
-
 
 
         Table stats = new Table();
@@ -557,6 +559,66 @@ public class GameController implements Screen {
     }
 
     /**
+     * Creates a dialog box with [s] at a reasonably-sized height and width
+     * @param s
+     */
+    public void createNotebook(String s) {
+        Dialog dialog = new Dialog("Notebook", skin) {
+            public void result(Object obj) {
+                nodeFreeze = false;
+            }
+        };
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+        dialog.setBackground(drawable);
+        dialog.getBackground().setMinWidth(500);
+        dialog.getBackground().setMinHeight(500);
+        Label l = new Label( s, skin );
+        if(s.length() > 50) {
+            l.setFontScale(1.5f);
+        }else {
+            l.setFontScale(2f);
+        }
+        l.setWrap( true );
+        dialog.setMovable(true);
+
+        Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
+        Array<String> scannedFacts = new Array<>();
+
+        Table table = dialog.getContentTable();
+        if (factSummaries.keySet().size() == 0) {
+            scannedFacts.add("No facts scanned yet!");
+        }
+        for (String fact_ : factSummaries.keySet()) {
+            scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
+        }
+        table.setFillParent(false);
+
+        table.row();
+        for (int i = 0; i < scannedFacts.size; i++) {
+            Label k = new Label(scannedFacts.get(i), skin);
+            k.setWrap(true);
+            table.add(k).prefWidth(350);
+            table.row();
+        }
+//        table.align(Align.topLeft);
+//        ScrollPane sp = new ScrollPane(table);
+//        sp.setScrollingDisabled(true, false);
+//        sp.setOverscroll(false, false);
+//        sp.setFillParent(true);
+//        dialog.addActor(sp);
+
+//        dialog.getTitleTable().align(Align.right );
+
+//                add(new Label("Notebook", skin)).center();
+
+        dialog.button("Ok", true); //sends "true" as the result
+        dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
+        dialog.show(toolbarStage);
+        nodeFreeze = true;
+    }
+
+    /**
      * Displays a dialog box where the user can confirm whether or not they want
      * to proceed with a particular action
      * @param s
@@ -625,6 +687,9 @@ public class GameController implements Screen {
                     createDialogBox("Insufficient AP to do other jobs");
                 }
                 break;
+            case "notebook":
+//                createDialogBox("You opened the notebook!");
+                createNotebook("You opened the notebook!");
             default:
                 System.out.println("You shall not pass");
         }
