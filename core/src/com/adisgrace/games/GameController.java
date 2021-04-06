@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -478,6 +479,70 @@ public class GameController implements Screen {
     }
 
     /**
+     * Creates a dialog box with [s] at a reasonably-sized height and width
+     * @param s
+     */
+    public void createSideMenu(String s) {
+        Dialog dialog = new Dialog("", skin) {
+            public void result(Object obj) {
+                nodeFreeze = false;
+            }
+        };
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+        dialog.setBackground(drawable);
+        dialog.getBackground().setMinWidth(500);
+        dialog.getBackground().setMinHeight(500);
+        Label l = new Label( s, skin );
+        if(s.length() > 50) {
+            l.setFontScale(1.5f);
+        }else {
+            l.setFontScale(2f);
+        }
+        l.setWrap( true );
+        dialog.setMovable(true);
+
+        Array<String> visibleFactNames = world.getVisibleFacts(target.getName());
+        Array<String> visibleFacts = new Array<>();
+        Table table = new Table();
+
+        try {
+            for (int i = 0; i < visibleFactNames.size; i++) {
+                visibleFacts.add(world.viewFactSummary(target.getName(), visibleFactNames.get(i)));
+            }
+        } catch (Exception e) {
+            System.out.println("catch " + e);
+            table.add(new Label("No information found yet!", skin));
+        }
+
+        table.setFillParent(false);
+        ScrollPane sp = new ScrollPane(table);
+        sp.setScrollingDisabled(true, false);
+        sp.setOverscroll(false, false);
+        sp.setFillParent(false);
+
+        table.row();
+        table.add(l).prefWidth(350);
+
+        for (int i = 0; i < visibleFacts.size; i++) {
+            table.add(new Label(visibleFacts.get(i), skin));
+            table.row();
+        }
+        dialog.add(sp);
+
+//        dialog.add(table).expandX();
+//        dialog.button("Done");
+
+
+//        dialog.getContentTable().add( l );
+//        dialog.getContentTable().add( l ).prefWidth( 350 );
+        dialog.button("Ok", true); //sends "true" as the result
+        dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
+        dialog.show(toolbarStage);
+        nodeFreeze = true;
+    }
+
+    /**
      * Displays a dialog box where the user can confirm whether or not they want
      * to proceed with a particular action
      * @param s
@@ -547,7 +612,8 @@ public class GameController implements Screen {
                 }
                 break;
             case "notebook":
-                createDialogBox("You opened the notebook!");
+//                createDialogBox("You opened the notebook!");
+                createSideMenu("You opened the notebook!");
             default:
                 System.out.println("You shall not pass");
         }
