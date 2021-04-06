@@ -509,8 +509,8 @@ public class TargetModel {
 	 */
 	public int threaten(String fact) {
 		int stressDmg = getFactNode(fact).getTargetStressDmg();
-		// If fact deals nonzero threaten damage
-		if (stressDmg != 0) {
+		// If fact deals threaten damage above a critical threshold
+		if (stressDmg > 5) {
 			// Move target to threatened
 			state = TargetState.THREATENED;
 			// Reset countdown to next Paranoia check
