@@ -4,8 +4,9 @@
 
 import json
 import tkinter as tk
-from tkinter import Label, Entry, Button
+from tkinter import Label, Entry, Button, Checkbutton
 import numpy as np
+import pickle
 
 # 0 = vacent/nothing selected
 # 1 = target selected
@@ -40,7 +41,7 @@ class Target:
         if contents == None:
             self.combos = set()
             self.pos = (0,0)
-            self.name = ''
+            self.name = 'John Doe'
             self.suspicion = 1
             self.max_stress = 100
             self.neighbors = set() 
@@ -71,7 +72,7 @@ class FactNode:
             contents is a dictionary containing factnode data 
         '''
         if contents == None:
-            self.name = 'John Doe'
+            self.name = ''
             self.title = ''
             self.position = pos
             self.children = set()
@@ -192,6 +193,22 @@ class Controwler:
         self.level.target.max_stress = int(maxitress)
         self.level.target.pos = (int(warudoposX),int(warudoposY))
 
+    # Name/Title/World PositionX/Y/Player Stress Damage/Stress Damage/Summary/Contents/Locked
+    def save_node(self, name, taitoru, warudoposX, warudoposY, platresmg, tresmg, Summary, Contents, Locked):
+        tempdict = {
+            'name': name,
+            'title': taitoru,
+            'position': (int(warudoposX),int(warudoposY)),
+            'children': set(),
+            'player_stress_dam': int(platresmg),
+            'stress_dam': int(tresmg),
+            'summary': Summary,
+            'contents': Contents,
+            'locked': False
+        }
+        noude = FactNode(pos=(int(warudoposX),int(warudoposY)), contents=tempdict)
+        self.level.factnodes.add(noude)
+
 
 class View:
     def __init__(self, controwler, level):
@@ -301,8 +318,63 @@ class View:
                 self.controwler.save_target(a1.get(), b1.get(), c1.get(), d1.get(), e1.get(), f1.get(), g1.get())
             Button(window ,text="Submit", command=submitted).grid(row=7,column=0)
         elif mode == node_selected:
-            pass
+            window.title("Node editing menu")
+            window.geometry('600x600')
+            window.configure(background = "grey")
+            a = Label(window ,text = "Name")
+            a.grid(row = 0,column = 0)
+            # a.insert(-1, self.level.target.name)
+            b = Label(window ,text = "Title")
+            b.grid(row = 1,column = 0)
+            c = Label(window ,text = "World Position X")
+            c.grid(row = 2,column = 0)
+            c11 = Label(window ,text = "World Position Y")
+            c11.grid(row = 2,column = 0)
+            d = Label(window ,text = "Player Stress Damage")
+            d.grid(row = 3,column = 0)
+            e = Label(window ,text = "Stress Damage")
+            e.grid(row = 4,column = 0)
+            f = Label(window ,text = "Summary")
+            f.grid(row = 5,column = 0)
+            g = Label(window ,text = "Contents")
+            g.grid(row = 6,column = 0)
+            h = Label(window ,text = "Locked")
+            h.grid(row = 6,column = 0)
+            # Name/Title/World Position/Player Stress Damage/Stress Damage/Summary/Contents/Locked
+            a1 = Entry(window)
+            a1.grid(row = 0,column = 1)
+            a1.insert(-1, self.level.target.name)
+            b1 = Entry(window)
+            b1.grid(row = 1,column = 1)
+            c1 = Entry(window)
+            c1.grid(row = 2,column = 1)
+            c111 = Entry(window)
+            c111.grid(row = 8,column = 1)
+            d1 = Entry(window)
+            d1.grid(row = 3,column = 1)
+            e1 = Entry(window)
+            e1.grid(row = 4,column = 1)
+            f1 = Entry(window)
+            f1.grid(row = 5,column = 1)
+            g1 = Entry(window)
+            g1.grid(row = 6,column = 1)
+            h1 = Checkbutton(window)
+            h1.grid(row = 7,column = 1)
+            
+            def submitted(row = 7,column = 1):
+                #pass shit into controwler
+                self.controwler.save_node(a1.get(), b1.get(), c1.get(), c111.get(), d1.get(), e1.get(), f1.get(), g1.get(), h1.state())
+            Button(window ,text="Submit", command=submitted).grid(row=8,column=0)
         window.mainloop()
+
+def save(level, out_filename = None):
+    if not out_filename:
+        out_filename = ''.join(level.target.name.split(' '))
+    if out_filename[-5:] != '.json':
+        out_filename += '.json'
+    out_fs = open(out_filename, mode = 'w')
+    out_fs.write(json.dumps(level))
+    out_fs.close()
 
 m = Level()
 c = Controwler(m)
