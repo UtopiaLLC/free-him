@@ -138,7 +138,7 @@ class Level:
             self.active_element.open_gui()
             
     def gen_json(self):
-        pa
+        pass
         
 
 
@@ -184,14 +184,13 @@ class Controwler:
             if grid[row][column] == empty_tile:
                 self.level.target.lines.add((row, column))
     
-    def save_target(self, name, neighbours, susbision, sturess, maxitress, warudopos):
+    def save_target(self, name, neighbours, susbision, sturess, maxitress, warudoposX, warudoposY):
         self.level.target.name = name
-        self.level.target.neighbors = set(neighbours.string.split(","))
+        self.level.target.neighbors = set(neighbours.split(","))
         self.level.target.suspicion = int(susbision)
         self.level.target.starting_stress = int(sturess)
         self.level.target.max_stress = int(maxitress)
-        self.level.target.pos[0] = int(warudopos.string.split(",")[0])
-        self.level.target.pos[1] = int(warudopos.string.split(",")[1])
+        self.level.target.pos = (int(warudoposX),int(warudoposY))
 
 
 class View:
@@ -261,7 +260,6 @@ class View:
         h = self.canvas.winfo_height()
         #TODO: open a different menu depending on the object that was right clicked on. This should be doable since 1view have the model
         window = tk.Tk()
-        print("OPENM THE DAMN MENU")
         if mode == nothing_selected:
             window.title("Target editing menu")
             window.geometry('600x600')
@@ -280,7 +278,7 @@ class View:
             f = Label(window ,text = "World Position X")
             f.grid(row = 5,column = 0)
             g = Label(window ,text = "World Position Y")
-            g.grid(row = 5,column = 0)
+            g.grid(row = 6,column = 0)
             # combos/position/sasbisiong/neighbour/startstress/maxstress
             a1 = Entry(window)
             a1.grid(row = 0,column = 1)
@@ -300,8 +298,7 @@ class View:
             
             def submitted():
                 #pass shit into controwler
-                self.controwler.save_target(a1.get(), b1.get(), c1.get(), d1.get(), e1.get(), f1.get())
-                self.draw_everything()
+                self.controwler.save_target(a1.get(), b1.get(), c1.get(), d1.get(), e1.get(), f1.get(), g1.get())
             Button(window ,text="Submit", command=submitted).grid(row=7,column=0)
         elif mode == node_selected:
             pass
