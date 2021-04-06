@@ -7,7 +7,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.particles.ParticleSorter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -15,7 +17,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -32,10 +36,6 @@ public class GameController implements Screen {
         THREATEN,
         /**  Linked to Expose mode; Expose needs to be applied to a node after it has been clicked */
         EXPOSE,
-        /**  Linked to Overwork mode; Overwork needs to be applied */
-        OVERWORK,
-        /**  Linked to Relax mode; Relax needs to be applied */
-        REST,
         /**  Linked to hack and scan commands*/
         NONE
     };
@@ -78,9 +78,16 @@ public class GameController implements Screen {
     private boolean ended = false;
     private boolean nodeFreeze = false;
 
+    private Dialog blackmailDialog;
+    private boolean getRidOfBlackmail;
+
+    private static final float MINWORLDWIDTH = 300; //1280
+    private static final float MINWORLDHEIGHT = 400; //720
+
     public GameController() {
         canvas = new GameCanvas();
-        ExtendViewport viewport = new ExtendViewport(1280, 720);
+//        Gdx.graphics.getWidth();
+        ExtendViewport viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         viewport.setCamera(canvas.getCamera());
         currentZoom = canvas.getCamera().zoom;
         stage = new Stage(viewport);
@@ -148,8 +155,9 @@ public class GameController implements Screen {
 //        canvas.begin();
 //        canvas.end();
 
+        stage.getViewport().apply();
         stage.draw();
-
+        toolbarStage.getViewport().apply();
         toolbarStage.draw();
         updateStats();
 
@@ -162,12 +170,33 @@ public class GameController implements Screen {
             ended = true;
         }
 
+        if(getRidOfBlackmail) {
+            blackmailDialog.hide();
+            getRidOfBlackmail = false;
+        }
+
     }
 
     @Override
     public void resize(int width, int height) {
+        //access viewports and change size
+//        toolbarStage.setViewport(new ExtendViewport(width, height));
+//        stage.setViewport(new ExtendViewport(width, height));
+        toolbarStage.getViewport().update(width,height);
+        stage.getViewport().update(width,height, true);
 
     }
+
+//    public void resize (int width, int height) {
+//        Vector2 size = Scaling.fit.apply(300, 400, width, height);
+//        int viewportX = (int)(width - size.x) / 2;
+//        int viewportY = (int)(height - size.y) / 2;
+//        int viewportWidth = (int)size.x;
+//        int viewportHeight = (int)size.y;
+//        Gdx.gl.glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
+//        ExtendViewport view = new ExtendViewport(800, 480, true, viewportX, viewportY, viewportWidth, viewportHeight);
+//        stage.setViewport();
+//    }
 
     @Override
     public void pause() {
@@ -189,12 +218,13 @@ public class GameController implements Screen {
 
     }
 
+
     /**
      * createToolbar creates a fixed toolbar with buttons linked to each of the player skills
      */
     public void createToolbar() {
         // Move to an outside class eventually
-        ExtendViewport toolbarViewPort = new ExtendViewport(1280, 720);
+        ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         toolbarStage = new Stage(toolbarViewPort);
         skin = new Skin(Gdx.files.internal("skins/neon-ui.json"));
 
@@ -204,50 +234,59 @@ public class GameController implements Screen {
 
         Gdx.input.setInputProcessor(inputMultiplexer);
 
-        Table toolbar = new Table();
-        toolbar.bottom();
-        toolbar.setFillParent(true);
+        float width = Gdx.graphics.getWidth();
+        float height = Gdx.graphics.getHeight();
 
-//        TextButton harass = new TextButton("Harass", skin, "default");
-//        harass.setTransform(true);
-//        harass.setScale(2.0f);
-//        harass.addListener(new ClickListener()
-//        {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y)
-//            {
-//                System.out.println("You harassed me!");
-//                activeVerb = ActiveVerb.HARASS;
-//            }
-//        });
-//        TextButton threaten = new TextButton("Threaten", skin, "default");
-//        threaten.setTransform(true);
-//        threaten.setScale(2.0f);
-//        threaten.addListener(new ClickListener()
-//        {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y)
-//            {
-//                System.out.println("You threatened me!");
-//                activeVerb = ActiveVerb.THREATEN;
-//
-//            }
-//        });
-//        TextButton expose = new TextButton("Expose", skin, "default");
-//        expose.setTransform(true);
-//        expose.setScale(2.0f);
-//        expose.addListener(new ClickListener()
-//        {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y)
-//            {
-//                System.out.println("You exposed me!");
-//                activeVerb = ActiveVerb.EXPOSE;
-//            }
-//        });
-        TextButton overwork = new TextButton("Overwork", skin, "default");
+
+
+
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+        //toolbar.setBackground(drawable);
+
+
+        ImageButton harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        harass.setTransform(true);
+        harass.setScale(.25f);
+        harass.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                activeVerb = ActiveVerb.HARASS;
+            }
+        });
+        ImageButton threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        threaten.setTransform(true);
+        threaten.setScale(.25f);
+        threaten.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+
+                activeVerb = ActiveVerb.THREATEN;
+
+            }
+        });
+        ImageButton expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        expose.setTransform(true);
+        expose.setScale(.25f);
+        expose.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                activeVerb = ActiveVerb.EXPOSE;
+            }
+        });
+        ImageButton overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
         overwork.setTransform(true);
-        overwork.setScale(2.0f);
+        overwork.setScale(.25f);
         overwork.addListener(new ClickListener()
         {
             @Override
@@ -257,9 +296,10 @@ public class GameController implements Screen {
                 confirmDialog("Are you sure you want to overwork?", s);
             }
         });
-        TextButton otherJobs = new TextButton("Do other jobs", skin, "default");
+        ImageButton otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
         otherJobs.setTransform(true);
-        otherJobs.setScale(2.0f);
+        otherJobs.setScale(.25f);
         otherJobs.addListener(new ClickListener()
         {
             @Override
@@ -269,9 +309,10 @@ public class GameController implements Screen {
                 confirmDialog("Are you sure you want to do other jobs?", s);
             }
         });
-        TextButton relax = new TextButton("Relax", skin, "default");
+        ImageButton relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
         relax.setTransform(true);
-        relax.setScale(2.0f);
+        relax.setScale(.25f);
         relax.addListener(new ClickListener()
         {
             @Override
@@ -281,9 +322,10 @@ public class GameController implements Screen {
                 confirmDialog("Are you sure you want to relax?", s);
             }
         });
-        TextButton end = new TextButton("End Day", skin, "default");
+        ImageButton end = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
         end.setTransform(true);
-        end.setScale(2.0f);
+        end.setScale(.5f);
         end.addListener(new ClickListener()
         {
             @Override
@@ -293,15 +335,75 @@ public class GameController implements Screen {
                 world.nextTurn();
             }
         });
+        ImageButton settings = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        settings.setTransform(true);
+        settings.setScale(.5f);
+        settings.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                createDialogBox("You clicked something that hasn't been implemented yet.");
+            }
+        });
+        ImageButton notebook = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        notebook.setTransform(true);
+        notebook.setScale(.5f);
+        notebook.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                final String s = "notebook";
+                confirmDialog("Are you sure you want to open notebook?", s);
+            }
+        });
 
-        //toolbar.add(harass).expandX().padBottom(30);
-//        toolbar.add(threaten).expandX().padBottom(10);
-//        toolbar.add(expose).expandX().padBottom(10);
-        toolbar.add(overwork).expandX().padBottom(10);
-        toolbar.add(otherJobs).expandX().padBottom(10);
-        toolbar.add(relax).expandX().padBottom(10);
-        toolbar.add(end).expandX().padBottom(10).padRight(20);
 
+        Table toolbar = new Table();
+        toolbar.bottom();
+        toolbar.setSize(width, .25f*height);
+        Table leftSide = new Table();
+        Table skillBar = new Table();
+        Table rightSide = new Table();
+
+        leftSide.setSize(toolbar.getWidth()*.25f, toolbar.getHeight());
+        skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
+        rightSide.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
+
+        ProgressBar stressBar = new ProgressBar(0f, 100f, 1f, true, skin);
+        stressBar.setValue(50);
+        leftSide.add(stressBar).left();
+
+        int numSkills = 6;
+
+        skillBar.add(harass).width(skillBar.getWidth()/numSkills);
+        skillBar.add(threaten).width(skillBar.getWidth()/numSkills);
+        skillBar.add(expose).width(skillBar.getWidth()/numSkills);
+        skillBar.add(overwork).width(skillBar.getWidth()/numSkills);
+        skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills);
+        skillBar.add(relax).width(skillBar.getWidth()/numSkills);
+
+        end.align(Align.bottomRight);
+        rightSide.add(end).width(rightSide.getWidth());
+//        rightSide.row();
+        rightSide.add(notebook).width(rightSide.getWidth());
+//        rightSide.row();
+        rightSide.add(settings).width(rightSide.getWidth());
+
+        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth());
+        toolbar.add(skillBar).width(.6f*toolbar.getWidth());
+        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth());
+        rightSide.debug();
+
+        toolbarStage.addActor(toolbar);
+        toolbarStage.addActor(createStats());
+    }
+
+
+    private Table createStats() {
         Table stats = new Table();
         stress = new Label("Player Stress: " + Integer.toString((int)(world.getPlayer().getStress())), skin);
         stress.setFontScale(2);
@@ -323,12 +425,9 @@ public class GameController implements Screen {
         stats.row();
         stats.add(tStress).expandX().padTop(10);
         stats.add(tSusp).expandX().padTop(10);
-
-
-
-        toolbarStage.addActor(toolbar);
-        toolbarStage.addActor(stats);
+        return stats;
     }
+
 
     /**
      * Moves the camera based on the Input Keys
@@ -424,16 +523,41 @@ public class GameController implements Screen {
 
                 }
                 break;
+            case HARASS:
+                if(isTarget) {
+                    if(world.getPlayer().canHarass()) {
+                        createDialogBox("Harass isn't implemented yet... thank Brian :)");
+                        activeVerb = ActiveVerb.NONE;
+                    }
+                    else {
+                        createDialogBox("Insufficient AP to harass the target.");
+                        activeVerb = ActiveVerb.NONE;
+                    }
+                }
+                break;
             case THREATEN:
                 if(isTarget) {
-
+                    if(world.getPlayer().canThreaten()) {
+                        getBlackmailFact("Select a fact to threaten the player with.");
+                    }
+                    else {
+                        createDialogBox("Insufficient AP to threaten the target.");
+                        activeVerb = ActiveVerb.NONE;
+                    }
                 }
 
                 break;
             case EXPOSE:
                 if(isTarget) {
-                    System.out.println(activeVerb);
-                    activeVerb = ActiveVerb.NONE;
+                    if(isTarget) {
+                        if(world.getPlayer().canExpose()) {
+                            getBlackmailFact("Select a fact to expose the player with.");
+                        }
+                        else {
+                            createDialogBox("Insufficient AP to expose the target.");
+                            activeVerb = ActiveVerb.NONE;
+                        }
+                    }
                 }
 
                 break;
@@ -469,6 +593,146 @@ public class GameController implements Screen {
         dialog.button("Ok", true); //sends "true" as the result
         dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         dialog.show(toolbarStage);
+        nodeFreeze = true;
+    }
+
+    /**
+     * Creates a dialog box with [s] at a reasonably-sized height and width
+     * @param s
+     */
+    public void createNotebook(String s) {
+        Dialog dialog = new Dialog("Notebook", skin) {
+            public void result(Object obj) {
+                nodeFreeze = false;
+            }
+        };
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+        dialog.setBackground(drawable);
+        dialog.getBackground().setMinWidth(500);
+        dialog.getBackground().setMinHeight(500);
+        Label l = new Label( s, skin );
+        if(s.length() > 50) {
+            l.setFontScale(1.5f);
+        }else {
+            l.setFontScale(2f);
+        }
+        l.setWrap( true );
+        dialog.getContentTable().add( l ).prefWidth( 350 );
+        dialog.setMovable(true);
+
+        Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
+        Array<String> scannedFacts = new Array<>();
+
+        Table table = dialog.getContentTable();
+        if (factSummaries.keySet().size() == 0) {
+            scannedFacts.add("No facts scanned yet!");
+        }
+        for (String fact_ : factSummaries.keySet()) {
+            scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
+        }
+        table.setFillParent(false);
+
+        table.row();
+        for (int i = 0; i < scannedFacts.size; i++) {
+            Label k = new Label(scannedFacts.get(i), skin);
+            k.setFontScale(1.3f);
+            k.setWrap(true);
+            table.add(k).prefWidth(350);
+            table.row();
+        }
+//        table.align(Align.topLeft);
+//        ScrollPane sp = new ScrollPane(table);
+//        sp.setScrollingDisabled(true, false);
+//        sp.setOverscroll(false, false);
+//        sp.setFillParent(true);
+//        dialog.addActor(sp);
+
+//        dialog.getTitleTable().align(Align.right );
+
+//                add(new Label("Notebook", skin)).center();
+
+        dialog.button("Ok", true); //sends "true" as the result
+        dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
+        dialog.show(toolbarStage);
+        nodeFreeze = true;
+    }
+
+    /**
+     *
+     * @param s
+     */
+    public void getBlackmailFact(String s) {
+        blackmailDialog = new Dialog("Notebook", skin) {
+            public void result(Object obj) {
+                nodeFreeze = false;
+                activeVerb = ActiveVerb.NONE;
+            }
+        };
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+        blackmailDialog.setBackground(drawable);
+        blackmailDialog.getBackground().setMinWidth(500);
+        blackmailDialog.getBackground().setMinHeight(500);
+        Label l = new Label( s, skin );
+        if(s.length() > 50) {
+            l.setFontScale(1.5f);
+        }else {
+            l.setFontScale(2f);
+        }
+        l.setWrap( true );
+        blackmailDialog.setMovable(true);
+        blackmailDialog.getContentTable().add( l ).prefWidth( 350 );
+        Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
+        Map<String, String> summaryToFacts = new HashMap<String, String>();
+        Array<String> scannedFacts = new Array<>();
+
+        Table table = blackmailDialog.getContentTable();
+        if (factSummaries.keySet().size() == 0) {
+            scannedFacts.add("No facts scanned yet!");
+        }
+        for (String fact_ : factSummaries.keySet()) {
+            scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
+            summaryToFacts.put(world.viewFactSummary(target.getName(), fact_), fact_);
+        }
+        table.setFillParent(false);
+
+        table.row();
+        for (int i = 0; i < scannedFacts.size; i++) {
+            Label k = new Label(scannedFacts.get(i), skin);
+            k.setWrap(true);
+            k.setName(target.getName() + "," + summaryToFacts.get(scannedFacts.get(i)));
+            k.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    Actor cbutton = (Actor)event.getListenerActor();
+                    String[] info = cbutton.getName().split(",");
+                    getRidOfBlackmail = true;
+                    switch (activeVerb) {
+                        case HARASS:
+
+                        case THREATEN:
+                            world.threaten(info[0], info[1]);
+                            activeVerb = ActiveVerb.NONE;
+                            createDialogBox("You threatened the target!");
+                            break;
+                        case EXPOSE:
+                            world.expose(info[0], info[1]);
+                            activeVerb = ActiveVerb.NONE;
+                            createDialogBox("You exposed the target!");
+                            break;
+                        default:
+                            System.out.println("This shouldn't be happening.");
+                    }
+                }
+            });
+            table.add(k).prefWidth(350);
+            table.row();
+        }
+
+        blackmailDialog.button("Cancel", true); //sends "true" as the result
+        blackmailDialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
+        blackmailDialog.show(toolbarStage);
         nodeFreeze = true;
     }
 
@@ -522,8 +786,12 @@ public class GameController implements Screen {
     public void callConfirmFunction(String s) {
         switch(s) {
             case "overwork":
-                world.overwork();
-                createDialogBox("You overworked yourself and gained 2 AP at the cost of your sanity...");
+                if(world.getPlayer().canOverwork()) {
+                    world.overwork();
+                    createDialogBox("You overworked yourself and gained 2 AP at the cost of your sanity...");
+                } else {
+                    createDialogBox("You cannot overwork anymore today!");
+                }
                 break;
             case "relax":
                 if(world.getPlayer().canRelax()) {
@@ -540,6 +808,10 @@ public class GameController implements Screen {
                 } else {
                     createDialogBox("Insufficient AP to do other jobs");
                 }
+                break;
+            case "notebook":
+//                createDialogBox("You opened the notebook!");
+                createNotebook("You opened the notebook!");
                 break;
             default:
                 System.out.println("You shall not pass");
