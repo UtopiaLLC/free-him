@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -79,9 +81,13 @@ public class GameController implements Screen {
     private boolean ended = false;
     private boolean nodeFreeze = false;
 
+    private static final float MINWORLDWIDTH = 300; //1280
+    private static final float MINWORLDHEIGHT = 400; //720
+
     public GameController() {
         canvas = new GameCanvas();
-        ExtendViewport viewport = new ExtendViewport(1280, 720);
+//        Gdx.graphics.getWidth();
+        ExtendViewport viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         viewport.setCamera(canvas.getCamera());
         currentZoom = canvas.getCamera().zoom;
         stage = new Stage(viewport);
@@ -148,8 +154,9 @@ public class GameController implements Screen {
 //        canvas.begin();
 //        canvas.end();
 
+        stage.getViewport().apply();
         stage.draw();
-
+        toolbarStage.getViewport().apply();
         toolbarStage.draw();
         updateStats();
 
@@ -166,8 +173,24 @@ public class GameController implements Screen {
 
     @Override
     public void resize(int width, int height) {
+        //access viewports and change size
+//        toolbarStage.setViewport(new ExtendViewport(width, height));
+//        stage.setViewport(new ExtendViewport(width, height));
+        toolbarStage.getViewport().update(width,height);
+        stage.getViewport().update(width,height, true);
 
     }
+
+//    public void resize (int width, int height) {
+//        Vector2 size = Scaling.fit.apply(300, 400, width, height);
+//        int viewportX = (int)(width - size.x) / 2;
+//        int viewportY = (int)(height - size.y) / 2;
+//        int viewportWidth = (int)size.x;
+//        int viewportHeight = (int)size.y;
+//        Gdx.gl.glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
+//        ExtendViewport view = new ExtendViewport(800, 480, true, viewportX, viewportY, viewportWidth, viewportHeight);
+//        stage.setViewport();
+//    }
 
     @Override
     public void pause() {
@@ -194,7 +217,7 @@ public class GameController implements Screen {
      */
     public void createToolbar() {
         // Move to an outside class eventually
-        ExtendViewport toolbarViewPort = new ExtendViewport(1280, 720);
+        ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         toolbarStage = new Stage(toolbarViewPort);
         skin = new Skin(Gdx.files.internal("skins/neon-ui.json"));
 
@@ -203,50 +226,80 @@ public class GameController implements Screen {
         inputMultiplexer.addProcessor(stage);
 
         Gdx.input.setInputProcessor(inputMultiplexer);
+
+        float width = Gdx.graphics.getWidth();
+        float height = Gdx.graphics.getHeight();
+
+
         Table toolbar = new Table();
         toolbar.bottom();
-        toolbar.setFillParent(true);
+        //toolbar.setFillParent(true);
+        toolbar.setSize(width, .25f*height);
 
-//        TextButton harass = new TextButton("Harass", skin, "default");
-//        harass.setTransform(true);
-//        harass.setScale(2.0f);
-//        harass.addListener(new ClickListener()
-//        {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y)
-//            {
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+        //toolbar.setBackground(drawable);
+
+        Table leftSide = new Table();
+        Table skillBar = new Table();
+        Table rightSide = new Table();
+
+        leftSide.setSize(toolbar.getWidth()*.25f, toolbar.getHeight());
+        skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
+        rightSide.setSize(toolbar.getWidth()*.15f, toolbar.getHeight()/3);
+
+        ProgressBar stressBar = new ProgressBar(0f, 100f, 1f, true, skin);
+        stressBar.setValue(50);
+        leftSide.add(stressBar).left();
+
+
+        ImageButton harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        harass.setTransform(true);
+        harass.setScale(.25f);
+        harass.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
 //                System.out.println("You harassed me!");
 //                activeVerb = ActiveVerb.HARASS;
-//            }
-//        });
-//        TextButton threaten = new TextButton("Threaten", skin, "default");
-//        threaten.setTransform(true);
-//        threaten.setScale(2.0f);
-//        threaten.addListener(new ClickListener()
-//        {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y)
-//            {
+                createDialogBox("You clicked something that hasn't been implemented yet.");
+            }
+        });
+        ImageButton threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        threaten.setTransform(true);
+        threaten.setScale(.25f);
+        threaten.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
 //                System.out.println("You threatened me!");
 //                activeVerb = ActiveVerb.THREATEN;
-//
-//            }
-//        });
-//        TextButton expose = new TextButton("Expose", skin, "default");
-//        expose.setTransform(true);
-//        expose.setScale(2.0f);
-//        expose.addListener(new ClickListener()
-//        {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y)
-//            {
+                createDialogBox("You clicked something that hasn't been implemented yet.");
+
+            }
+        });
+        ImageButton expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        expose.setTransform(true);
+        expose.setScale(.25f);
+        expose.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
 //                System.out.println("You exposed me!");
 //                activeVerb = ActiveVerb.EXPOSE;
-//            }
-//        });
-        TextButton overwork = new TextButton("Overwork", skin, "default");
+                createDialogBox("You clicked something that hasn't been implemented yet.");
+            }
+        });
+        ImageButton overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
         overwork.setTransform(true);
-        overwork.setScale(2.0f);
+        overwork.setScale(.25f);
         overwork.addListener(new ClickListener()
         {
             @Override
@@ -256,9 +309,10 @@ public class GameController implements Screen {
                 confirmDialog("Are you sure you want to overwork?", s);
             }
         });
-        TextButton otherJobs = new TextButton("Do other jobs", skin, "default");
+        ImageButton otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
         otherJobs.setTransform(true);
-        otherJobs.setScale(2.0f);
+        otherJobs.setScale(.25f);
         otherJobs.addListener(new ClickListener()
         {
             @Override
@@ -268,9 +322,10 @@ public class GameController implements Screen {
                 confirmDialog("Are you sure you want to do other jobs?", s);
             }
         });
-        TextButton relax = new TextButton("Relax", skin, "default");
+        ImageButton relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
         relax.setTransform(true);
-        relax.setScale(2.0f);
+        relax.setScale(.25f);
         relax.addListener(new ClickListener()
         {
             @Override
@@ -280,9 +335,10 @@ public class GameController implements Screen {
                 confirmDialog("Are you sure you want to relax?", s);
             }
         });
-        TextButton end = new TextButton("End Day", skin, "default");
+        ImageButton end = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
         end.setTransform(true);
-        end.setScale(2.0f);
+        end.setScale(.25f);
         end.addListener(new ClickListener()
         {
             @Override
@@ -292,10 +348,22 @@ public class GameController implements Screen {
                 world.nextTurn();
             }
         });
-
-        TextButton notebook = new TextButton("Notebook", skin, "default");
+        ImageButton settings = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        settings.setTransform(true);
+        settings.setScale(.25f);
+        settings.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                createDialogBox("You clicked something that hasn't been implemented yet.");
+            }
+        });
+        ImageButton notebook = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
         notebook.setTransform(true);
-        notebook.setScale(2.0f);
+        notebook.setScale(.25f);
         notebook.addListener(new ClickListener()
         {
             @Override
@@ -306,14 +374,26 @@ public class GameController implements Screen {
             }
         });
 
-        //toolbar.add(harass).expandX().padBottom(30);
-//        toolbar.add(threaten).expandX().padBottom(10);
-//        toolbar.add(expose).expandX().padBottom(10);
-        toolbar.add(overwork).expandX().padBottom(10);
-        toolbar.add(otherJobs).expandX().padBottom(10);
-        toolbar.add(relax).expandX().padBottom(10);
-        toolbar.add(end).expandX().padBottom(10).padRight(20);
-        toolbar.add(notebook).expandX().padBottom(10);
+        int numSkills = 6;
+
+        skillBar.add(harass).width(skillBar.getWidth()/numSkills);
+        skillBar.add(threaten).width(skillBar.getWidth()/numSkills);
+        skillBar.add(expose).width(skillBar.getWidth()/numSkills);
+        skillBar.add(overwork).width(skillBar.getWidth()/numSkills);
+        skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills);
+        skillBar.add(relax).width(skillBar.getWidth()/numSkills);
+
+        rightSide.add(end).width(rightSide.getWidth());
+        rightSide.row();
+        rightSide.add(notebook).width(rightSide.getWidth());
+        rightSide.row();
+        rightSide.add(settings).width(rightSide.getWidth());
+
+        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth());
+        toolbar.add(skillBar).width(.6f*toolbar.getWidth());
+        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth());
+        rightSide.debug();
+
 
         Table stats = new Table();
         stress = new Label("Player Stress: " + Float.toString(world.getPlayer().getStress()), skin);
