@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import Label, Entry, Button, Checkbutton
 import numpy as np
 from PIL import ImageTk, Image
+import os
 
 # 0 = vacent/nothing selected
 # 1 = target selected
@@ -37,6 +38,35 @@ grid = np.zeros((row_num, column_num))
 
 menu_open = False
 selected_node = None
+
+cwd = None
+
+def transform_world_to_screen(world_pos):
+    x,y = world_pos
+    v = np.asarray([x,y,1])
+    M = np.asarray(
+        [
+            [np.sqrt(3*(h**2+w**2))/(4*w),    np.sqrt(3*(h**2+w**2))/(4*h),     0],
+            [-np.sqrt(h**2+w**2)/(4*w),       np.sqrt(h**2+w**2)/(4*h),         h/2],
+            [0,                               0,                                1]
+        ]
+    )
+    Mv = M @ v
+    return Mv[:2]
+
+def transform_screen_to_world(screen_pos):
+    x,y = screen_pos
+    v = np.asarray([x,y,1])
+    M = np.asarray(
+        [
+            [np.sqrt(3*(h**2+w**2))/(4*w),    np.sqrt(3*(h**2+w**2))/(4*h),     0],
+            [-np.sqrt(h**2+w**2)/(4*w),       np.sqrt(h**2+w**2)/(4*h),         h/2],
+            [0,                               0,                                1]
+        ]
+    )
+    Minv = np.linalg.inv(M)
+    Minvv = Minv @ v
+    return Minvv[:2]
 
 class Target:
     def __init__(self, contents=None):
@@ -75,9 +105,9 @@ class FactNode:
             contents is a dictionary containing factnode data
         '''
         if contents == None:
-            self.name = ''
+            self.name = 'Node'
             self.title = ''
-            self.position = pos
+            self.pos = pos
             self.children = set()
             # self.parent = None
             self.connection_to_parent = set()
@@ -89,7 +119,7 @@ class FactNode:
         else:
             self.name = contents['name']
             self.title = contents['title']
-            self.position = (int(contents['pos'][0]), int(contents['pos'][1]))
+            self.pos = (int(contents['pos'][0]), int(contents['pos'][1]))
             self.children = {FactNode(contents=factnode) for factnode in contents['children']}
             # self.parent =
             self.connection_to_parent = {(int(con_route[0]), int(con_route[1])) for con_route in contents['connection_to_parent']}
@@ -128,7 +158,7 @@ class Level:
             return self.target
         else:
             for factnode in self.factnodes:
-                if factnode.position == pos:
+                if factnode.pos == pos:
                     return factnode
         return None
 
@@ -166,17 +196,22 @@ class Controwler:
         global column_num
         global row_num
         global menu_open
+        global selected_node
 
         print(str(w) + ', ' + str(h))
 
+
         # row = (event.x - event.x % (w / row_num)) / row_num
         # column = (event.y - event.y % (int(h) / column_num)) / column_num
-        row = int(event.x / (w/row_num))
-        column = int(event.y / (h/column_num))
+        new_x, new_y = transform_screen_to_world((event.x, event.y))
+        print(str(new_x) + ', ' + str(new_y))
+        row = int(new_x / (w/row_num))
+        column = int(new_y / (h/column_num))
 
         if mode == node_selected:
-            if grid[row][column] == empty_tile:
-                self.level.factnodes.add(FactNode(pos=(row, column)))
+            # if self.level.element_at((row, column)) == None:
+            #     self.level.factnodes.add(FactNode(pos=(row, column)))
+            selected_node = (row,column)
             # if menu_open:
             #     if grid[row][column] == empty_tile:
             #         self.level.factnodes.add(FactNode(pos=(row, column)))
@@ -186,28 +221,35 @@ class Controwler:
             #     else:
             #         self.level.element_at((selected_node)).connection_to_parent.add((row,col))
         elif mode == deletion:
-            if grid[row][column] == node_tile:
+            if isinstance(self.level.element_at((row,column)), FactNode):
                 for f in self.level.factnodes:
                     if f.pos[0] == row and f.pos[1] == column:
                         self.level.factnodes.remove(f)
-            if grid[row][column] == line_tile:
-                for l in self.level.target.lines:
-                    if l.pos[0] == row and l.pos[1] == column:
-                        self.level.target.lines.remove(l)
+            # elif grid[row][column] == line_tile:
+            #     for l in self.level.target.lines:
+            #         if l.pos[0] == row and l.pos[1] == column:
+            #             self.level.target.lines.remove(l)
         elif mode == draw_line:
             if grid[row][column] == empty_tile:
-                self.level.target.lines.add((row, column))
+                #print(selected_node)
+                el = self.level.element_at(selected_node)
+                if (row,column) not in el.connection_to_parent:
+                    el.connection_to_parent.add((row, column))
+                else:
+                    el.connection_to_parent.remove((row, column))
 
-    def save_target(self, name, neighbours, susbision, sturess, maxitress, warudoposX, warudoposY):
+    def save_target(self, name, neighbours, susbision, sturess, maxitress, warudoposX, warudoposY, kangbous):
         self.level.target.name = name
         self.level.target.neighbors = set(neighbours.split(","))
         self.level.target.suspicion = int(susbision)
         self.level.target.starting_stress = int(sturess)
         self.level.target.max_stress = int(maxitress)
         self.level.target.pos = (int(warudoposX), int(warudoposY))
+        self.level.target.combos = set(kangbous.split(","))
 
     # Name/Title/World PositionX/Y/Player Stress Damage/Stress Damage/Summary/Contents/Locked
     def save_node(self, name, taitoru, warudoposX, warudoposY, platresmg, tresmg, Summary, Contents, Locked):
+        
         tempdict = {
             'name': name,
             'title': taitoru,
@@ -217,13 +259,15 @@ class Controwler:
             'stress_dam': int(tresmg),
             'summary': Summary,
             'contents': Contents,
-            'locked': (Locked == 'T')
+            'locked': (Locked == 'T'),
+            'connection_to_parent': set()
         }
         noude = FactNode(pos=(int(warudoposX), int(warudoposY)), contents=tempdict)
         self.level.factnodes.add(noude)
 
 
 class View:
+
     def __init__(self, controwler, level):
         self.controwler = controwler
         self.level = level
@@ -238,22 +282,38 @@ class View:
         self.canvas.bind('<Configure>', self.draw_everything)
         self.canvas.bind('<Button-1>', self.controwler.add_object)
         self.canvas.bind('<Button-3>', self.open_new_menu)
-        self.canvas.bind('<Key>', self.change_mode)
+        # self.canvas.bind('<Key>', self.change_mode)
+        self.canvas.bind('1', self.change_mode_1)
+        self.canvas.bind('2', self.change_mode_2)
+        self.canvas.bind('3', self.change_mode_3)
+        self.canvas.bind('4', self.change_mode_4)
+        self.canvas.bind('0', self.change_mode_0)
         self.canvas.focus_set()
         self.root.mainloop()
-
-    def change_mode(self, event=None):
-        self.canvas.focus_set()
+    
+    
+    def change_mode_0(self, event = None):
         global mode
-        if event.char in {'1', '2', '3', '4'}:
-            if mode == int(event.char):
-                mode = 0
-            else:
-                mode = int(event.char)
-        else:
-            mode = 0
+        mode = 0
+    
+    def change_mode_1(self, event = None):
+        global mode
+        mode = 1
+    
+    def change_mode_2(self, event = None):
+        global mode
+        mode = 2
+    
+    def change_mode_3(self, event = None):
+        global mode
+        mode = 3
+    
+    def change_mode_4(self, event = None):
+        global mode
+        mode = 4
 
     def draw_everything(self, event=None, rows=row_num, columns=column_num):
+        self.canvas.focus_set()
         global w
         w = self.canvas.winfo_width()
         global h
@@ -267,33 +327,42 @@ class View:
         # self.canvas.delete('grid_line')
 
         for i in range(0, w, int(w / rows)):
-            self.canvas.create_line([i, 0], [i, h], tag='grid_line')
+            self.canvas.create_line(transform_world_to_screen([i, 0])[0], transform_world_to_screen([i, 0])[1], transform_world_to_screen([i, h])[0], transform_world_to_screen([i, h])[1], tag='grid_line')
 
         for i in range(0, h, int(h / columns)):
-            self.canvas.create_line([0, i], [w, i], tag='grid_line')
+            self.canvas.create_line(transform_world_to_screen([0, i])[0], transform_world_to_screen([0, i])[1], transform_world_to_screen([w, i])[0], transform_world_to_screen([w, i])[1], tag='grid_line')
 
         # T ODO: add all objects <-- need brian's help for this
-        target_img = tk.PhotoImage(file="./green.png")
-        target_img = target_img.subsample(4,4)
-        node_img = tk.PhotoImage(file="./node.png")
-        node_img = target_img.subsample(4,4)
+        # target_img = tk.PhotoImage(file=str(cwd) + "/green.png")
+        # target_img = target_img.subsample(4,4)
+        # node_img = tk.PhotoImage(file=str(cwd) + "/node.png")
+        # node_img = target_img.subsample(4,4)
 
-        self.canvas.create_image(
-            0 * w / row_num + w / 2,
-            0 * h / column_num + h / 2,
-            #font="Arial", text=self.level.target.name, tag='target')
-            image=target_img)
+        self.canvas.create_text(
+            transform_world_to_screen((0 * w / row_num + w / 2, 0 * h / column_num + h / 2))[0],
+            transform_world_to_screen((0 * w / row_num + w / 2, 0 * h / column_num + h / 2))[1],
+            font="Arial", text=self.level.target.name, tag='target')
+        #     image=target_img)
         for factnode in self.level.factnodes:
-            self.canvas.create_image(
-                factnode.position[0] * w / row_num + w / (2 * row_num),
-                factnode.position[1] * h / column_num + h / (2 * column_num),
-                image=node_img)
+            if factnode.pos == selected_node:
+                self.canvas.create_text(
+                    transform_world_to_screen((factnode.pos[0] * w / row_num + w / (2 * row_num), factnode.pos[1] * h / column_num + h / (2 * column_num)))[0],
+                    transform_world_to_screen((factnode.pos[0] * w / row_num + w / (2 * row_num), factnode.pos[1] * h / column_num + h / (2 * column_num)))[1], 
+                    font="Times", text=factnode.name, tag='factnode')
+            else:
+                print(str(factnode.pos))
+                self.canvas.create_text(
+                    transform_world_to_screen((factnode.pos[0] * w / row_num + w / (2 * row_num),factnode.pos[1] * h / column_num + h / (2 * column_num)))[0],
+                    transform_world_to_screen((factnode.pos[0] * w / row_num + w / (2 * row_num),factnode.pos[1] * h / column_num + h / (2 * column_num)))[1],
+                    font="Arial", text=factnode.name, tag='factnode')
+                # image=node_img)
         # T ODO: add thickened lines to indicate a connection
-        for line_tile in self.level.target.lines:
-            self.canvas.create_text(
-                line_tile.pos[0] * w / row_num + w / (2 * row_num),
-                line_tile.pos[1] * h / column_num + h / (2 * column_num),
-                font="Arial", text='+', tag='connection')
+        for factnode in self.level.factnodes:
+            for line_tile in factnode.connection_to_parent:
+                self.canvas.create_text(
+                    transform_world_to_screen((line_tile[0] * w / row_num + w / (2 * row_num), line_tile[1] * h / column_num + h / (2 * column_num)))[0],
+                    transform_world_to_screen((line_tile[0] * w / row_num + w / (2 * row_num), line_tile[1] * h / column_num + h / (2 * column_num)))[1],
+                    font="Arial", text='+', tag='connection')
 
     """
     def draw_object(self, event, row = 2, column = 2):
@@ -325,7 +394,7 @@ class View:
             a = Label(window, text="Name")
             a.grid(row=0, column=0)
             # a.insert(-1, self.level.target.name)
-            b = Label(window, text="Neighbors (comma separated)")
+            b = Label(window, text="Neighbors (comma separated, no spaces or it breaks)")
             b.grid(row=1, column=0)
             c = Label(window, text="Suspicion")
             c.grid(row=2, column=0)
@@ -335,8 +404,10 @@ class View:
             e.grid(row=4, column=0)
             f = Label(window, text="World Position X")
             f.grid(row=5, column=0)
+            fg = Label(window, text="Combos (comma seperated, no spaces or it breaks)")
+            fg.grid(row=6, column=0)
             g = Label(window, text="World Position Y")
-            g.grid(row=6, column=0)
+            g.grid(row=7, column=0)
             # combos/position/sasbisiong/neighbour/startstress/maxstress
             a1 = Entry(window)
             a1.grid(row=0, column=1)
@@ -356,103 +427,115 @@ class View:
             f1 = Entry(window)
             f1.grid(row=5, column=1)
             f1.insert(-1, str(self.level.target.pos[0]))
+            fg1 = Entry(window)
+            fg1.grid(row=6, column=1)
+            fg1.insert(-1, str(self.level.target.combos))
             g1 = Entry(window)
-            g1.grid(row=6, column=1)
+            g1.grid(row=7, column=1)
             g1.insert(-1, str(self.level.target.pos[1]))
 
             def submitted():
                 # pass shit into controwler
-                self.controwler.save_target(a1.get(), b1.get(), c1.get(), d1.get(), e1.get(), f1.get(), g1.get())
-                # menu_open = False
+                self.controwler.save_target(a1.get(), b1.get(), c1.get(), d1.get(), e1.get(), f1.get(), g1.get(), fg1.get())
+                self.canvas.focus_set()
+                global menu_open
+                menu_open = False
 
-            Button(window, text="Submit", command=submitted).grid(row=7, column=0)
+            Button(window, text="Submit", command=submitted).grid(row=2, column=3)
         elif mode == node_selected:
-            if not menu_open:
-                menu_open = True
-                # node = None
-                # row = (event.x - event.x % (w / row_num)) / row_num
-                # column = (event.y - event.y % (h / column_num)) / column_num
-                row = int(event.x / (w/row_num))
-                column = int(event.y / (h/column_num))
-                # if self.level.element_at((row, column)) == None:
-                #     self.controwler.add_object(event)
-                node = self.level.element_at((row, column))
-                if node:
-                    selected_node = (row, column)
-                else:
-                    selected_node = None
-                # for f in self.level.factnodes:
-                #         if f.pos[0] == row and f.pos[1] == column:
-                #             node = f
+            # if not menu_open:
+            menu_open = True
+            node = None
+            # row = (event.x - event.x % (w / row_num)) / row_num
+            # column = (event.y - event.y % (h / column_num)) / column_num
+            new_x, new_y = transform_screen_to_world((event.x, event.y))
+            row = int(new_x / (w/row_num))
+            column = int(new_y / (h/column_num))
+            #print('r,c = ' + str(row) + ', ' + str(column))
+            if row == 0 and column == 0:
+                pass
+            # if self.level.element_at((row, column)) == None:
+            #     self.controwler.add_object(event)
+            node = self.level.element_at((row, column))
+            if node:
+                selected_node = (row, column)
+            else:
+                selected_node = None
+            # for f in self.level.factnodes:
+            #         if f.pos[0] == row and f.pos[1] == column:
+            #             node = f
 
-                window.title("Node editing menu")
-                window.geometry('600x600')
-                window.configure(background="grey")
-                a = Label(window, text="Name")
-                a.grid(row=0, column=0)
-                # a.insert(-1, self.level.target.name)
-                b = Label(window, text="Title")
-                b.grid(row=1, column=0)
-                # c = Label(window, text="World Position X")
-                # c.grid(row=2, column=0)
-                # c11 = Label(window, text="World Position Y")
-                # c11.grid(row=3, column=0)
-                d = Label(window, text="Player Stress Damage")
-                d.grid(row=4, column=0)
-                e = Label(window, text="Stress Damage")
-                e.grid(row=5, column=0)
-                f = Label(window, text="Summary")
-                f.grid(row=6, column=0)
-                g = Label(window, text="Contents")
-                g.grid(row=7, column=0)
-                h = Label(window, text="Locked (T/F)")
-                h.grid(row=8, column=0)
-                # Name/Title/World Position/Player Stress Damage/Stress Damage/Summary/Contents/Locked
-                a1 = Entry(window)
-                a1.grid(row=0, column=1)
-                b1 = Entry(window)
-                b1.grid(row=1, column=1)
-                # c1 = Entry(window)
-                # c1.grid(row=2, column=1)
-                # c111 = Entry(window)
-                # c111.grid(row=3, column=1)
-                d1 = Entry(window)
-                d1.grid(row=4, column=1)
-                e1 = Entry(window)
-                e1.grid(row=5, column=1)
-                f1 = Entry(window)
-                f1.grid(row=6, column=1)
-                g1 = Entry(window)
-                g1.grid(row=7, column=1)
-                h1 = Entry(window)
-                h1.grid(row=8, column=1)
+            window.title("Node editing menu")
+            window.geometry('600x600')
+            window.configure(background="grey")
+            a = Label(window, text="Name")
+            a.grid(row=0, column=0)
+            # a.insert(-1, self.level.target.name)
+            b = Label(window, text="Title")
+            b.grid(row=1, column=0)
+            # c = Label(window, text="World Position X")
+            # c.grid(row=2, column=0)
+            # c11 = Label(window, text="World Position Y")
+            # c11.grid(row=3, column=0)
+            d = Label(window, text="Player Stress Damage")
+            d.grid(row=4, column=0)
+            e = Label(window, text="Stress Damage")
+            e.grid(row=5, column=0)
+            f = Label(window, text="Summary")
+            f.grid(row=6, column=0)
+            g = Label(window, text="Contents")
+            g.grid(row=7, column=0)
+            hh = Label(window, text="Locked (T/F)")
+            hh.grid(row=8, column=0)
+            # Name/Title/World Position/Player Stress Damage/Stress Damage/Summary/Contents/Locked
+            a1 = Entry(window)
+            a1.grid(row=0, column=1)
+            b1 = Entry(window)
+            b1.grid(row=1, column=1)
+            # c1 = Entry(window)
+            # c1.grid(row=2, column=1)
+            # c111 = Entry(window)
+            # c111.grid(row=3, column=1)
+            d1 = Entry(window)
+            d1.grid(row=4, column=1)
+            e1 = Entry(window)
+            e1.grid(row=5, column=1)
+            f1 = Entry(window)
+            f1.grid(row=6, column=1)
+            g1 = Entry(window)
+            g1.grid(row=7, column=1)
+            h1 = Entry(window)
+            h1.grid(row=8, column=1)
 
-                if node != None:
-                    a1.insert(-1, node.name)
-                    b1.insert(-1, node.title)
-                    # c1.insert(-1, str(node.pos[0]))
-                    # c111.insert(-1, str(node.pos[1]))
-                    d1.insert(-1, node.player_stress_dam)
-                    e1.insert(-1, node.stress_dam)
-                    f1.insert(-1, node.summary)
-                    g1.insert(-1, node.contents)
-                    h1.insert(-1, str(node.locked))
+            if node != None:
+                a1.insert(-1, node.name)
+                b1.insert(-1, node.title)
+                # c1.insert(-1, str(node.pos[0]))
+                # c111.insert(-1, str(node.pos[1]))
+                d1.insert(-1, node.player_stress_dam)
+                e1.insert(-1, node.stress_dam)
+                f1.insert(-1, node.summary)
+                g1.insert(-1, node.contents)
+                h1.insert(-1, str(node.locked))
 
-                def submitted():
-                    # pass shit into controwler
-                    self.controwler.save_node(a1.get(), b1.get(), row, column, d1.get(), e1.get(), f1.get(),
-                                            g1.get(), h1.get())
-                    menu_open = False
+            def submitted():
+                # pass shit into controwler
+                self.controwler.save_node(a1.get(), b1.get(), row, column, d1.get(), e1.get(), f1.get(),
+                                        g1.get(), h1.get())
+                global menu_open
+                menu_open = False
+                self.canvas.focus_set()
 
-                Button(window, text="Submit", command=submitted).grid(row=9, column=0)
-            else: # menu open
-                row = int(event.x / (w/row_num))
-                column = int(event.y / (h/column_num))
-                if self.level.element_at((row, column)) == empty_tile:
-                    if (row, column) in self.level.element_at(selected_node).connection_to_parent:
-                        self.level.element_at(selected_node).connection_to_parent.remove((row, column))
-                    else:
-                        self.level.element_at(selected_node).connection_to_parent.add((row, column))
+            Button(window, text="Submit", command=submitted).grid(row=9, column=0)
+            # else: # menu open
+            #     self.canvas.focus_set()
+            #     row = int(event.x / (w/row_num))
+            #     column = int(event.y / (h/column_num))
+            #     if self.level.element_at((row, column)) == empty_tile:
+            #         if (row, column) in self.level.element_at(selected_node).connection_to_parent:
+            #             self.level.element_at(selected_node).connection_to_parent.remove((row, column))
+            #         else:
+            #             self.level.element_at(selected_node).connection_to_parent.add((row, column))
         window.mainloop()
 
 
@@ -465,6 +548,7 @@ def save(level, out_filename=None):
     out_fs.write(json.dumps(level))
     out_fs.close()
 
+cwd = os.getcwd()
 
 m = Level()
 c = Controwler(m)
