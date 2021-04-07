@@ -273,9 +273,9 @@ class View:
             self.canvas.create_line([0, i], [w, i], tag='grid_line')
 
         # T ODO: add all objects <-- need brian's help for this
-        target_img = tk.PhotoImage(file="green.png")
+        target_img = tk.PhotoImage(file="./green.png")
         target_img = target_img.subsample(4,4)
-        node_img = tk.PhotoImage(file="node.png")
+        node_img = tk.PhotoImage(file="./node.png")
         node_img = target_img.subsample(4,4)
 
         self.canvas.create_image(
