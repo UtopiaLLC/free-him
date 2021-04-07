@@ -140,6 +140,16 @@ public class WorldModel {
 	}
 
 	/**
+	 * Returns the exposable facts for a given `target`.
+	 *
+	 * @param targetName 	The string name of the selected target
+	 * @return 				Array of fact IDs that are scanned and not exposed
+	 */
+	public Array<String> getExposableFacts(String targetName){
+		return exposablenodes.keySet();
+	}
+
+	/**
 	 * Returns the world coordinates for a given `target`.
 	 *
 	 * @param targetName 	The string name of the selected target
@@ -319,6 +329,28 @@ public class WorldModel {
 	public GAMESTATE relax(int ap){
 		player.relax(ap);
 		return GAMESTATE.ONGOING;
+	}
+
+	/**
+	*	Harass a target
+	*
+	*	@param targetname 	name of target
+	*	@return 			the gamestate after this action
+	*/
+	public GAMESTATE harass(String targetname){
+		targets.get(targetname).addStress(7);
+		return this.getGameState;
+	}
+
+	/**
+	*	Harass a target
+	*
+	*	@param targetname 	name of target
+	*	@return 			the gamestate after this action
+	*/
+	public GAMESTATE harass(String targetname){
+		targets.get(targetname).addStress(5);
+		return this.getGameState;
 	}
 
 	/**
