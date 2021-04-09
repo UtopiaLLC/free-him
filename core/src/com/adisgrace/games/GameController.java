@@ -512,22 +512,22 @@ public class GameController implements Screen {
         //acceleration_speed = 40;
         switch (direction){
             case 0:
-                if (up_acc == 0) clearSpeed();
+                if (up_acc == 0) clearSpeedRev(0);
                 up_acc += 1;
                 speed = up_acc > acceleration_speed ? acceleration_speed : up_acc;
                 break;
             case 1:
-                if (down_acc == 0) clearSpeed();
+                if (down_acc == 0) clearSpeedRev(1);
                 down_acc += 1;
                 speed = down_acc > acceleration_speed ? acceleration_speed : down_acc;
                 break;
             case 2:
-                if (left_acc == 0) clearSpeed();
+                if (left_acc == 0) clearSpeedRev(2);
                 left_acc += 1;
                 speed = left_acc > acceleration_speed ? acceleration_speed : left_acc;
                 break;
             case 3:
-                if (right_acc == 0) clearSpeed();
+                if (right_acc == 0) clearSpeedRev(3);
                 right_acc += 1;
                 speed = right_acc > acceleration_speed ? acceleration_speed : right_acc;
                 break;
@@ -544,6 +544,24 @@ public class GameController implements Screen {
         down_acc = 0;
         left_acc = 0;
         right_acc = 0;
+        return;
+    }
+
+    /**
+     * Clears camera speed in reverse directions
+     * @param
+     */
+    private void clearSpeedRev(int direction){
+        switch (direction){
+            case 0:
+                down_acc = 0;
+            case 1:
+                up_acc = 0;
+            case 2:
+                right_acc = 0;
+            case 3:
+                left_acc = 0;
+        }
         return;
     }
 
