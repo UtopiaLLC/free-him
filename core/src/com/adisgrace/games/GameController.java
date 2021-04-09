@@ -74,6 +74,10 @@ public class GameController implements Screen {
     private Label tSusp;
     /** money is the dialog label for money */
     private Label money;
+    /** acceleration accumulators for camera movement */
+    private int left_acc, right_acc, up_acc, down_acc;
+    /** time taken for camera to accelerate to max speed */
+    private int acceleration_speed = 40;
 
     private boolean ended = false;
     private boolean nodeFreeze = false;
@@ -442,15 +446,15 @@ public class GameController implements Screen {
         camera = canvas.getCamera();
         currentZoom = camera.zoom;
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
-            camera.translate(0, 12*currentZoom);
+            camera.translate(0, 12*currentZoom*cameraSpeed(0)/acceleration_speed);
         }if(Gdx.input.isKeyPressed(Input.Keys.A)) {
-            camera.translate(-12*currentZoom, 0);
+            camera.translate(-12*currentZoom*cameraSpeed(2)/acceleration_speed, 0);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.S)) {
-            camera.translate(0, -12*currentZoom);
+            camera.translate(0, -12*currentZoom*cameraSpeed(1)/acceleration_speed);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            camera.translate(12*currentZoom, 0);
+            camera.translate(12*currentZoom*cameraSpeed(3)/acceleration_speed, 0);
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.E)) {
@@ -481,6 +485,51 @@ public class GameController implements Screen {
         camera.position.set(camX, camY, camera.position.z);
 
         camera.update();
+    }
+
+    /**
+     * Returns the camera speed given the direction, calculated with accumulated acceleration
+     * @param direction
+     */
+    public float cameraSpeed(int direction){
+        // 0 = up, 1 = down, 2 = left, 3 = right
+        float speed = 0f;
+        //acceleration_speed = 40;
+        switch (direction){
+            case 0:
+                if (up_acc == 0) clearSpeed();
+                up_acc += 1;
+                speed = up_acc > acceleration_speed ? acceleration_speed : up_acc;
+                break;
+            case 1:
+                if (down_acc == 0) clearSpeed();
+                down_acc += 1;
+                speed = down_acc > acceleration_speed ? acceleration_speed : down_acc;
+                break;
+            case 2:
+                if (left_acc == 0) clearSpeed();
+                left_acc += 1;
+                speed = left_acc > acceleration_speed ? acceleration_speed : left_acc;
+                break;
+            case 3:
+                if (right_acc == 0) clearSpeed();
+                right_acc += 1;
+                speed = right_acc > acceleration_speed ? acceleration_speed : right_acc;
+                break;
+        }
+        return speed;
+    }
+
+    /**
+     * Clears camera speed in all directions
+     * @param
+     */
+    private void clearSpeed(){
+        up_acc = 0;
+        down_acc = 0;
+        left_acc = 0;
+        right_acc = 0;
+        return;
     }
 
     /**
