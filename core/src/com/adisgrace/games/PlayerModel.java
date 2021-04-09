@@ -141,6 +141,7 @@ public class PlayerModel {
 	*/
 	public void incrementBitecoin(float increment) {
 		this.bitecoin += increment;
+		this.bitecoin = Math.min(this.bitecoin, 999f);
 	}
 
 	/**
