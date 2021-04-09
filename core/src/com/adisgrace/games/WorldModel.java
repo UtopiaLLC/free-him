@@ -336,7 +336,8 @@ public class WorldModel {
 	*	@return 			the gamestate after this action
 	*/
 	public GAMESTATE harass(String targetname){
-		targets.get(targetname).addStress(5);
+
+		targets.get(targetname).addStress(7);
 		return this.getGameState();
 	}
 
