@@ -162,7 +162,6 @@ public class GameController implements Screen {
         stage.getViewport().apply();
         stage.draw();
 
-        stressBar.setValue(player.getStress());
         toolbarStage.getViewport().apply();
         toolbarStage.draw();
         updateStats();
@@ -220,7 +219,7 @@ public class GameController implements Screen {
         // Move to an outside class eventually
         ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         toolbarStage = new Stage(toolbarViewPort);
-        skin = new Skin(Gdx.files.internal("skins/neon-ui.json"));
+        skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(toolbarStage);
@@ -366,9 +365,9 @@ public class GameController implements Screen {
         skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
         rightSide.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
 
-        stressBar = new ProgressBar(0f, 100f, 1f, true, skin);
+        stressBar = new ProgressBar(0f, 100f, 1f, true, skin, "synthwave");
         stressBar.setValue(player.getStress());
-        leftSide.add(stressBar).left();
+        leftSide.add(stressBar).left().width(75).height(244);
 
         int numSkills = 6;
 
@@ -816,6 +815,7 @@ public class GameController implements Screen {
      */
     public void updateStats(){
         stress.setText("Player Stress: " + Integer.toString((int)world.getPlayer().getStress()));
+        stressBar.setValue(player.getStress());
         ap.setText("AP: " + Integer.toString(world.getPlayer().getAP()));
         tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
         tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));
