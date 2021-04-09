@@ -17,6 +17,12 @@ com.badlogic.gdx.graphics.Color: {
 		b: 0
 		a: 1
 	}
+	Blu: {
+		r: 0.42000002
+		g: 0.98169786
+		b: 1
+		a: 1
+	}
 	color: {
 		r: 0.14117648
 		g: 1
@@ -303,7 +309,7 @@ com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton$ImageTextButtonStyle: {
 com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	default: {
 		font: font
-		fontColor: text
+		fontColor: Blu
 	}
 	over: {
 		font: font-over

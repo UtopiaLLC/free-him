@@ -373,6 +373,13 @@ public class GameController implements Screen {
         stressBar.setValue(player.getStress());
         leftSide.add(stressBar).left().width(75).height(244);
 
+        Stack bitecoinStack = new Stack();
+
+        Image bitecoinCounter = new Image(new TextureRegionDrawable(new TextureRegion(
+                new Texture("UI/UI_BitecoinCounter_1.png"))));
+
+        
+
         int numSkills = 6;
 
         skillBar.add(harass).width(skillBar.getWidth()/numSkills);
