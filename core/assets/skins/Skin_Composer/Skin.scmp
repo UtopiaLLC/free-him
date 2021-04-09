@@ -1770,7 +1770,27 @@ atlasData: {
 			hidden: false
 		}
 	]
-	fontDrawables: []
+	fontDrawables: [
+		{
+			file: D:/faris/Documents/College Stuff/Semester Folders/SP21/Classes/Game Dev/Actual Game/Game-Code/free-him/core/assets/skins/Skin_Composer/Skin_data/BitcoinNumbersfont.png
+			bgColor: {
+				r: 0
+				g: 0
+				b: 0
+				a: 1
+			}
+			tint: null
+			tintName: null
+			name: BitcoinNumbersfont
+			tiled: false
+			minWidth: -1
+			minHeight: -1
+			customized: false
+			tenPatchData: null
+			type: FONT
+			hidden: false
+		}
+	]
 }
 jsonData: {
 	colors: [
@@ -1803,6 +1823,16 @@ jsonData: {
 				a: 1
 			}
 			name: color
+		}
+		{
+			class: com.ray3k.skincomposer.data.ColorData
+			color: {
+				r: 0.9953241
+				g: 0.6633333
+				b: 1
+				a: 1
+			}
+			name: Neon_purple
 		}
 		{
 			class: com.ray3k.skincomposer.data.ColorData
@@ -1846,6 +1876,11 @@ jsonData: {
 		}
 	]
 	fonts: [
+		{
+			class: com.ray3k.skincomposer.data.FontData
+			name: BitcoinNumbersfont
+			file: D:/faris/Documents/College Stuff/Semester Folders/SP21/Classes/Game Dev/Actual Game/Game-Code/free-him/core/assets/skins/Skin_Composer/Skin_data/BitcoinNumbersfont.fnt
+		}
 		{
 			class: com.ray3k.skincomposer.data.FontData
 			name: font
@@ -2381,6 +2416,33 @@ jsonData: {
 						name: fontColor
 						optional: true
 						value: text
+					}
+					background: {
+						type: com.badlogic.gdx.scenes.scene2d.utils.Drawable
+						name: background
+						optional: true
+						value: null
+					}
+				}
+				deletable: true
+				parent: null
+			}
+			{
+				class: com.ray3k.skincomposer.data.StyleData
+				name: bitcoin
+				clazz: com.badlogic.gdx.scenes.scene2d.ui.Label
+				properties: {
+					font: {
+						type: com.badlogic.gdx.graphics.g2d.BitmapFont
+						name: font
+						optional: false
+						value: BitcoinNumbersfont
+					}
+					fontColor: {
+						type: com.badlogic.gdx.graphics.Color
+						name: fontColor
+						optional: true
+						value: Neon_purple
 					}
 					background: {
 						type: com.badlogic.gdx.scenes.scene2d.utils.Drawable
@@ -3990,6 +4052,13 @@ preferences: {
 	id: {
 		class: java.lang.Integer
 		value: 176855036
+	}
+	preview-bg-color: {
+		class: com.badlogic.gdx.graphics.Color
+		r: 0
+		g: 0
+		b: 0
+		a: 1
 	}
 	last-import-export-path: {
 		class: java.lang.String

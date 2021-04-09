@@ -376,8 +376,13 @@ public class GameController implements Screen {
         Stack bitecoinStack = new Stack();
 
         Image bitecoinCounter = new Image(new TextureRegionDrawable(new TextureRegion(
-                new Texture("UI/UI_BitecoinCounter_1.png"))));
+                new Texture("UI/BitecoinCounter.png"))));
+        Label bitecoinAmount = new Label(Integer.toString((int)player.getBitecoin()), skin, "bitcoin");
 
+        bitecoinStack.add(bitecoinCounter);
+        bitecoinStack.add(bitecoinAmount);
+
+        leftSide.add(bitecoinStack);
         
 
         int numSkills = 6;
