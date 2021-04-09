@@ -1,11 +1,9 @@
 package com.adisgrace.games;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.math.Vector2;
-import java.util.Random;
 
 public class WorldModel {
 
@@ -142,10 +140,10 @@ public class WorldModel {
 	/**
 	 * Returns the exposable facts for a given `target`.
 	 *
-	 * @param targetName 	The string name of the selected target
+	 * @param targetName    The string name of the selected target
 	 * @return 				Array of fact IDs that are scanned and not exposed
 	 */
-	public Array<String> getExposableFacts(String targetName){
+	public Set<String> getExposableFacts(String targetName){
 		return exposablenodes.keySet();
 	}
 
@@ -339,19 +337,9 @@ public class WorldModel {
 	*/
 	public GAMESTATE harass(String targetname){
 		targets.get(targetname).addStress(7);
-		return this.getGameState;
+		return this.getGameState();
 	}
 
-	/**
-	*	Harass a target
-	*
-	*	@param targetname 	name of target
-	*	@return 			the gamestate after this action
-	*/
-	public GAMESTATE harass(String targetname){
-		targets.get(targetname).addStress(5);
-		return this.getGameState;
-	}
 
 	/**
 	 * Hack function, decreases player AP and hacks target fact

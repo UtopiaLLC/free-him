@@ -55,9 +55,9 @@ public class GameController implements Screen {
     /** currentZoom controls how much the camera is zoomed in or out */
     private float currentZoom;
     /** target is the specific target being attacked */
-    TargetModel target;
+    private TargetModel target;
     /** world is a variable that links to all the models in the project */
-    WorldModel world;
+    private WorldModel world;
     /** activeVerb is the state of the toolbar buttons i.e. which button clicked or not clicked */
     private ActiveVerb activeVerb;
     /** nodeView is the view class that exposes all nodes in the map */
@@ -105,11 +105,13 @@ public class GameController implements Screen {
         player = world.getPlayer();
         activeVerb = ActiveVerb.NONE;
 
+        // Setting a target
         target = world.getTarget("Patrick Westfield");
 
+        // Creating Nodes
         nodeView = new NodeView(stage, target, world);
         imageNodes = nodeView.getImageNodes();
-        for(ImageButton button : imageNodes.values()) {
+        for(ImageButton button : imageNodes.values()) { // Node Click Listeners
             button.addListener(new ClickListener()
             {
                 @Override
@@ -122,6 +124,8 @@ public class GameController implements Screen {
             });
             button.remove();
         }
+
+        // Adding all visible nodes
         Array<String> displayedNodes= world.getDisplayedNodes().get(target.getName());
         for(String str : displayedNodes) {
             stage.addActor(imageNodes.get(target.getName()+","+str));
