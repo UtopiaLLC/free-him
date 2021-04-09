@@ -392,33 +392,34 @@ public class GameController implements Screen {
 
         int numSkills = 6+1;
 
-
-        skillBar.add(harass).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(10).align(Align.bottom);
-        skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(10).align(Align.bottom);
-        skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(10).align(Align.bottom);
-        skillBar.add(overwork).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(10).align(Align.bottom);
-        skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(10).align(Align.bottom);
-        skillBar.add(relax).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(10).align(Align.bottom);
+        float pad = skillBar.getWidth() / 60f;
+        System.out.println(pad);
+        skillBar.add(harass).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(overwork).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(relax).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
 
         end.align(Align.bottomRight);
-        rightSide.add(end).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
+        rightSide.add(end).width(rightSide.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
         rightSide.row();
         rightSide.add(notebook).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
         rightSide.row();
         rightSide.add(settings).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
 
-        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.20f*toolbar.getHeight()).align(Align.top);
-        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.20f*toolbar.getWidth()).align(Align.bottom);
-        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.20f*toolbar.getHeight()).align(Align.top);
+        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
+        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
+        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
 
 //        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.20f*toolbar.getHeight());
 //        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.20f*toolbar.getHeight());
 //        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.20f*toolbar.getWidth());
 
 
-        rightSide.debug();
-        leftSide.debug();
-        skillBar.debug();
+//        rightSide.debug();
+//        leftSide.debug();
+//        skillBar.debug();
 
         toolbarStage.addActor(toolbar);
         toolbarStage.addActor(createStats());
