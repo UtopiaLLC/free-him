@@ -341,7 +341,7 @@ public class GameController implements Screen {
             }
         });
         ImageButton notebook = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))));
+                Gdx.files.internal("UI/UI_Notebook_1.png")))));
         notebook.setTransform(true);
         notebook.setScale(.5f);
         notebook.addListener(new ClickListener()
