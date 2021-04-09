@@ -75,11 +75,14 @@ public class GameController implements Screen {
     /** money is the dialog label for money */
     private Label money;
 
+    private PlayerModel player;
+
     private boolean ended = false;
     private boolean nodeFreeze = false;
 
     private Dialog blackmailDialog;
     private boolean getRidOfBlackmail;
+    private ProgressBar stressBar;
 
     private static final float MINWORLDWIDTH = 300; //1280
     private static final float MINWORLDHEIGHT = 400; //720
@@ -99,6 +102,7 @@ public class GameController implements Screen {
 
         // Create new WorldModel with given target JSONs
         world = new WorldModel(targetJsons);
+        player = world.getPlayer();
         activeVerb = ActiveVerb.NONE;
 
         target = world.getTarget("Patrick Westfield");
@@ -157,9 +161,12 @@ public class GameController implements Screen {
 
         stage.getViewport().apply();
         stage.draw();
+
+        stressBar.setValue(player.getStress());
         toolbarStage.getViewport().apply();
         toolbarStage.draw();
         updateStats();
+
 
         if(world.getGameState() == WorldModel.GAMESTATE.LOSE && !ended) {
             createDialogBox("YOU LOSE!");
@@ -180,23 +187,10 @@ public class GameController implements Screen {
     @Override
     public void resize(int width, int height) {
         //access viewports and change size
-//        toolbarStage.setViewport(new ExtendViewport(width, height));
-//        stage.setViewport(new ExtendViewport(width, height));
         toolbarStage.getViewport().update(width,height);
         stage.getViewport().update(width,height, true);
 
     }
-
-//    public void resize (int width, int height) {
-//        Vector2 size = Scaling.fit.apply(300, 400, width, height);
-//        int viewportX = (int)(width - size.x) / 2;
-//        int viewportY = (int)(height - size.y) / 2;
-//        int viewportWidth = (int)size.x;
-//        int viewportHeight = (int)size.y;
-//        Gdx.gl.glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
-//        ExtendViewport view = new ExtendViewport(800, 480, true, viewportX, viewportY, viewportWidth, viewportHeight);
-//        stage.setViewport();
-//    }
 
     @Override
     public void pause() {
@@ -236,7 +230,6 @@ public class GameController implements Screen {
 
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight();
-
 
 
 
@@ -373,8 +366,8 @@ public class GameController implements Screen {
         skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
         rightSide.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
 
-        ProgressBar stressBar = new ProgressBar(0f, 100f, 1f, true, skin);
-        stressBar.setValue(50);
+        stressBar = new ProgressBar(0f, 100f, 1f, true, skin);
+        stressBar.setValue(player.getStress());
         leftSide.add(stressBar).left();
 
         int numSkills = 6;
