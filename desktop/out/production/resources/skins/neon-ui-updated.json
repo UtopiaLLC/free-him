@@ -230,7 +230,7 @@ com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable: {
 	UI_StressBarFill_1_tiled: {
 		region: UI_StressBarFill_1
 		color: White
-		minWidth: 100
+		minWidth: 75
 		minHeight: 0
 	}
 }

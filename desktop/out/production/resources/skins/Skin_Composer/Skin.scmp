@@ -1762,7 +1762,7 @@ atlasData: {
 			tintName: White
 			name: UI_StressBarFill_1_tiled
 			tiled: true
-			minWidth: 100
+			minWidth: 75
 			minHeight: 0
 			customized: false
 			tenPatchData: null
@@ -3980,6 +3980,10 @@ preferences: {
 	id: {
 		class: java.lang.Integer
 		value: 176855036
+	}
+	last-import-export-path: {
+		class: java.lang.String
+		value: D:/faris/Documents/College Stuff/Semester Folders/SP21/Classes/Game Dev/Actual Game/Game-Code/free-him/core/assets/skins/neon-ui-updated.json
 	}
 	resources-relative: {
 		class: java.lang.Boolean
