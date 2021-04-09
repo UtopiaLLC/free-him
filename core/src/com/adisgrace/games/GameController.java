@@ -79,11 +79,14 @@ public class GameController implements Screen {
     /** time taken for camera to accelerate to max speed */
     private int acceleration_speed = 40;
 
+    private PlayerModel player;
+
     private boolean ended = false;
     private boolean nodeFreeze = false;
 
     private Dialog blackmailDialog;
     private boolean getRidOfBlackmail;
+    private ProgressBar stressBar;
 
     private static final float MINWORLDWIDTH = 300; //1280
     private static final float MINWORLDHEIGHT = 400; //720
@@ -103,6 +106,7 @@ public class GameController implements Screen {
 
         // Create new WorldModel with given target JSONs
         world = new WorldModel(targetJsons);
+        player = world.getPlayer();
         activeVerb = ActiveVerb.NONE;
 
         // Setting a target
@@ -165,9 +169,11 @@ public class GameController implements Screen {
 
         stage.getViewport().apply();
         stage.draw();
+
         toolbarStage.getViewport().apply();
         toolbarStage.draw();
         updateStats();
+
 
         if(world.getGameState() == WorldModel.GAMESTATE.LOSE && !ended) {
             createDialogBox("YOU LOSE!");
@@ -188,23 +194,10 @@ public class GameController implements Screen {
     @Override
     public void resize(int width, int height) {
         //access viewports and change size
-//        toolbarStage.setViewport(new ExtendViewport(width, height));
-//        stage.setViewport(new ExtendViewport(width, height));
         toolbarStage.getViewport().update(width,height);
         stage.getViewport().update(width,height, true);
 
     }
-
-//    public void resize (int width, int height) {
-//        Vector2 size = Scaling.fit.apply(300, 400, width, height);
-//        int viewportX = (int)(width - size.x) / 2;
-//        int viewportY = (int)(height - size.y) / 2;
-//        int viewportWidth = (int)size.x;
-//        int viewportHeight = (int)size.y;
-//        Gdx.gl.glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
-//        ExtendViewport view = new ExtendViewport(800, 480, true, viewportX, viewportY, viewportWidth, viewportHeight);
-//        stage.setViewport();
-//    }
 
     @Override
     public void pause() {
@@ -234,7 +227,7 @@ public class GameController implements Screen {
         // Move to an outside class eventually
         ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         toolbarStage = new Stage(toolbarViewPort);
-        skin = new Skin(Gdx.files.internal("skins/neon-ui.json"));
+        skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(toolbarStage);
@@ -247,7 +240,6 @@ public class GameController implements Screen {
 
 
 
-
         TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         //toolbar.setBackground(drawable);
@@ -256,7 +248,7 @@ public class GameController implements Screen {
         ImageButton harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         harass.setTransform(true);
-        harass.setScale(.25f);
+        harass.setScale(1f);
         harass.addListener(new ClickListener()
         {
             @Override
@@ -268,7 +260,7 @@ public class GameController implements Screen {
         ImageButton threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         threaten.setTransform(true);
-        threaten.setScale(.25f);
+        threaten.setScale(1f);
         threaten.addListener(new ClickListener()
         {
             @Override
@@ -282,7 +274,7 @@ public class GameController implements Screen {
         ImageButton expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         expose.setTransform(true);
-        expose.setScale(.25f);
+        expose.setScale(1f);
         expose.addListener(new ClickListener()
         {
             @Override
@@ -294,7 +286,7 @@ public class GameController implements Screen {
         ImageButton overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         overwork.setTransform(true);
-        overwork.setScale(.25f);
+        overwork.setScale(1f);
         overwork.addListener(new ClickListener()
         {
             @Override
@@ -307,7 +299,7 @@ public class GameController implements Screen {
         ImageButton otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         otherJobs.setTransform(true);
-        otherJobs.setScale(.25f);
+        otherJobs.setScale(1f);
         otherJobs.addListener(new ClickListener()
         {
             @Override
@@ -320,7 +312,7 @@ public class GameController implements Screen {
         ImageButton relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         relax.setTransform(true);
-        relax.setScale(.25f);
+        relax.setScale(1f);
         relax.addListener(new ClickListener()
         {
             @Override
@@ -333,7 +325,7 @@ public class GameController implements Screen {
         ImageButton end = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         end.setTransform(true);
-        end.setScale(.5f);
+        end.setScale(1f);
         end.addListener(new ClickListener()
         {
             @Override
@@ -346,7 +338,7 @@ public class GameController implements Screen {
         ImageButton settings = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         settings.setTransform(true);
-        settings.setScale(.5f);
+        settings.setScale(1f);
         settings.addListener(new ClickListener()
         {
             @Override
@@ -356,9 +348,9 @@ public class GameController implements Screen {
             }
         });
         ImageButton notebook = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))));
+                Gdx.files.internal("UI/Notebook.png")))));
         notebook.setTransform(true);
-        notebook.setScale(.5f);
+        notebook.setScale(1f);
         notebook.addListener(new ClickListener()
         {
             @Override
@@ -381,30 +373,52 @@ public class GameController implements Screen {
         skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
         rightSide.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
 
-        ProgressBar stressBar = new ProgressBar(0f, 100f, 1f, true, skin);
-        stressBar.setValue(50);
-        leftSide.add(stressBar).left();
+        stressBar = new ProgressBar(0f, 100f, 1f, true, skin, "synthwave");
+        stressBar.setValue(player.getStress());
+        leftSide.add(stressBar).left().width(75).height(244);
 
-        int numSkills = 6;
 
-        skillBar.add(harass).width(skillBar.getWidth()/numSkills);
-        skillBar.add(threaten).width(skillBar.getWidth()/numSkills);
-        skillBar.add(expose).width(skillBar.getWidth()/numSkills);
-        skillBar.add(overwork).width(skillBar.getWidth()/numSkills);
-        skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills);
-        skillBar.add(relax).width(skillBar.getWidth()/numSkills);
+        Stack bitecoinStack = new Stack();
+
+        Image bitecoinCounter = new Image(new TextureRegionDrawable(new TextureRegion(
+                new Texture("UI/BitecoinCounter.png"))));
+        Label bitecoinAmount = new Label(Integer.toString((int)player.getBitecoin()), skin, "bitcoin");
+
+        bitecoinStack.add(bitecoinCounter);
+        bitecoinStack.add(bitecoinAmount);
+
+        leftSide.add(bitecoinStack);
+
+
+        int numSkills = 6+1;
+
+
+        skillBar.add(harass).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(10).align(Align.bottom);
+        skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(10).align(Align.bottom);
+        skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(10).align(Align.bottom);
+        skillBar.add(overwork).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(10).align(Align.bottom);
+        skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(10).align(Align.bottom);
+        skillBar.add(relax).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(10).align(Align.bottom);
 
         end.align(Align.bottomRight);
-        rightSide.add(end).width(rightSide.getWidth());
-//        rightSide.row();
-        rightSide.add(notebook).width(rightSide.getWidth());
-//        rightSide.row();
-        rightSide.add(settings).width(rightSide.getWidth());
+        rightSide.add(end).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
+        rightSide.row();
+        rightSide.add(notebook).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
+        rightSide.row();
+        rightSide.add(settings).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
 
-        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth());
-        toolbar.add(skillBar).width(.6f*toolbar.getWidth());
-        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth());
+        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.20f*toolbar.getHeight()).align(Align.top);
+        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.20f*toolbar.getWidth()).align(Align.bottom);
+        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.20f*toolbar.getHeight()).align(Align.top);
+
+//        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.20f*toolbar.getHeight());
+//        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.20f*toolbar.getHeight());
+//        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.20f*toolbar.getWidth());
+
+
         rightSide.debug();
+        leftSide.debug();
+        skillBar.debug();
 
         toolbarStage.addActor(toolbar);
         toolbarStage.addActor(createStats());
@@ -876,6 +890,7 @@ public class GameController implements Screen {
      */
     public void updateStats(){
         stress.setText("Player Stress: " + Integer.toString((int)world.getPlayer().getStress()));
+        stressBar.setValue(player.getStress());
         ap.setText("AP: " + Integer.toString(world.getPlayer().getAP()));
         tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
         tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));

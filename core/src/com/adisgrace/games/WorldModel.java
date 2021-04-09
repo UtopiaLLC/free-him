@@ -336,10 +336,10 @@ public class WorldModel {
 	*	@return 			the gamestate after this action
 	*/
 	public GAMESTATE harass(String targetname){
+
 		targets.get(targetname).addStress(7);
 		return this.getGameState();
 	}
-
 
 	/**
 	 * Hack function, decreases player AP and hacks target fact
