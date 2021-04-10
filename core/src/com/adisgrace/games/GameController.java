@@ -79,6 +79,19 @@ public class GameController implements Screen {
     /** time taken for camera to accelerate to max speed */
     private int acceleration_speed = 40;
 
+    private ImageButton harass;
+    private boolean harass_drawn = false;
+    private boolean harass_unchecked = false;
+    private ImageButton threaten;
+
+    private ImageButton expose;
+
+    private ImageButton overwork;
+
+    private ImageButton otherJobs;
+
+    private ImageButton relax;
+
     private PlayerModel player;
 
     private boolean ended = false;
@@ -152,6 +165,15 @@ public class GameController implements Screen {
     public void render(float delta) {
 
         canvas.clear();
+        if (activeVerb == activeVerb.HARASS && harass_drawn == false){
+            createToolbar1();
+            harass_drawn = true;
+        }
+        if (activeVerb != activeVerb.HARASS && harass_drawn == true){
+            createToolbar();
+            harass_drawn = false;
+        }
+
 
         // Was supposed to freeze nodes and stop action if game ended or if popup window exists... Didn't work yet.
         if(!ended) {
@@ -245,7 +267,7 @@ public class GameController implements Screen {
         //toolbar.setBackground(drawable);
 
 
-        ImageButton harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+        harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         harass.setTransform(true);
         harass.setScale(1f);
@@ -257,7 +279,7 @@ public class GameController implements Screen {
                 activeVerb = ActiveVerb.HARASS;
             }
         });
-        ImageButton threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+        threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         threaten.setTransform(true);
         threaten.setScale(1f);
@@ -271,7 +293,7 @@ public class GameController implements Screen {
 
             }
         });
-        ImageButton expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+        expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         expose.setTransform(true);
         expose.setScale(1f);
@@ -283,7 +305,7 @@ public class GameController implements Screen {
                 activeVerb = ActiveVerb.EXPOSE;
             }
         });
-        ImageButton overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+        overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         overwork.setTransform(true);
         overwork.setScale(1f);
@@ -296,7 +318,7 @@ public class GameController implements Screen {
                 confirmDialog("Are you sure you want to overwork?", s);
             }
         });
-        ImageButton otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+        otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         otherJobs.setTransform(true);
         otherJobs.setScale(1f);
@@ -309,7 +331,7 @@ public class GameController implements Screen {
                 confirmDialog("Are you sure you want to do other jobs?", s);
             }
         });
-        ImageButton relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+        relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork.png")))));
         relax.setTransform(true);
         relax.setScale(1f);
@@ -620,6 +642,7 @@ public class GameController implements Screen {
                         activeVerb = ActiveVerb.NONE;
                     }
                 }
+                //activeVerb = ActiveVerb.NONE;
                 break;
             case THREATEN:
                 if(isTarget) {
@@ -631,7 +654,7 @@ public class GameController implements Screen {
                         activeVerb = ActiveVerb.NONE;
                     }
                 }
-
+                //activeVerb = ActiveVerb.NONE;
                 break;
             case EXPOSE:
                 if(isTarget) {
@@ -645,7 +668,7 @@ public class GameController implements Screen {
                         }
                     }
                 }
-
+                //activeVerb = ActiveVerb.NONE;
                 break;
             default:
                 System.out.println("You shall not pass");
@@ -914,5 +937,210 @@ public class GameController implements Screen {
         tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
         tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));
         money.setText("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()));
+    }
+
+    /**
+     * createToolbar creates a fixed toolbar with buttons linked to each of the player skills
+     */
+    public void createToolbar1() {
+        // Move to an outside class eventually
+        ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        toolbarStage = new Stage(toolbarViewPort);
+        skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
+
+        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(toolbarStage);
+        inputMultiplexer.addProcessor(stage);
+
+        Gdx.input.setInputProcessor(inputMultiplexer);
+
+        float width = Gdx.graphics.getWidth();
+        float height = Gdx.graphics.getHeight();
+
+
+
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+        //toolbar.setBackground(drawable);
+
+
+        harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("targetmale/green.png")))));
+        harass.setTransform(true);
+        harass.setScale(1f);
+        harass.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                activeVerb = ActiveVerb.HARASS;
+            }
+        });
+        threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        threaten.setTransform(true);
+        threaten.setScale(1f);
+        threaten.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+
+                activeVerb = ActiveVerb.THREATEN;
+
+            }
+        });
+        expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        expose.setTransform(true);
+        expose.setScale(1f);
+        expose.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                activeVerb = ActiveVerb.EXPOSE;
+            }
+        });
+        overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        overwork.setTransform(true);
+        overwork.setScale(1f);
+        overwork.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                final String s = "overwork";
+                confirmDialog("Are you sure you want to overwork?", s);
+            }
+        });
+        otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        otherJobs.setTransform(true);
+        otherJobs.setScale(1f);
+        otherJobs.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                final String s = "otherJobs";
+                confirmDialog("Are you sure you want to do other jobs?", s);
+            }
+        });
+        relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        relax.setTransform(true);
+        relax.setScale(1f);
+        relax.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                final String s = "relax";
+                confirmDialog("Are you sure you want to relax?", s);
+            }
+        });
+        ImageButton end = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("UI/EndDay.png")))));
+        end.setTransform(true);
+        end.setScale(1f);
+        end.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                createDialogBox("You end the day after a long battle of psychological warfare.");
+                world.nextTurn();
+            }
+        });
+        ImageButton settings = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("UI/Settings.png")))));
+        settings.setTransform(true);
+        settings.setScale(1f);
+        settings.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                createDialogBox("You clicked something that hasn't been implemented yet.");
+            }
+        });
+        ImageButton notebook = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("UI/Notebook.png")))));
+        notebook.setTransform(true);
+        notebook.setScale(1f);
+        notebook.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                final String s = "notebook";
+                confirmDialog("Are you sure you want to open notebook?", s);
+            }
+        });
+
+
+        Table toolbar = new Table();
+        toolbar.bottom();
+        toolbar.setSize(width, .25f*height);
+        Table leftSide = new Table();
+        Table skillBar = new Table();
+        Table rightSide = new Table();
+
+        leftSide.setSize(toolbar.getWidth()*.25f, toolbar.getHeight());
+        skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
+        rightSide.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
+
+        stressBar = new ProgressBar(0f, 100f, 1f, true, skin, "synthwave");
+        stressBar.setValue(player.getStress());
+        leftSide.add(stressBar).left().width(75).height(244);
+
+
+        Stack bitecoinStack = new Stack();
+
+        Image bitecoinCounter = new Image(new TextureRegionDrawable(new TextureRegion(
+                new Texture("UI/BitecoinCounter.png"))));
+        Label bitecoinAmount = new Label(Integer.toString((int)player.getBitecoin()), skin, "bitcoin");
+
+        bitecoinStack.add(bitecoinCounter);
+        bitecoinStack.add(bitecoinAmount);
+
+        leftSide.add(bitecoinStack);
+
+
+        int numSkills = 6+1;
+
+        float pad = skillBar.getWidth() / 60f;
+        System.out.println(pad);
+        skillBar.add(harass).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(overwork).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(relax).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+
+        end.align(Align.bottomRight);
+        rightSide.add(end).width(rightSide.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
+        rightSide.row();
+        rightSide.add(notebook).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
+        rightSide.row();
+        rightSide.add(settings).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
+
+        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
+        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
+        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
+
+//        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.20f*toolbar.getHeight());
+//        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.20f*toolbar.getHeight());
+//        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.20f*toolbar.getWidth());
+
+
+//        rightSide.debug();
+//        leftSide.debug();
+//        skillBar.debug();
+
+        toolbarStage.addActor(toolbar);
+        toolbarStage.addActor(createStats());
     }
 }
