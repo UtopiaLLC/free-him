@@ -172,11 +172,14 @@ public class GameController implements Screen {
 //        canvas.begin();
 //        canvas.end();
 
+
         shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(1, 1, 1, 1);
 
         //Vertical lines
+//        for (int i = 0; i < )
+
         Vector2 v1 = convertToIsometric(new Vector2(stage.getWidth()/2, 10f * stage.getHeight()));
         Vector2 v2 = convertToIsometric(new Vector2(stage.getWidth()/2, -10f * stage.getHeight()));
         shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
