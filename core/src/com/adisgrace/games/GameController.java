@@ -90,8 +90,8 @@ public class GameController implements Screen {
 
     private ShapeRenderer shapeRenderer;
 
-    private static final float MINWORLDWIDTH = 300; //1280
-    private static final float MINWORLDHEIGHT = 400; //720
+    private static final float MINWORLDWIDTH = 1280;
+    private static final float MINWORLDHEIGHT = 720;
 
     public GameController() {
         canvas = new GameCanvas();
@@ -176,22 +176,26 @@ public class GameController implements Screen {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(1, 1, 1, 1);
 
-        shapeRenderer.line(
-                stage.getWidth()/2,
-                stage.getHeight(),
-                stage.getWidth()/2,
-                0);
+        //Vertical lines
+        Vector2 v1 = convertToIsometric(new Vector2(stage.getWidth()/2, 10f * stage.getHeight()));
+        Vector2 v2 = convertToIsometric(new Vector2(stage.getWidth()/2, -10f * stage.getHeight()));
+        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
 
-        shapeRenderer.line(
-                stage.getWidth()/4,
-                stage.getHeight(),
-                stage.getWidth()/4,
-                0);
-        shapeRenderer.line(
-                3 * stage.getWidth()/4,
-                stage.getHeight(),
-                3 * stage.getWidth()/4,
-                0);
+        v1 = convertToIsometric(new Vector2(stage.getWidth()/4, 10f * stage.getHeight()));
+        v2 = convertToIsometric(new Vector2(stage.getWidth()/4, -10f * stage.getHeight()));
+        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
+
+        v1 = convertToIsometric(new Vector2(3 * stage.getWidth()/4, 10f * stage.getHeight()));
+        v2 = convertToIsometric(new Vector2(3 * stage.getWidth()/4, -10f * stage.getHeight()));
+        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
+
+        //Horizontal lines
+
+        v1 = convertToIsometric(new Vector2(10f * stage.getWidth(), stage.getHeight()/2));
+        v2 = convertToIsometric(new Vector2(-10f * stage.getWidth(), stage.getHeight()/2));
+        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
+
+
         shapeRenderer.end();
 
         stage.getViewport().apply();
@@ -441,6 +445,18 @@ public class GameController implements Screen {
 
         toolbarStage.addActor(toolbar);
         toolbarStage.addActor(createStats());
+    }
+
+    private Vector2 convertToIsometric(Vector2 worldCoords) {
+        float oneOne = (float)Math.sqrt(3)/2;
+        float oneTwo = (float)Math.sqrt(3)/2;
+        float twoOne = (float)-1/2;
+        float twoTwo = (float)1/2;
+        Vector2 ans = new Vector2();
+        ans.x = oneOne * worldCoords.x + oneTwo * worldCoords.y;
+        ans.y = twoOne * worldCoords.x + twoTwo * worldCoords.y;
+
+        return ans;
     }
 
 
