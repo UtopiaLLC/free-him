@@ -241,6 +241,155 @@ public class GameController implements Screen {
 
     }
 
+    private ImageButton createHarass(){
+        harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        harass.setTransform(true);
+        harass.setScale(1f);
+        harass.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                activeVerb = ActiveVerb.HARASS;
+            }
+        });
+        return harass;
+    }
+
+    private ImageButton createThreaten(){
+        threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        threaten.setTransform(true);
+        threaten.setScale(1f);
+        threaten.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+
+                activeVerb = ActiveVerb.THREATEN;
+
+            }
+        });
+        return threaten;
+    }
+    private ImageButton createExpose(){
+        expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        expose.setTransform(true);
+        expose.setScale(1f);
+        expose.addListener(new ClickListener()
+            {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                activeVerb = ActiveVerb.EXPOSE;
+            }
+        });
+        return expose;
+    }
+
+    private ImageButton createOverwork(){
+        overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        overwork.setTransform(true);
+        overwork.setScale(1f);
+        overwork.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                final String s = "overwork";
+                confirmDialog("Are you sure you want to overwork?", s);
+            }
+        });
+        return overwork;
+    }
+
+    private ImageButton createOtherJobs(){
+        otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        otherJobs.setTransform(true);
+        otherJobs.setScale(1f);
+        otherJobs.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                final String s = "otherJobs";
+                confirmDialog("Are you sure you want to do other jobs?", s);
+            }
+        });
+        return otherJobs;
+    }
+
+    private ImageButton createRelax(){
+        relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork.png")))));
+        relax.setTransform(true);
+        relax.setScale(1f);
+        relax.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                final String s = "relax";
+                confirmDialog("Are you sure you want to relax?", s);
+            }
+        });
+        return relax;
+    }
+
+    private ImageButton createEndDay(){
+        ImageButton end = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("UI/EndDay.png")))));
+        end.setTransform(true);
+        end.setScale(1f);
+        end.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                createDialogBox("You end the day after a long battle of psychological warfare.");
+                world.nextTurn();
+            }
+        });
+        return end;
+    }
+
+    private ImageButton createSettings(){
+        ImageButton settings = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("UI/Settings.png")))));
+        settings.setTransform(true);
+        settings.setScale(1f);
+        settings.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                createDialogBox("You clicked something that hasn't been implemented yet.");
+            }
+        });
+        return settings;
+    }
+
+    private ImageButton createNotebook(){
+        ImageButton notebook = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("UI/Notebook.png")))));
+        notebook.setTransform(true);
+        notebook.setScale(1f);
+        notebook.addListener(new ClickListener()
+        {
+            @Override
+            public void clicked(InputEvent event, float x, float y)
+            {
+                final String s = "notebook";
+                confirmDialog("Are you sure you want to open notebook?", s);
+            }
+        });
+        return notebook;
+    }
 
     /**
      * createToolbar creates a fixed toolbar with buttons linked to each of the player skills
@@ -267,122 +416,16 @@ public class GameController implements Screen {
         //toolbar.setBackground(drawable);
 
 
-        harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))));
-        harass.setTransform(true);
-        harass.setScale(1f);
-        harass.addListener(new ClickListener()
-        {
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                activeVerb = ActiveVerb.HARASS;
-            }
-        });
-        threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))));
-        threaten.setTransform(true);
-        threaten.setScale(1f);
-        threaten.addListener(new ClickListener()
-        {
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
+        createHarass();
+        createExpose();
+        createRelax();
+        createOtherJobs();
+        createOverwork();
+        createThreaten();
 
-                activeVerb = ActiveVerb.THREATEN;
-
-            }
-        });
-        expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))));
-        expose.setTransform(true);
-        expose.setScale(1f);
-        expose.addListener(new ClickListener()
-        {
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                activeVerb = ActiveVerb.EXPOSE;
-            }
-        });
-        overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))));
-        overwork.setTransform(true);
-        overwork.setScale(1f);
-        overwork.addListener(new ClickListener()
-        {
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                final String s = "overwork";
-                confirmDialog("Are you sure you want to overwork?", s);
-            }
-        });
-        otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))));
-        otherJobs.setTransform(true);
-        otherJobs.setScale(1f);
-        otherJobs.addListener(new ClickListener()
-        {
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                final String s = "otherJobs";
-                confirmDialog("Are you sure you want to do other jobs?", s);
-            }
-        });
-        relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))));
-        relax.setTransform(true);
-        relax.setScale(1f);
-        relax.addListener(new ClickListener()
-        {
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                final String s = "relax";
-                confirmDialog("Are you sure you want to relax?", s);
-            }
-        });
-        ImageButton end = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("UI/EndDay.png")))));
-        end.setTransform(true);
-        end.setScale(1f);
-        end.addListener(new ClickListener()
-        {
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                createDialogBox("You end the day after a long battle of psychological warfare.");
-                world.nextTurn();
-            }
-        });
-        ImageButton settings = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("UI/Settings.png")))));
-        settings.setTransform(true);
-        settings.setScale(1f);
-        settings.addListener(new ClickListener()
-        {
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                createDialogBox("You clicked something that hasn't been implemented yet.");
-            }
-        });
-        ImageButton notebook = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("UI/Notebook.png")))));
-        notebook.setTransform(true);
-        notebook.setScale(1f);
-        notebook.addListener(new ClickListener()
-        {
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                final String s = "notebook";
-                confirmDialog("Are you sure you want to open notebook?", s);
-            }
-        });
-
+        ImageButton end = createEndDay();
+        ImageButton settings = createSettings();
+        ImageButton notebook = createNotebook();
 
         Table toolbar = new Table();
         toolbar.bottom();
@@ -433,15 +476,6 @@ public class GameController implements Screen {
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
         toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
         toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
-
-//        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.20f*toolbar.getHeight());
-//        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.20f*toolbar.getHeight());
-//        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.20f*toolbar.getWidth());
-
-
-//        rightSide.debug();
-//        leftSide.debug();
-//        skillBar.debug();
 
         toolbarStage.addActor(toolbar);
         toolbarStage.addActor(createStats());
