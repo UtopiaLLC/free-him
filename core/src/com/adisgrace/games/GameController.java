@@ -323,7 +323,7 @@ public class GameController implements Screen {
             }
         });
         ImageButton end = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))));
+                Gdx.files.internal("UI/EndDay.png")))));
         end.setTransform(true);
         end.setScale(1f);
         end.addListener(new ClickListener()
@@ -336,7 +336,7 @@ public class GameController implements Screen {
             }
         });
         ImageButton settings = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))));
+                Gdx.files.internal("UI/Settings.png")))));
         settings.setTransform(true);
         settings.setScale(1f);
         settings.addListener(new ClickListener()
