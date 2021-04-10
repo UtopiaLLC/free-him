@@ -88,6 +88,8 @@ public class GameController implements Screen {
     private boolean getRidOfBlackmail;
     private ProgressBar stressBar;
 
+    private ShapeRenderer shapeRenderer;
+
     private static final float MINWORLDWIDTH = 300; //1280
     private static final float MINWORLDHEIGHT = 400; //720
 
@@ -137,6 +139,9 @@ public class GameController implements Screen {
         stage.addActor(imageNodes.get(target.getName()));
 
         createToolbar();
+        shapeRenderer = new ShapeRenderer();
+
+
 
     }
 
@@ -166,6 +171,28 @@ public class GameController implements Screen {
         }
 //        canvas.begin();
 //        canvas.end();
+
+        shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(1, 1, 1, 1);
+
+        shapeRenderer.line(
+                stage.getWidth()/2,
+                stage.getHeight(),
+                stage.getWidth()/2,
+                0);
+
+        shapeRenderer.line(
+                stage.getWidth()/4,
+                stage.getHeight(),
+                stage.getWidth()/4,
+                0);
+        shapeRenderer.line(
+                3 * stage.getWidth()/4,
+                stage.getHeight(),
+                3 * stage.getWidth()/4,
+                0);
+        shapeRenderer.end();
 
         stage.getViewport().apply();
         stage.draw();
@@ -411,15 +438,6 @@ public class GameController implements Screen {
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
         toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
         toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
-
-//        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.20f*toolbar.getHeight());
-//        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.20f*toolbar.getHeight());
-//        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.20f*toolbar.getWidth());
-
-
-//        rightSide.debug();
-//        leftSide.debug();
-//        skillBar.debug();
 
         toolbarStage.addActor(toolbar);
         toolbarStage.addActor(createStats());
