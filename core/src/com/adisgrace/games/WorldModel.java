@@ -336,8 +336,9 @@ public class WorldModel {
 	*	@return 			the gamestate after this action
 	*/
 	public GAMESTATE harass(String targetname){
-
-		targets.get(targetname).addStress(3);
+		// Get harass damage and inflict on target
+		int stressDmg = targets.get(targetname).harass();
+		targets.get(targetname).addStress(stressDmg);
 		player.harass();
 		return this.getGameState();
 	}
