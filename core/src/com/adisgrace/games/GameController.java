@@ -38,6 +38,9 @@ public class GameController implements Screen {
         /**  Linked to Expose mode; Expose needs to be applied to a node after it has been clicked */
         EXPOSE,
         /**  Linked to hack and scan commands*/
+        OVERWORK,
+        OTHER_JOBS,
+        RELAX,
         NONE
     };
 
@@ -320,12 +323,14 @@ public class GameController implements Screen {
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                 if(activeVerb != ActiveVerb.THREATEN){
                     hoverVerb = ActiveVerb.THREATEN;
+                    threaten.setChecked(true);
                 }
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
                 hoverVerb = ActiveVerb.NONE;
+                if (activeVerb!=ActiveVerb.THREATEN)threaten.setChecked(false);
             }
         });
         return threaten;
@@ -356,12 +361,14 @@ public class GameController implements Screen {
                 public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                     if(activeVerb != ActiveVerb.EXPOSE){
                         hoverVerb = ActiveVerb.EXPOSE;
+                        expose.setChecked(true);
                     }
                 }
 
                 @Override
                 public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
                     hoverVerb = ActiveVerb.NONE;
+                    if (activeVerb!=ActiveVerb.EXPOSE)expose.setChecked(false);
                 }
         });
         return expose;
@@ -383,6 +390,20 @@ public class GameController implements Screen {
                 final String s = "overwork";
                 confirmDialog("Are you sure you want to overwork?", s);
             }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+                if(activeVerb != ActiveVerb.OVERWORK){
+                    hoverVerb = ActiveVerb.OVERWORK;
+                    overwork.setChecked(true);
+                }
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+                hoverVerb = ActiveVerb.NONE;
+                if (activeVerb!=ActiveVerb.OVERWORK)overwork.setChecked(false);
+            }
         });
         return overwork;
     }
@@ -403,6 +424,20 @@ public class GameController implements Screen {
                 final String s = "otherJobs";
                 confirmDialog("Are you sure you want to do other jobs?", s);
             }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+                if(activeVerb != ActiveVerb.OTHER_JOBS){
+                    hoverVerb = ActiveVerb.OTHER_JOBS;
+                    otherJobs.setChecked(true);
+                }
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+                hoverVerb = ActiveVerb.NONE;
+                if (activeVerb!=ActiveVerb.OTHER_JOBS)otherJobs.setChecked(false);
+            }
         });
         return otherJobs;
     }
@@ -422,6 +457,20 @@ public class GameController implements Screen {
                 unCheck();
                 final String s = "relax";
                 confirmDialog("Are you sure you want to relax?", s);
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+                if(activeVerb != ActiveVerb.RELAX){
+                    hoverVerb = ActiveVerb.RELAX;
+                    relax.setChecked(true);
+                }
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+                hoverVerb = ActiveVerb.NONE;
+                if (activeVerb!=ActiveVerb.RELAX)relax.setChecked(false);
             }
         });
         return relax;
