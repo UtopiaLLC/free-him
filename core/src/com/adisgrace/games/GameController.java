@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -60,6 +61,8 @@ public class GameController implements Screen {
     private WorldModel world;
     /** activeVerb is the state of the toolbar buttons i.e. which button clicked or not clicked */
     private ActiveVerb activeVerb;
+    /** hoverVerb is the verb that is currently being hovered over by the cursor */
+    private ActiveVerb hoverVerb;
     /** nodeView is the view class that exposes all nodes in the map */
     private NodeView nodeView;
     /** imageNodes contains all ImageButtons for each fact node and target node */
@@ -273,6 +276,18 @@ public class GameController implements Screen {
                     unCheck();
                 }
             }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+                if(activeVerb != ActiveVerb.HARASS){
+                    hoverVerb = ActiveVerb.HARASS;
+                }
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+                hoverVerb = ActiveVerb.NONE;
+            }
         });
         return harass;
     }
@@ -298,6 +313,18 @@ public class GameController implements Screen {
                     unCheck();
                 }
             }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+                if(activeVerb != ActiveVerb.THREATEN){
+                    hoverVerb = ActiveVerb.THREATEN;
+                }
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+                hoverVerb = ActiveVerb.NONE;
+            }
         });
         return threaten;
     }
@@ -322,6 +349,18 @@ public class GameController implements Screen {
                     unCheck();
                 }
             }
+
+                @Override
+                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+                    if(activeVerb != ActiveVerb.EXPOSE){
+                        hoverVerb = ActiveVerb.EXPOSE;
+                    }
+                }
+
+                @Override
+                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+                    hoverVerb = ActiveVerb.NONE;
+                }
         });
         return expose;
     }

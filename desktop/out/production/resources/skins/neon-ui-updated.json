@@ -1,5 +1,8 @@
 {
 com.badlogic.gdx.graphics.g2d.BitmapFont: {
+	BitcoinNumbersfont: {
+		file: BitcoinNumbersfont.fnt
+	}
 	font: {
 		file: font-export.fnt
 	}
@@ -17,10 +20,22 @@ com.badlogic.gdx.graphics.Color: {
 		b: 0
 		a: 1
 	}
+	Blu: {
+		r: 0.42000002
+		g: 0.98169786
+		b: 1
+		a: 1
+	}
 	color: {
 		r: 0.14117648
 		g: 1
 		b: 0.09019608
+		a: 1
+	}
+	Neon_purple: {
+		r: 0.9953241
+		g: 0.6633333
+		b: 1
 		a: 1
 	}
 	selected: {
@@ -303,7 +318,7 @@ com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton$ImageTextButtonStyle: {
 com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	default: {
 		font: font
-		fontColor: text
+		fontColor: Blu
 	}
 	over: {
 		font: font-over
@@ -312,6 +327,10 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	pressed: {
 		font: font-pressed
 		fontColor: text
+	}
+	bitcoin: {
+		font: BitcoinNumbersfont
+		fontColor: Neon_purple
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
