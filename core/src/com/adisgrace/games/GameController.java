@@ -1085,8 +1085,8 @@ public class GameController implements Screen {
             scannedFacts.add("No facts scanned yet!");
         }
         for (String fact_ : factSummaries.keySet()) {
-            //if(world.viewFactSummaries(target.getName()))
-            scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
+            if(!world.viewFactSummary(target.getName(), fact_).equals(""))
+                scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
             summaryToFacts.put(world.viewFactSummary(target.getName(), fact_), fact_);
         }
         table.setFillParent(false);
@@ -1096,11 +1096,18 @@ public class GameController implements Screen {
             final int temp_i = i;
             //this should ALWAYS be overwritten in the code underneath
             Label k = new Label("No facts", skin);
-            if(activeVerb == ActiveVerb.EXPOSE && exposedFacts.contains(scannedFacts.get(i))){
-                k = new Label(scannedFacts.get(i), skin);
-
-            }else if(activeVerb == ActiveVerb.THREATEN){
-
+            if(activeVerb == ActiveVerb.EXPOSE ){
+                if (exposedFacts.contains(scannedFacts.get(temp_i), false) ) {
+                    continue;
+                } else {
+                    k = new Label(scannedFacts.get(i), skin);
+                }
+            } else if(activeVerb == ActiveVerb.THREATEN){
+                if (threatenedFacts.contains(scannedFacts.get(temp_i), false) ) {
+                    continue;
+                } else {
+                    k = new Label(scannedFacts.get(i), skin);
+                }
             }
             k.setWrap(true);
             k.setName(target.getName() + "," + summaryToFacts.get(scannedFacts.get(i)));
