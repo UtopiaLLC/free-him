@@ -321,7 +321,7 @@ public class GameController implements Screen {
         harass.setScale(1f);
         harass.addListener(new ClickListener()
         {
-            Label  harassLabel = new Label("Harass: does something", skin);
+            Label  harassLabel = new Label("Harass: 1 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -366,7 +366,7 @@ public class GameController implements Screen {
         threaten.setScale(1f);
         threaten.addListener(new ClickListener()
         {
-            Label  threatenLabel = new Label("Threaten: does something", skin);
+            Label  threatenLabel = new Label("Threaten: 1 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -411,7 +411,7 @@ public class GameController implements Screen {
         expose.addListener(new ClickListener()
             {
 
-                Label  exposeLabel = new Label("Expose: does something", skin);
+                Label  exposeLabel = new Label("Expose: 2 AP", skin);
 
                 @Override
                 public void clicked(InputEvent event, float x, float y)
@@ -456,7 +456,7 @@ public class GameController implements Screen {
         overwork.setScale(1f);
         overwork.addListener(new ClickListener()
         {
-            Label  overworkLabel = new Label("Overwork: does something", skin);
+            Label  overworkLabel = new Label("Overwork: Gains AP, Increases Stress", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -497,7 +497,7 @@ public class GameController implements Screen {
         otherJobs.setScale(1f);
         otherJobs.addListener(new ClickListener()
         {
-            Label  otherJobLabel = new Label("Other Jobs: does something", skin);
+            Label  otherJobLabel = new Label("Other Jobs: 3 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -537,7 +537,7 @@ public class GameController implements Screen {
         relax.setScale(1f);
         relax.addListener(new ClickListener()
         {
-            Label  relaxLabel = new Label("Relax: does something", skin);
+            Label  relaxLabel = new Label("Relax: Decreases Stress with AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
