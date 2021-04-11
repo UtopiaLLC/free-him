@@ -80,6 +80,8 @@ public class GameController implements Screen {
     private Label tSusp;
     /** money is the dialog label for money */
     private Label money;
+    /** money is the dialog label for target state */
+    private Label tState;
     /** acceleration accumulators for camera movement */
     private int left_acc, right_acc, up_acc, down_acc;
     /** time taken for camera to accelerate to max speed */
@@ -731,6 +733,8 @@ public class GameController implements Screen {
         tSusp.setFontScale(2);
         money = new Label ("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()), skin);
         money.setFontScale(2);
+        tState = new Label("Target State: " + target.getState(), skin);
+        tState.setFontScale(2);
 
         stats.top();
         stats.setFillParent(true);
@@ -741,6 +745,7 @@ public class GameController implements Screen {
         stats.row();
         stats.add(tStress).expandX().padTop(10);
         stats.add(tSusp).expandX().padTop(10);
+        stats.add(tState).expandX().padTop(10);
         return stats;
     }
 
