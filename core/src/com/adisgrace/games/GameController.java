@@ -267,6 +267,8 @@ public class GameController implements Screen {
         harass.setScale(1f);
         harass.addListener(new ClickListener()
         {
+            Label  harassLabel = new Label("Harass: does something", skin);
+
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
@@ -283,6 +285,9 @@ public class GameController implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                 if(activeVerb != ActiveVerb.HARASS){
+                    harassLabel.setX(event.getStageX());
+                    harassLabel.setY(event.getStageY());
+                    toolbarStage.addActor(harassLabel);
                     hoverVerb = ActiveVerb.HARASS;
                     harass.setChecked(true);
                 }
@@ -290,6 +295,7 @@ public class GameController implements Screen {
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+                harassLabel.remove();
                 hoverVerb = ActiveVerb.NONE;
                 if (activeVerb!=ActiveVerb.HARASS)harass.setChecked(false);
             }
@@ -306,6 +312,8 @@ public class GameController implements Screen {
         threaten.setScale(1f);
         threaten.addListener(new ClickListener()
         {
+            Label  threatenLabel = new Label("Threaten: does something", skin);
+
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
@@ -322,6 +330,9 @@ public class GameController implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                 if(activeVerb != ActiveVerb.THREATEN){
+                    threatenLabel.setX(event.getStageX());
+                    threatenLabel.setY(event.getStageY());
+                    toolbarStage.addActor(threatenLabel);
                     hoverVerb = ActiveVerb.THREATEN;
                     threaten.setChecked(true);
                 }
@@ -329,6 +340,7 @@ public class GameController implements Screen {
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+                threatenLabel.remove();
                 hoverVerb = ActiveVerb.NONE;
                 if (activeVerb!=ActiveVerb.THREATEN)threaten.setChecked(false);
             }
@@ -344,22 +356,28 @@ public class GameController implements Screen {
         expose.setScale(1f);
         expose.addListener(new ClickListener()
             {
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                if (expose_checked == false){
-                    unCheck();
-                    activeVerb = ActiveVerb.EXPOSE;
-                    expose_checked = true;
-                    expose.setChecked(true);
-                }else{
-                    unCheck();
+
+                Label  exposeLabel = new Label("Expose: does something", skin);
+
+                @Override
+                public void clicked(InputEvent event, float x, float y)
+                {
+                    if (expose_checked == false){
+                        unCheck();
+                        activeVerb = ActiveVerb.EXPOSE;
+                        expose_checked = true;
+                        expose.setChecked(true);
+                    }else{
+                        unCheck();
+                    }
                 }
-            }
 
                 @Override
                 public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                     if(activeVerb != ActiveVerb.EXPOSE){
+                        exposeLabel.setX(event.getStageX());
+                        exposeLabel.setY(event.getStageY());
+                        toolbarStage.addActor(exposeLabel);
                         hoverVerb = ActiveVerb.EXPOSE;
                         expose.setChecked(true);
                     }
@@ -367,6 +385,7 @@ public class GameController implements Screen {
 
                 @Override
                 public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+                    exposeLabel.remove();
                     hoverVerb = ActiveVerb.NONE;
                     if (activeVerb!=ActiveVerb.EXPOSE)expose.setChecked(false);
                 }
@@ -383,6 +402,8 @@ public class GameController implements Screen {
         overwork.setScale(1f);
         overwork.addListener(new ClickListener()
         {
+            Label  overworkLabel = new Label("Overwork: does something", skin);
+
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
@@ -393,7 +414,11 @@ public class GameController implements Screen {
 
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+
                 if(activeVerb != ActiveVerb.OVERWORK){
+                    overworkLabel.setX(event.getStageX());
+                    overworkLabel.setY(event.getStageY());
+                    toolbarStage.addActor(overworkLabel);
                     hoverVerb = ActiveVerb.OVERWORK;
                     overwork.setChecked(true);
                 }
@@ -401,6 +426,7 @@ public class GameController implements Screen {
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+                overworkLabel.remove();
                 hoverVerb = ActiveVerb.NONE;
                 if (activeVerb!=ActiveVerb.OVERWORK)overwork.setChecked(false);
             }
@@ -417,6 +443,8 @@ public class GameController implements Screen {
         otherJobs.setScale(1f);
         otherJobs.addListener(new ClickListener()
         {
+            Label  otherJobLabel = new Label("Other Jobs: does something", skin);
+
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
@@ -428,6 +456,9 @@ public class GameController implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                 if(activeVerb != ActiveVerb.OTHER_JOBS){
+                    otherJobLabel.setX(event.getStageX());
+                    otherJobLabel.setY(event.getStageY());
+                    toolbarStage.addActor(otherJobLabel);
                     hoverVerb = ActiveVerb.OTHER_JOBS;
                     otherJobs.setChecked(true);
                 }
@@ -435,6 +466,7 @@ public class GameController implements Screen {
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+                otherJobLabel.remove();
                 hoverVerb = ActiveVerb.NONE;
                 if (activeVerb!=ActiveVerb.OTHER_JOBS)otherJobs.setChecked(false);
             }
@@ -451,6 +483,8 @@ public class GameController implements Screen {
         relax.setScale(1f);
         relax.addListener(new ClickListener()
         {
+            Label  relaxLabel = new Label("Relax: does something", skin);
+
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
@@ -462,6 +496,9 @@ public class GameController implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                 if(activeVerb != ActiveVerb.RELAX){
+                    relaxLabel.setX(event.getStageX());
+                    relaxLabel.setY(event.getStageY());
+                    toolbarStage.addActor(relaxLabel);
                     hoverVerb = ActiveVerb.RELAX;
                     relax.setChecked(true);
                 }
@@ -469,6 +506,7 @@ public class GameController implements Screen {
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+                relaxLabel.remove();
                 hoverVerb = ActiveVerb.NONE;
                 if (activeVerb!=ActiveVerb.RELAX)relax.setChecked(false);
             }
