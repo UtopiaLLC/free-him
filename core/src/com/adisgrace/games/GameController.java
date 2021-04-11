@@ -923,7 +923,7 @@ public class GameController implements Screen {
             case THREATEN:
                 if(isTarget) {
                     if(world.getPlayer().canThreaten()) {
-                        getBlackmailFact("Select a fact to threaten the player with.");
+                        getBlackmailFact("Select a fact to threaten the target with.");
                     }
                     else {
                         createDialogBox("Insufficient AP to threaten the target.");
@@ -936,7 +936,7 @@ public class GameController implements Screen {
                 if(isTarget) {
                     if(isTarget) {
                         if(world.getPlayer().canExpose()) {
-                            getBlackmailFact("Select a fact to expose the player with.");
+                            getBlackmailFact("Select a fact to expose the target with.");
                         }
                         else {
                             createDialogBox("Insufficient AP to expose the target.");
