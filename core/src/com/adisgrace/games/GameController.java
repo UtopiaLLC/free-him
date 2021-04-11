@@ -80,10 +80,16 @@ public class GameController implements Screen {
     private Label tSusp;
     /** money is the dialog label for money */
     private Label money;
+    /** money is the dialog label for target state */
+    private Label tState;
     /** acceleration accumulators for camera movement */
     private int left_acc, right_acc, up_acc, down_acc;
     /** time taken for camera to accelerate to max speed */
     private int acceleration_speed = 40;
+    /** list of facts used to expose the target*/
+    private Array<String> exposedFacts;
+    /** list of facts used to threaten the target*/
+    private Array<String> threatenedFacts;
 
     private ImageButton harass;
     private boolean harass_checked = false;
@@ -133,6 +139,10 @@ public class GameController implements Screen {
 
         // Setting a target
         target = world.getTarget("Patrick Westfield");
+
+        //instantiating target and expose lists
+        threatenedFacts = new Array<String>();
+        exposedFacts = new Array<String>();
 
         // Creating Nodes
         nodeView = new NodeView(stage, target, world);
@@ -320,7 +330,7 @@ public class GameController implements Screen {
         harass.setScale(1f);
         harass.addListener(new ClickListener()
         {
-            Label  harassLabel = new Label("Harass: does something", skin);
+            Label  harassLabel = new Label("Harass: 1 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -365,7 +375,7 @@ public class GameController implements Screen {
         threaten.setScale(1f);
         threaten.addListener(new ClickListener()
         {
-            Label  threatenLabel = new Label("Threaten: does something", skin);
+            Label  threatenLabel = new Label("Threaten: 1 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -410,7 +420,7 @@ public class GameController implements Screen {
         expose.addListener(new ClickListener()
             {
 
-                Label  exposeLabel = new Label("Expose: does something", skin);
+                Label  exposeLabel = new Label("Expose: 2 AP", skin);
 
                 @Override
                 public void clicked(InputEvent event, float x, float y)
@@ -455,7 +465,7 @@ public class GameController implements Screen {
         overwork.setScale(1f);
         overwork.addListener(new ClickListener()
         {
-            Label  overworkLabel = new Label("Overwork: does something", skin);
+            Label  overworkLabel = new Label("Overwork: Gains AP, Increases Stress", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -496,7 +506,7 @@ public class GameController implements Screen {
         otherJobs.setScale(1f);
         otherJobs.addListener(new ClickListener()
         {
-            Label  otherJobLabel = new Label("Other Jobs: does something", skin);
+            Label  otherJobLabel = new Label("Other Jobs: 3 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -536,7 +546,7 @@ public class GameController implements Screen {
         relax.setScale(1f);
         relax.addListener(new ClickListener()
         {
-            Label  relaxLabel = new Label("Relax: does something", skin);
+            Label  relaxLabel = new Label("Relax: Decreases Stress with AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -732,16 +742,19 @@ public class GameController implements Screen {
         tSusp.setFontScale(2);
         money = new Label ("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()), skin);
         money.setFontScale(2);
+        tState = new Label("Target State: " + target.getState(), skin);
+        tState.setFontScale(2);
 
         stats.top();
         stats.setFillParent(true);
 
-        stats.add(stress).expandX().padTop(20);
-        stats.add(ap).expandX().padTop(20);
-        stats.add(money).expandX().padTop(20);
+        //stats.add(stress).expandX().padTop(20);
+        stats.add(tState).expandX().padTop(20);
+        //stats.add(money).expandX().padTop(20);
+        stats.add(tStress).expandX().padTop(20);
+        stats.add(tSusp).expandX().padTop(20);
         stats.row();
-        stats.add(tStress).expandX().padTop(10);
-        stats.add(tSusp).expandX().padTop(10);
+        stats.add(ap).expandX().padTop(10);
         return stats;
     }
 
@@ -920,7 +933,7 @@ public class GameController implements Screen {
             case THREATEN:
                 if(isTarget) {
                     if(world.getPlayer().canThreaten()) {
-                        getBlackmailFact("Select a fact to threaten the player with.");
+                        getBlackmailFact("Select a fact to threaten the target with.");
                     }
                     else {
                         createDialogBox("Insufficient AP to threaten the target.");
@@ -933,7 +946,7 @@ public class GameController implements Screen {
                 if(isTarget) {
                     if(isTarget) {
                         if(world.getPlayer().canExpose()) {
-                            getBlackmailFact("Select a fact to expose the player with.");
+                            getBlackmailFact("Select a fact to expose the target with.");
                         }
                         else {
                             createDialogBox("Insufficient AP to expose the target.");
@@ -1058,21 +1071,37 @@ public class GameController implements Screen {
         blackmailDialog.getContentTable().add( l ).prefWidth( 350 );
         Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
         Map<String, String> summaryToFacts = new HashMap<String, String>();
-        Array<String> scannedFacts = new Array<>();
+        final Array<String> scannedFacts = new Array<>();
 
         Table table = blackmailDialog.getContentTable();
         if (factSummaries.keySet().size() == 0) {
             scannedFacts.add("No facts scanned yet!");
         }
         for (String fact_ : factSummaries.keySet()) {
-            scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
+            if(!world.viewFactSummary(target.getName(), fact_).equals(""))
+                scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
             summaryToFacts.put(world.viewFactSummary(target.getName(), fact_), fact_);
         }
         table.setFillParent(false);
 
         table.row();
         for (int i = 0; i < scannedFacts.size; i++) {
-            Label k = new Label(scannedFacts.get(i), skin);
+            final int temp_i = i;
+            //this should ALWAYS be overwritten in the code underneath
+            Label k = new Label("No facts", skin);
+            if(activeVerb == ActiveVerb.EXPOSE ){
+                if (exposedFacts.contains(scannedFacts.get(temp_i), false) ) {
+                    continue;
+                } else {
+                    k = new Label(scannedFacts.get(i), skin);
+                }
+            } else if(activeVerb == ActiveVerb.THREATEN){
+                if (threatenedFacts.contains(scannedFacts.get(temp_i), false) ) {
+                    continue;
+                } else {
+                    k = new Label(scannedFacts.get(i), skin);
+                }
+            }
             k.setWrap(true);
             k.setName(target.getName() + "," + summaryToFacts.get(scannedFacts.get(i)));
             k.addListener(new ClickListener() {
@@ -1088,11 +1117,14 @@ public class GameController implements Screen {
                             world.threaten(info[0], info[1]);
                             activeVerb = ActiveVerb.NONE;
                             createDialogBox("You threatened the target!");
+                            threatenedFacts.add(scannedFacts.get(temp_i));
                             break;
                         case EXPOSE:
                             world.expose(info[0], info[1]);
                             activeVerb = ActiveVerb.NONE;
                             createDialogBox("You exposed the target!");
+                            exposedFacts.add(scannedFacts.get(temp_i));
+                            threatenedFacts.add(scannedFacts.get(temp_i));
                             break;
                         default:
                             System.out.println("This shouldn't be happening.");
