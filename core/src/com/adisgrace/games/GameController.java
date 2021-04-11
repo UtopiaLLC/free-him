@@ -176,27 +176,45 @@ public class GameController implements Screen {
         shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(1, 1, 1, 1);
+        Vector2 v1;
+        Vector2 v2;
 
         //Vertical lines
-//        for (int i = 0; i < )
+        float maxVertical = 8f * stage.getHeight();
+        float minVertical = -10f * stage.getHeight();
+        float maxHorizontal = 7f * stage.getWidth();
+        float minHorizontal = -10f * stage.getWidth();
+        float incrementV = (maxVertical - minVertical) / 26;
+//        float incrementH = (maxHorizontal - minHorizontal) / 60;
 
-        Vector2 v1 = convertToIsometric(new Vector2(stage.getWidth()/2, 10f * stage.getHeight()));
-        Vector2 v2 = convertToIsometric(new Vector2(stage.getWidth()/2, -10f * stage.getHeight()));
-        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-
-        v1 = convertToIsometric(new Vector2(stage.getWidth()/4, 10f * stage.getHeight()));
-        v2 = convertToIsometric(new Vector2(stage.getWidth()/4, -10f * stage.getHeight()));
-        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-
-        v1 = convertToIsometric(new Vector2(3 * stage.getWidth()/4, 10f * stage.getHeight()));
-        v2 = convertToIsometric(new Vector2(3 * stage.getWidth()/4, -10f * stage.getHeight()));
-        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
+        for (float i = minVertical; i < maxVertical; i = i+incrementV){
+            v1 = convertToIsometric(new Vector2(i, 10f * stage.getHeight()));
+            v2 = convertToIsometric(new Vector2(i, -10f * stage.getHeight()));
+            shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
+        }
+//
+//        Vector2 v1 = convertToIsometric(new Vector2(stage.getWidth()/2, 10f * stage.getHeight()));
+//        Vector2 v2 = convertToIsometric(new Vector2(stage.getWidth()/2, -10f * stage.getHeight()));
+//        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
+//
+//        v1 = convertToIsometric(new Vector2(stage.getWidth()/4, 10f * stage.getHeight()));
+//        v2 = convertToIsometric(new Vector2(stage.getWidth()/4, -10f * stage.getHeight()));
+//        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
+//
+//        v1 = convertToIsometric(new Vector2(3 * stage.getWidth()/4, 10f * stage.getHeight()));
+//        v2 = convertToIsometric(new Vector2(3 * stage.getWidth()/4, -10f * stage.getHeight()));
+//        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
 
         //Horizontal lines
+        for (float i = minHorizontal; i < maxHorizontal; i = i+incrementV){
+            v1 = convertToIsometric(new Vector2(10f * stage.getWidth(), i));
+            v2 = convertToIsometric(new Vector2(-10f * stage.getWidth(), i));
+            shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
+        }
 
-        v1 = convertToIsometric(new Vector2(10f * stage.getWidth(), stage.getHeight()/2));
-        v2 = convertToIsometric(new Vector2(-10f * stage.getWidth(), stage.getHeight()/2));
-        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
+//        v1 = convertToIsometric(new Vector2(10f * stage.getWidth(), stage.getHeight()/2));
+//        v2 = convertToIsometric(new Vector2(-10f * stage.getWidth(), stage.getHeight()/2));
+//        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
 
 
         shapeRenderer.end();
