@@ -1011,7 +1011,8 @@ public class GameController implements Screen {
             scannedFacts.add("No facts scanned yet!");
         }
         for (String fact_ : factSummaries.keySet()) {
-            scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
+            if (!fact_.equals(""))
+                scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
         }
         table.setFillParent(false);
 
@@ -1023,16 +1024,6 @@ public class GameController implements Screen {
             table.add(k).prefWidth(350);
             table.row();
         }
-//        table.align(Align.topLeft);
-//        ScrollPane sp = new ScrollPane(table);
-//        sp.setScrollingDisabled(true, false);
-//        sp.setOverscroll(false, false);
-//        sp.setFillParent(true);
-//        dialog.addActor(sp);
-
-//        dialog.getTitleTable().align(Align.right );
-
-//                add(new Label("Notebook", skin)).center();
 
         dialog.button("Ok", true); //sends "true" as the result
         dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
@@ -1192,8 +1183,7 @@ public class GameController implements Screen {
                 }
                 break;
             case "notebook":
-//                createDialogBox("You opened the notebook!");
-                createNotebook("You opened the notebook!");
+                createNotebook("Notebook:");
                 break;
             default:
                 System.out.println("You shall not pass");
