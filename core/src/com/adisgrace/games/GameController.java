@@ -739,13 +739,13 @@ public class GameController implements Screen {
         stats.top();
         stats.setFillParent(true);
 
-        stats.add(stress).expandX().padTop(20);
-        stats.add(ap).expandX().padTop(20);
-        stats.add(money).expandX().padTop(20);
+        //stats.add(stress).expandX().padTop(20);
+        stats.add(tState).expandX().padTop(20);
+        //stats.add(money).expandX().padTop(20);
+        stats.add(tStress).expandX().padTop(20);
+        stats.add(tSusp).expandX().padTop(20);
         stats.row();
-        stats.add(tStress).expandX().padTop(10);
-        stats.add(tSusp).expandX().padTop(10);
-        stats.add(tState).expandX().padTop(10);
+        stats.add(ap).expandX().padTop(10);
         return stats;
     }
 
