@@ -106,6 +106,7 @@ public class GameController implements Screen {
     private Dialog blackmailDialog;
     private boolean getRidOfBlackmail;
     private ProgressBar stressBar;
+    private Label bitecoinAmount;
 
     private ShapeRenderer shapeRenderer;
 
@@ -672,7 +673,7 @@ public class GameController implements Screen {
 
         Image bitecoinCounter = new Image(new TextureRegionDrawable(new TextureRegion(
                 new Texture("UI/BitecoinCounter.png"))));
-        Label bitecoinAmount = new Label(Integer.toString((int)player.getBitecoin()), skin, "bitcoin");
+        bitecoinAmount = new Label(Integer.toString((int)player.getBitecoin()), skin, "bitcoin");
 
         bitecoinStack.add(bitecoinCounter);
         bitecoinStack.add(bitecoinAmount);
@@ -905,7 +906,8 @@ public class GameController implements Screen {
             case HARASS:
                 if(isTarget) {
                     if(world.getPlayer().canHarass()) {
-                        createDialogBox("Harass isn't implemented yet... thank Brian :)");
+                        world.harass(target.getName());
+                        createDialogBox("You harassed the target! They seem incredibly disturbed and got a bit stressed.");
                         activeVerb = ActiveVerb.NONE;
                     }
                     else {
@@ -1204,6 +1206,7 @@ public class GameController implements Screen {
     public void updateStats(){
         stress.setText("Player Stress: " + Integer.toString((int)world.getPlayer().getStress()));
         stressBar.setValue(player.getStress());
+        bitecoinAmount.setText(Integer.toString((int)player.getBitecoin()));
         ap.setText("AP: " + Integer.toString(world.getPlayer().getAP()));
         tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
         tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));
