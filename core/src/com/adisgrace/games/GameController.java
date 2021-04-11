@@ -169,7 +169,7 @@ public class GameController implements Screen {
 
         canvas.clear();
 
-        if (activeVerb == ActiveVerb.NONE){
+        if (activeVerb == ActiveVerb.NONE && hoverVerb == ActiveVerb.NONE){
             unCheck();
         }
 
@@ -281,12 +281,14 @@ public class GameController implements Screen {
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                 if(activeVerb != ActiveVerb.HARASS){
                     hoverVerb = ActiveVerb.HARASS;
+                    harass.setChecked(true);
                 }
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
                 hoverVerb = ActiveVerb.NONE;
+                if (activeVerb!=ActiveVerb.HARASS)harass.setChecked(false);
             }
         });
         return harass;
