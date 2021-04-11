@@ -1024,7 +1024,7 @@ public class GameController implements Screen {
             scannedFacts.add("No facts scanned yet!");
         }
         for (String fact_ : factSummaries.keySet()) {
-            if (!fact_.equals(""))
+            if (!world.viewFactSummary(target.getName(), fact_).equals(""))
                 scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
         }
         table.setFillParent(false);
