@@ -86,6 +86,10 @@ public class GameController implements Screen {
     private int left_acc, right_acc, up_acc, down_acc;
     /** time taken for camera to accelerate to max speed */
     private int acceleration_speed = 40;
+    /** list of facts used to expose the target*/
+    private Array<String> exposedFacts;
+    /** list of facts used to threaten the target*/
+    private Array<String> threatenedFacts;
 
     private ImageButton harass;
     private boolean harass_checked = false;
@@ -134,6 +138,10 @@ public class GameController implements Screen {
 
         // Setting a target
         target = world.getTarget("Patrick Westfield");
+
+        //instantiating target and expose lists
+        threatenedFacts = new Array<String>();
+        exposedFacts = new Array<String>();
 
         // Creating Nodes
         nodeView = new NodeView(stage, target, world);
@@ -1070,13 +1078,14 @@ public class GameController implements Screen {
         blackmailDialog.getContentTable().add( l ).prefWidth( 350 );
         Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
         Map<String, String> summaryToFacts = new HashMap<String, String>();
-        Array<String> scannedFacts = new Array<>();
+        final Array<String> scannedFacts = new Array<>();
 
         Table table = blackmailDialog.getContentTable();
         if (factSummaries.keySet().size() == 0) {
             scannedFacts.add("No facts scanned yet!");
         }
         for (String fact_ : factSummaries.keySet()) {
+            //if(world.viewFactSummaries(target.getName()))
             scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
             summaryToFacts.put(world.viewFactSummary(target.getName(), fact_), fact_);
         }
@@ -1084,7 +1093,15 @@ public class GameController implements Screen {
 
         table.row();
         for (int i = 0; i < scannedFacts.size; i++) {
-            Label k = new Label(scannedFacts.get(i), skin);
+            final int temp_i = i;
+            //this should ALWAYS be overwritten in the code underneath
+            Label k = new Label("No facts", skin);
+            if(activeVerb == ActiveVerb.EXPOSE && exposedFacts.contains(scannedFacts.get(i))){
+                k = new Label(scannedFacts.get(i), skin);
+
+            }else if(activeVerb == ActiveVerb.THREATEN){
+
+            }
             k.setWrap(true);
             k.setName(target.getName() + "," + summaryToFacts.get(scannedFacts.get(i)));
             k.addListener(new ClickListener() {
@@ -1100,11 +1117,14 @@ public class GameController implements Screen {
                             world.threaten(info[0], info[1]);
                             activeVerb = ActiveVerb.NONE;
                             createDialogBox("You threatened the target!");
+                            threatenedFacts.add(scannedFacts.get(temp_i));
                             break;
                         case EXPOSE:
                             world.expose(info[0], info[1]);
                             activeVerb = ActiveVerb.NONE;
                             createDialogBox("You exposed the target!");
+                            exposedFacts.add(scannedFacts.get(temp_i));
+                            threatenedFacts.add(scannedFacts.get(temp_i));
                             break;
                         default:
                             System.out.println("This shouldn't be happening.");
