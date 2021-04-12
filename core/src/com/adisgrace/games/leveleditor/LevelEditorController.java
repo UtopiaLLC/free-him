@@ -99,6 +99,18 @@ public class LevelEditorController implements Screen {
                 im.setPosition(im.getX() + dx, im.getY() + dy);
             }
         }));
+        // Add drag listener that snaps to grid when drag ends
+        im.addListener((new DragListener() {
+            public void dragStop (InputEvent event, float x, float y, int pointer) {
+                System.out.println("Snap");
+
+                float newX = im.getX() + x-im.getWidth()*0.5f;
+                float newY = im.getY() + y-256.0f;
+
+
+                im.setPosition(newX - (newX % 222), newY - (newY % 128));
+            }
+        }));
     }
 
     @Override
@@ -118,7 +130,13 @@ public class LevelEditorController implements Screen {
      * @param mouseY    y-coordinate of mouse cursor
      */
     public void snapToGrid(Image im, float mouseX, float mouseY) {
+        // Round down
+        int x = (int)(Gdx.input.getX() / 444);
+        int y = (int)(Gdx.input.getX() / 256);
 
+        float dx = mouseX-im.getWidth()*0.5f;
+        float dy = mouseY-im.getHeight()*0.5f;
+        im.setPosition(im.getX() + dx, im.getY() + dy);
     }
 
     @Override
@@ -126,6 +144,8 @@ public class LevelEditorController implements Screen {
      * renders the game display at consistent time steps
      */
     public void render(float delta) {
+        canvas.clear();
+
         // Move camera
         canvas.clear();
         moveCamera();
@@ -167,7 +187,6 @@ public class LevelEditorController implements Screen {
      *
      */
     public void moveCamera() {
-        //System.out.println("Move camera");
         camera = canvas.getCamera();
         currentZoom = camera.zoom;
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
