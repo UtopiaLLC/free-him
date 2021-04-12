@@ -336,8 +336,10 @@ public class WorldModel {
 	*	@return 			the gamestate after this action
 	*/
 	public GAMESTATE harass(String targetname){
-
-		targets.get(targetname).addStress(7);
+		// Get harass damage and inflict on target
+		int stressDmg = targets.get(targetname).harass();
+		targets.get(targetname).addStress(stressDmg);
+		player.harass();
 		return this.getGameState();
 	}
 
@@ -484,7 +486,9 @@ public class WorldModel {
 		if(!exposablenodes.get(targetname).contains(fact, false))
 			throw new RuntimeException("This fact has already been exposed");
 		player.threaten();
-		return targets.get(targetname).threaten(fact);
+		int stressDamage = targets.get(targetname).threaten(fact);
+		targets.get(targetname).addStress(stressDamage);
+		return stressDamage;
 	}
 
 	/**
@@ -504,7 +508,9 @@ public class WorldModel {
 			throw new RuntimeException("This fact has already been exposed");
 		player.expose();
 		exposablenodes.get(targetname).removeValue(fact, false);
-		return targets.get(targetname).expose(fact);
+		int stressDamage = targets.get(targetname).expose(fact);
+		targets.get(targetname).addStress(stressDamage);
+		return stressDamage;
 	}
 
 	/**

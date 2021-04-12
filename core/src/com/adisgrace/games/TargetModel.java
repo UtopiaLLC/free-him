@@ -63,6 +63,10 @@ public class TargetModel {
 
 	/** Constant for inverse Paranoia check, made every (INV_PARANOIA_CONSTANT - paranoia) turns */
 	private static final int INV_PARANOIA_CONSTANT = 5;
+	/** Constants for low/medium/high suspicion */
+	private static final int SUSPICION_LOW = 5;
+	private static final int SUSPICION_MED = 10;
+	private static final int SUSPICION_HIGH = 15;
 	/** Instance of Random class, to be used whenever a random number is needed */
 	private Random rand;
 
@@ -498,47 +502,92 @@ public class TargetModel {
 	/************************************************* SKILL METHODS *************************************************/
 
 	/**
+	 * Helper function that gets a random integer within the percentile range of the input.
+	 *
+	 * Returns a random integer in the range [val - (range/100)*val, val + (range/100)*val].
+	 *
+	 * @param val	Value to get within range of
+	 * @param range Percentage of val that is the range to select an integer from
+	 * @return 		Random integer within range
+	 */
+	private int randInRange(int val, int range) {
+		int bound = (int)(((float)range / 100f) * val);
+		return (val + rand.nextInt(bound * 2) - bound);
+	}
+
+	/**
+	 * Used to harass the target.
+	 *
+	 * Target stress and suspicion are increased by a low amount.
+	 *
+	 * Returns the amount of damage dealt.
+	 *
+	 * @return	Amount of damage to be dealt to the target
+	 */
+	public int harass() {
+		// Increase target's suspicion by a low amount
+		suspicion += randInRange(SUSPICION_LOW, 50);
+		// Return low amount of stress damage to deal to target
+		return randInRange(5, 50);
+	}
+
+	/**
 	 * Used to threaten the target with the fact stored at the given node.
 	 * 
 	 * If the fact can be used to threaten, moves the target to the Threatened state, resets the
-	 * countdown to the next Paranoia check, increases stress accordingly, and returns the damage
-	 * dealt by the fact. Otherwise, does nothing and returns 0.
+	 * countdown to the next Paranoia check, increases stress accordingly, deals the damage to
+	 * the target accordingly. Otherwise, does nothing. Returns the amount of damage dealt, which
+	 * can be used to calculate diminishing returns.
+	 *
+	 * Suspicion is increased by a low amount regardless.
 	 * 
 	 * @param fact	Name of the node where the threatening fact is stored
-	 * @return 		Amount of stress damage dealt by threatening with fact
+	 * @return 		Amount of damage dealt to target (can be 0)
 	 */
 	public int threaten(String fact) {
 		int stressDmg = getFactNode(fact).getTargetStressDmg();
+		// Increase target's suspicion by a low amount
+		suspicion += randInRange(SUSPICION_LOW, 25);
 		// If fact deals threaten damage above a critical threshold
 		if (stressDmg > 5) {
+			// Deal stress damage to target
+			stress += stressDmg;
 			// Move target to threatened
 			state = TargetState.THREATENED;
 			// Reset countdown to next Paranoia check
 			countdown = paranoia;
 		}
-		// Return amount of stress damage dealt (can be 0)
+		// Return amount of damage dealt
 		return stressDmg;
 	}
 
 	/**
 	 * Used to expose a fact about the target, which is stored at the given node.
 	 * 
-	 * Returns the amount of stress damage dealt. If the fact deals nonzero stress
-	 * damage, moves target to Paranoid.
+	 * If the fact deals nonzero stress damage, deals the damage to the target and
+	 * moves target to Paranoid. Otherwise, does nothing. Returns the amount of
+	 * damage dealt, which can be used to calculate diminishing returns.
+	 *
+	 * Suspicion is increased by a medium amount regardless.
 	 * 
 	 * @param fact	Name of the node where the to-be-exposed fact is stored
-	 * @return 		Amount of stress damage dealt by exposing with fact
+	 * @return 		Amount of damage dealt to the target (can be 0)
 	 */
 	public int expose(String fact) {
 		FactNode factNode = getFactNode(fact);
 		int stressDmg = factNode.getTargetStressDmg();
+		// Increase target's suspicion by a medium amount
+		suspicion += randInRange(SUSPICION_MED, 25);
 		// If exposing deals nonzero damage
 		if (stressDmg != 0) {
-			// Move target to Paranoid and reset countdown
+			// Deal damage to target
+			stress += stressDmg;
+			// Move target to Paranoid
 			state = TargetState.PARANOID;
+			// Reset countdown to next Paranoia check
 			countdown = paranoia;
 		}
-		// Return amount of expose damage dealt (can be 0)
+		// Return amount of damage dealt
 		return stressDmg;
 	}
 
