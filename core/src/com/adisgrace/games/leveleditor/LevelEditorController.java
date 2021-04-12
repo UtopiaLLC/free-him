@@ -8,6 +8,7 @@ import com.adisgrace.games.GameController;
 import com.adisgrace.games.WorldModel;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -18,9 +19,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.*;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
@@ -31,8 +30,10 @@ public class LevelEditorController implements Screen {
     private OrthographicCamera camera;
     /** CurrentZoom controls how much the camera is zoomed in or out */
     private float currentZoom;
-    /** Stage that everything is shown on */
-    Stage stage;
+    /** Stage generation buttons are drawn on */
+    Stage toolstage;
+    /** Stage where nodes and grids are drawn*/
+    Stage nodeStage;
 
     /** Hashtable of all the images added */
     HashMap<String,Image> images;
@@ -54,15 +55,34 @@ public class LevelEditorController implements Screen {
         canvas.getCamera().zoom = 1.5f;
 
         // Create stage
-        stage = new Stage(viewport);
-        Gdx.input.setInputProcessor(stage);
-        canvas.drawIsometricGrid(stage);
+        nodeStage = new Stage(viewport);
+        createToolStage();
+
+        //Gdx.input.setInputProcessor(toolstage);
+        canvas.drawIsometricGrid(nodeStage);
+
+
+
+        // Initialize hashmap of images
+        images = new HashMap<String, Image>();
+    }
+
+    public void createToolStage(){
+        ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        toolstage = new Stage(toolbarViewPort);
+
+        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(toolstage);
+        inputMultiplexer.addProcessor(nodeStage);
+
+        Gdx.input.setInputProcessor(inputMultiplexer);
 
         // Create a button to add new images
         Drawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal("skills/overwork.png")));
         ImageButton button = new ImageButton(drawable);
-        stage.addActor(button);
-        button.setPosition(500,500);
+        button.setTransform(true);
+        button.setScale(0.4f);
+        //button.setPosition(500, 500);
         // Add listener to button
         button.addListener(new ChangeListener() {
             @Override
@@ -71,15 +91,19 @@ public class LevelEditorController implements Screen {
                 addImage();
             }
         });
+        toolstage.addActor(button);
 
-        // Initialize hashmap of images
-        images = new HashMap<String, Image>();
+        Table toolbar = new Table();
+        toolbar.right();
+        toolbar.setSize(.25f*Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+        toolbar.addActor(button);
+        toolstage.addActor(toolbar);
     }
 
     public void addImage() {
         // Create image
         final Image im = new Image(new Texture(Gdx.files.internal("node/blue.png")));
-        stage.addActor(im);
+        nodeStage.addActor(im);
         im.setPosition(0, 0);
         im.setOrigin(0, 0);
 
@@ -144,7 +168,6 @@ public class LevelEditorController implements Screen {
      * renders the game display at consistent time steps
      */
     public void render(float delta) {
-        canvas.clear();
 
         // Move camera
         canvas.clear();
@@ -152,8 +175,11 @@ public class LevelEditorController implements Screen {
 
         // Draw objects on canvas
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        stage.act(Gdx.graphics.getDeltaTime());
-        stage.draw();
+        nodeStage.act(delta);
+        nodeStage.draw();
+        toolstage.act(delta);
+        toolstage.draw();
+
     }
 
     @Override
