@@ -323,14 +323,14 @@ public class GameController implements Screen {
 
     private ImageButton createHarass(){
         harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("targetmale/blue.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("targetmale/green.png")))));
+                Gdx.files.internal("skills/harass_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/harass_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/harass_select.png")))));
         harass.setTransform(true);
         harass.setScale(1f);
         harass.addListener(new ClickListener()
         {
-            Label  harassLabel = new Label("Harass: 1 AP", skin);
+            Label  harassLabel = new Label("Harass: 2 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -368,14 +368,14 @@ public class GameController implements Screen {
 
     private ImageButton createThreaten(){
         threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("targetmale/blue.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("targetmale/green.png")))));
+                Gdx.files.internal("skills/threaten_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/threaten_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/threaten_select.png")))));
         threaten.setTransform(true);
         threaten.setScale(1f);
         threaten.addListener(new ClickListener()
         {
-            Label  threatenLabel = new Label("Threaten: 1 AP", skin);
+            Label  threatenLabel = new Label("Threaten: 2 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -412,9 +412,9 @@ public class GameController implements Screen {
     }
     private ImageButton createExpose(){
         expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("targetmale/blue.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("targetmale/green.png")))));
+                Gdx.files.internal("skills/expose_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/expose_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/expose_select.png")))));
         expose.setTransform(true);
         expose.setScale(1f);
         expose.addListener(new ClickListener()
@@ -458,9 +458,9 @@ public class GameController implements Screen {
 
     private ImageButton createOverwork(){
         overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("targetmale/blue.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("targetmale/green.png")))));
+                Gdx.files.internal("skills/overwork_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork_select.png")))));
         overwork.setTransform(true);
         overwork.setScale(1f);
         overwork.addListener(new ClickListener()
@@ -499,9 +499,9 @@ public class GameController implements Screen {
 
     private ImageButton createOtherJobs(){
         otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("targetmale/blue.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("targetmale/green.png")))));
+                Gdx.files.internal("skills/otherjobs_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/otherjobs_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/otherjobs_select.png")))));
         otherJobs.setTransform(true);
         otherJobs.setScale(1f);
         otherJobs.addListener(new ClickListener()
@@ -539,9 +539,9 @@ public class GameController implements Screen {
 
     private ImageButton createRelax(){
         relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("targetmale/blue.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("targetmale/green.png")))));
+                Gdx.files.internal("skills/relax_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/relax_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/relax_select.png")))));
         relax.setTransform(true);
         relax.setScale(1f);
         relax.addListener(new ClickListener()
