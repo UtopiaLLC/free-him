@@ -29,6 +29,8 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 /**
  * Primary view class for the game, abstracting the basic graphics calls.
@@ -1161,6 +1163,19 @@ public class GameCanvas {
 
 	public OrthographicCamera getCamera() {
 		return camera;
+	}
+
+	public void drawIsometricGrid(Stage stage){
+		//assuming grid tiles are (444, 256) in size
+		for(int col = -222; col <= getWidth() + 222; col+=444){
+			for(int row = -128; row <= getHeight() + 128; row+=256){
+				final Image tile = new Image(new Texture(Gdx.files.internal("background/B_MapTileBG_2.png")));
+				tile.setX(col);
+				tile.setY(row);
+				stage.addActor(tile);
+			}
+		}
+
 	}
 
 }
