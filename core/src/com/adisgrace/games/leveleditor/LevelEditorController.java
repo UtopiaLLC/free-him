@@ -54,7 +54,7 @@ public class LevelEditorController implements Screen {
         canvas.getCamera().zoom = 1.5f;
 
         // Create stage
-        stage = new Stage();
+        stage = new Stage(viewport);
         Gdx.input.setInputProcessor(stage);
         canvas.drawIsometricGrid(stage);
 
@@ -127,6 +127,7 @@ public class LevelEditorController implements Screen {
      */
     public void render(float delta) {
         // Move camera
+        canvas.clear();
         moveCamera();
 
         // Draw objects on canvas
@@ -166,7 +167,7 @@ public class LevelEditorController implements Screen {
      *
      */
     public void moveCamera() {
-        System.out.println("Move camera");
+        //System.out.println("Move camera");
         camera = canvas.getCamera();
         currentZoom = camera.zoom;
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {

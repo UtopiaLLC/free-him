@@ -1167,8 +1167,8 @@ public class GameCanvas {
 
 	public void drawIsometricGrid(Stage stage){
 		//assuming grid tiles are (444, 256) in size
-		for(int col = -222; col <= getWidth() + 222; col+=444){
-			for(int row = -128; row <= getHeight() + 128; row+=256){
+		for(int col = -5000-222; col <= 5000 + 222; col+=444){
+			for(int row = -5000-128; row <= 5000 + 128; row+=256){
 				final Image tile = new Image(new Texture(Gdx.files.internal("background/B_MapTileBG_2.png")));
 				tile.setX(col);
 				tile.setY(row);
