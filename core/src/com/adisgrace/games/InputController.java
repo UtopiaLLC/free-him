@@ -43,31 +43,16 @@ public class InputController {
 		}
 		return theController;
 	}
-	
-	// Fields to manage buttons
-	/** Whether the reset button was pressed. */
-	private boolean resetPressed;
-	private boolean resetPrevious;
-	/** Whether the button to advanced worlds was pressed. */
-	private boolean nextPressed;
-	private boolean nextPrevious;
-	/** Whether the button to step back worlds was pressed. */
-	private boolean prevPressed;
-	private boolean prevPrevious;
-	/** Whether the primary action button was pressed. */
-	private boolean primePressed;
-	private boolean primePrevious;
-	/** Whether the secondary action button was pressed. */
-	private boolean secondPressed;
-	private boolean secondPrevious;
-	/** Whether the teritiary action button was pressed. */
-	private boolean tertiaryPressed;
-	/** Whether the debug toggle was pressed. */
-	private boolean debugPressed;
-	private boolean debugPrevious;
-	/** Whether the exit button was pressed. */
-	private boolean exitPressed;
-	private boolean exitPrevious;
+
+	// Fields to manage specific button presses
+	/** Whether each of the WASD buttons (for camera movement) have been pressed */
+	private boolean wPressed;
+	private boolean aPressed;
+	private boolean sPressed;
+	private boolean dPressed;
+	/** Whether each of the EQ buttons (for camera zoom) have been pressed */
+	private boolean ePressed;
+	private boolean qPressed;
 	
 	/** How much did we move horizontally? */
 	private float horizontal;
@@ -118,86 +103,50 @@ public class InputController {
 		return crosscache.set(crosshair);
 	}
 
-	/**
-	 * Returns true if the primary action button was pressed.
-	 *
-	 * This is a one-press button. It only returns true at the moment it was
-	 * pressed, and returns false at any frame afterwards.
-	 *
-	 * @return true if the primary action button was pressed.
-	 */
-	public boolean didPrimary() {
-		return primePressed && !primePrevious;
-	}
+
+	/******************************************** CAMERA CONTROL GETTERS ********************************************/
 
 	/**
-	 * Returns true if the secondary action button was pressed.
+	 * Returns true if the W key was pressed.
 	 *
-	 * This is a one-press button. It only returns true at the moment it was
-	 * pressed, and returns false at any frame afterwards.
-	 *
-	 * @return true if the secondary action button was pressed.
+	 * @return true if the W key was pressed.
 	 */
-	public boolean didSecondary() {
-		return secondPressed && !secondPrevious;
-	}
+	public boolean didUp() {return wPressed;}
 
 	/**
-	 * Returns true if the tertiary action button was pressed.
+	 * Returns true if the D key was pressed.
 	 *
-	 * This is a sustained button. It will returns true as long as the player
-	 * holds it down.
-	 *
-	 * @return true if the secondary action button was pressed.
+	 * @return true if the D key was pressed.
 	 */
-	public boolean didTertiary() {
-		return tertiaryPressed;
-	}
+	public boolean didRight() {return dPressed;}
 
 	/**
-	 * Returns true if the reset button was pressed.
+	 * Returns true if the A key was pressed.
 	 *
-	 * @return true if the reset button was pressed.
+	 * @return true if the A key was pressed.
 	 */
-	public boolean didReset() {
-		return resetPressed && !resetPrevious;
-	}
+	public boolean didLeft() {return aPressed;}
 
 	/**
-	 * Returns true if the player wants to go to the next level.
+	 * Returns true if the S key was pressed.
 	 *
-	 * @return true if the player wants to go to the next level.
+	 * @return true if the S key was pressed.
 	 */
-	public boolean didAdvance() {
-		return nextPressed && !nextPrevious;
-	}
-	
+	public boolean didDown() {return sPressed;}
+
 	/**
-	 * Returns true if the player wants to go to the previous level.
+	 * Returns true if the E key was pressed.
 	 *
-	 * @return true if the player wants to go to the previous level.
+	 * @return true if the E key was pressed.
 	 */
-	public boolean didRetreat() {
-		return prevPressed && !prevPrevious;
-	}
-	
+	public boolean didZoomIn() {return ePressed;}
+
 	/**
-	 * Returns true if the player wants to go toggle the debug mode.
+	 * Returns true if the Q key was pressed.
 	 *
-	 * @return true if the player wants to go toggle the debug mode.
+	 * @return true if the Q key was pressed.
 	 */
-	public boolean didDebug() {
-		return debugPressed && !debugPrevious;
-	}
-	
-	/**
-	 * Returns true if the exit button was pressed.
-	 *
-	 * @return true if the exit button was pressed.
-	 */
-	public boolean didExit() {
-		return exitPressed && !exitPrevious;
-	}
+	public boolean didZoomOut() {return qPressed;}
 	
 	/**
 	 * Creates a new input controller
@@ -218,22 +167,24 @@ public class InputController {
 	 * the drawing scale to convert screen coordinates to world coordinates.  The
 	 * bounds are for the crosshair.  They cannot go outside of this zone.
 	 *
-	 * @param bounds The input bounds for the crosshair.  
+	 * @param bounds The input bounds for the crosshair.
 	 * @param scale  The drawing scale
 	 */
 	public void readInput(Rectangle bounds, Vector2 scale) {
-		// Copy state from last animation frame
-		// Helps us ignore buttons that are held down
-		primePrevious  = primePressed;
-		secondPrevious = secondPressed;
-		resetPrevious  = resetPressed;
-		debugPrevious  = debugPressed;
-		exitPrevious = exitPressed;
-		nextPrevious = nextPressed;
-		prevPrevious = prevPressed;
-		
 		// Check to see if a GamePad is connected
-		readKeyboard(bounds, scale, false);
+		//readKeyboard(bounds, scale, false);
+	}
+
+	/**
+	 * Reads the input for the player and converts the result into game logic.
+	 *
+	 * The method provides both the input bounds and the drawing scale.  It needs
+	 * the drawing scale to convert screen coordinates to world coordinates.  The
+	 * bounds are for the crosshair.  They cannot go outside of this zone.
+	 */
+	public void readInput() {
+		// Check to see if a GamePad is connected
+		readKeyboard();
 	}
 
 	/**
@@ -242,42 +193,17 @@ public class InputController {
 	 * This controller reads from the keyboard regardless of whether or not an X-Box
 	 * controller is connected.  However, if a controller is connected, this method
 	 * gives priority to the X-Box controller.
-	 *
-	 * @param secondary true if the keyboard should give priority to a gamepad
 	 */
-	private void readKeyboard(Rectangle bounds, Vector2 scale, boolean secondary) {
-		// Give priority to gamepad results
-		resetPressed = (secondary && resetPressed) || (Gdx.input.isKeyPressed(Input.Keys.R));
-		debugPressed = (secondary && debugPressed) || (Gdx.input.isKeyPressed(Input.Keys.D));
-		primePressed = (secondary && primePressed) || (Gdx.input.isKeyPressed(Input.Keys.UP));
-		secondPressed = (secondary && secondPressed) || (Gdx.input.isKeyPressed(Input.Keys.SPACE));
-		prevPressed = (secondary && prevPressed) || (Gdx.input.isKeyPressed(Input.Keys.P));
-		nextPressed = (secondary && nextPressed) || (Gdx.input.isKeyPressed(Input.Keys.N));
-		exitPressed  = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
-		
-		// Directional controls
-		horizontal = (secondary ? horizontal : 0.0f);
-		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-			horizontal += 1.0f;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-			horizontal -= 1.0f;
-		}
-		
-		vertical = (secondary ? vertical : 0.0f);
-		if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-			vertical += 1.0f;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-			vertical -= 1.0f;
-		}
-		
-		// Mouse results
-        tertiaryPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
-		crosshair.set(Gdx.input.getX(), Gdx.input.getY());
-		crosshair.scl(1/scale.x,-1/scale.y);
-		crosshair.y += bounds.height;
-		clampPosition(bounds);
+	private void readKeyboard() {
+		// Camera movement (WASD) controls
+		wPressed = Gdx.input.isKeyPressed(Input.Keys.W);
+		aPressed = Gdx.input.isKeyPressed(Input.Keys.A);
+		sPressed = Gdx.input.isKeyPressed(Input.Keys.S);
+		dPressed = Gdx.input.isKeyPressed(Input.Keys.D);
+
+		// Camera zoom (EQ) controls
+		ePressed = Gdx.input.isKeyPressed(Input.Keys.E);
+		qPressed = Gdx.input.isKeyPressed(Input.Keys.Q);
 	}
 	
 	/**

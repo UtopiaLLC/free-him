@@ -2,19 +2,19 @@ package com.adisgrace.games.leveleditor;
 
 import java.util.HashMap;
 
-import com.adisgrace.games.FactNode;
-import com.adisgrace.games.GameCanvas;
-import com.adisgrace.games.GameController;
-import com.adisgrace.games.WorldModel;
+import com.adisgrace.games.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -32,8 +32,22 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
  * GameCanvas.
  */
 public class LevelEditorController implements Screen {
+    /** Enumeration representing the current mode of the level editor */
+    public enum Mode {
+        /** Move Mode: nodes can be freely moved around onscreen */
+        MOVE,
+        /** Edit Mode: nodes can be clicked on, after which their contents can be edited */
+        EDIT,
+        /** Delete Mode: nodes can be clicked on, which deletes them */
+        DELETE,
+        /** Draw Mode: connections can be drawn between nodes */
+        DRAW
+    };
+
     /** Canvas is the primary view class of the game */
     private GameCanvas canvas;
+    /** Gets player input */
+    private InputController input;
     /** View camera for node map */
     private OrthographicCamera camera;
 
@@ -46,13 +60,12 @@ public class LevelEditorController implements Screen {
 
     /** Hashmap of all the images added */
     HashMap<String,Image> images;
-    /** Array of all the buttons added */
-    Array<Button> buttons;
 
-    /** Hashmap of nodes, each key is the name and each value is the corresponding FactNode */
-    /** Hashmap of targets, each key is the target name and each value is an array of nodes that are associated with that target */
-    /** Connector subclass with two fields: coordinates and type */
+    /** World bounds (not the same as canvas bounds) */
+    Rectangle bounds;
 
+    /** Current mode of the level editor */
+    private Mode editorMode;
 
     /** The count of the next image that is added */
     int imgCount;
@@ -72,6 +85,8 @@ public class LevelEditorController implements Screen {
 
     /** Scale of the buttons in the toolbar */
     private static final float BUTTON_SCALE = 0.5f;
+    /** Width of buttons in the toolbar in pixels */
+    private static final int BUTTON_WIDTH = 100;
     /** Gap between two buttons in pixels */
     private static final int BUTTON_GAP = 60;
     /** How far to the right the toolbar should be offset from the left edge of the screen, in pixels */
@@ -84,8 +99,13 @@ public class LevelEditorController implements Screen {
      * grid.
      */
     public LevelEditorController() {
+        // Create a new level with the given dimensions
+
+
         // Create canvas and set view and zoom
         canvas = new GameCanvas();
+        // Get singleton instance of player input controller
+        input = InputController.getInstance();
 
         // Set up camera
         ExtendViewport viewport = new ExtendViewport(canvas.getWidth(), canvas.getHeight());
@@ -107,6 +127,9 @@ public class LevelEditorController implements Screen {
         images = new HashMap<String, Image>();
         // Initialize vector cache
         vec = new Vector2();
+
+        // Start editor mode in Move Mode
+        editorMode = Mode.MOVE;
     }
 
     /**
@@ -117,7 +140,7 @@ public class LevelEditorController implements Screen {
      * - A button to create a new unlocked node.
      * - A button to create a new locked node.
      */
-    public void createToolStage(){
+    private void createToolStage(){
         // Creates toolbar viewport and camera
         ExtendViewport toolbarViewPort = new ExtendViewport(canvas.getWidth(), canvas.getHeight());
         toolstage = new Stage(toolbarViewPort);
@@ -129,11 +152,34 @@ public class LevelEditorController implements Screen {
 
         Gdx.input.setInputProcessor(inputMultiplexer);
 
-        // Create buttons
         // Create and place toolbar to hold all the buttons
         Table toolbar = new Table();
         toolbar.right();
         toolbar.setSize(.25f*canvas.getWidth(),canvas.getHeight());
+
+        // Add all buttons to toolbar
+        toolbar = createNodeButtons(toolbar);
+        toolbar = createModeButtons(toolbar);
+
+        // Add filled toolbar to stage
+        toolstage.addActor(toolbar);
+    }
+
+    /**
+     * Helper function that adds the buttons used to create nodes to the stage.
+     *
+     * Returns the toolbar with these node-creation buttons included.
+     *
+     * These include:
+     * - A button to create a new target.
+     * - A button to create a new unlocked node.
+     * - A button to create a new locked node.
+     *
+     * @param toolbar       The toolbar that the buttons are stored in.
+     * @return              The toolbar with the node-creation buttons added.
+     */
+    private Table createNodeButtons(Table toolbar) {
+        // Create "add node" buttons
         // Save the paths to all the node assets (must be final to work in lambda expression)
         final String target = "leveleditor/N_TargetMaleIndividual_1.png";
         final String unlocked = "leveleditor/N_UnlockedIndividual_1.png";
@@ -156,7 +202,7 @@ public class LevelEditorController implements Screen {
             button.setScale(BUTTON_SCALE);
             button.setPosition(TOOLBAR_X_OFFSET, height);
 
-            // Add listener to button, changing depending on which node the button creates
+            // Add listeners to button, changing depending on which node the button creates
             if (k==0) {
                 // ADD TARGET
                 button.addListener(new ChangeListener() {
@@ -185,8 +231,74 @@ public class LevelEditorController implements Screen {
             height -= BUTTON_GAP;
         }
 
-        // Add filled toolbar to stage
-        toolstage.addActor(toolbar);
+        return toolbar;
+    }
+
+    /**
+     * Helper function that adds the buttons used to change modes to the stage.
+     *
+     * Returns the toolbar with these mode-changing buttons included.
+     *
+     * These include:
+     * - A button to change to Move Mode, where nodes can be moved around.
+     * - A button to change to Edit Mode, where the contents of nodes can be edited.
+     * - A button to change to Delete Mode, where nodes can be deleted.
+     *
+     * @param toolbar       The toolbar that the buttons are stored in.
+     * @return              The toolbar with the mode-changing buttons added.
+     */
+    private Table createModeButtons(Table toolbar) {
+        // Create mode change buttons
+        // Paths to all button assets
+        String[] buttonAssets = {"leveleditor/LE_MoveMode_1.png", "leveleditor/LE_EditMode_1.png",
+            "leveleditor/LE_DeleteMode_1.png"};
+        // Height of first button
+        int height = (int)camera.viewportHeight - TOOLBAR_Y_OFFSET;
+        // Right offset of mode buttons
+        int xloc = canvas.getWidth() - TOOLBAR_X_OFFSET - BUTTON_WIDTH;
+        // Initialize other variables for button creation
+        Drawable drawable;
+        ImageButton button;
+
+        // Loop through and create each button
+        for (int k=0; k<buttonAssets.length; k++) {
+            // Create and place button
+            drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(buttonAssets[k])));
+            button = new ImageButton(drawable);
+            button.setTransform(true);
+            button.setScale(BUTTON_SCALE);
+            button.setPosition(xloc, height);
+
+            // Add listeners to button, changing depending on which node the button creates
+            if (k==0) {
+                // CHANGE TO MOVE MODE
+                button.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {editorMode = Mode.MOVE;}
+                });
+            } else if (k==1) {
+                // CHANGE TO EDIT MODE
+                button.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {editorMode = Mode.EDIT;}
+                });
+            } else if (k==2) {
+                // CHANGE TO DELETE MODE
+                button.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {editorMode = Mode.DELETE;}
+                });
+            }
+
+            // Add button to stage
+            toolstage.addActor(button);
+            // Arrange buttons in order using a Table
+            toolbar.addActor(button);
+            // Increment height
+            height -= BUTTON_GAP;
+        }
+
+        return toolbar;
     }
 
     /**
@@ -211,38 +323,90 @@ public class LevelEditorController implements Screen {
         images.put(name, im);
         imgCount++;
 
-        // Add drag listener to image that updates position on drag
+        // Add listeners, which change their behavior depending on the editor mode
+
+        // Add drag listener that does something during a drag
         im.addListener((new DragListener() {
             public void touchDragged (InputEvent event, float x, float y, int pointer) {
-                // When dragging, snaps image center to cursor
-                float dx = x-im.getWidth()*0.5f;
-                float dy = y-im.getHeight()*0.25f;
-                im.setPosition(im.getX() + dx, im.getY() + dy);
+                // Only do this if editor mode is Move
+                // Updates image position on drag
+                if (editorMode == Mode.MOVE) {
+                    // When dragging, snaps image center to cursor
+                    float dx = x - im.getWidth() * 0.5f;
+                    float dy = y - im.getHeight() * 0.25f;
+                    im.setPosition(im.getX() + dx, im.getY() + dy);
+                }
             }
         }));
-        // Add drag listener that snaps to grid when drag ends
+
+        // Add drag listener that does something when a drag ends
         im.addListener((new DragListener() {
             public void dragStop (InputEvent event, float x, float y, int pointer) {
-                // Get coordinates of center of image
-                float newX = im.getX()+ x-im.getWidth()*0.5f;
-                float newY = im.getY()+ y-im.getHeight()*0.25f;
-                // Get location that image should snap to
-                newX = newX - (newX % (TILE_WIDTH / 2));
-                newY = newY - (newY % (TILE_HEIGHT / 2));
+                // Only do this if editor mode is Move
+                // Snap to center of nearby isometric grid
+                if (editorMode == Mode.MOVE) {
+                    // Get coordinates of center of image
+                    float newX = im.getX() + x - im.getWidth() * 0.5f;
+                    float newY = im.getY() + y - im.getHeight() * 0.25f;
 
-                // If tries to snap to intersection between lines, snap to the grid cell
-                // above the intersection instead
-                if (Math.abs((int)(newX / (TILE_WIDTH / 2)) % 2) != Math.abs((int)(newY / (TILE_HEIGHT / 2)) % 2)) {
-                    newY += TILE_HEIGHT / 2;
+                    // Get location that image should snap to
+                    nearestIsoCenter(newX, newY);
+                    // Retrieve from vector cache
+                    newX = vec.x;
+                    newY = vec.y;
+
+                    // Account for difference between tile width and sprite width
+                    newX -= (im.getWidth() - TILE_WIDTH) / 2;
+                    newY += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+
+                    im.setPosition(newX, newY);
                 }
-
-                // Account for difference between tile width and sprite width
-                newX -= (im.getWidth() - TILE_WIDTH) / 2;
-                newY += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
-
-                im.setPosition(newX, newY);
             }
         }));
+
+        // Add click listener that does something when the node is clicked
+        im.addListener((new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                // Different behavior on clicked depending on editor mode
+                switch (editorMode) {
+                    // In Edit Mode, open up the node submenu
+                    case EDIT:
+                        System.out.println("Edit");
+                        break;
+                    // In Delete Mode, delete the node
+                    case DELETE:
+                        im.remove();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }));
+    }
+
+    /**
+     * Helper function that gets the center of an isometric grid tile nearest to the given coordinates.
+     *
+     * Called when snapping an image to the center of a grid tile.
+     *
+     * The nearest isometric center is just stored in the vector cache [vec].
+     *
+     * @param x     x-coordinate of the location we want to find the nearest isometric center to
+     * @param y     y-coordinate of the location we want to find the nearest isometric center to
+     */
+    private void nearestIsoCenter(float x, float y){
+        // Get location that image should snap to
+        x = x - (x % (TILE_WIDTH / 2));
+        y = y - (y % (TILE_HEIGHT / 2));
+
+        // If tries to snap to intersection between lines, snap to the grid cell
+        // above the intersection instead
+        if (Math.abs((int) (x / (TILE_WIDTH / 2)) % 2) != Math.abs((int) (y / (TILE_HEIGHT / 2)) % 2)) {
+            y += TILE_HEIGHT / 2;
+        }
+
+        // Store result in vector cache
+        vec.set(x,y);
     }
 
     /**
@@ -298,6 +462,9 @@ public class LevelEditorController implements Screen {
     }
 
     @Override
+    /**
+     * Ensures that the game world appears at the same scale, even when resizing
+     */
     public void resize(int width, int height) {
         // Keep game world at the same scale even when resizing
         nodeStage.getViewport().update(width,height,true);
@@ -334,34 +501,39 @@ public class LevelEditorController implements Screen {
     /************************************************* CAMERA *************************************************/
 
     /**
-     * TODO: move this out of LevelEditorController and into InputController
-     */
-
-    /**
-     * Moves the camera based on the Input Keys
-     * Also allows for zooming + scales the movement and bounds based on zooming
+     * Handles camera movement and zoom based on user input.
      *
+     * Also adjusts the world scale based on zoom.
      */
-    public void moveCamera() {
+    private void moveCamera() {
+        // Check for new input
+        input.readInput();
+        // Set current camera zoom
         currentZoom = camera.zoom;
-        if(Gdx.input.isKeyPressed(Input.Keys.W)) {
+
+        // Move camera if one of the WASD keys are pressed
+        if(input.didUp()) {
             camera.translate(0, 12*currentZoom*cameraSpeed(0)/acceleration_speed);
-        }if(Gdx.input.isKeyPressed(Input.Keys.A)) {
+        }
+        if(input.didLeft()) {
             camera.translate(-12*currentZoom*cameraSpeed(2)/acceleration_speed, 0);
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.S)) {
+        if(input.didDown()) {
             camera.translate(0, -12*currentZoom*cameraSpeed(1)/acceleration_speed);
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.D)) {
+        if(input.didRight()) {
             camera.translate(12*currentZoom*cameraSpeed(3)/acceleration_speed, 0);
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.E)) {
+        // Zoom in/out if E/Q keys are pressed
+        if(input.didZoomIn()) {
             camera.zoom = (.99f)*currentZoom;
-        } if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
+        }
+        if(input.didZoomOut()) {
             camera.zoom = (1.01f)*currentZoom;
         }
 
+        // Clamp zoom between set values
         if(camera.zoom > 4.0f) {
             camera.zoom = 4.0f;
         }
@@ -369,6 +541,7 @@ public class LevelEditorController implements Screen {
             camera.zoom = 1.0f;
         }
 
+        // Scale world by zoom
         float camX = camera.position.x;
         float camY = camera.position.y;
 
