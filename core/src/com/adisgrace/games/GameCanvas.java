@@ -1165,10 +1165,19 @@ public class GameCanvas {
 		return camera;
 	}
 
-	public void drawIsometricGrid(Stage stage){
+
+	/**
+	 * Compute the affine transform (and store it in local) for this image.
+	 *
+	 * @param stage		The stage to which the grid will be drawn
+	 * @param width		the horizontal radius of the grid
+	 * @param height	the vertical radius of the grid   
+	 */
+	public void drawIsometricGrid(Stage stage, int width, int height){
 		//assuming grid tiles are (444, 256) in size
-		for(int col = -5000-222; col <= 5000 + 222; col+=444){
-			for(int row = -5000-128; row <= 5000 + 128; row+=256){
+		//drawing a 100 x 100 tile grid centered around the origin, offset so that (0, 0) is the center of the tile sprite
+		for(int col = -(444*width) -222; col <= (444*width) + 222; col+=444){
+			for(int row = -(128*height) -128; row <= (128*height) + 128; row+=256){
 				final Image tile = new Image(new Texture(Gdx.files.internal("background/B_MapTileBG_2.png")));
 				tile.setX(col);
 				tile.setY(row);
