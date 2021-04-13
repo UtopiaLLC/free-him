@@ -1167,11 +1167,11 @@ public class GameCanvas {
 
 
 	/**
-	 * Compute the affine transform (and store it in local) for this image.
+	 * Draws an isometric grid on the given stage
 	 *
 	 * @param stage		The stage to which the grid will be drawn
 	 * @param width		the horizontal radius of the grid
-	 * @param height	the vertical radius of the grid   
+	 * @param height	the vertical radius of the grid
 	 */
 	public void drawIsometricGrid(Stage stage, int width, int height){
 		//assuming grid tiles are (444, 256) in size
@@ -1185,6 +1185,23 @@ public class GameCanvas {
 			}
 		}
 
+	}
+
+	/**
+	 * Resizes the canvas so that it's exactly large enough to fit an isometric grid of rows x cols
+	 *
+	 * @param rows		the number of rows
+	 * @param cols		the number of columns
+	 */
+	public void setIsometricSize(int rows, int cols){
+		//each tile is 444 x 128
+		//since it's isometric, we need to get the length of the diagonals from the rows and cols
+		double isometricWidth = 444 * Math.cos(30) + 256 * Math.cos(60);
+		double isometricHeight = 444 * Math.sin(30) + 256 * Math.sin(60);
+
+		//Math should be right... but unsure. Have someone check and delete this comment once it's done?
+		setWidth((int)(rows * isometricWidth));
+		setHeight((int)(cols * isometricHeight));
 	}
 
 }
