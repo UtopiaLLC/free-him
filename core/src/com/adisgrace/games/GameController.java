@@ -148,6 +148,7 @@ public class GameController implements Screen {
         nodeView = new NodeView(stage, target, world);
         imageNodes = nodeView.getImageNodes();
         for(ImageButton button : imageNodes.values()) { // Node Click Listeners
+            final ImageButton b = button;
             button.addListener(new ClickListener()
             {
                 @Override
@@ -155,7 +156,7 @@ public class GameController implements Screen {
                 {
                     Actor cbutton = (Actor)event.getListenerActor();
                     //System.out.println(cbutton.getName());
-                    actOnNode(cbutton.getName());
+                    actOnNode(cbutton.getName(), b);
                 }
             });
             button.remove();
@@ -877,7 +878,7 @@ public class GameController implements Screen {
      * activeVerb that was clicked
      * @param nodeName
      */
-    public void actOnNode(String nodeName) {
+    public void actOnNode(String nodeName, ImageButton button) {
         String[] nodeInfo = nodeName.split(",");
         boolean isTarget = false;
         if(nodeInfo.length == 1) {
@@ -895,6 +896,9 @@ public class GameController implements Screen {
                     switch (world.interactionType(nodeInfo[0], nodeInfo[1])) {
                         case HACK:
                             if(world.getPlayer().canHack()) {
+                                button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
+                                        new TextureRegionDrawable(new TextureRegion(new Texture(
+                                                Gdx.files.internal("node/red.png")))), null, null));
                                 createDialogBox(world.interact(nodeInfo[0], nodeInfo[1]));
                                 reloadDisplayedNodes();
                             } else {
@@ -903,6 +907,9 @@ public class GameController implements Screen {
                             break;
                         case SCAN:
                             if(world.getPlayer().canScan()) {
+                                button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
+                                        new TextureRegionDrawable(new TextureRegion(new Texture(
+                                                Gdx.files.internal("node/blue.png")))), null, null));
                                 createDialogBox(world.interact(nodeInfo[0], nodeInfo[1]));
                                 reloadDisplayedNodes();
                             } else {
