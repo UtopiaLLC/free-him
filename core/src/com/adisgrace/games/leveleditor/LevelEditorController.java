@@ -50,6 +50,8 @@ public class LevelEditorController implements Screen {
     /** Dimensions of map tile */
     private static final int TILE_HEIGHT = 256;
     private static final int TILE_WIDTH = 444;
+    /** Constants for the y-offset for different node types */
+    private static final float LOCKED_OFFSET = 114.8725f;
 
     /**
      * Creates a new level editor controller. This initializes the UI and sets up the isometric
@@ -67,14 +69,7 @@ public class LevelEditorController implements Screen {
 
         // Create stage for nodes and tile with isometric grid
         nodeStage = new Stage(viewport);
-        canvas.drawIsometricGrid(nodeStage, 20, 20);
-
-        /**
-        final Image im = new Image(new Texture(Gdx.files.internal("badlogic.jpg")));
-        nodeStage.addActor(im);
-        im.setPosition(0,0);
-        im.setOrigin(0,0);
-         */
+        canvas.drawIsometricGrid(nodeStage, 1, 1);
 
         // Create tool stage for buttons
         createToolStage();
@@ -126,9 +121,9 @@ public class LevelEditorController implements Screen {
 
     public void addImage() {
         // Create image
-        final Image im = new Image(new Texture(Gdx.files.internal("node/N_LockedIndividual_1.png")));
+        final Image im = new Image(new Texture(Gdx.files.internal("node/N_LockedIndividual_2.png")));
         nodeStage.addActor(im);
-        im.setPosition(0, 0);
+        im.setPosition(-(im.getWidth() - TILE_WIDTH) / 2, ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2);
         im.setOrigin(0, 0);
 
         // Set name of image
@@ -163,10 +158,9 @@ public class LevelEditorController implements Screen {
                     newY += TILE_HEIGHT / 2;
                 }
 
-                //newX += TILE_WIDTH / 4;
-
-                System.out.println(newX);
-                System.out.println(newY);
+                // Account for difference between tile width and sprite width
+                newX -= (im.getWidth() - TILE_WIDTH) / 2;
+                newY += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
 
                 im.setPosition(newX, newY);
             }
@@ -180,8 +174,10 @@ public class LevelEditorController implements Screen {
      * @return         Given coordinates in isometric space
      */
     private Vector2 worldToIsometric(Vector2 coords) {
-        coords.x = (float)Math.sqrt(3)/2 * coords.x - 0.5f * coords.y;
-        coords.y = (float)Math.sqrt(3)/2 * coords.x + 0.5f * coords.y;
+        float tempx = coords.x;
+        float tempy = coords.y;
+        coords.x = (float)Math.sqrt(3)/2 * tempx - 0.5f * tempy;
+        coords.y = (float)Math.sqrt(3)/2 * tempx + 0.5f * tempy;
 
         return coords;
     }
@@ -193,8 +189,10 @@ public class LevelEditorController implements Screen {
      * @return         Given coordinates in world space
      */
     private Vector2 isometricToWorld(Vector2 coords) {
-        coords.x = 0.57735f * coords.x - coords.y;
-        coords.y = 0.57735f * coords.x + coords.y;
+        float tempx = coords.x;
+        float tempy = coords.y;
+        coords.x = 0.57735f * tempx - tempy;
+        coords.y = 0.57735f * tempx + tempy;
 
         return coords;
     }
