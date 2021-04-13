@@ -34,14 +34,15 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 public class LevelEditorController implements Screen {
     /** Canvas is the primary view class of the game */
     private GameCanvas canvas;
-    /** View camera */
+    /** View camera for node map */
     private OrthographicCamera camera;
+
     /** CurrentZoom controls how much the camera is zoomed in or out */
     private float currentZoom;
-    /** Stage generation buttons are drawn on */
-    Stage toolstage;
     /** Stage where nodes and grids are drawn*/
     Stage nodeStage;
+    /** Stage where buttons are drawn on */
+    Stage toolstage;
 
     /** Hashmap of all the images added */
     HashMap<String,Image> images;
@@ -69,6 +70,15 @@ public class LevelEditorController implements Screen {
     /** Constants for the y-offset for different node types */
     private static final float LOCKED_OFFSET = 114.8725f;
 
+    /** Scale of the buttons in the toolbar */
+    private static final float BUTTON_SCALE = 0.5f;
+    /** Gap between two buttons in pixels */
+    private static final int BUTTON_GAP = 60;
+    /** How far to the right the toolbar should be offset from the left edge of the screen, in pixels */
+    private static final int TOOLBAR_X_OFFSET = 10;
+    /** How far down the toolbar should be offset from the top edge of the screen, in pixels */
+    private static final int TOOLBAR_Y_OFFSET = 60;
+
     /**
      * Creates a new level editor controller. This initializes the UI and sets up the isometric
      * grid.
@@ -78,10 +88,12 @@ public class LevelEditorController implements Screen {
         canvas = new GameCanvas();
 
         // Set up camera
-        ExtendViewport viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        viewport.setCamera(canvas.getCamera());
-        currentZoom = canvas.getCamera().zoom;
-        canvas.getCamera().zoom = 1.5f;
+        ExtendViewport viewport = new ExtendViewport(canvas.getWidth(), canvas.getHeight());
+        camera = canvas.getCamera();
+        viewport.setCamera(camera);
+        currentZoom = camera.zoom;
+        camera.zoom = 1.5f;
+        //viewport.setScreenPosition(-2*canvas.getWidth(),-2*canvas.getHeight());
 
         // Create stage for nodes and tile with isometric grid
         nodeStage = new Stage(viewport);
@@ -98,13 +110,16 @@ public class LevelEditorController implements Screen {
     }
 
     /**
-     * Creates and fills the stage with buttons to be used in creating a level.
+     * Helper function that creates and fills the stage with buttons to be used in creating a level.
      *
      * These include:
-     * - A button to create new nodes.
+     * - A button to create a new target.
+     * - A button to create a new unlocked node.
+     * - A button to create a new locked node.
      */
     public void createToolStage(){
-        ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // Creates toolbar viewport and camera
+        ExtendViewport toolbarViewPort = new ExtendViewport(canvas.getWidth(), canvas.getHeight());
         toolstage = new Stage(toolbarViewPort);
 
         // Handle inputs from both stages with a Multiplexer
@@ -115,40 +130,76 @@ public class LevelEditorController implements Screen {
         Gdx.input.setInputProcessor(inputMultiplexer);
 
         // Create buttons
-
-        // Create a button to add new images
-        Drawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal("skills/overwork.png")));
-        ImageButton button = new ImageButton(drawable);
-        button.setTransform(true);
-        button.setScale(0.4f);
-        //button.setPosition(500, 500);
-        // Add listener to button
-        button.addListener(new ChangeListener() {
-            @Override
-            public void changed (ChangeEvent event, Actor actor) {
-                System.out.println("Button Pressed");
-                addImage();
-            }
-        });
-        toolstage.addActor(button);
-
-        // Arrange buttons in order using a Table
+        // Create and place toolbar to hold all the buttons
         Table toolbar = new Table();
         toolbar.right();
-        toolbar.setSize(.25f*Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-        toolbar.addActor(button);
+        toolbar.setSize(.25f*canvas.getWidth(),canvas.getHeight());
+        // Save the paths to all the node assets (must be final to work in lambda expression)
+        final String target = "leveleditor/N_TargetMaleIndividual_1.png";
+        final String unlocked = "leveleditor/N_UnlockedIndividual_1.png";
+        final String locked = "leveleditor/N_LockedIndividual_2.png";
+        // Paths to all button assets
+        String[] buttonAssets = {"leveleditor/LE_AddNodeTarget_1.png", "leveleditor/LE_AddNodeUnlocked_1.png",
+                "leveleditor/LE_AddNodeLocked_1.png"};
+        // Height of first button
+        int height = (int)camera.viewportHeight - TOOLBAR_Y_OFFSET;
+        // Initialize other variables for button creation
+        Drawable drawable;
+        ImageButton button;
+
+        // Loop through and create each button
+        for (int k=0; k<buttonAssets.length; k++) {
+            // Create and place button
+            drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(buttonAssets[k])));
+            button = new ImageButton(drawable);
+            button.setTransform(true);
+            button.setScale(BUTTON_SCALE);
+            button.setPosition(TOOLBAR_X_OFFSET, height);
+
+            // Add listener to button, changing depending on which node the button creates
+            if (k==0) {
+                // ADD TARGET
+                button.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {addNode(target);}
+                });
+            } else if (k==1) {
+                // ADD LOCKED
+                button.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {addNode(unlocked);}
+                });
+            } else if (k==2) {
+                // ADD UNLOCKED
+                button.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {addNode(locked);}
+                });
+            }
+
+            // Add button to stage
+            toolstage.addActor(button);
+            // Arrange buttons in order using a Table
+            toolbar.addActor(button);
+            // Increment height
+            height -= BUTTON_GAP;
+        }
+
+        // Add filled toolbar to stage
         toolstage.addActor(toolbar);
     }
 
     /**
-     * Adds an image of something to the stage.
+     * Adds a draggable node with the appearance of the asset at the given path to the stage.
      *
-     * Called when one of the image-adding buttons is pressed. Each image is given a name that is a number
+     * Called when one of the node-adding buttons is pressed. Each image is given a name that is a number
      * of increasing value, so that no names are repeated in a single level editor session.
+     *
+     * @param path      Path to the file where the node's asset is stored
      */
-    public void addImage() {
+    public void addNode(String path) {
         // Create image
-        final Image im = new Image(new Texture(Gdx.files.internal("node/N_LockedIndividual_2.png")));
+        final Image im = new Image(new Texture(Gdx.files.internal(path)));
         nodeStage.addActor(im);
         im.setPosition(-(im.getWidth() - TILE_WIDTH) / 2, ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2);
         im.setOrigin(0, 0);
@@ -233,7 +284,6 @@ public class LevelEditorController implements Screen {
      * renders the game display at consistent time steps
      */
     public void render(float delta) {
-
         // Move camera
         canvas.clear();
         moveCamera();
@@ -249,7 +299,16 @@ public class LevelEditorController implements Screen {
 
     @Override
     public void resize(int width, int height) {
+        // Keep game world at the same scale even when resizing
+        nodeStage.getViewport().update(width,height,true);
+        camera.viewportWidth = width;
+        camera.viewportHeight = height;
+        camera.position.set(width/2f, height/2f, 0);
 
+        // Keep toolbar in the same place when resizing
+        toolstage.getViewport().update(width,height,true);
+
+        //canvas.resize();
     }
 
     @Override
@@ -272,7 +331,11 @@ public class LevelEditorController implements Screen {
 
     }
 
-    /************************************************* CAMERA MOVEMENT *************************************************/
+    /************************************************* CAMERA *************************************************/
+
+    /**
+     * TODO: move this out of LevelEditorController and into InputController
+     */
 
     /**
      * Moves the camera based on the Input Keys
@@ -280,7 +343,6 @@ public class LevelEditorController implements Screen {
      *
      */
     public void moveCamera() {
-        camera = canvas.getCamera();
         currentZoom = camera.zoom;
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
             camera.translate(0, 12*currentZoom*cameraSpeed(0)/acceleration_speed);
@@ -373,57 +435,5 @@ public class LevelEditorController implements Screen {
                 left_acc = 0;
         }
         return;
-    }
-
-    /************************************************* CONNECTORS *************************************************/
-    /**
-     * Connector inner class that represents part of a line between two nodes or a target and a node.
-     *
-     * Each connector has two parts: isometric coordinates of the grid that the connector is in, and a string
-     * representing the directions that the connector points. The string contains some combination of the four letters
-     * "ENSW," arranged in alphabetical order. The letters represent the following directions on the isometric grid:
-     *      E = +x direction
-     *      N = +y direction
-     *      S = -y direction
-     *      W = -x direction
-     * where +x is the direction that would be the lower right on the screen, and +y is the direction that would be
-     * upper right on the screen.
-     *
-     * For example, a connector with type "ENSW" would be a four-way connector. A connector with type "NS" would be
-     * a straight line that runs from the upper right to lower right side of the grid tile, when viewed on a screen.
-     */
-    class Connector {
-        /** The coordinates of the connector in isometric space */
-        int xcoord;
-        int ycoord;
-        /** The string of directions representing the type of connector */
-        String type;
-
-        /**
-         * Constructor for a connector. Saves the location and the type.
-         *
-         * @param x     The x-coordinate of the Connector in isometric space.
-         * @param y     The y-coordinate of the Connector in isometric space.
-         * @param t     The type of the Connector, represented as a string of "ENSW" with the directions that the
-         *              Connector runs in.
-         */
-        public Connector(int x, int y, String t) {
-            xcoord = x;
-            ycoord = y;
-            type = t;
-        }
-
-        /**
-         * Constructor for a connector. Saves the location and the type.
-         *
-         * @param coords    The coordinates of the Connector in isometric space.
-         * @param t         The type of the Connector, represented as a string of "ENSW" with the directions that
-         *                  the Connector runs in.
-         */
-        public Connector(Vector2 coords, String t) {
-            xcoord = (int)coords.x;
-            ycoord = (int)coords.y;
-            type = t;
-        }
     }
 }
