@@ -44,6 +44,17 @@ public class LevelEditorController implements Screen {
     /** time taken for camera to accelerate to max speed */
     private int acceleration_speed = 40;
 
+    /** Vector cache to avoid initializing vectors every time */
+    private Vector2 vec;
+
+    /** Dimensions of map tile */
+    private static final int TILE_HEIGHT = 256;
+    private static final int TILE_WIDTH = 444;
+
+    /**
+     * Creates a new level editor controller. This initializes the UI and sets up the isometric
+     * grid.
+     */
     public LevelEditorController() {
         // Create canvas and set view and zoom
         canvas = new GameCanvas();
@@ -54,19 +65,32 @@ public class LevelEditorController implements Screen {
         currentZoom = canvas.getCamera().zoom;
         canvas.getCamera().zoom = 1.5f;
 
-        // Create stage
+        // Create stage for nodes and tile with isometric grid
         nodeStage = new Stage(viewport);
+        canvas.drawIsometricGrid(nodeStage, 20, 20);
+
+        /**
+        final Image im = new Image(new Texture(Gdx.files.internal("badlogic.jpg")));
+        nodeStage.addActor(im);
+        im.setPosition(0,0);
+        im.setOrigin(0,0);
+         */
+
+        // Create tool stage for buttons
         createToolStage();
-
-        //Gdx.input.setInputProcessor(toolstage);
-        canvas.drawIsometricGrid(nodeStage);
-
-
 
         // Initialize hashmap of images
         images = new HashMap<String, Image>();
+        // Initialize vector cache
+        vec = new Vector2();
     }
 
+    /**
+     * Creates and fills the stage with buttons to be used in creating a level.
+     *
+     * These include:
+     * - A button to create new nodes.
+     */
     public void createToolStage(){
         ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         toolstage = new Stage(toolbarViewPort);
@@ -102,7 +126,7 @@ public class LevelEditorController implements Screen {
 
     public void addImage() {
         // Create image
-        final Image im = new Image(new Texture(Gdx.files.internal("node/blue.png")));
+        final Image im = new Image(new Texture(Gdx.files.internal("node/N_LockedIndividual_1.png")));
         nodeStage.addActor(im);
         im.setPosition(0, 0);
         im.setOrigin(0, 0);
@@ -119,48 +143,64 @@ public class LevelEditorController implements Screen {
             public void touchDragged (InputEvent event, float x, float y, int pointer) {
                 // When dragging, snaps image center to cursor
                 float dx = x-im.getWidth()*0.5f;
-                float dy = y-im.getHeight()*0.5f;
+                float dy = y-im.getHeight()*0.25f;
                 im.setPosition(im.getX() + dx, im.getY() + dy);
             }
         }));
         // Add drag listener that snaps to grid when drag ends
         im.addListener((new DragListener() {
             public void dragStop (InputEvent event, float x, float y, int pointer) {
-                System.out.println("Snap");
+                // Get coordinates of center of image
+                float newX = im.getX()+ x-im.getWidth()*0.5f;
+                float newY = im.getY()+ y-im.getHeight()*0.25f;
+                // Get location that image should snap to
+                newX = newX - (newX % (TILE_WIDTH / 2));
+                newY = newY - (newY % (TILE_HEIGHT / 2));
 
-                float newX = im.getX() + x-im.getWidth()*0.5f;
-                float newY = im.getY() + y-256.0f;
+                // If tries to snap to intersection between lines, snap to the grid cell
+                // above the intersection instead
+                if (Math.abs((int)(newX / (TILE_WIDTH / 2)) % 2) != Math.abs((int)(newY / (TILE_HEIGHT / 2)) % 2)) {
+                    newY += TILE_HEIGHT / 2;
+                }
 
+                //newX += TILE_WIDTH / 4;
 
-                im.setPosition(newX - (newX % 222), newY - (newY % 128));
+                System.out.println(newX);
+                System.out.println(newY);
+
+                im.setPosition(newX, newY);
             }
         }));
     }
 
-    @Override
-    public void show() {
+    /**
+     * Helper function that converts coordinates from world space to isometric space.
+     *
+     * @param coords   Coordinates in world space to transform
+     * @return         Given coordinates in isometric space
+     */
+    private Vector2 worldToIsometric(Vector2 coords) {
+        coords.x = (float)Math.sqrt(3)/2 * coords.x - 0.5f * coords.y;
+        coords.y = (float)Math.sqrt(3)/2 * coords.x + 0.5f * coords.y;
+
+        return coords;
     }
 
     /**
-     * Snaps an image to the center of the nearest isometric grid cell.
+     * Helper function that converts coordinates from isometric space to world space.
      *
-     * The image is snapped to the grid cell that the mouse cursor is over.
-     * It may not be super reliable, but it mostly will work.
-     *
-     * The grid cells are arranged so that (0,0) is the center of a grid cell.
-     *
-     * @param im        Image to snap to grid
-     * @param mouseX    x-coordinate of mouse cursor
-     * @param mouseY    y-coordinate of mouse cursor
+     * @param coords   Coordinates in isometric space to transform
+     * @return         Given coordinates in world space
      */
-    public void snapToGrid(Image im, float mouseX, float mouseY) {
-        // Round down
-        int x = (int)(Gdx.input.getX() / 444);
-        int y = (int)(Gdx.input.getX() / 256);
+    private Vector2 isometricToWorld(Vector2 coords) {
+        coords.x = 0.57735f * coords.x - coords.y;
+        coords.y = 0.57735f * coords.x + coords.y;
 
-        float dx = mouseX-im.getWidth()*0.5f;
-        float dy = mouseY-im.getHeight()*0.5f;
-        im.setPosition(im.getX() + dx, im.getY() + dy);
+        return coords;
+    }
+
+    @Override
+    public void show() {
     }
 
     @Override
