@@ -21,8 +21,16 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.*;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
+/**
+ * Class for handling the level editor.
+ *
+ * All information about the level editor itself is stored in LevelEditorModel
+ * the contents of which are rendered every frame. The background is done in
+ * GameCanvas.
+ */
 public class LevelEditorController implements Screen {
     /** Canvas is the primary view class of the game */
     private GameCanvas canvas;
@@ -35,8 +43,16 @@ public class LevelEditorController implements Screen {
     /** Stage where nodes and grids are drawn*/
     Stage nodeStage;
 
-    /** Hashtable of all the images added */
+    /** Hashmap of all the images added */
     HashMap<String,Image> images;
+    /** Array of all the buttons added */
+    Array<Button> buttons;
+
+    /** Hashmap of nodes, each key is the name and each value is the corresponding FactNode */
+    /** Hashmap of targets, each key is the target name and each value is an array of nodes that are associated with that target */
+    /** Connector subclass with two fields: coordinates and type */
+
+
     /** The count of the next image that is added */
     int imgCount;
     /** acceleration accumulators for camera movement */
@@ -69,6 +85,7 @@ public class LevelEditorController implements Screen {
 
         // Create stage for nodes and tile with isometric grid
         nodeStage = new Stage(viewport);
+        //canvas.setIsometricSize(3,3);
         canvas.drawIsometricGrid(nodeStage, 1, 1);
 
         // Create tool stage for buttons
@@ -90,11 +107,14 @@ public class LevelEditorController implements Screen {
         ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         toolstage = new Stage(toolbarViewPort);
 
+        // Handle inputs from both stages with a Multiplexer
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(toolstage);
         inputMultiplexer.addProcessor(nodeStage);
 
         Gdx.input.setInputProcessor(inputMultiplexer);
+
+        // Create buttons
 
         // Create a button to add new images
         Drawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal("skills/overwork.png")));
@@ -112,6 +132,7 @@ public class LevelEditorController implements Screen {
         });
         toolstage.addActor(button);
 
+        // Arrange buttons in order using a Table
         Table toolbar = new Table();
         toolbar.right();
         toolbar.setSize(.25f*Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
@@ -119,6 +140,12 @@ public class LevelEditorController implements Screen {
         toolstage.addActor(toolbar);
     }
 
+    /**
+     * Adds an image of something to the stage.
+     *
+     * Called when one of the image-adding buttons is pressed. Each image is given a name that is a number
+     * of increasing value, so that no names are repeated in a single level editor session.
+     */
     public void addImage() {
         // Create image
         final Image im = new Image(new Texture(Gdx.files.internal("node/N_LockedIndividual_2.png")));
@@ -245,6 +272,8 @@ public class LevelEditorController implements Screen {
 
     }
 
+    /************************************************* CAMERA MOVEMENT *************************************************/
+
     /**
      * Moves the camera based on the Input Keys
      * Also allows for zooming + scales the movement and bounds based on zooming
@@ -344,5 +373,57 @@ public class LevelEditorController implements Screen {
                 left_acc = 0;
         }
         return;
+    }
+
+    /************************************************* CONNECTORS *************************************************/
+    /**
+     * Connector inner class that represents part of a line between two nodes or a target and a node.
+     *
+     * Each connector has two parts: isometric coordinates of the grid that the connector is in, and a string
+     * representing the directions that the connector points. The string contains some combination of the four letters
+     * "ENSW," arranged in alphabetical order. The letters represent the following directions on the isometric grid:
+     *      E = +x direction
+     *      N = +y direction
+     *      S = -y direction
+     *      W = -x direction
+     * where +x is the direction that would be the lower right on the screen, and +y is the direction that would be
+     * upper right on the screen.
+     *
+     * For example, a connector with type "ENSW" would be a four-way connector. A connector with type "NS" would be
+     * a straight line that runs from the upper right to lower right side of the grid tile, when viewed on a screen.
+     */
+    class Connector {
+        /** The coordinates of the connector in isometric space */
+        int xcoord;
+        int ycoord;
+        /** The string of directions representing the type of connector */
+        String type;
+
+        /**
+         * Constructor for a connector. Saves the location and the type.
+         *
+         * @param x     The x-coordinate of the Connector in isometric space.
+         * @param y     The y-coordinate of the Connector in isometric space.
+         * @param t     The type of the Connector, represented as a string of "ENSW" with the directions that the
+         *              Connector runs in.
+         */
+        public Connector(int x, int y, String t) {
+            xcoord = x;
+            ycoord = y;
+            type = t;
+        }
+
+        /**
+         * Constructor for a connector. Saves the location and the type.
+         *
+         * @param coords    The coordinates of the Connector in isometric space.
+         * @param t         The type of the Connector, represented as a string of "ENSW" with the directions that
+         *                  the Connector runs in.
+         */
+        public Connector(Vector2 coords, String t) {
+            xcoord = (int)coords.x;
+            ycoord = (int)coords.y;
+            type = t;
+        }
     }
 }
