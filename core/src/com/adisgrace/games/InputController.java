@@ -26,9 +26,6 @@ import com.badlogic.gdx.math.Vector2;
  * a controller via the new XBox360Controller class.
  */
 public class InputController {
-	// Sensitivity for moving crosshair with gameplay
-
-
 	/** The singleton instance of the input controller */
 	private static InputController theController = null;
 	
@@ -53,58 +50,16 @@ public class InputController {
 	/** Whether each of the EQ buttons (for camera zoom) have been pressed */
 	private boolean ePressed;
 	private boolean qPressed;
-	
-	/** How much did we move horizontally? */
-	private float horizontal;
-	/** How much did we move vertically? */
-	private float vertical;
-	/** The crosshair position (for raddoll) */
-	private Vector2 crosshair;
-	/** The crosshair cache (for using as a return value) */
-	private Vector2 crosscache;
-	/** For the gamepad crosshair control */
-	private float momentum;
 
-	
-	/**
-	 * Returns the amount of sideways movement. 
-	 *
-	 * -1 = left, 1 = right, 0 = still
-	 *
-	 * @return the amount of sideways movement. 
-	 */
-	public float getHorizontal() {
-		return horizontal;
-	}
-	
-	/**
-	 * Returns the amount of vertical movement. 
-	 *
-	 * -1 = down, 1 = up, 0 = still
-	 *
-	 * @return the amount of vertical movement. 
-	 */
-	public float getVertical() {
-		return vertical;
-	}
-	
-	/**
-	 * Returns the current position of the crosshairs on the screen.
-	 *
-	 * This value does not return the actual reference to the crosshairs position.
-	 * That way this method can be called multiple times without any fair that 
-	 * the position has been corrupted.  However, it does return the same object
-	 * each time.  So if you modify the object, the object will be reset in a
-	 * subsequent call to this getter.
-	 *
-	 * @return the current position of the crosshairs on the screen.
-	 */
-	public Vector2 getCrossHair() {
-		return crosscache.set(crosshair);
-	}
+	/** Whether right-click is pressed */
+	private boolean rightClicked;
 
+	/** Whether C, the clear button, has been pressed */
+	private boolean cPressed;
 
-	/******************************************** CAMERA CONTROL GETTERS ********************************************/
+	/** Mouse coordinates */
+	private float mouseX;
+	private float mouseY;
 
 	/**
 	 * Returns true if the W key was pressed.
@@ -147,6 +102,34 @@ public class InputController {
 	 * @return true if the Q key was pressed.
 	 */
 	public boolean didZoomOut() {return qPressed;}
+
+	/**
+	 * Returns true if right click is pressed and was not previously pressed.
+	 *
+	 * @return true if right click is pressed and was not previously pressed.
+	 */
+	public boolean didRightClick() {return rightClicked;}
+
+	/**
+	 * Returns true if the C key was pressed.
+	 *
+	 * @return true if the C key was pressed.
+	 */
+	public boolean didClear() {return cPressed;}
+
+	/**
+	 * Returns the current mouse x-coordinate.
+	 *
+	 * @return current mouse x-coordinate.
+	 */
+	public float getX() {return mouseX;}
+
+	/**
+	 * Returns the current mouse y-coordinate.
+	 *
+	 * @return current mouse y-coordinate.
+	 */
+	public float getY() {return mouseY;}
 	
 	/**
 	 * Creates a new input controller
@@ -155,9 +138,6 @@ public class InputController {
 	 * if it exists.  Otherwise, it falls back to the keyboard control.
 	 */
 	public InputController() {
-
-		crosshair = new Vector2();
-		crosscache = new Vector2();
 	}
 
 	/**
@@ -177,13 +157,16 @@ public class InputController {
 
 	/**
 	 * Reads the input for the player and converts the result into game logic.
-	 *
-	 * The method provides both the input bounds and the drawing scale.  It needs
-	 * the drawing scale to convert screen coordinates to world coordinates.  The
-	 * bounds are for the crosshair.  They cannot go outside of this zone.
 	 */
 	public void readInput() {
-		// Check to see if a GamePad is connected
+		// Get mouse coordinates
+		mouseX = Gdx.input.getX();
+		mouseY = Gdx.input.getY();
+
+		// See if right mouse button is being clicked
+		rightClicked = Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT);
+
+		// Read from keyboard
 		readKeyboard();
 	}
 
@@ -204,16 +187,8 @@ public class InputController {
 		// Camera zoom (EQ) controls
 		ePressed = Gdx.input.isKeyPressed(Input.Keys.E);
 		qPressed = Gdx.input.isKeyPressed(Input.Keys.Q);
-	}
-	
-	/**
-	 * Clamp the cursor position so that it does not go outside the window
-	 *
-	 * While this is not usually a problem with mouse control, this is critical 
-	 * for the gamepad controls.
-	 */
-	private void clampPosition(Rectangle bounds) {
-		crosshair.x = Math.max(bounds.x, Math.min(bounds.x+bounds.width, crosshair.x));
-		crosshair.y = Math.max(bounds.y, Math.min(bounds.y+bounds.height, crosshair.y));
+
+		// Clear button (C)
+		cPressed = Gdx.input.isKeyJustPressed(Input.Keys.C);
 	}
 }

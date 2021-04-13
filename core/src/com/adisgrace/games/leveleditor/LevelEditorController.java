@@ -58,8 +58,8 @@ public class LevelEditorController implements Screen {
     /** Stage where buttons are drawn on */
     Stage toolstage;
 
-    /** Hashmap of all the images added */
-    HashMap<String,Image> images;
+    /** Array of all the images added */
+    Array<Image> images;
 
     /** World bounds (not the same as canvas bounds) */
     Rectangle bounds;
@@ -94,14 +94,13 @@ public class LevelEditorController implements Screen {
     /** How far down the toolbar should be offset from the top edge of the screen, in pixels */
     private static final int TOOLBAR_Y_OFFSET = 60;
 
+
+    /************************************************* CONSTRUCTOR *************************************************/
     /**
      * Creates a new level editor controller. This initializes the UI and sets up the isometric
      * grid.
      */
     public LevelEditorController() {
-        // Create a new level with the given dimensions
-
-
         // Create canvas and set view and zoom
         canvas = new GameCanvas();
         // Get singleton instance of player input controller
@@ -124,7 +123,7 @@ public class LevelEditorController implements Screen {
         createToolStage();
 
         // Initialize hashmap of images
-        images = new HashMap<String, Image>();
+        images = new Array<Image>();
         // Initialize vector cache
         vec = new Vector2();
 
@@ -250,8 +249,10 @@ public class LevelEditorController implements Screen {
     private Table createModeButtons(Table toolbar) {
         // Create mode change buttons
         // Paths to all button assets
-        String[] buttonAssets = {"leveleditor/LE_MoveMode_1.png", "leveleditor/LE_EditMode_1.png",
-            "leveleditor/LE_DeleteMode_1.png"};
+        String[] buttonAssets = {"leveleditor/LE_MoveMode_1.png",
+                "leveleditor/LE_EditMode_1.png",
+                "leveleditor/LE_DeleteMode_1.png",
+                "leveleditor/LE_DrawMode_1.png"};
         // Height of first button
         int height = (int)camera.viewportHeight - TOOLBAR_Y_OFFSET;
         // Right offset of mode buttons
@@ -269,6 +270,7 @@ public class LevelEditorController implements Screen {
             button.setScale(BUTTON_SCALE);
             button.setPosition(xloc, height);
 
+            // TODO: some kind of text that shows the mode
             // Add listeners to button, changing depending on which node the button creates
             if (k==0) {
                 // CHANGE TO MOVE MODE
@@ -288,6 +290,12 @@ public class LevelEditorController implements Screen {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {editorMode = Mode.DELETE;}
                 });
+            } else if (k==3) {
+                // CHANGE TO DRAW MODE
+                button.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {editorMode = Mode.DRAW;}
+                });
             }
 
             // Add button to stage
@@ -300,6 +308,36 @@ public class LevelEditorController implements Screen {
 
         return toolbar;
     }
+
+    /*********************************************** ADDING TO LEVEL ***********************************************/
+
+    /**
+     * Helper function that gets the center of an isometric grid tile nearest to the given coordinates.
+     *
+     * Called when snapping an image to the center of a grid tile.
+     *
+     * The nearest isometric center is just stored in the vector cache [vec].
+     *
+     * @param x     x-coordinate of the location we want to find the nearest isometric center to
+     * @param y     y-coordinate of the location we want to find the nearest isometric center to
+     */
+    private void nearestIsoCenter(float x, float y){
+        // TODO: maybe make this actually go to the nearest one
+        // Get location that image should snap to
+        x = x - (x % (TILE_WIDTH / 2));
+        y = y - (y % (TILE_HEIGHT / 2));
+
+        // If tries to snap to intersection between lines, snap to the grid cell
+        // above the intersection instead
+        if (Math.abs((int) (x / (TILE_WIDTH / 2)) % 2) != Math.abs((int) (y / (TILE_HEIGHT / 2)) % 2)) {
+            y += TILE_HEIGHT / 2;
+        }
+
+        // Store result in vector cache
+        vec.set(x,y);
+    }
+
+    /*********************************************** NODES ***********************************************/
 
     /**
      * Adds a draggable node with the appearance of the asset at the given path to the stage.
@@ -316,11 +354,11 @@ public class LevelEditorController implements Screen {
         im.setPosition(-(im.getWidth() - TILE_WIDTH) / 2, ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2);
         im.setOrigin(0, 0);
 
-        // Set name of image
-        String name = String.valueOf(imgCount);
+        // Set name of image, which is the string "Node" and a number
+        String name = "Node" + String.valueOf(imgCount);
         im.setName(name);
         // Add image to images
-        images.put(name, im);
+        images.add(im);
         imgCount++;
 
         // Add listeners, which change their behavior depending on the editor mode
@@ -384,30 +422,111 @@ public class LevelEditorController implements Screen {
         }));
     }
 
+    /*********************************************** CONNECTORS ***********************************************/
+
     /**
-     * Helper function that gets the center of an isometric grid tile nearest to the given coordinates.
+     * Adds a connector to the grid tile at the given coordinates.
      *
-     * Called when snapping an image to the center of a grid tile.
+     * Called when right-clicking anywhere in Draw Mode.
      *
-     * The nearest isometric center is just stored in the vector cache [vec].
-     *
-     * @param x     x-coordinate of the location we want to find the nearest isometric center to
-     * @param y     y-coordinate of the location we want to find the nearest isometric center to
+     * @param x     x-coordinate of the location to add the connector at
+     * @param y     y-coordinate of the location to add the connector at
      */
-    private void nearestIsoCenter(float x, float y){
-        // Get location that image should snap to
-        x = x - (x % (TILE_WIDTH / 2));
-        y = y - (y % (TILE_HEIGHT / 2));
+    public void addConnector(float x, float y) {
+        // Create connector image, defaulting to the South connector
+        final Image im = new Image(new Texture(Gdx.files.internal(Connector.C_NORTH)));
+        nodeStage.addActor(im);
 
-        // If tries to snap to intersection between lines, snap to the grid cell
-        // above the intersection instead
-        if (Math.abs((int) (x / (TILE_WIDTH / 2)) % 2) != Math.abs((int) (y / (TILE_HEIGHT / 2)) % 2)) {
-            y += TILE_HEIGHT / 2;
-        }
+        // Set name of image, which defaults to "N"
+        im.setName("N");
+        // Set scale
+        im.setScale(0.5f);
 
-        // Store result in vector cache
-        vec.set(x,y);
+        // Get nearest isometric center to where the mouse clicked and fetch from vector cache
+        nearestIsoCenter(x,y);
+        x = vec.x;
+        y = vec.y;
+        // Place connector at nearest isometric center
+        im.setPosition(x - (TILE_WIDTH / 4), -y + (3 * TILE_HEIGHT / 4));
+        im.setOrigin(0, 0);
+        // Add image to images
+        images.add(im);
+
+        // Add listeners, which change their behavior depending on the editor mode
+
+        // Add click listener that does something when the connector is left-clicked
+        im.addListener((new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                // Different behavior on clicked depending on editor mode
+                switch (editorMode) {
+                    // In Draw Mode, rotate the connector
+                    case DRAW:
+                        // Set the appearance to be the next connector
+                        String nextConn = rotateConnector(im.getName());
+                        im.setName(nextConn);
+                        im.setDrawable(new TextureRegionDrawable(
+                                new Texture(Gdx.files.internal(
+                                        getAssetPath(nextConn)
+                                ))));
+                        break;
+                    // In Delete Mode, delete the connector
+                    case DELETE:
+                        im.remove();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }));
     }
+
+    /**
+     * Helper function that returns which connector to rotate to next.
+     *
+     * Returns the character representing the connector to rotate to next.
+     *
+     * The order goes from North -> East -> South -> West -> North.
+     *
+     * @param conn   String representing current direction of connector
+     * @return       String representing the path to the asset where the rotated connector is
+     */
+    private String rotateConnector(String conn) {
+        switch(conn) {
+            case "N":
+                return "E";
+            case "E":
+                return "S";
+            case "S":
+                return "W";
+            case "W":
+                return "N";
+            default:
+                throw new RuntimeException("Connector can only be NESW");
+        }
+    }
+
+    /**
+     * Helper function that returns the path to the asset of the connector given by the input.
+     *
+     * @param t     The type of the Connector, represented as a string of "NESW" with the directions that
+     *              the Connector runs in.
+     */
+    public String getAssetPath(String t) {
+        switch(t) {
+            case "N":
+                return Connector.C_NORTH;
+            case "E":
+                return Connector.C_EAST;
+            case "S":
+                return Connector.C_SOUTH;
+            case "W":
+                return Connector.C_WEST;
+            default:
+                throw new RuntimeException("Connector can only be NESW");
+        }
+    }
+
+    /*********************************************** OTHER ***********************************************/
 
     /**
      * Helper function that converts coordinates from world space to isometric space.
@@ -439,6 +558,8 @@ public class LevelEditorController implements Screen {
         return coords;
     }
 
+    /*********************************************** SCREEN METHODS ***********************************************/
+
     @Override
     public void show() {
     }
@@ -448,6 +569,16 @@ public class LevelEditorController implements Screen {
      * renders the game display at consistent time steps
      */
     public void render(float delta) {
+        // If C button is pressed, clear the level
+        if (input.didClear()) {
+            clearLevel();
+        }
+
+        // Handle making connectors if in Draw Mode and a connector was made
+        if (editorMode == Mode.DRAW && input.didRightClick()) {
+            addConnector(input.getX(), input.getY());
+        }
+
         // Move camera
         canvas.clear();
         moveCamera();
@@ -459,6 +590,18 @@ public class LevelEditorController implements Screen {
         toolstage.act(delta);
         toolstage.draw();
 
+    }
+
+    /**
+     * Helper function that clears all images in the level
+     */
+    private void clearLevel() {
+        // Delete all images
+        for (Image im : images) {
+            im.remove();
+        }
+        // Reset image count
+        imgCount = 0;
     }
 
     @Override
