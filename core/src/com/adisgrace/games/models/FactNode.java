@@ -33,7 +33,7 @@ public class FactNode {
 
 	/** Integer representing the amount of stress damage exposing this fact deals to the parent Target. */
 	private int targetStressDmg;
-	
+
 	/** Integer representing the amount of stress damage scanning this Node deals to the player. */
 	private int playerStressDmg;
 
@@ -74,10 +74,26 @@ public class FactNode {
 	}
 
 	/**
+	 * Sets children
+	 * @param children list of child names
+	 */
+	public void setChildren(Array<String> children){
+		this.children = children;
+	}
+
+	/**
 	 * Returns whether the FactNode is locked or not
 	 */
 	public boolean getLocked(){
 		return locked;
+	}
+
+	/**
+	 * Set whether the FactNode is locked
+	 * @param locked locked state
+	 */
+	public void setLocked(boolean locked){
+		this.locked = locked;
 	}
 
 	/**
@@ -90,12 +106,28 @@ public class FactNode {
 	}
 
 	/**
+	 * Set name of node
+	 * @param nodeName name to be
+	 */
+	public void setNodeName(String nodeName){
+		this.nodeName = nodeName;
+	}
+
+	/**
 	 * Returns the title of the FactNode
 	 *
 	 * @return the title of the FactNode
 	 */
 	public String getTitle(){
 		return title;
+	}
+
+	/**
+	 * Set title
+	 * @param title the title-to-be
+	 */
+	public void setTitle(String title){
+		this.title = title;
 	}
 
 	/**
@@ -106,7 +138,15 @@ public class FactNode {
 	public String getContent(){
 		return content;
 	}
-	
+
+	/**
+	 * Sets the content of the FactNode
+	 * @param content the content of the FactNode
+	 */
+	public void setContent(String content){
+		this.content = content;
+	}
+
 	/**
 	 * Returns the summary of the FactNode
 	 *
@@ -135,6 +175,14 @@ public class FactNode {
 	}
 
 	/**
+	 * Sets the x coord of the FactNode
+	 * @param x the x coord
+	 */
+	public void setX(int x){
+		nodeX = x;
+	}
+
+	/**
 	 * Returns the y-coordinate of the FactNode
 	 *
 	 * @return the y-coordinate of the FactNode
@@ -143,7 +191,13 @@ public class FactNode {
 		return nodeY;
 	}
 
-
+	/**
+	 * Sets the y coord of the FactNode
+	 * @param y the y coord
+	 */
+	public void setY(int y){
+		nodeY = y;
+	}
 
 	/**
 	 * Returns the amount of stress damage scanning this Node deals to the player
@@ -152,6 +206,14 @@ public class FactNode {
 	 */
 	public int getPlayerStressDmg(){
 		return playerStressDmg;
+	}
+
+	/**
+	 * Sets the amount of stress damage scanning this node deals to the player
+	 * @param playerStressDmg amount of stress
+	 */
+	public void setPlayerStressDmg(int playerStressDmg){
+		this.playerStressDmg = playerStressDmg;
 	}
 
 	/**
