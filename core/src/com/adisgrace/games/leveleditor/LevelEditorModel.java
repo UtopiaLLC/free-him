@@ -100,20 +100,7 @@ public class LevelEditorModel {
                 targets.get(targetName).put(fieldToEdit, newFieldValue);
                 break;
             case "maxStress":
-                int maxStress;
-                switch((StressRating)newFieldValue){
-                    case LOW:
-                        maxStress = 75;
-                        break;
-                    case MED:
-                        maxStress = 100;
-                        break;
-                    case HIGH:
-                        maxStress = 150;
-                        break;
-                    default:
-                        throw new RuntimeException("Invalid maxStress passed " + newFieldValue.toString());
-                }
+                int maxStress = 50 + 5 * stressRating_to_int((StressRating)newFieldValue);
                 targets.get(targetName).put(fieldToEdit, maxStress);
             case "posX":
                 ((Vector2)(targets.get(targetName).get("pos"))).x = (Integer) newFieldValue;
@@ -156,20 +143,7 @@ public class LevelEditorModel {
             throw new RuntimeException("Invalid target passed " + targetName);
         Map<String, Object> target = targets.get(targetName);
         target.put("paranoia", paranoia);
-        int maxStress_;
-        switch(maxStress){
-            case LOW:
-                maxStress_ = 75;
-                break;
-            case MED:
-                maxStress_ = 100;
-                break;
-            case HIGH:
-                maxStress_ = 150;
-                break;
-            default:
-                throw new RuntimeException("Invalid maxStress passed " + maxStress.toString());
-        }
+        int maxStress_ = 50 + 5 * stressRating_to_int(maxStress);
         target.put("maxStress", maxStress_);
     }
 
