@@ -347,7 +347,7 @@ public class GameCanvas {
     	global.mulLeft(camera.combined);
 		spriteBatch.setProjectionMatrix(global);
 		
-		setBlendState(BlendState.NO_PREMULT);
+		setBlendState(BlendState.ALPHA_BLEND);
 		spriteBatch.begin();
     	active = DrawPass.STANDARD;
     }
@@ -1182,6 +1182,10 @@ public class GameCanvas {
 				tile.setX(col);
 				tile.setY(row);
 				stage.addActor(tile);
+				 /**
+				final Texture tile = new Texture(Gdx.files.internal("background/B_MapTileBG_2.png"));
+				draw(tile, Color.WHITE, 0, 0, 5, 5, 100, 100);
+				 */
 			}
 		}
 

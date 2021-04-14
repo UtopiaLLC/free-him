@@ -51,7 +51,7 @@ public class LevelEditorController implements Screen {
     private final CameraController camera;
 
     /** Stage where grid is drawn */
-    Stage gridStage;
+    //Stage gridStage;
     /** Stage where nodes and connectors are drawn */
     Stage nodeStage;
     /** Stage where buttons are drawn on */
@@ -63,9 +63,7 @@ public class LevelEditorController implements Screen {
     ArrayMap<String, StressRating> nodeSRs;
     /** TODO: tracking connectors */
     /** Image representing the current node that is being clicked on */
-    Image clickedNode;
-    /** Boolean representing whether a node was just selected */
-    boolean nodeSelected = false;
+    Image selectedNode;
     /** Image representing stress rating of current node being clicked on */
     Image nodeStressRating;
 
@@ -79,16 +77,6 @@ public class LevelEditorController implements Screen {
 
     /** Vector cache to avoid initializing vectors every time */
     private Vector2 vec;
-
-    /** Array of all textures for nodes */
-    private final Texture[] nodeTextures = new Texture[]{
-            new Texture(Gdx.files.internal("leveleditor/N_TargetMaleIndividualLow_1.png")),
-            new Texture(Gdx.files.internal("leveleditor/N_UnlockedIndividualLow_1.png")),
-            new Texture(Gdx.files.internal("leveleditor/N_LockedIndividualLow_1.png")),
-            new Texture(Gdx.files.internal("leveleditor/N_TargetMaleIndividual_1.png")),
-            new Texture(Gdx.files.internal("leveleditor/N_UnlockedIndividual_1.png")),
-            new Texture(Gdx.files.internal("leveleditor/N_LockedIndividual_2.png"))
-    };
 
     /** Dimensions of map tile */
     private static final float TILE_HEIGHT = 256.0f;
@@ -108,34 +96,56 @@ public class LevelEditorController implements Screen {
     private static final int TOOLBAR_Y_OFFSET = 60;
 
     /** Array of modes */
-    private static final Mode[] modeArr = {Mode.MOVE, Mode.EDIT, Mode.DELETE, Mode.DRAW};
+    private static final Mode[] MODE_ORDER = {Mode.MOVE, Mode.EDIT, Mode.DELETE, Mode.DRAW};
 
     /** Order of connectors (N,E,S,W) */
     private static final Direction[] CONN_ORDER = {Direction.N, Direction.E, Direction.S, Direction.W};
     private static final String[] CONN_NAME_ORDER = {"N","E","S","W"};
+    /** Array of all textures for nodes */
+    private static final Texture[] NODE_TEXTURES = new Texture[]{
+            new Texture(Gdx.files.internal("leveleditor/N_TargetMaleIndividualLow_1.png")),
+            new Texture(Gdx.files.internal("leveleditor/N_UnlockedIndividualLow_1.png")),
+            new Texture(Gdx.files.internal("leveleditor/N_LockedIndividualLow_1.png")),
+            new Texture(Gdx.files.internal("leveleditor/N_TargetMaleIndividual_1.png")),
+            new Texture(Gdx.files.internal("leveleditor/N_UnlockedIndividual_1.png")),
+            new Texture(Gdx.files.internal("leveleditor/N_LockedIndividual_2.png"))
+    };
+    /** Array of all TextureRegionDrawables for nodes */
+    private static final TextureRegionDrawable[] NODE_TRDS = new TextureRegionDrawable[]{
+            new TextureRegionDrawable(NODE_TEXTURES[0]),
+            new TextureRegionDrawable(NODE_TEXTURES[1]),
+            new TextureRegionDrawable(NODE_TEXTURES[2]),
+            new TextureRegionDrawable(NODE_TEXTURES[3]),
+            new TextureRegionDrawable(NODE_TEXTURES[4]),
+            new TextureRegionDrawable(NODE_TEXTURES[5])
+    };
+    /** Array of TextureRegionDrawables of all node creation buttons, in order */
+    private static final TextureRegionDrawable[] ADD_NODE_TRD_ORDER = new TextureRegionDrawable[]{
+            new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_AddNodeTarget_1.png"))),
+            new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_AddNodeUnlocked_1.png"))),
+            new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_AddNodeLocked_1.png")))
+    };
+    /** Array of TextureRegionDrawables of all mode changing buttons, in order */
+    private static final TextureRegionDrawable[] CHANGE_MODE_TRD_ORDER = new TextureRegionDrawable[]{
+            new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_MoveMode_1.png"))),
+            new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_EditMode_1.png"))),
+            new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_DeleteMode_1.png"))),
+            new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_DrawMode_1.png")))
+    };
     /** Order of stress rating buttons (None, Low, Medium, High) */
     private static final StressRating[] SR_ORDER = {StressRating.NONE, StressRating.LOW,
             StressRating.MED, StressRating.HIGH};
     private static final String[] SR_NAME_ORDER = {"None", "Low", "Medium", "High"};
-    private static final String[] SR_PATH_ORDER = {
-            "leveleditor/buttons/LE_NodeNone_1.png",
-            "leveleditor/buttons/LE_NodeLow_1.png",
-            "leveleditor/buttons/LE_NodeMed_1.png",
-            "leveleditor/buttons/LE_NodeHigh_1.png"
+    /** Array of TextureRegionDrawables of all stress rating buttons, in order */
+    private static final TextureRegionDrawable[] SR_TRD_ORDER = new TextureRegionDrawable[]{
+            new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_NodeNone_1.png"))),
+            new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_NodeLow_1.png"))),
+            new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_NodeMed_1.png"))),
+            new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_NodeHigh_1.png"))),
     };
-    /** Array of paths to all add node button assets */
-    private static final String[] ADD_NODE_BUTTON_PATHS = {
-            "leveleditor/buttons/LE_AddNodeTarget_1.png",
-            "leveleditor/buttons/LE_AddNodeUnlocked_1.png",
-            "leveleditor/buttons/LE_AddNodeLocked_1.png"
-    };
-    /** Array of paths to all mode change button assets */
-    private static final String[] MODE_BUTTON_PATHS = {
-            "leveleditor/buttons/LE_MoveMode_1.png",
-            "leveleditor/buttons/LE_EditMode_1.png",
-            "leveleditor/buttons/LE_DeleteMode_1.png",
-            "leveleditor/buttons/LE_DrawMode_1.png"
-    };
+    /** TextureRegionDrawable for blank stress rating button */
+    private static final TextureRegionDrawable SR_TRD_BLANK = new TextureRegionDrawable(
+            new Texture(Gdx.files.internal("leveleditor/buttons/LE_NodeBlank_1.png")));
 
 
     /************************************************* CONSTRUCTOR *************************************************/
@@ -218,6 +228,24 @@ public class LevelEditorController implements Screen {
     }
 
     /**
+     * Helper function that finds the index of a value in the array.
+     *
+     * Returns the index of the given value in the array, or -1 if the value was not found.
+     *
+     * @param val       Value in array
+     * @param arr       Array that value belongs to
+     * @return          Index of the value in the array
+     */
+    private <T>int find(T val, T[] arr) {
+        // Loop through array until given value is found in the array
+        for (int k=0; k<arr.length; k++) {
+            if (arr[k].equals(val)) {return k;}
+        }
+        // Return -1 if value was not found
+        return -1;
+    }
+
+    /**
      * Helper function that returns the index to the next value in the array.
      *
      * When called with an array of connector types as input, it returns the character representing
@@ -231,17 +259,14 @@ public class LevelEditorController implements Screen {
      * @return          Index of the entry that is next in the array order
      */
     private <T>int nextEntry(T curr, T[] order) {
-        // Loop through array until given value is found in the array
-        int k;
-        for (k=0; k<order.length; k++) {
-            if (order[k].equals(curr)) {break;}
-        }
-        // If entry is not found in the array, raise an exception
-        if (k == order.length) {
-            throw new RuntimeException("Given entry must be inside order array");
+        // Find current entry's index
+        int k = find(curr,order);
+        // Raise exception if not found
+        if (k<0) {
+            throw new RuntimeException("Entry is not in array");
         }
         // Return index of next entry in order
-        return (k + 1) % order.length;
+        return (find(curr,order) + 1) % order.length;
     }
 
     /**
@@ -250,8 +275,16 @@ public class LevelEditorController implements Screen {
      * @param mode      Mode to change the editor to
      */
     private void changeEditorMode(Mode mode) {
-        // Reset clickedNode
-        clickedNode = null;
+        // Deselect any selected nodes
+        if (selectedNode != null) {
+            // First digit of node name gives the node type, so set node image to be low version of itself
+            selectedNode.setDrawable(NODE_TRDS[Character.getNumericValue(selectedNode.getName().charAt(0))]);
+        }
+        selectedNode = null;
+
+        // Revert stress rating button to blank
+        nodeStressRating.setDrawable(SR_TRD_BLANK);
+
         // Change mode
         editorMode = mode;
     }
@@ -275,7 +308,6 @@ public class LevelEditorController implements Screen {
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(toolstage);
         inputMultiplexer.addProcessor(nodeStage);
-
         Gdx.input.setInputProcessor(inputMultiplexer);
 
         // Create and place toolbar to hold all the buttons
@@ -316,9 +348,9 @@ public class LevelEditorController implements Screen {
         ImageButton button;
 
         // Loop through and create each button
-        for (int k=0; k<ADD_NODE_BUTTON_PATHS.length; k++) {
+        for (int k=0; k<ADD_NODE_TRD_ORDER.length; k++) {
             // Create and place button
-            drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(ADD_NODE_BUTTON_PATHS[k])));
+            drawable = ADD_NODE_TRD_ORDER[k];
             button = new ImageButton(drawable);
             button.setTransform(true);
             button.setScale(BUTTON_SCALE);
@@ -363,15 +395,15 @@ public class LevelEditorController implements Screen {
         ImageButton button;
 
         // Loop through and create each button
-        for (int k=0; k<MODE_BUTTON_PATHS.length; k++) {
+        for (int k=0; k<CHANGE_MODE_TRD_ORDER.length; k++) {
             // Create and place button
-            drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(MODE_BUTTON_PATHS[k])));
+            drawable = CHANGE_MODE_TRD_ORDER[k];
             button = new ImageButton(drawable);
             button.setTransform(true);
             button.setScale(BUTTON_SCALE);
             button.setPosition(xloc, height);
 
-            final Mode newMode = modeArr[k];
+            final Mode newMode = MODE_ORDER[k];
 
             // TODO: some kind of text that shows the mode
             // Add listeners to button, changing depending on which node the button creates
@@ -394,7 +426,7 @@ public class LevelEditorController implements Screen {
      * Function that creates the button that can be used to set the target stress damage of a node
      * and places it in the stage and toolbar.
      *
-     * This is just one button that rotates between the options.
+     * This is just one button that cycles between the options.
      *
      * @param toolbar       The toolbar that the buttons are stored in.
      */
@@ -403,8 +435,7 @@ public class LevelEditorController implements Screen {
         Drawable drawable;
 
         // Create and place button, initialized at Blank
-        drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(
-                "leveleditor/buttons/LE_NodeBlank_1.png")));
+        drawable = SR_TRD_BLANK;
         nodeStressRating = new Image(drawable);
         nodeStressRating.setScale(BUTTON_SCALE);
         nodeStressRating.setPosition(canvas.getWidth() / 2f - 50, 10);
@@ -415,16 +446,16 @@ public class LevelEditorController implements Screen {
         // Add listeners to button, changing depending on which node the button creates
         nodeStressRating.addListener((new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
-                // Only do something if clicked while in Edit Mode
-                if (editorMode == Mode.EDIT) {
+                // Only do something if clicked while in Edit Mode and a node is selected
+                if (editorMode == Mode.EDIT && selectedNode != null) {
                     // Set the appearance and name to be the next button
-                    int nextButton = nextEntry(nodeStressRating.getName(), SR_NAME_ORDER);
-                    nodeStressRating.setName(SR_NAME_ORDER[nextButton]);
-                    nodeStressRating.setDrawable(new TextureRegionDrawable(
-                            new Texture(Gdx.files.internal(
-                                    // Path to next button asset
-                                    SR_PATH_ORDER[nextButton]
-                            ))));
+                    int next = nextEntry(nodeStressRating.getName(), SR_NAME_ORDER);
+                    nodeStressRating.setName(SR_NAME_ORDER[next]);
+                    nodeStressRating.setDrawable(SR_TRD_ORDER[next]);
+
+                    // Change the stress rating of the selected node accordingly
+                    String name = selectedNode.getName();
+                    nodeSRs.put(name,SR_ORDER[next]);
                 }
             }
         }));
@@ -443,25 +474,31 @@ public class LevelEditorController implements Screen {
      * Called when one of the node-adding buttons is pressed. Each image is given a name that is a number
      * of increasing value, so that no names are repeated in a single level editor session.
      *
+     * This function also contains all the behaviors of each node and what it does when it is interacted
+     * with.
+     *
      * @param nodeType      0: target, 1: unlocked, 2: locked
      */
     private void addNode(int nodeType) {
         // Create image
-        final Image im = new Image(nodeTextures[nodeType]);
+        final Image im = new Image(NODE_TEXTURES[nodeType]);
         nodeStage.addActor(im);
         im.setPosition(-(im.getWidth() - TILE_WIDTH) / 2, ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2);
         im.setOrigin(0, 0);
 
-        // Set name of image, which is the string "Node" and a number
-        String name = "Node" + imgCount;
+        // Set name of image, which is the node type, the string "Node," and a unique number
+        String name = nodeType + "Node" + imgCount;
         im.setName(name);
         // Add image to images
         images.add(im);
         imgCount++;
 
+        // Add node to ArrayMap of stress ratings, initialized at an SR of None
+        nodeSRs.put(name,StressRating.NONE);
+
         // Get relevant low and high textures for this node
-        final Texture nodeLow = nodeTextures[nodeType];
-        final Texture nodeHigh = nodeTextures[nodeType+3];
+        final TextureRegionDrawable nodeLow = NODE_TRDS[nodeType];
+        final TextureRegionDrawable nodeHigh = NODE_TRDS[nodeType+3];
 
         // Add listeners, which change their behavior depending on the editor mode
 
@@ -476,8 +513,8 @@ public class LevelEditorController implements Screen {
                     float dy = y - im.getHeight() * 0.25f;
                     im.setPosition(im.getX() + dx, im.getY() + dy);
 
-                    // Change to low version of asset
-                    im.setDrawable(new TextureRegionDrawable(nodeLow));
+                    // Change to high version of asset
+                    im.setDrawable(nodeHigh);
                 }
             }
         }));
@@ -504,8 +541,8 @@ public class LevelEditorController implements Screen {
 
                     im.setPosition(newX, newY);
 
-                    // Change back to high version of asset
-                    im.setDrawable(new TextureRegionDrawable(nodeHigh));
+                    // Change back to low version of asset
+                    im.setDrawable(nodeLow);
                 }
             }
         }));
@@ -513,20 +550,33 @@ public class LevelEditorController implements Screen {
         // Add click listener that does something when the node is clicked
         im.addListener((new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
-                // Different behavior on clicked depending on editor mode
-                switch (editorMode) {
-                    // In Edit Mode, allow node stress rating to be set
-                    case EDIT:
-                        // Change clicked node to the node that was just clicked
-                        clickedNode = im;
-                        break;
-                    // In Delete Mode, delete the node
-                    case DELETE:
-                        im.remove();
-                        break;
-                    default:
-                        break;
-                }
+            // Different behavior on clicked depending on editor mode
+            switch (editorMode) {
+                // In Edit Mode, allow node stress rating to be set
+                case EDIT:
+                    // If a node was previously selected, revert it to deselected
+                    if (selectedNode != null) {
+                        // First digit of node name gives the node type, so set node image to be low version of itself
+                        selectedNode.setDrawable(NODE_TRDS[Character.getNumericValue(selectedNode.getName().charAt(0))]);
+                    }
+                    // Change clicked node to the node that was just clicked
+                    selectedNode = im;
+                    // Change to high version of asset to indicate it's been selected
+                    im.setDrawable(new TextureRegionDrawable(nodeHigh));
+
+                    // Change the appearance and name of the stress rating button to reflect the SR of this node
+                    int ind = find(nodeSRs.get(im.getName()),SR_ORDER);
+                    nodeStressRating.setDrawable(SR_TRD_ORDER[ind]);
+                    nodeStressRating.setName(SR_NAME_ORDER[ind]);
+
+                    break;
+                // In Delete Mode, delete the node
+                case DELETE:
+                    im.remove();
+                    break;
+                default:
+                    break;
+            }
             }
         }));
     }
@@ -574,26 +624,26 @@ public class LevelEditorController implements Screen {
         // Add click listener that does something when the connector is left-clicked
         im.addListener((new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
-                // Different behavior on clicked depending on editor mode
-                switch (editorMode) {
-                    // In Draw Mode, rotate the connector
-                    case DRAW:
-                        // Set the appearance and name to be the next connector
-                        int nextConn = nextEntry(im.getName(), CONN_NAME_ORDER);
-                        im.setName(CONN_NAME_ORDER[nextConn]);
-                        im.setDrawable(new TextureRegionDrawable(
-                                new Texture(Gdx.files.internal(
-                                        // Path to connector asset
-                                        Connector.getAssetPath(CONN_ORDER[nextConn])
-                                ))));
-                        break;
-                    // In Delete Mode, delete the connector
-                    case DELETE:
-                        im.remove();
-                        break;
-                    default:
-                        break;
-                }
+            // Different behavior on clicked depending on editor mode
+            switch (editorMode) {
+                // In Draw Mode, rotate the connector
+                case DRAW:
+                    // Set the appearance and name to be the next connector
+                    int nextConn = nextEntry(im.getName(), CONN_NAME_ORDER);
+                    im.setName(CONN_NAME_ORDER[nextConn]);
+                    im.setDrawable(new TextureRegionDrawable(
+                            new Texture(Gdx.files.internal(
+                                    // Path to connector asset
+                                    Connector.getAssetPath(CONN_ORDER[nextConn])
+                            ))));
+                    break;
+                // In Delete Mode, delete the connector
+                case DELETE:
+                    im.remove();
+                    break;
+                default:
+                    break;
+            }
             }
         }));
     }
@@ -642,6 +692,7 @@ public class LevelEditorController implements Screen {
      * renders the game display at consistent time steps
      */
     public void render(float delta) {
+        // PREUPDATE
         // If C button is pressed, clear the level
         if (input.didClear()) {clearLevel();}
         // If Z button is pressed, delete last object that was created
@@ -652,19 +703,18 @@ public class LevelEditorController implements Screen {
             addConnector(input.getX(), input.getY());
         }
 
-        // Changes appearance of nodeStressRating button depending on node selection
-
         // Move camera
         canvas.clear();
         camera.moveCamera();
 
+        // UPDATE
         // Draw objects on canvas
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         nodeStage.act(delta);
-        nodeStage.draw();
         toolstage.act(delta);
-        toolstage.draw();
 
+        nodeStage.draw();
+        toolstage.draw();
     }
 
     @Override
