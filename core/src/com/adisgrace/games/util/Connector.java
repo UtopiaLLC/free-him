@@ -1,4 +1,4 @@
-package com.adisgrace.games.leveleditor;
+package com.adisgrace.games.util;
 
 import com.badlogic.gdx.math.Vector2;
 

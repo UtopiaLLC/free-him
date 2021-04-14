@@ -1,6 +1,7 @@
 package com.adisgrace.games.leveleditor;
 
-import com.adisgrace.games.FactNode;
+import com.adisgrace.games.util.Connector;
+import com.adisgrace.games.models.FactNode;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
@@ -188,9 +189,9 @@ public class LevelEditorModel {
                 throw new RuntimeException("Invalid psDmg passed");
         }
         //TODO implement locked in FactNode
-        FactNode factNode = new FactNode(factName, "untitled fact", contents, summary, new Array<String>(),
-                (int)coords.x, (int)coords.y, "asset_path", tsDmg_, psDmg_, locked);
-        factnodes.put(factName, factNode);
+        //FactNode factNode = new FactNode(factName, "untitled fact", contents, summary, new Array<String>(),
+        //        (int)coords.x, (int)coords.y, "asset_path", tsDmg_, psDmg_, locked);
+        //factnodes.put(factName, factNode);
     }
 
     /**
