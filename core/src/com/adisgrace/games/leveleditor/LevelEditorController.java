@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -68,8 +69,9 @@ public class LevelEditorController implements Screen {
     /** time taken for camera to accelerate to max speed */
     private int acceleration_speed = 40;
 
-    /** Vector cache to avoid initializing vectors every time */
+    /** Vector caches to avoid initializing vectors every time */
     private Vector2 vec;
+    private Vector3 vec3;
 
     /** Dimensions of map tile */
     private static final int TILE_HEIGHT = 256;
@@ -87,6 +89,14 @@ public class LevelEditorController implements Screen {
     private static final int TOOLBAR_X_OFFSET = 10;
     /** How far down the toolbar should be offset from the top edge of the screen, in pixels */
     private static final int TOOLBAR_Y_OFFSET = 60;
+
+    /** Textures for nodes */
+    private Texture targetLow;
+    private Texture targetHigh;
+    private Texture unlockedLow;
+    private Texture unlockedHigh;
+    private Texture lockedLow;
+    private Texture lockedHigh;
 
 
     /************************************************* CONSTRUCTOR *************************************************/
@@ -118,11 +128,20 @@ public class LevelEditorController implements Screen {
 
         // Initialize hashmap of images
         images = new Array<Image>();
-        // Initialize vector cache
+        // Initialize vector caches
         vec = new Vector2();
+        vec3 = new Vector3();
 
         // Start editor mode in Move Mode
         editorMode = Mode.MOVE;
+
+        // Create all textures for nodes
+        targetLow = new Texture(Gdx.files.internal("leveleditor/N_TargetMaleIndividualLow_1.png"));
+        targetHigh = new Texture(Gdx.files.internal("leveleditor/N_TargetMaleIndividual_1.png"));
+        unlockedLow = new Texture(Gdx.files.internal("leveleditor/N_UnlockedIndividualLow_1.png"));
+        unlockedHigh = new Texture(Gdx.files.internal("leveleditor/N_UnlockedIndividual_1.png"));
+        lockedLow = new Texture(Gdx.files.internal("leveleditor/N_LockedIndividualLow_1.png"));
+        lockedHigh = new Texture(Gdx.files.internal("leveleditor/N_LockedIndividual_2.png"));
     }
 
     /**
@@ -181,8 +200,9 @@ public class LevelEditorController implements Screen {
         final String unlocked = "leveleditor/N_UnlockedIndividual_1.png";
         final String locked = "leveleditor/N_LockedIndividual_2.png";
         // Paths to all button assets
-        String[] buttonAssets = {"leveleditor/LE_AddNodeTarget_1.png", "leveleditor/LE_AddNodeUnlocked_1.png",
-                "leveleditor/LE_AddNodeLocked_1.png"};
+        String[] buttonAssets = {"leveleditor/buttons/LE_AddNodeTarget_1.png",
+                "leveleditor/buttons/LE_AddNodeUnlocked_1.png",
+                "leveleditor/buttons/LE_AddNodeLocked_1.png"};
         // Height of first button
         int height = (int)camera.viewportHeight - TOOLBAR_Y_OFFSET;
         // Initialize other variables for button creation
@@ -203,19 +223,19 @@ public class LevelEditorController implements Screen {
                 // ADD TARGET
                 button.addListener(new ChangeListener() {
                     @Override
-                    public void changed(ChangeEvent event, Actor actor) {addNode(target);}
+                    public void changed(ChangeEvent event, Actor actor) {addNode(target,0);}
                 });
             } else if (k==1) {
                 // ADD LOCKED
                 button.addListener(new ChangeListener() {
                     @Override
-                    public void changed(ChangeEvent event, Actor actor) {addNode(unlocked);}
+                    public void changed(ChangeEvent event, Actor actor) {addNode(unlocked,1);}
                 });
             } else if (k==2) {
                 // ADD UNLOCKED
                 button.addListener(new ChangeListener() {
                     @Override
-                    public void changed(ChangeEvent event, Actor actor) {addNode(locked);}
+                    public void changed(ChangeEvent event, Actor actor) {addNode(locked,2);}
                 });
             }
 
@@ -246,10 +266,10 @@ public class LevelEditorController implements Screen {
     private Table createModeButtons(Table toolbar) {
         // Create mode change buttons
         // Paths to all button assets
-        String[] buttonAssets = {"leveleditor/LE_MoveMode_1.png",
-                "leveleditor/LE_EditMode_1.png",
-                "leveleditor/LE_DeleteMode_1.png",
-                "leveleditor/LE_DrawMode_1.png"};
+        String[] buttonAssets = {"leveleditor/buttons/LE_MoveMode_1.png",
+                "leveleditor/buttons/LE_EditMode_1.png",
+                "leveleditor/buttons/LE_DeleteMode_1.png",
+                "leveleditor/buttons/LE_DrawMode_1.png"};
         // Height of first button
         int height = (int)camera.viewportHeight - TOOLBAR_Y_OFFSET;
         // Right offset of mode buttons
@@ -309,6 +329,39 @@ public class LevelEditorController implements Screen {
     /*********************************************** ADDING TO LEVEL ***********************************************/
 
     /**
+     * Helper function that converts coordinates from world space to isometric space.
+     *
+     * @param coords   Coordinates in world space to transform
+     * @return         Given coordinates in isometric space
+     */
+    private Vector2 worldToIsometric(Vector2 coords) {
+        float tempx = coords.x;
+        float tempy = coords.y;
+        coords.x = 0.57735f * tempx - tempy;
+        coords.y = 0.57735f * tempx + tempy;
+
+        return coords;
+    }
+
+    /**
+     * Helper function that converts coordinates from isometric space to world space.
+     *
+     * @param coords   Coordinates in isometric space to transform
+     * @return         Given coordinates in world space
+     */
+    private Vector2 isometricToWorld(Vector2 coords) {
+        // TODO: FIX
+        float tempx = coords.x;
+        float tempy = coords.y;
+        //coords.x = (float)((Math.sqrt(3)/2) * tempx - (0.5f * tempy));
+        //coords.y = (float)((Math.sqrt(3)/2) * tempx + (0.5f * tempy));
+        coords.x = (float)((Math.sqrt(3)/2) * tempx + ((Math.sqrt(3)/2) * tempy));
+        coords.y = (float)(-0.5f * tempx + (0.5f * tempy));
+
+        return coords;
+    }
+
+    /**
      * Helper function that gets the center of an isometric grid tile nearest to the given coordinates.
      *
      * Called when snapping an image to the center of a grid tile.
@@ -319,7 +372,23 @@ public class LevelEditorController implements Screen {
      * @param y     y-coordinate of the location we want to find the nearest isometric center to
      */
     private void nearestIsoCenter(float x, float y){
-        // TODO: maybe make this actually go to the nearest one
+        // TODO: have this return the isometric coordinates of the nearest iso center
+
+        // Transform world coordinates to isometric space
+        vec.set(x,y);
+        vec = worldToIsometric(vec);
+        x = vec.x;
+        y = vec.y;
+
+        // Find the nearest isometric center
+        x = Math.round(x / TILE_HEIGHT);
+        y = Math.round(y / TILE_HEIGHT);
+
+        // Transform back to world space
+        vec.set(x * (0.5f * TILE_WIDTH) + y * (0.5f * TILE_WIDTH),-x * (0.5f * TILE_HEIGHT) + y * (0.5f * TILE_HEIGHT));
+        //vec = isometricToWorld(vec);
+
+        /**
         // Get location that image should snap to
         x = x - (x % (TILE_WIDTH / 2));
         y = y - (y % (TILE_HEIGHT / 2));
@@ -329,9 +398,7 @@ public class LevelEditorController implements Screen {
         if (Math.abs((int) (x / (TILE_WIDTH / 2)) % 2) != Math.abs((int) (y / (TILE_HEIGHT / 2)) % 2)) {
             y += TILE_HEIGHT / 2;
         }
-
-        // Store result in vector cache
-        vec.set(x,y);
+         */
     }
 
     /*********************************************** NODES ***********************************************/
@@ -342,11 +409,12 @@ public class LevelEditorController implements Screen {
      * Called when one of the node-adding buttons is pressed. Each image is given a name that is a number
      * of increasing value, so that no names are repeated in a single level editor session.
      *
-     * @param path      Path to the file where the node's asset is stored
+     * @param pathHigh      Path to the file where the node's high light asset is stored
+     * @param nodeType      0: target, 1: unlocked, 2: locked
      */
-    public void addNode(String path) {
+    private void addNode(String pathHigh, int nodeType) {
         // Create image
-        final Image im = new Image(new Texture(Gdx.files.internal(path)));
+        final Image im = new Image(new Texture(Gdx.files.internal(pathHigh)));
         nodeStage.addActor(im);
         im.setPosition(-(im.getWidth() - TILE_WIDTH) / 2, ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2);
         im.setOrigin(0, 0);
@@ -360,44 +428,148 @@ public class LevelEditorController implements Screen {
 
         // Add listeners, which change their behavior depending on the editor mode
 
-        // Add drag listener that does something during a drag
-        im.addListener((new DragListener() {
-            public void touchDragged (InputEvent event, float x, float y, int pointer) {
-                // Only do this if editor mode is Move
-                // Updates image position on drag
-                if (editorMode == Mode.MOVE) {
-                    // When dragging, snaps image center to cursor
-                    float dx = x - im.getWidth() * 0.5f;
-                    float dy = y - im.getHeight() * 0.25f;
-                    im.setPosition(im.getX() + dx, im.getY() + dy);
-                }
-            }
-        }));
+        // Add drag listener that does something during a drag (one for each asset)
+        switch(nodeType) {
+            case 0: // Target
+                im.addListener((new DragListener() {
+                    public void touchDragged(InputEvent event, float x, float y, int pointer) {
+                        // Only do this if editor mode is Move
+                        // Updates image position on drag
+                        if (editorMode == Mode.MOVE) {
+                            // When dragging, snaps image center to cursor
+                            float dx = x - im.getWidth() * 0.5f;
+                            float dy = y - im.getHeight() * 0.25f;
+                            im.setPosition(im.getX() + dx, im.getY() + dy);
 
-        // Add drag listener that does something when a drag ends
-        im.addListener((new DragListener() {
-            public void dragStop (InputEvent event, float x, float y, int pointer) {
-                // Only do this if editor mode is Move
-                // Snap to center of nearby isometric grid
-                if (editorMode == Mode.MOVE) {
-                    // Get coordinates of center of image
-                    float newX = im.getX() + x - im.getWidth() * 0.5f;
-                    float newY = im.getY() + y - im.getHeight() * 0.25f;
+                            // Change to low version of asset
+                            im.setDrawable(new TextureRegionDrawable(targetLow));
+                        }
+                    }
+                }));
+                break;
+            case 1: // Unlocked
+                im.addListener((new DragListener() {
+                    public void touchDragged(InputEvent event, float x, float y, int pointer) {
+                        // Only do this if editor mode is Move
+                        // Updates image position on drag
+                        if (editorMode == Mode.MOVE) {
+                            // When dragging, snaps image center to cursor
+                            float dx = x - im.getWidth() * 0.5f;
+                            float dy = y - im.getHeight() * 0.25f;
+                            im.setPosition(im.getX() + dx, im.getY() + dy);
 
-                    // Get location that image should snap to
-                    nearestIsoCenter(newX, newY);
-                    // Retrieve from vector cache
-                    newX = vec.x;
-                    newY = vec.y;
+                            // Change to low version of asset
+                            im.setDrawable(new TextureRegionDrawable(unlockedLow));
+                        }
+                    }
+                }));
+                break;
+            case 2: // Locked
+                im.addListener((new DragListener() {
+                    public void touchDragged(InputEvent event, float x, float y, int pointer) {
+                        // Only do this if editor mode is Move
+                        // Updates image position on drag
+                        if (editorMode == Mode.MOVE) {
+                            // When dragging, snaps image center to cursor
+                            float dx = x - im.getWidth() * 0.5f;
+                            float dy = y - im.getHeight() * 0.25f;
+                            im.setPosition(im.getX() + dx, im.getY() + dy);
 
-                    // Account for difference between tile width and sprite width
-                    newX -= (im.getWidth() - TILE_WIDTH) / 2;
-                    newY += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+                            // Change to low version of asset
+                            im.setDrawable(new TextureRegionDrawable(lockedLow));
+                        }
+                    }
+                }));
+                break;
+        }
 
-                    im.setPosition(newX, newY);
-                }
-            }
-        }));
+        // Add drag listener that does something when a drag ends (one for each asset)
+        switch(nodeType) {
+            case 0: // Target
+                im.addListener((new DragListener() {
+                    public void dragStop(InputEvent event, float x, float y, int pointer) {
+                        // Only do this if editor mode is Move
+                        // Snap to center of nearby isometric grid
+                        if (editorMode == Mode.MOVE) {
+                            // Get coordinates of center of image
+                            float newX = im.getX() + x - im.getWidth() * 0.5f;
+                            float newY = im.getY() + y - im.getHeight() * 0.25f;
+
+                            // Get location that image should snap to
+                            nearestIsoCenter(newX, newY);
+                            // Retrieve from vector cache
+                            newX = vec.x;
+                            newY = vec.y;
+
+                            // Account for difference between tile width and sprite width
+                            newX -= (im.getWidth() - TILE_WIDTH) / 2;
+                            newY += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+
+                            im.setPosition(newX, newY);
+
+                            // Change back to high version of asset
+                            im.setDrawable(new TextureRegionDrawable(targetHigh));
+                        }
+                    }
+                }));
+                break;
+            case 1: // Unlocked
+                im.addListener((new DragListener() {
+                    public void dragStop(InputEvent event, float x, float y, int pointer) {
+                        // Only do this if editor mode is Move
+                        // Snap to center of nearby isometric grid
+                        if (editorMode == Mode.MOVE) {
+                            // Get coordinates of center of image
+                            float newX = im.getX() + x - im.getWidth() * 0.5f;
+                            float newY = im.getY() + y - im.getHeight() * 0.25f;
+
+                            // Get location that image should snap to
+                            nearestIsoCenter(newX, newY);
+                            // Retrieve from vector cache
+                            newX = vec.x;
+                            newY = vec.y;
+
+                            // Account for difference between tile width and sprite width
+                            newX -= (im.getWidth() - TILE_WIDTH) / 2;
+                            newY += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+
+                            im.setPosition(newX, newY);
+
+                            // Change back to high version of asset
+                            im.setDrawable(new TextureRegionDrawable(unlockedHigh));
+                        }
+                    }
+                }));
+                break;
+            case 2: // Locked
+                im.addListener((new DragListener() {
+                    public void dragStop(InputEvent event, float x, float y, int pointer) {
+                        // Only do this if editor mode is Move
+                        // Snap to center of nearby isometric grid
+                        if (editorMode == Mode.MOVE) {
+                            // Get coordinates of center of image
+                            float newX = im.getX() + x - im.getWidth() * 0.5f;
+                            float newY = im.getY() + y - im.getHeight() * 0.25f;
+
+                            // Get location that image should snap to
+                            nearestIsoCenter(newX, newY);
+                            // Retrieve from vector cache
+                            newX = vec.x;
+                            newY = vec.y;
+
+                            // Account for difference between tile width and sprite width
+                            newX -= (im.getWidth() - TILE_WIDTH) / 2;
+                            newY += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+
+                            im.setPosition(newX, newY);
+
+                            // Change back to high version of asset
+                            im.setDrawable(new TextureRegionDrawable(lockedHigh));
+                        }
+                    }
+                }));
+                break;
+        }
 
         // Add click listener that does something when the node is clicked
         im.addListener((new ClickListener() {
@@ -424,12 +596,22 @@ public class LevelEditorController implements Screen {
     /**
      * Adds a connector to the grid tile at the given coordinates.
      *
-     * Called when right-clicking anywhere in Draw Mode.
+     * Called when right-clicking anywhere in Draw Mode. Coordinates given are in screen space.
      *
-     * @param x     x-coordinate of the location to add the connector at
-     * @param y     y-coordinate of the location to add the connector at
+     * @param x     Screen space x-coordinate of the location to add the connector at
+     * @param y     Screen space y-coordinate of the location to add the connector at
      */
     public void addConnector(float x, float y) {
+        //System.out.println("Screen space: (" + String.valueOf(x) + ", " + String.valueOf(y) + ")");
+
+        // Convert mouse position from screen to world coordinates
+        vec3.set(x,y,0);
+        camera.unproject(vec3);
+        x = vec3.x;
+        y = vec3.y;
+
+        //System.out.println("World space: (" + String.valueOf(x) + ", " + String.valueOf(y) + ")");
+
         // Create connector image, defaulting to the South connector
         final Image im = new Image(new Texture(Gdx.files.internal(Connector.C_NORTH)));
         nodeStage.addActor(im);
@@ -444,7 +626,7 @@ public class LevelEditorController implements Screen {
         x = vec.x;
         y = vec.y;
         // Place connector at nearest isometric center
-        im.setPosition(x - (TILE_WIDTH / 4), -y + (3 * TILE_HEIGHT / 4));
+        im.setPosition(x - (TILE_WIDTH / 4), y - (TILE_HEIGHT / 4));
         im.setOrigin(0, 0);
         // Add image to images
         images.add(im);
@@ -523,38 +705,6 @@ public class LevelEditorController implements Screen {
         }
     }
 
-    /*********************************************** OTHER ***********************************************/
-
-    /**
-     * Helper function that converts coordinates from world space to isometric space.
-     *
-     * @param coords   Coordinates in world space to transform
-     * @return         Given coordinates in isometric space
-     */
-    private Vector2 worldToIsometric(Vector2 coords) {
-        float tempx = coords.x;
-        float tempy = coords.y;
-        coords.x = (float)Math.sqrt(3)/2 * tempx - 0.5f * tempy;
-        coords.y = (float)Math.sqrt(3)/2 * tempx + 0.5f * tempy;
-
-        return coords;
-    }
-
-    /**
-     * Helper function that converts coordinates from isometric space to world space.
-     *
-     * @param coords   Coordinates in isometric space to transform
-     * @return         Given coordinates in world space
-     */
-    private Vector2 isometricToWorld(Vector2 coords) {
-        float tempx = coords.x;
-        float tempy = coords.y;
-        coords.x = 0.57735f * tempx - tempy;
-        coords.y = 0.57735f * tempx + tempy;
-
-        return coords;
-    }
-
     /*********************************************** SCREEN METHODS ***********************************************/
 
     @Override
@@ -569,6 +719,11 @@ public class LevelEditorController implements Screen {
         // If C button is pressed, clear the level
         if (input.didClear()) {
             clearLevel();
+        }
+
+        // If Z button is pressed, delete last object that was created
+        if (input.didUndo()) {
+            images.pop().remove();
         }
 
         // Handle making connectors if in Draw Mode and a connector was made

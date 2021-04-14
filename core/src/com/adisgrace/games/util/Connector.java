@@ -38,10 +38,10 @@ public class Connector {
     String type;
 
     /** Paths for each type of connector */
-    public static final String C_NORTH = "leveleditor/connectors/C_N_1.png";
-    public static final String C_EAST = "leveleditor/connectors/C_E_1.png";
-    public static final String C_SOUTH = "leveleditor/connectors/C_S_1.png";
-    public static final String C_WEST = "leveleditor/connectors/C_W_1.png";
+    public static final String C_NORTH = "leveleditor/connectors/C_N_2.png";
+    public static final String C_EAST = "leveleditor/connectors/C_E_2.png";
+    public static final String C_SOUTH = "leveleditor/connectors/C_S_2.png";
+    public static final String C_WEST = "leveleditor/connectors/C_W_2.png";
 
     /**
      * Constructor for a connector. Saves the location and the type.

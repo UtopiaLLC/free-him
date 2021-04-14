@@ -57,6 +57,9 @@ public class InputController {
 	/** Whether C, the clear button, has been pressed */
 	private boolean cPressed;
 
+	/** Whether Z, the undo button, has been pressed */
+	private boolean zPressed;
+
 	/** Mouse coordinates */
 	private float mouseX;
 	private float mouseY;
@@ -116,6 +119,13 @@ public class InputController {
 	 * @return true if the C key was pressed.
 	 */
 	public boolean didClear() {return cPressed;}
+
+	/**
+	 * Returns true if the Z key was pressed.
+	 *
+	 * @return true if the Z key was pressed.
+	 */
+	public boolean didUndo() {return zPressed;}
 
 	/**
 	 * Returns the current mouse x-coordinate.
@@ -190,5 +200,8 @@ public class InputController {
 
 		// Clear button (C)
 		cPressed = Gdx.input.isKeyJustPressed(Input.Keys.C);
+
+		// Undo button (Z)
+		zPressed = Gdx.input.isKeyJustPressed(Input.Keys.Z);
 	}
 }
