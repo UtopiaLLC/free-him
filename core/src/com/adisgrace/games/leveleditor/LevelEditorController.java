@@ -117,7 +117,7 @@ public class LevelEditorController implements Screen {
         // Create stage for nodes and tile with isometric grid
         nodeStage = new Stage(viewport);
         //canvas.setIsometricSize(3,3);
-        canvas.drawIsometricGrid(nodeStage, 1, 1);
+        canvas.drawIsometricGrid(nodeStage, 3, 3);
 
         // Create tool stage for buttons
         createToolStage();
@@ -143,6 +143,9 @@ public class LevelEditorController implements Screen {
         // Creates toolbar viewport and camera
         ExtendViewport toolbarViewPort = new ExtendViewport(canvas.getWidth(), canvas.getHeight());
         toolstage = new Stage(toolbarViewPort);
+
+        System.out.println(canvas.getHeight());
+        System.out.println(canvas.getWidth());
 
         // Handle inputs from both stages with a Multiplexer
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
@@ -618,7 +621,10 @@ public class LevelEditorController implements Screen {
         // Keep toolbar in the same place when resizing
         toolstage.getViewport().update(width,height,true);
 
-        //canvas.resize();
+        canvas.resize();
+
+        System.out.println(canvas.getHeight());
+        System.out.println(canvas.getWidth());
     }
 
     @Override

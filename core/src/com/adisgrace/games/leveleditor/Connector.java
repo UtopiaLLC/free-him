@@ -19,6 +19,18 @@ import com.badlogic.gdx.math.Vector2;
  * a straight line that runs from the upper right to lower right side of the grid tile, when viewed on a screen.
  */
 public class Connector {
+    /** Enumeration representing the direction components of a connector */
+    public enum Direction {
+        /** N = +y direction */
+        N,
+        /** E = +x direction */
+        E,
+        /** S = -y direction */
+        S,
+        /** W = -x direction */
+        W
+    };
+
     /** The coordinates of the connector in isometric space */
     int xcoord;
     int ycoord;
