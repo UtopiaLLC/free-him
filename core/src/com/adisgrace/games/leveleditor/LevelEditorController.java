@@ -2,12 +2,17 @@ package com.adisgrace.games.leveleditor;
 
 import com.adisgrace.games.*;
 import com.adisgrace.games.util.Connector;
+import com.adisgrace.games.util.Connector.*;
+import com.adisgrace.games.leveleditor.LevelEditorModel.StressRating;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -17,7 +22,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.*;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 
 /**
  * Class for handling the level editor.
@@ -48,19 +55,27 @@ public class LevelEditorController implements Screen {
 
     /** CurrentZoom controls how much the camera is zoomed in or out */
     private float currentZoom;
-    /** Stage where nodes and grids are drawn*/
+    /** Stage where grid is drawn */
+    Stage gridStage;
+    /** Stage where nodes and connectors are drawn */
     Stage nodeStage;
     /** Stage where buttons are drawn on */
     Stage toolstage;
 
     /** Array of all the images added */
     Array<Image> images;
-
-    /** World bounds (not the same as canvas bounds) */
-    Rectangle bounds;
+    /** Hashmap of node names to their stress ratings */
+    ArrayMap<String, StressRating> nodeSRs;
+    /** TODO: tracking connectors */
+    /** Image representing the current node that is being clicked on */
+    Image clickedNode;
+    /** Image representing stress rating of current node being clicked on */
+    Image nodeStressRating;
 
     /** Current mode of the level editor */
     private Mode editorMode;
+    /** Label style to use for text labels */
+    Label.LabelStyle lstyle;
 
     /** The count of the next image that is added */
     int imgCount;
@@ -72,6 +87,14 @@ public class LevelEditorController implements Screen {
     /** Vector caches to avoid initializing vectors every time */
     private Vector2 vec;
     private Vector3 vec3;
+
+    /** Textures for nodes */
+    private Texture targetLow;
+    private Texture targetHigh;
+    private Texture unlockedLow;
+    private Texture unlockedHigh;
+    private Texture lockedLow;
+    private Texture lockedHigh;
 
     /** Dimensions of map tile */
     private static final int TILE_HEIGHT = 256;
@@ -90,13 +113,17 @@ public class LevelEditorController implements Screen {
     /** How far down the toolbar should be offset from the top edge of the screen, in pixels */
     private static final int TOOLBAR_Y_OFFSET = 60;
 
-    /** Textures for nodes */
-    private Texture targetLow;
-    private Texture targetHigh;
-    private Texture unlockedLow;
-    private Texture unlockedHigh;
-    private Texture lockedLow;
-    private Texture lockedHigh;
+    /** Order of connectors (N,E,S,W) */
+    private static final Direction[] CONN_ORDER = {Direction.N, Direction.E, Direction.S, Direction.W};
+    private static final String[] CONN_NAME_ORDER = {"N","E","S","W"};
+    /** Order of stress rating buttons (None, Low, Medium, High) */
+    private static final StressRating[] SR_ORDER = {StressRating.NONE, StressRating.LOW,
+            StressRating.MED, StressRating.HIGH};
+    private static final String[] SR_NAME_ORDER = {"None", "Low", "Medium", "High"};
+    private static final String[] SR_PATH_ORDER = {"leveleditor/buttons/LE_NodeNone_1.png",
+            "leveleditor/buttons/LE_NodeLow_1.png",
+            "leveleditor/buttons/LE_NodeMed_1.png",
+            "leveleditor/buttons/LE_NodeHigh_1.png"};
 
 
     /************************************************* CONSTRUCTOR *************************************************/
@@ -118,16 +145,18 @@ public class LevelEditorController implements Screen {
         camera.zoom = 1.5f;
         //viewport.setScreenPosition(-2*canvas.getWidth(),-2*canvas.getHeight());
 
-        // Create stage for nodes and tile with isometric grid
+        // Create stage for grid and tile with isometric grid
         nodeStage = new Stage(viewport);
         //canvas.setIsometricSize(3,3);
-        canvas.drawIsometricGrid(nodeStage, 3, 3);
+        canvas.drawIsometricGrid(nodeStage, 5, 5);
 
         // Create tool stage for buttons
         createToolStage();
 
-        // Initialize hashmap of images
-        images = new Array<Image>();
+        // Initialize array of images
+        images = new Array<>();
+        // Initialize hashmap of tracked node stress ratings
+        nodeSRs = new ArrayMap<>();
         // Initialize vector caches
         vec = new Vector2();
         vec3 = new Vector3();
@@ -142,10 +171,98 @@ public class LevelEditorController implements Screen {
         unlockedHigh = new Texture(Gdx.files.internal("leveleditor/N_UnlockedIndividual_1.png"));
         lockedLow = new Texture(Gdx.files.internal("leveleditor/N_LockedIndividualLow_1.png"));
         lockedHigh = new Texture(Gdx.files.internal("leveleditor/N_LockedIndividual_2.png"));
+
+        // Create label style to use
+        BitmapFont font = new BitmapFont();
+        lstyle = new Label.LabelStyle(font, Color.CYAN);
+    }
+
+    /*********************************************** HELPER FUNCTIONS ***********************************************/
+
+    /**
+     * Helper function that converts coordinates from world space to isometric space.
+     *
+     * @param coords   Coordinates in world space to transform
+     * @return         Given coordinates in isometric space
+     */
+    private Vector2 worldToIsometric(Vector2 coords) {
+        float tempx = coords.x;
+        float tempy = coords.y;
+        coords.x = 0.57735f * tempx - tempy;
+        coords.y = 0.57735f * tempx + tempy;
+
+        return coords;
     }
 
     /**
-     * Helper function that creates and fills the stage with buttons to be used in creating a level.
+     * Helper function that gets the center of an isometric grid tile nearest to the given coordinates.
+     *
+     * Called when snapping an image to the center of a grid tile.
+     *
+     * The nearest isometric center is just stored in the vector cache [vec].
+     *
+     * @param x     x-coordinate of the location we want to find the nearest isometric center to
+     * @param y     y-coordinate of the location we want to find the nearest isometric center to
+     */
+    private void nearestIsoCenter(float x, float y){
+        // Transform world coordinates to isometric space
+        vec.set(x,y);
+        vec = worldToIsometric(vec);
+        x = vec.x;
+        y = vec.y;
+
+        // Find the nearest isometric center
+        x = Math.round(x / TILE_HEIGHT);
+        y = Math.round(y / TILE_HEIGHT);
+
+        // Transform back to world space
+        vec.set(x * (0.5f * TILE_WIDTH) + y * (0.5f * TILE_WIDTH),
+                -x * (0.5f * TILE_HEIGHT) + y * (0.5f * TILE_HEIGHT));
+    }
+
+    /**
+     * Helper function that returns the index to the next value in the array.
+     *
+     * When called with an array of connector types as input, it returns the character representing
+     * the connector to rotate to next. The order goes from North -> East -> South -> West -> North.
+     *
+     * When called with an array of node stress rating button types as input, it returns the name of
+     * the next button type. The order goes from None -> Low -> Med -> High -> None.
+     *
+     * @param curr      Current entry in the array.
+     * @param order     Array of objects representing the order.
+     * @return          Index of the entry that is next in the array order
+     */
+    private <T>int nextEntry(T curr, T[] order) {
+        // Loop through array until given value is found in the array
+        int k;
+        for (k=0; k<order.length; k++) {
+            if (order[k].equals(curr)) {break;}
+        }
+        // If entry is not found in the array, raise an exception
+        if (k == order.length) {
+            throw new RuntimeException("Given entry must be inside order array");
+        }
+        // Return index of next entry in order
+        return (k + 1) % order.length;
+    }
+
+    /**
+     * Helper function that changes the editor mode to the given mode.
+     *
+     * @param mode      Mode to change the editor to
+     */
+    private void changeEditorMode(Mode mode) {
+        // Reset clickedNode
+        clickedNode = null;
+        // Change mode
+        editorMode = mode;
+    }
+
+    /************************************************** TOOLBAR **************************************************/
+
+    /**
+     * Creates and fills the stage with buttons to be used in creating a level.
      *
      * These include:
      * - A button to create a new target.
@@ -154,11 +271,8 @@ public class LevelEditorController implements Screen {
      */
     private void createToolStage(){
         // Creates toolbar viewport and camera
-        ExtendViewport toolbarViewPort = new ExtendViewport(canvas.getWidth(), canvas.getHeight());
+        FitViewport toolbarViewPort = new FitViewport(canvas.getWidth(), canvas.getHeight());
         toolstage = new Stage(toolbarViewPort);
-
-        System.out.println(canvas.getHeight());
-        System.out.println(canvas.getWidth());
 
         // Handle inputs from both stages with a Multiplexer
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
@@ -175,13 +289,14 @@ public class LevelEditorController implements Screen {
         // Add all buttons to toolbar
         toolbar = createNodeButtons(toolbar);
         toolbar = createModeButtons(toolbar);
+        toolbar = createNodeSRButton(toolbar);
 
         // Add filled toolbar to stage
         toolstage.addActor(toolbar);
     }
 
     /**
-     * Helper function that adds the buttons used to create nodes to the stage.
+     * Function that adds the buttons used to create nodes to the stage.
      *
      * Returns the toolbar with these node-creation buttons included.
      *
@@ -251,7 +366,7 @@ public class LevelEditorController implements Screen {
     }
 
     /**
-     * Helper function that adds the buttons used to change modes to the stage.
+     * Function that adds the buttons used to change modes to the stage.
      *
      * Returns the toolbar with these mode-changing buttons included.
      *
@@ -293,25 +408,25 @@ public class LevelEditorController implements Screen {
                 // CHANGE TO MOVE MODE
                 button.addListener(new ChangeListener() {
                     @Override
-                    public void changed(ChangeEvent event, Actor actor) {editorMode = Mode.MOVE;}
+                    public void changed(ChangeEvent event, Actor actor) {changeEditorMode(Mode.MOVE);}
                 });
             } else if (k==1) {
                 // CHANGE TO EDIT MODE
                 button.addListener(new ChangeListener() {
                     @Override
-                    public void changed(ChangeEvent event, Actor actor) {editorMode = Mode.EDIT;}
+                    public void changed(ChangeEvent event, Actor actor) {changeEditorMode(Mode.EDIT);}
                 });
             } else if (k==2) {
                 // CHANGE TO DELETE MODE
                 button.addListener(new ChangeListener() {
                     @Override
-                    public void changed(ChangeEvent event, Actor actor) {editorMode = Mode.DELETE;}
+                    public void changed(ChangeEvent event, Actor actor) {changeEditorMode(Mode.DELETE);}
                 });
             } else if (k==3) {
                 // CHANGE TO DRAW MODE
                 button.addListener(new ChangeListener() {
                     @Override
-                    public void changed(ChangeEvent event, Actor actor) {editorMode = Mode.DRAW;}
+                    public void changed(ChangeEvent event, Actor actor) {changeEditorMode(Mode.DRAW);}
                 });
             }
 
@@ -326,79 +441,51 @@ public class LevelEditorController implements Screen {
         return toolbar;
     }
 
-    /*********************************************** ADDING TO LEVEL ***********************************************/
-
     /**
-     * Helper function that converts coordinates from world space to isometric space.
+     * Function that creates the button that can be used to set the target stress damage of a node.
      *
-     * @param coords   Coordinates in world space to transform
-     * @return         Given coordinates in isometric space
+     * This is just one button that rotates between the options.
+     *
+     * @param toolbar       The toolbar that the buttons are stored in.
+     * @return              The toolbar with the node stress rating-changing buttons added.
      */
-    private Vector2 worldToIsometric(Vector2 coords) {
-        float tempx = coords.x;
-        float tempy = coords.y;
-        coords.x = 0.57735f * tempx - tempy;
-        coords.y = 0.57735f * tempx + tempy;
+    private Table createNodeSRButton(Table toolbar) {
+        // Initialize other variables for button creation
+        Drawable drawable;
 
-        return coords;
-    }
+        // Create and place button, initialized at Blank
+        drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(
+                "leveleditor/buttons/LE_NodeBlank_1.png")));
+        nodeStressRating = new Image(drawable);
+        nodeStressRating.setScale(BUTTON_SCALE);
+        nodeStressRating.setPosition(canvas.getWidth() / 2 - 50, 10);
 
-    /**
-     * Helper function that converts coordinates from isometric space to world space.
-     *
-     * @param coords   Coordinates in isometric space to transform
-     * @return         Given coordinates in world space
-     */
-    private Vector2 isometricToWorld(Vector2 coords) {
-        // TODO: FIX
-        float tempx = coords.x;
-        float tempy = coords.y;
-        //coords.x = (float)((Math.sqrt(3)/2) * tempx - (0.5f * tempy));
-        //coords.y = (float)((Math.sqrt(3)/2) * tempx + (0.5f * tempy));
-        coords.x = (float)((Math.sqrt(3)/2) * tempx + ((Math.sqrt(3)/2) * tempy));
-        coords.y = (float)(-0.5f * tempx + (0.5f * tempy));
+        // Set name to current status of button
+        nodeStressRating.setName("None");
 
-        return coords;
-    }
+        // Add listeners to button, changing depending on which node the button creates
+        nodeStressRating.addListener((new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                // Only do something if clicked while in Edit Mode
+                if (editorMode == Mode.EDIT) {
+                    // Set the appearance and name to be the next button
+                    int nextButton = nextEntry(nodeStressRating.getName(), SR_NAME_ORDER);
+                    nodeStressRating.setName(SR_NAME_ORDER[nextButton]);
+                    nodeStressRating.setDrawable(new TextureRegionDrawable(
+                            new Texture(Gdx.files.internal(
+                                    // Path to next button asset
+                                    SR_PATH_ORDER[nextButton]
+                            ))));
+                }
+            }
+        }));
 
-    /**
-     * Helper function that gets the center of an isometric grid tile nearest to the given coordinates.
-     *
-     * Called when snapping an image to the center of a grid tile.
-     *
-     * The nearest isometric center is just stored in the vector cache [vec].
-     *
-     * @param x     x-coordinate of the location we want to find the nearest isometric center to
-     * @param y     y-coordinate of the location we want to find the nearest isometric center to
-     */
-    private void nearestIsoCenter(float x, float y){
-        // TODO: have this return the isometric coordinates of the nearest iso center
+        // Add button to stage
+        toolstage.addActor(nodeStressRating);
+        // Put button in toolbar Table
+        toolbar.addActor(nodeStressRating);
 
-        // Transform world coordinates to isometric space
-        vec.set(x,y);
-        vec = worldToIsometric(vec);
-        x = vec.x;
-        y = vec.y;
-
-        // Find the nearest isometric center
-        x = Math.round(x / TILE_HEIGHT);
-        y = Math.round(y / TILE_HEIGHT);
-
-        // Transform back to world space
-        vec.set(x * (0.5f * TILE_WIDTH) + y * (0.5f * TILE_WIDTH),-x * (0.5f * TILE_HEIGHT) + y * (0.5f * TILE_HEIGHT));
-        //vec = isometricToWorld(vec);
-
-        /**
-        // Get location that image should snap to
-        x = x - (x % (TILE_WIDTH / 2));
-        y = y - (y % (TILE_HEIGHT / 2));
-
-        // If tries to snap to intersection between lines, snap to the grid cell
-        // above the intersection instead
-        if (Math.abs((int) (x / (TILE_WIDTH / 2)) % 2) != Math.abs((int) (y / (TILE_HEIGHT / 2)) % 2)) {
-            y += TILE_HEIGHT / 2;
-        }
-         */
+        return toolbar;
     }
 
     /*********************************************** NODES ***********************************************/
@@ -428,7 +515,7 @@ public class LevelEditorController implements Screen {
 
         // Add listeners, which change their behavior depending on the editor mode
 
-        // Add drag listener that does something during a drag (one for each asset)
+        // Add drag listener that does something during a drag (one for each asset, they're pretty much the same)
         switch(nodeType) {
             case 0: // Target
                 im.addListener((new DragListener() {
@@ -483,7 +570,7 @@ public class LevelEditorController implements Screen {
                 break;
         }
 
-        // Add drag listener that does something when a drag ends (one for each asset)
+        // Add drag listener that does something when a drag ends (one for each asset, they're pretty much the same)
         switch(nodeType) {
             case 0: // Target
                 im.addListener((new DragListener() {
@@ -576,9 +663,10 @@ public class LevelEditorController implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 // Different behavior on clicked depending on editor mode
                 switch (editorMode) {
-                    // In Edit Mode, open up the node submenu
+                    // In Edit Mode, allow node stress rating to be set
                     case EDIT:
-                        System.out.println("Edit");
+                        // Change clicked node to the node that was just clicked
+                        clickedNode = im;
                         break;
                     // In Delete Mode, delete the node
                     case DELETE:
@@ -602,24 +690,24 @@ public class LevelEditorController implements Screen {
      * @param y     Screen space y-coordinate of the location to add the connector at
      */
     public void addConnector(float x, float y) {
-        //System.out.println("Screen space: (" + String.valueOf(x) + ", " + String.valueOf(y) + ")");
-
         // Convert mouse position from screen to world coordinates
         vec3.set(x,y,0);
         camera.unproject(vec3);
         x = vec3.x;
         y = vec3.y;
 
-        //System.out.println("World space: (" + String.valueOf(x) + ", " + String.valueOf(y) + ")");
-
-        // Create connector image, defaulting to the South connector
-        final Image im = new Image(new Texture(Gdx.files.internal(Connector.C_NORTH)));
+        // Create connector image, defaulting to the North connector
+        final Image im = new Image(new Texture(Gdx.files.internal(Connector.getAssetPath(Direction.N))));
         nodeStage.addActor(im);
 
         // Set name of image, which defaults to "N"
         im.setName("N");
         // Set scale
         im.setScale(0.5f);
+
+        // TODO: put this back when isometric grid is moved to the canvas, not the stage
+        // Always move to the back
+        //im.toBack();
 
         // Get nearest isometric center to where the mouse clicked and fetch from vector cache
         nearestIsoCenter(x,y);
@@ -632,7 +720,6 @@ public class LevelEditorController implements Screen {
         images.add(im);
 
         // Add listeners, which change their behavior depending on the editor mode
-
         // Add click listener that does something when the connector is left-clicked
         im.addListener((new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
@@ -640,12 +727,13 @@ public class LevelEditorController implements Screen {
                 switch (editorMode) {
                     // In Draw Mode, rotate the connector
                     case DRAW:
-                        // Set the appearance to be the next connector
-                        String nextConn = rotateConnector(im.getName());
-                        im.setName(nextConn);
+                        // Set the appearance and name to be the next connector
+                        int nextConn = nextEntry(im.getName(), CONN_NAME_ORDER);
+                        im.setName(CONN_NAME_ORDER[nextConn]);
                         im.setDrawable(new TextureRegionDrawable(
                                 new Texture(Gdx.files.internal(
-                                        getAssetPath(nextConn)
+                                        // Path to connector asset
+                                        Connector.getAssetPath(CONN_ORDER[nextConn])
                                 ))));
                         break;
                     // In Delete Mode, delete the connector
@@ -659,56 +747,43 @@ public class LevelEditorController implements Screen {
         }));
     }
 
-    /**
-     * Helper function that returns which connector to rotate to next.
-     *
-     * Returns the character representing the connector to rotate to next.
-     *
-     * The order goes from North -> East -> South -> West -> North.
-     *
-     * @param conn   String representing current direction of connector
-     * @return       String representing the path to the asset where the rotated connector is
-     */
-    private String rotateConnector(String conn) {
-        switch(conn) {
-            case "N":
-                return "E";
-            case "E":
-                return "S";
-            case "S":
-                return "W";
-            case "W":
-                return "N";
-            default:
-                throw new RuntimeException("Connector can only be NESW");
-        }
-    }
-
-    /**
-     * Helper function that returns the path to the asset of the connector given by the input.
-     *
-     * @param t     The type of the Connector, represented as a string of "NESW" with the directions that
-     *              the Connector runs in.
-     */
-    public String getAssetPath(String t) {
-        switch(t) {
-            case "N":
-                return Connector.C_NORTH;
-            case "E":
-                return Connector.C_EAST;
-            case "S":
-                return Connector.C_SOUTH;
-            case "W":
-                return Connector.C_WEST;
-            default:
-                throw new RuntimeException("Connector can only be NESW");
-        }
-    }
-
     /*********************************************** SCREEN METHODS ***********************************************/
 
     @Override
     public void show() {
+    }
+
+    /**
+     * Helper function that clears all images in the level.
+     *
+     * Called if the clear button "C" is pressed.
+     */
+    private void clearLevel() {
+        // Delete all images
+        images.clear();
+        // Clear saved data about node stress ratings
+        nodeSRs.clear();
+        // Reset image count
+        imgCount = 0;
+    }
+
+    /**
+     * Helper function that undos the creation of the last image.
+     *
+     * Called if the undo button "Z" is pressed.
+     */
+    private void undo() {
+        // Do nothing if no images have been created
+        if (images.size <= 0) {return;}
+        // Remove last created image from array of created images
+        Image lastIm = images.pop();
+        // If last created image had its stress rating tracked, remove that as well
+        if(nodeSRs.containsKey(lastIm.getName())) {
+            nodeSRs.removeIndex(nodeSRs.indexOfKey(lastIm.getName()));
+        }
+        // Actually remove image from screen
+        lastIm.remove();
+
     }
 
     @Override
@@ -717,14 +792,9 @@ public class LevelEditorController implements Screen {
      */
     public void render(float delta) {
         // If C button is pressed, clear the level
-        if (input.didClear()) {
-            clearLevel();
-        }
-
+        if (input.didClear()) {clearLevel();}
         // If Z button is pressed, delete last object that was created
-        if (input.didUndo()) {
-            images.pop().remove();
-        }
+        if (input.didUndo()) {undo();}
 
         // Handle making connectors if in Draw Mode and a connector was made
         if (editorMode == Mode.DRAW && input.didRightClick()) {
@@ -744,18 +814,6 @@ public class LevelEditorController implements Screen {
 
     }
 
-    /**
-     * Helper function that clears all images in the level
-     */
-    private void clearLevel() {
-        // Delete all images
-        for (Image im : images) {
-            im.remove();
-        }
-        // Reset image count
-        imgCount = 0;
-    }
-
     @Override
     /**
      * Ensures that the game world appears at the same scale, even when resizing
@@ -771,9 +829,6 @@ public class LevelEditorController implements Screen {
         toolstage.getViewport().update(width,height,true);
 
         canvas.resize();
-
-        System.out.println(canvas.getHeight());
-        System.out.println(canvas.getWidth());
     }
 
     @Override
