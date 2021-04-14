@@ -1174,18 +1174,21 @@ public class GameCanvas {
 	 * @param height	the vertical radius of the grid
 	 */
 	public void drawIsometricGrid(Stage stage, int width, int height){
+		int twidth = 222;
+		int theight = 128;
+
 		//assuming grid tiles are (444, 256) in size
 		//drawing a 100 x 100 tile grid centered around the origin, offset so that (0, 0) is the center of the tile sprite
-		for(int col = -(444*width) -222; col <= (444*width) + 222; col+=444){
-			for(int row = -(256*height) -128; row <= (256*height) + 128; row+=256){
+		for(int col = -(twidth*width) -twidth / 2; col <= (twidth*width) + twidth / 2; col+=twidth){
+			for(int row = -(theight*height) -theight / 2; row <= (theight*height) + theight / 2; row+=theight){
+				/**
 				final Image tile = new Image(new Texture(Gdx.files.internal("background/B_MapTileBG_2.png")));
 				tile.setX(col);
 				tile.setY(row);
 				stage.addActor(tile);
-				 /**
+				*/
 				final Texture tile = new Texture(Gdx.files.internal("background/B_MapTileBG_2.png"));
-				draw(tile, Color.WHITE, 0, 0, 5, 5, 100, 100);
-				 */
+				draw(tile, Color.WHITE, 0, 0, col, row, 222, 128);
 			}
 		}
 

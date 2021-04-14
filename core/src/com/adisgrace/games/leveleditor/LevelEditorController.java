@@ -71,6 +71,8 @@ public class LevelEditorController implements Screen {
     private Mode editorMode;
     /** Label style to use for text labels */
     Label.LabelStyle lstyle;
+    /** TextField to enter target name */
+    TextField targetNamePrompt;
 
     /** The count of the next image that is added */
     int imgCount;
@@ -159,6 +161,8 @@ public class LevelEditorController implements Screen {
         // Get singleton instance of player input controller
         input = InputController.getInstance();
 
+        //canvas.setIsometricSize(3,3);
+
         // Set up camera
         ExtendViewport viewport = new ExtendViewport(canvas.getWidth(), canvas.getHeight());
         camera = new CameraController(input,canvas);
@@ -166,8 +170,6 @@ public class LevelEditorController implements Screen {
 
         // Create stage for grid and tile with isometric grid
         nodeStage = new Stage(viewport);
-        //canvas.setIsometricSize(3,3);
-        canvas.drawIsometricGrid(nodeStage, 5, 5);
 
         // Create tool stage for buttons
         createToolStage();
@@ -322,6 +324,9 @@ public class LevelEditorController implements Screen {
 
         // Add filled toolbar to stage
         toolstage.addActor(toolbar);
+
+        // Create text field for prompting for target name
+        //TextField
     }
 
     /**
@@ -480,6 +485,11 @@ public class LevelEditorController implements Screen {
      * @param nodeType      0: target, 1: unlocked, 2: locked
      */
     private void addNode(int nodeType) {
+        // If target, prompt for name before creating node
+        if (nodeType == 0) {
+
+        }
+
         // Create image
         final Image im = new Image(NODE_TEXTURES[nodeType]);
         nodeStage.addActor(im);
@@ -708,10 +718,15 @@ public class LevelEditorController implements Screen {
         camera.moveCamera();
 
         // UPDATE
+
         // Draw objects on canvas
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         nodeStage.act(delta);
         toolstage.act(delta);
+
+        canvas.begin();
+        canvas.drawIsometricGrid(nodeStage, 0, 0);
+        canvas.end();
 
         nodeStage.draw();
         toolstage.draw();
@@ -724,7 +739,7 @@ public class LevelEditorController implements Screen {
     public void resize(int width, int height) {
         // Keep game world at the same scale even when resizing
         nodeStage.getViewport().update(width,height,true);
-        camera.resize(width, height);
+        //camera.resize(width, height);
 
         // Keep toolbar in the same place when resizing
         toolstage.getViewport().update(width,height,true);
