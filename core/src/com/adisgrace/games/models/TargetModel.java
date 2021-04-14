@@ -58,6 +58,18 @@ public class TargetModel {
 	private HashMap<String, FactNode> podDict;
 	/** Array of node names representing the nodes that are immediately visible when the target first becomes available */
 	private Array<String> firstNodes;
+
+	/** The connector coordinates for the nodes that are immediately visible when the level begins, index corresponds to
+	 * the node in firstNodes, coordinates stored in isometric coordinates */
+	private Array<int[]> firstConnectorCoords;
+	/** The connector types for the nodes that are immediately visible when the level begins, index corresponds to the node in firstNodes */
+	private Array<String > firstConnectorTypes;
+	/** The connector coordinates for all nodes, stored as array of locations of connections in level. In isometric coordinates. */
+	private Array<int[]> connectorCoords;
+	/** The connector types for all nodes, array of types of the connectors in a level, where each type is an enum */
+	private Array<String> connectorTypes;
+
+
 	/** Array of Target combos */
 	private Array<Combo> combos;
 
@@ -159,7 +171,7 @@ public class TargetModel {
 			// Create FactNode
 			fn = new FactNode(nodeName, node.getString("title"), node.getString("content"),
 					node.getString("summary"), new Array<String>(children), nodeX, nodeY,
-					node.getString("assets"),	node.getInt("targetStressDamage"),
+					node.getBoolean("locked"), node.getInt("targetStressDamage"),
 					node.getInt("playerStressDamage"));
 
 			// Store FactNode in podDict, mapped to name
@@ -244,6 +256,42 @@ public class TargetModel {
 	public int getY() {
 		return locY;
 	}
+
+	/**
+	 * Returns the first connector coordinates of the target.
+	 *
+	 * Array of locations of first connections in isometric coordinates.
+	 *
+	 * @return the target's first connector coordinates.
+	 */
+	public Array<int[]> getFirstConnectorCoords(){ return firstConnectorCoords; }
+
+	/**
+	 * Returns the connector coordinates of the target.
+	 *
+	 * Array of locations of connections in isometric coordinates.
+	 *
+	 * @return the target's connector coordinates.
+	 */
+	public Array<int[]> getConnectorCoords(){ return connectorCoords; }
+
+	/**
+	 * Returns the first connector types of the target.
+	 *
+	 * Array of types of first connections.
+	 *
+	 * @return the target's first connector types.
+	 */
+	public Array<String> getFirstConnectorTypes(){ return firstConnectorTypes; }
+
+	/**
+	 * Returns the connector types of the target.
+	 *
+	 * Array of types of connections.
+	 *
+	 * @return the target's connector types.
+	 */
+	public Array<String> getConnectorTypes(){ return connectorTypes; }
 
 	/**
 	 * Returns the names of this target's neighbors.
@@ -416,7 +464,7 @@ public class TargetModel {
 		// Iterate through the list of FactNodes
 		for(String key:podDict.keySet()){
 			FactNode factNode = getFactNode(key);
-			result.add(factNode.getName());
+			result.add(factNode.getNodeName());
 		}
 		return result;
 	}
@@ -449,17 +497,17 @@ public class TargetModel {
 		return nodeVec;
 	}
 
-	/**
-	 * Returns the filepath to the location of the map assets for the node.
-	 * 
-	 * The filepath leads to a folder where all the frames for a node are stored.
-	 * 
-	 * @param name   	Name of the fact whose node's assets we want
-	 * @return 			Filepath to folder of node assets
-	 */
-	public String getNodeAssetPath(String name) {
-		return getFactNode(name).getAssetPath();
-	}
+//	/**
+//	 * Returns the filepath to the location of the map assets for the node.
+//	 *
+//	 * The filepath leads to a folder where all the frames for a node are stored.
+//	 *
+//	 * @param name   	Name of the fact whose node's assets we want
+//	 * @return 			Filepath to folder of node assets
+//	 */
+//	public String getNodeAssetPath(String name) {
+//		return getFactNode(name).getAssetPath();
+//	}
 
 	/**
 	 * Returns the content stored in the node with the given name.
