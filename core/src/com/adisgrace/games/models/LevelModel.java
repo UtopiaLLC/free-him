@@ -1,9 +1,6 @@
 package com.adisgrace.games.models;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
@@ -21,11 +18,21 @@ import com.badlogic.gdx.utils.JsonReader;
  */
 
 public class LevelModel {
+    // Name of the Level
+    private String name;
+
+    //dimensions of the world
+    private int width;
+    private int height;
+
     // Player object
     private PlayerModel player;
 
     // Map of targets and their names
     private Map<String, TargetModel> targets;
+
+    // Locations of each target in isometric coordinates
+    private Map<String, int[]> targetLocs;
 
     // Map of visible factnodes
     private Map<String, Array<String>> to_display;
@@ -42,6 +49,7 @@ public class LevelModel {
     // Map from factnode identifiers to shortened descriptions
     // Modified for combos
     private Map<String, Map<String, String>> summaries;
+
 
     // Map from factnode identifiers to full descriptions
     // Modified for combos
@@ -80,30 +88,76 @@ public class LevelModel {
 
     /**
      * Constructs a LevelModel from a list of targets.
-     * @param levelJson level Json filename
+     * @param levelJson Array of target json filenames
      */
     public LevelModel(String levelJson) {
+
         player = new PlayerModel();
         targets = new HashMap<String, TargetModel>();
-        to_display = new HashMap<String, Array<String>>();
-        hackednodes = new HashMap<String, Array<String>>();
-        exposablenodes = new HashMap<String, Array<String>>();
-        summaries = new HashMap<String, Map<String, String>>();
-        contents = new HashMap<String, Map<String, String>>();
+        //to_display = new HashMap<String, Array<String>>();
+        //hackednodes = new HashMap<String, Array<String>>();
+        //exposablenodes = new HashMap<String, Array<String>>();
+        //summaries = new HashMap<String, Map<String, String>>();
+        //contents = new HashMap<String, Map<String, String>>();
 //        TargetModel target;
 
         //TODO parse json file ${levelName}.json into list of strings targetJsons + other level properties
         JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/" + levelJson));
         String[] targetJsons = json.get("targets").asStringArray();
 
-        // Go through all targets given
-        for(String t : targetJsons) {
-            this.addTarget(t);
+        name = json.get("name").asString();
+
+        int[] dims = json.get("dims").asIntArray();
+        width = dims[0];
+        height = dims[1];
+
+        //binds each target string to a targetModel
+        for(String target: targetJsons){
+            targets.put(target, new TargetModel(target));
         }
+
+        //binds each target string to a location in the level
+        JsonValue locations = json.get("targetLocs");
+        JsonValue.JsonIterator itr = locations.iterator();
+        //This for loop assumes that there is an equal amount of targets and targetLocations
+        for(String target: targetJsons){targetLocs.put(target, itr.next().asIntArray());}
+
 
         n_days = 0;
         rng = new Random();
     }
+
+    /**
+     * Returns the name of the level
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the width of this level
+     */
+    public int getWidth() {
+        return width;
+    }
+
+    /**
+     * Returns the height of this level
+     */
+    public int getHeight() {
+        return height;
+    }
+
+    /**
+     * Returns the queried target location
+     *
+     * @param target    the name of the target
+     */
+    public int[] getTargetLoc(String target) {
+        return targetLocs.get(target);
+    }
+
+
 
     /**
      * Returns the current state of this world.
@@ -132,6 +186,8 @@ public class LevelModel {
 
         return WorldModel.GAMESTATE.ONGOING;
     }
+
+
 
     /**
      * Returns the visible facts for a given `target`.
