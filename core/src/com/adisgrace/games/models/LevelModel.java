@@ -80,10 +80,9 @@ public class LevelModel {
 
     /**
      * Constructs a LevelModel from a list of targets.
-     * @param targetJsons Array of target json filenames
-     * @param targetJsons Array of target json filenames
+     * @param levelJson level Json filename
      */
-    public LevelModel(String levelName) {
+    public LevelModel(String levelJson) {
         player = new PlayerModel();
         targets = new HashMap<String, TargetModel>();
         to_display = new HashMap<String, Array<String>>();
@@ -94,6 +93,8 @@ public class LevelModel {
 //        TargetModel target;
 
         //TODO parse json file ${levelName}.json into list of strings targetJsons + other level properties
+        JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/" + levelJson));
+        String[] targetJsons = json.get("targets").asStringArray();
 
         // Go through all targets given
         for(String t : targetJsons) {
