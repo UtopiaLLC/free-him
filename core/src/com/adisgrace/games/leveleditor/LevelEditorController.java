@@ -12,9 +12,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -46,11 +44,11 @@ public class LevelEditorController implements Screen {
     }
 
     /** Canvas is the primary view class of the game */
-    private GameCanvas canvas;
+    private final GameCanvas canvas;
     /** Gets player input */
-    private InputController input;
+    private final InputController input;
     /** Controller for view camera for node map */
-    private CameraController camera;
+    private final CameraController camera;
 
     /** Stage where grid is drawn */
     Stage gridStage;
@@ -83,11 +81,18 @@ public class LevelEditorController implements Screen {
     private Vector2 vec;
 
     /** Array of all textures for nodes */
-    private Texture[] nodeTextures;
+    private final Texture[] nodeTextures = new Texture[]{
+            new Texture(Gdx.files.internal("leveleditor/N_TargetMaleIndividualLow_1.png")),
+            new Texture(Gdx.files.internal("leveleditor/N_UnlockedIndividualLow_1.png")),
+            new Texture(Gdx.files.internal("leveleditor/N_LockedIndividualLow_1.png")),
+            new Texture(Gdx.files.internal("leveleditor/N_TargetMaleIndividual_1.png")),
+            new Texture(Gdx.files.internal("leveleditor/N_UnlockedIndividual_1.png")),
+            new Texture(Gdx.files.internal("leveleditor/N_LockedIndividual_2.png"))
+    };
 
     /** Dimensions of map tile */
-    private static final int TILE_HEIGHT = 256;
-    private static final int TILE_WIDTH = 444;
+    private static final float TILE_HEIGHT = 256.0f;
+    private static final float TILE_WIDTH = 444.0f;
     /** Constants for the y-offset for different node types */
     private static final float LOCKED_OFFSET = 114.8725f;
 
@@ -167,17 +172,6 @@ public class LevelEditorController implements Screen {
         // Start editor mode in Move Mode
         editorMode = Mode.MOVE;
 
-        // Create array of all textures for nodes
-        Texture[] nodeTexturesArr = {
-                new Texture(Gdx.files.internal("leveleditor/N_TargetMaleIndividualLow_1.png")),
-                new Texture(Gdx.files.internal("leveleditor/N_UnlockedIndividualLow_1.png")),
-                new Texture(Gdx.files.internal("leveleditor/N_LockedIndividualLow_1.png")),
-                new Texture(Gdx.files.internal("leveleditor/N_TargetMaleIndividual_1.png")),
-                new Texture(Gdx.files.internal("leveleditor/N_UnlockedIndividual_1.png")),
-                new Texture(Gdx.files.internal("leveleditor/N_LockedIndividual_2.png"))
-        };
-        nodeTextures = nodeTexturesArr;
-
         // Create label style to use
         BitmapFont font = new BitmapFont();
         lstyle = new Label.LabelStyle(font, Color.CYAN);
@@ -189,15 +183,12 @@ public class LevelEditorController implements Screen {
      * Helper function that converts coordinates from world space to isometric space.
      *
      * @param coords   Coordinates in world space to transform
-     * @return         Given coordinates in isometric space
      */
-    private Vector2 worldToIsometric(Vector2 coords) {
+    private void worldToIsometric(Vector2 coords) {
         float tempx = coords.x;
         float tempy = coords.y;
         coords.x = 0.57735f * tempx - tempy;
         coords.y = 0.57735f * tempx + tempy;
-
-        return coords;
     }
 
     /**
@@ -213,7 +204,7 @@ public class LevelEditorController implements Screen {
     private void nearestIsoCenter(float x, float y){
         // Transform world coordinates to isometric space
         vec.set(x,y);
-        vec = worldToIsometric(vec);
+        worldToIsometric(vec);
         x = vec.x;
         y = vec.y;
 
@@ -293,18 +284,21 @@ public class LevelEditorController implements Screen {
         toolbar.setSize(.25f*canvas.getWidth(),canvas.getHeight());
 
         // Add all buttons to toolbar
-        toolbar = createNodeButtons(toolbar);
-        toolbar = createModeButtons(toolbar);
-        toolbar = createNodeSRButton(toolbar);
+        createNodeButtons(toolbar);
+        createModeButtons(toolbar);
+        createNodeSRButton(toolbar);
 
         // Add filled toolbar to stage
         toolstage.addActor(toolbar);
     }
 
     /**
-     * Function that adds the buttons used to create nodes to the stage.
-     *
-     * Returns the toolbar with these node-creation buttons included.
+     * TODO: combine createNodeButtons and createModeButtons into a single function
+     * Can take in a boolean for whether to do Node or Mode
+     */
+
+    /**
+     * Function that adds the buttons used to create nodes to the stage and toolbar.
      *
      * These include:
      * - A button to create a new target.
@@ -312,9 +306,8 @@ public class LevelEditorController implements Screen {
      * - A button to create a new locked node.
      *
      * @param toolbar       The toolbar that the buttons are stored in.
-     * @return              The toolbar with the node-creation buttons added.
      */
-    private Table createNodeButtons(Table toolbar) {
+    private void createNodeButtons(Table toolbar) {
         // Create "add node" buttons
         // Height of first button
         int height = (int)camera.getHeight() - TOOLBAR_Y_OFFSET;
@@ -347,14 +340,10 @@ public class LevelEditorController implements Screen {
             // Increment height
             height -= BUTTON_GAP;
         }
-
-        return toolbar;
     }
 
     /**
-     * Function that adds the buttons used to change modes to the stage.
-     *
-     * Returns the toolbar with these mode-changing buttons included.
+     * Function that adds the buttons used to change modes to the stage and toolbar.
      *
      * These include:
      * - A button to change to Move Mode, where nodes can be moved around.
@@ -362,9 +351,8 @@ public class LevelEditorController implements Screen {
      * - A button to change to Delete Mode, where nodes can be deleted.
      *
      * @param toolbar       The toolbar that the buttons are stored in.
-     * @return              The toolbar with the mode-changing buttons added.
      */
-    private Table createModeButtons(Table toolbar) {
+    private void createModeButtons(Table toolbar) {
         // Create mode change buttons
         // Height of first button
         int height = (int)camera.getHeight() - TOOLBAR_Y_OFFSET;
@@ -400,19 +388,17 @@ public class LevelEditorController implements Screen {
             // Increment height
             height -= BUTTON_GAP;
         }
-
-        return toolbar;
     }
 
     /**
-     * Function that creates the button that can be used to set the target stress damage of a node.
+     * Function that creates the button that can be used to set the target stress damage of a node
+     * and places it in the stage and toolbar.
      *
      * This is just one button that rotates between the options.
      *
      * @param toolbar       The toolbar that the buttons are stored in.
-     * @return              The toolbar with the node stress rating-changing buttons added.
      */
-    private Table createNodeSRButton(Table toolbar) {
+    private void createNodeSRButton(Table toolbar) {
         // Initialize other variables for button creation
         Drawable drawable;
 
@@ -421,7 +407,7 @@ public class LevelEditorController implements Screen {
                 "leveleditor/buttons/LE_NodeBlank_1.png")));
         nodeStressRating = new Image(drawable);
         nodeStressRating.setScale(BUTTON_SCALE);
-        nodeStressRating.setPosition(canvas.getWidth() / 2 - 50, 10);
+        nodeStressRating.setPosition(canvas.getWidth() / 2f - 50, 10);
 
         // Set name to current status of button
         nodeStressRating.setName("None");
@@ -447,8 +433,6 @@ public class LevelEditorController implements Screen {
         toolstage.addActor(nodeStressRating);
         // Put button in toolbar Table
         toolbar.addActor(nodeStressRating);
-
-        return toolbar;
     }
 
     /*********************************************** NODES ***********************************************/
@@ -469,7 +453,7 @@ public class LevelEditorController implements Screen {
         im.setOrigin(0, 0);
 
         // Set name of image, which is the string "Node" and a number
-        String name = "Node" + String.valueOf(imgCount);
+        String name = "Node" + imgCount;
         im.setName(name);
         // Add image to images
         images.add(im);
