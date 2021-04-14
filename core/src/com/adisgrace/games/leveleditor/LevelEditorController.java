@@ -161,7 +161,7 @@ public class LevelEditorController implements Screen {
         // Get singleton instance of player input controller
         input = InputController.getInstance();
 
-        //canvas.setIsometricSize(3,3);
+        //canvas.setIsometricSize(4, 4);
 
         // Set up camera
         ExtendViewport viewport = new ExtendViewport(canvas.getWidth(), canvas.getHeight());
@@ -723,10 +723,8 @@ public class LevelEditorController implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         nodeStage.act(delta);
         toolstage.act(delta);
-
-        canvas.begin();
-        canvas.drawIsometricGrid(nodeStage, 0, 0);
-        canvas.end();
+        //System.out.println(delta);
+        canvas.drawIsometricGrid(nodeStage, 15, 15);
 
         nodeStage.draw();
         toolstage.draw();
