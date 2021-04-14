@@ -2,8 +2,7 @@ package com.adisgrace.games.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.adisgrace.games.FreeHimTest;
-import com.adisgrace.games.leveleditor.*;
+import com.adisgrace.games.leveleditor.FreeHimTest;
 
 public class TestLauncher {
     public static void main (String[] arg) {

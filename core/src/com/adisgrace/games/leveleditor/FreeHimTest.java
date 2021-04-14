@@ -1,4 +1,4 @@
-package com.adisgrace.games;
+package com.adisgrace.games.leveleditor;
 
 import com.adisgrace.games.leveleditor.LevelEditorController;
 import com.adisgrace.games.util.ScreenListener;

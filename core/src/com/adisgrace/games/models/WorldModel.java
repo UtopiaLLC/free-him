@@ -1,4 +1,4 @@
-package com.adisgrace.games;
+package com.adisgrace.games.models;
 
 import java.util.*;
 
@@ -40,7 +40,7 @@ public class WorldModel {
 	private Random rng;
 
 	/** Enumeration representing the game's current state */
-	protected enum GAMESTATE{
+	public enum GAMESTATE{
 		/** Player has won the game */
 		WIN,
 		/** Player had lost the game */
@@ -50,7 +50,7 @@ public class WorldModel {
 	};
 
 	/** Enum representing different verbs */
-	protected enum Verb {
+	public enum Verb {
 		VIEWFACT,
 		SCAN,
 		HACK,

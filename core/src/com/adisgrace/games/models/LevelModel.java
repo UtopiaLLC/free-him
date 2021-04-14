@@ -1,4 +1,4 @@
-package com.adisgrace.games;
+package com.adisgrace.games.models;
 
 import java.util.HashMap;
 import java.util.Map;
