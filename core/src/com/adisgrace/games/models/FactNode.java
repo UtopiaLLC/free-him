@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.Array;
  */
 public class FactNode {
 	/** String representing the shorthand name for a FactNode, used to refer to the node and as the dictionary key in TargetModel */
-	private String name;
+	private String nodeName;
 
 	/** String representing the device/account name ex. “Patrick’s Social Media Account.” */
 	private String title;
@@ -24,23 +24,12 @@ public class FactNode {
 	/** List of names of nodes that are made visible when the current FactNode is scanned. */
 	private Array<String> children;
 
-	// TODO: remove visible, scanned, exposed and relevant functions if not used
-	
-	/** Boolean representing whether the current FactNode has been made visible yet. */
-	//private boolean visible;
-
-	/** Boolean representing whether the current FactNode has been scanned yet. */
-	//private boolean scanned;
-
-	/** Boolean representing whether the current Fact has been exposed yet. */
-	//private boolean exposed;
-
 	/** X- and Y-coordinates of this FactNode relative to the target */
 	private int nodeX;
 	private int nodeY;
 
-	/** Filepath to location of asset for this node */
-	private String assetPath;
+	/** Boolean representing whether or not the node is locked. */
+	private boolean locked;
 
 	/** Integer representing the amount of stress damage exposing this fact deals to the parent Target. */
 	private int targetStressDmg;
@@ -58,19 +47,19 @@ public class FactNode {
 	 * @param cdren		List of node's children's names
 	 * @param x			X-coordinate
 	 * @param y			Y-coordinate
-	 * @param aPath		Filepath to node's assets
+	 * @param l	Whether the node is locked or not
 	 * @param tsDmg		Target stress damage
 	 * @param psDmg		Player stress damage
 	 */
-	public FactNode(String n, String t, String c, String s, Array<String> cdren, int x, int y, String aPath, int tsDmg, int psDmg) {
-		name = n;
+	public FactNode(String n, String t, String c, String s, Array<String> cdren, int x, int y, boolean l, int tsDmg, int psDmg) {
+		nodeName = n;
 		title = t;
 		content = c;
 		summary = s;
 		children = cdren;
 		nodeX = x;
 		nodeY = y;
-		assetPath = aPath;
+		locked = l;
 		targetStressDmg = tsDmg;
 		playerStressDmg = psDmg;
 	}
@@ -85,67 +74,19 @@ public class FactNode {
 	}
 
 	/**
-	 * Sets the visibility of the FactNode
-	 *
-	 * param value the visibility of the FactNode
-	 *
-	public void setVisible(boolean value){
-		visible = value;
+	 * Returns whether the FactNode is locked or not
+	 */
+	public boolean getLocked(){
+		return locked;
 	}
-
-	/**
-	 * Returns the visibility of the FactNode
-	 *
-	 * return the visibility of the FactNode
-	 *
-	public boolean getVisible(){
-		return visible;
-	}
-
-	/**
-	 * Returns whether the current FactNode has been scanned yet
-	 *
-	 * return whether the current FactNode has been scanned yet
-	 *
-	public boolean getScanned(){
-		return scanned;
-	}
-
-	/**
-	 * Sets whether the FactNode has been scanned
-	 *
-	 * param value whether the FactNode has been scanned
-	 *
-	public void setScanned(boolean value){
-		scanned = value;
-	}
-
-	/**
-	 * Returns whether the current Fact has been exposed yet
-	 *
-	 * return whether the current Fact has been exposed yet
-	 *
-	public boolean getExposed(){
-		return exposed;
-	}
-
-	/**
-	 * Sets whether the Fact has been exposed
-	 *
-	 * param value whether the Fact has been exposed
-	 *
-	public void setExposed(boolean value){
-		exposed = value;
-	}
-	*/
 
 	/**
 	 * Returns the name of the FactNode
 	 *
 	 * @return the name of the FactNode
 	 */
-	public String getName(){
-		return name;
+	public String getNodeName(){
+		return nodeName;
 	}
 
 	/**
@@ -202,14 +143,7 @@ public class FactNode {
 		return nodeY;
 	}
 
-	/**
-	 * Returns the filepath to the location of the assets for the FactNode
-	 *
-	 * @return filepath to FactNode's assets location
-	 */
-	public String getAssetPath(){
-		return assetPath;
-	}
+
 
 	/**
 	 * Returns the amount of stress damage scanning this Node deals to the player
