@@ -69,4 +69,46 @@ public class Connector {
         ycoord = (int)coords.y;
         type = t;
     }
+
+    /**
+     * Returns the path to the asset of the given connector.
+     *
+     * @param dir   The direction of the connector to return the path to the asset of.
+     * @return      The path to the asset for a given connector.
+     */
+    public static String getAssetPath(Direction dir) {
+        switch(dir) {
+            case N:
+                return C_NORTH;
+            case E:
+                return C_EAST;
+            case S:
+                return C_SOUTH;
+            case W:
+                return C_WEST;
+            default:
+                throw new RuntimeException("Connector can only be NESW");
+        }
+    }
+
+    /**
+     * Returns the path to the asset of the given connector.
+     *
+     * @param dir   The direction of the connector to return the path to the asset of.
+     * @return      The path to the asset for a given connector.
+     */
+    public static String getAssetPath(String dir) {
+        switch(dir) {
+            case "N":
+                return C_NORTH;
+            case "E":
+                return C_EAST;
+            case "S":
+                return C_SOUTH;
+            case "W":
+                return C_WEST;
+            default:
+                throw new RuntimeException("Connector can only be NESW");
+        }
+    }
 }
