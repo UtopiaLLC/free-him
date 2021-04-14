@@ -738,13 +738,11 @@ public class LevelEditorController implements Screen {
      */
     public void resize(int width, int height) {
         // Keep game world at the same scale even when resizing
-        nodeStage.getViewport().update(width,height,true);
-        //camera.resize(width, height);
+        //nodeStage.getViewport().update(width,height,true);
+        camera.resize(width, height);
 
         // Keep toolbar in the same place when resizing
-        toolstage.getViewport().update(width,height,true);
-
-        canvas.resize();
+        //toolstage.getViewport().update(width,height,true);
     }
 
     @Override
