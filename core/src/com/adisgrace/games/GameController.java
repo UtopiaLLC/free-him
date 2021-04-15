@@ -133,6 +133,13 @@ public class GameController implements Screen {
     /** The smallest height the game window can take */
     private static final float MINWORLDHEIGHT = 720;
 
+    private static final int nodeWorldWidth = 20;
+    private static final int nodeWorldHeight = 20;
+
+    /** Dimensions of map tile */
+    private static final int TILE_HEIGHT = 256;
+    private static final int TILE_WIDTH = 444;
+
     public GameController() {
         canvas = new GameCanvas();
 //        Gdx.graphics.getWidth();
@@ -157,6 +164,9 @@ public class GameController implements Screen {
         //instantiating target and expose lists
         threatenedFacts = new Array<String>();
         exposedFacts = new Array<String>();
+
+
+        canvas.drawIsometricGrid(stage, nodeWorldWidth, nodeWorldHeight);
 
         // Creating Nodes
         nodeView = new NodeView(stage, target, world);
@@ -214,8 +224,6 @@ public class GameController implements Screen {
             }
         }
 
-        renderGrid();
-
         stage.getViewport().apply();
         stage.draw();
         toolbarStage.getViewport().apply();
@@ -266,6 +274,7 @@ public class GameController implements Screen {
 
     }
 
+    /*
     private void renderGrid() {
 
         shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
@@ -296,6 +305,7 @@ public class GameController implements Screen {
         shapeRenderer.end();
     }
 
+    */
     /**
      * This helper method sets all buttons in toolbar to their unchecked/original states
      */
@@ -330,7 +340,7 @@ public class GameController implements Screen {
         harass.setScale(1f);
         harass.addListener(new ClickListener()
         {
-            Label  harassLabel = new Label("Harass: 2 AP", skin);
+            Label  harassLabel = new Label("Harass: Harass your target to slightly increase their stress for 2 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -348,8 +358,9 @@ public class GameController implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                 if(activeVerb != ActiveVerb.HARASS){
-                    harassLabel.setX(event.getStageX());
-                    harassLabel.setY(event.getStageY());
+                    Vector2 zeroLoc = harass.localToStageCoordinates(new Vector2(0, harass.getHeight()));
+                    harassLabel.setX(zeroLoc.x);
+                    harassLabel.setY(zeroLoc.y);
                     toolbarStage.addActor(harassLabel);
                     hoverVerb = ActiveVerb.HARASS;
                     harass.setChecked(true);
@@ -381,7 +392,8 @@ public class GameController implements Screen {
         threaten.setScale(1f);
         threaten.addListener(new ClickListener()
         {
-            Label  threatenLabel = new Label("Threaten: 2 AP", skin);
+            Label  threatenLabel = new Label("Threaten: Threaten your target with a \n fact to blackmail to increase their stress " +
+                    "for 2 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -399,8 +411,9 @@ public class GameController implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                 if(activeVerb != ActiveVerb.THREATEN){
-                    threatenLabel.setX(event.getStageX());
-                    threatenLabel.setY(event.getStageY());
+                    Vector2 zeroLoc = threaten.localToStageCoordinates(new Vector2(0, threaten.getHeight()));
+                    threatenLabel.setX(zeroLoc.x);
+                    threatenLabel.setY(zeroLoc.y);
                     toolbarStage.addActor(threatenLabel);
                     hoverVerb = ActiveVerb.THREATEN;
                     threaten.setChecked(true);
@@ -431,40 +444,42 @@ public class GameController implements Screen {
         expose.setTransform(true);
         expose.setScale(1f);
         expose.addListener(new ClickListener()
+        {
+
+            Label  exposeLabel = new Label("Expose: Expose your target's fact to the public\n for large stress damage" +
+                    " for 2 AP", skin);
+
+            @Override
+            public void clicked(InputEvent event, float x, float y)
             {
-
-                Label  exposeLabel = new Label("Expose: 2 AP", skin);
-
-                @Override
-                public void clicked(InputEvent event, float x, float y)
-                {
-                    if (expose_checked == false){
-                        unCheck();
-                        activeVerb = ActiveVerb.EXPOSE;
-                        expose_checked = true;
-                        expose.setChecked(true);
-                    }else{
-                        unCheck();
-                    }
+                if (expose_checked == false){
+                    unCheck();
+                    activeVerb = ActiveVerb.EXPOSE;
+                    expose_checked = true;
+                    expose.setChecked(true);
+                }else{
+                    unCheck();
                 }
+            }
 
-                @Override
-                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-                    if(activeVerb != ActiveVerb.EXPOSE){
-                        exposeLabel.setX(event.getStageX());
-                        exposeLabel.setY(event.getStageY());
-                        toolbarStage.addActor(exposeLabel);
-                        hoverVerb = ActiveVerb.EXPOSE;
-                        expose.setChecked(true);
-                    }
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+                if(activeVerb != ActiveVerb.EXPOSE){
+                    Vector2 zeroLoc = expose.localToStageCoordinates(new Vector2(0, expose.getHeight()));
+                    exposeLabel.setX(zeroLoc.x);
+                    exposeLabel.setY(zeroLoc.y);
+                    toolbarStage.addActor(exposeLabel);
+                    hoverVerb = ActiveVerb.EXPOSE;
+                    expose.setChecked(true);
                 }
+            }
 
-                @Override
-                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-                    exposeLabel.remove();
-                    hoverVerb = ActiveVerb.NONE;
-                    if (activeVerb!=ActiveVerb.EXPOSE)expose.setChecked(false);
-                }
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+                exposeLabel.remove();
+                hoverVerb = ActiveVerb.NONE;
+                if (activeVerb!=ActiveVerb.EXPOSE)expose.setChecked(false);
+            }
         });
         return expose;
     }
@@ -484,7 +499,7 @@ public class GameController implements Screen {
         overwork.setScale(1f);
         overwork.addListener(new ClickListener()
         {
-            Label  overworkLabel = new Label("Overwork: Gains AP, Increases Stress", skin);
+            Label  overworkLabel = new Label("Overwork: Gains 2 AP, but Increases Stress", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -498,8 +513,9 @@ public class GameController implements Screen {
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
 
                 if(activeVerb != ActiveVerb.OVERWORK){
-                    overworkLabel.setX(event.getStageX());
-                    overworkLabel.setY(event.getStageY());
+                    Vector2 zeroLoc = overwork.localToStageCoordinates(new Vector2(0, overwork.getHeight()));
+                    overworkLabel.setX(zeroLoc.x);
+                    overworkLabel.setY(zeroLoc.y);
                     toolbarStage.addActor(overworkLabel);
                     hoverVerb = ActiveVerb.OVERWORK;
                     overwork.setChecked(true);
@@ -523,18 +539,15 @@ public class GameController implements Screen {
      * @return      ImageButton for otherjobs.
      */
     private ImageButton createOtherJobs(){
-        otherJobs = new ImageButton(
-                new TextureRegionDrawable(new TextureRegion(new Texture(
-                        Gdx.files.internal("skills/otherjobs_up.png")))),
-                new TextureRegionDrawable(new TextureRegion(new Texture(
-                        Gdx.files.internal("skills/otherjobs_down.png")))),
-                new TextureRegionDrawable(new TextureRegion(new Texture(
-                        Gdx.files.internal("skills/otherjobs_select.png")))));
+        otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/otherjobs_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/otherjobs_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/otherjobs_select.png")))));
         otherJobs.setTransform(true);
         otherJobs.setScale(1f);
         otherJobs.addListener(new ClickListener()
         {
-            Label  otherJobLabel = new Label("Other Jobs: 3 AP", skin);
+            Label  otherJobLabel = new Label("Other Jobs: Make Money with 3 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -547,8 +560,9 @@ public class GameController implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                 if(activeVerb != ActiveVerb.OTHER_JOBS){
-                    otherJobLabel.setX(event.getStageX());
-                    otherJobLabel.setY(event.getStageY());
+                    Vector2 zeroLoc = otherJobs.localToStageCoordinates(new Vector2(0, otherJobs.getHeight()));
+                    otherJobLabel.setX(zeroLoc.x);
+                    otherJobLabel.setY(zeroLoc.y);
                     toolbarStage.addActor(otherJobLabel);
                     hoverVerb = ActiveVerb.OTHER_JOBS;
                     otherJobs.setChecked(true);
@@ -580,7 +594,7 @@ public class GameController implements Screen {
         relax.setScale(1f);
         relax.addListener(new ClickListener()
         {
-            Label  relaxLabel = new Label("Relax: Decreases Stress with AP", skin);
+            Label  relaxLabel = new Label("Relax: Decreases Stress with 1 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -593,8 +607,9 @@ public class GameController implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                 if(activeVerb != ActiveVerb.RELAX){
-                    relaxLabel.setX(event.getStageX());
-                    relaxLabel.setY(event.getStageY());
+                    Vector2 zeroLoc = relax.localToStageCoordinates(new Vector2(0, relax.getHeight()));
+                    relaxLabel.setX(zeroLoc.x);
+                    relaxLabel.setY(zeroLoc.y);;
                     toolbarStage.addActor(relaxLabel);
                     hoverVerb = ActiveVerb.RELAX;
                     relax.setChecked(true);
@@ -794,16 +809,47 @@ public class GameController implements Screen {
 
     }
 
-    private Vector2 convertToIsometric(Vector2 worldCoords) {
-        float oneOne = (float)Math.sqrt(3)/2;
-        float oneTwo = (float)Math.sqrt(3)/2;
-        float twoOne = (float)-1/2;
-        float twoTwo = (float)1/2;
-        Vector2 ans = new Vector2();
-        ans.x = oneOne * worldCoords.x + oneTwo * worldCoords.y;
-        ans.y = twoOne * worldCoords.x + twoTwo * worldCoords.y;
+    /**
+     * Helper function that converts coordinates from world space to isometric space.
+     *
+     * @param coords   Coordinates in world space to transform
+     * @return         Given coordinates in isometric space
+     */
+    private Vector2 worldToIsometric(Vector2 coords) {
+        float tempx = coords.x;
+        float tempy = coords.y;
+        coords.x = 0.57735f * tempx - tempy;
+        coords.y = 0.57735f * tempx + tempy;
 
-        return ans;
+        return coords;
+    }
+
+    /**
+     * Helper function that gets the center of an isometric grid tile nearest to the given coordinates.
+     *
+     * Called when snapping an image to the center of a grid tile.
+     *
+     * The nearest isometric center is just stored in the vector cache [vec].
+     *
+     * @param x     x-coordinate of the location we want to find the nearest isometric center to
+     * @param y     y-coordinate of the location we want to find the nearest isometric center to
+     */
+    private Vector2 nearestIsoCenter(Vector2 vec, float x, float y){
+        // Transform world coordinates to isometric space
+        vec.set(x,y);
+        vec = worldToIsometric(vec);
+        x = vec.x;
+        y = vec.y;
+
+        // Find the nearest isometric center
+        x = Math.round(x / TILE_HEIGHT);
+        y = Math.round(y / TILE_HEIGHT);
+
+        // Transform back to world space
+        vec.set(x * (0.5f * TILE_WIDTH) + y * (0.5f * TILE_WIDTH),
+                -x * (0.5f * TILE_HEIGHT) + y * (0.5f * TILE_HEIGHT));
+
+        return vec;
     }
 
 

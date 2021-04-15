@@ -25,6 +25,14 @@ public class NodeView {
      */
     private Map<String, ImageButton> imageNodes;
 
+    /** Dimensions of map tile */
+    private static final int TILE_HEIGHT = 256;
+    private static final int TILE_WIDTH = 444;
+
+    private static final float ADD = 0;
+    private static final float SCALE_X = 444/2f;
+    private static final float SCALE_Y = 256/2f;
+    private static final float LOCKED_OFFSET = 114.8725f;
 
     public NodeView(Stage stage, TargetModel target, WorldModel world) {
         this.stage = stage;
@@ -37,7 +45,7 @@ public class NodeView {
             node.y = node.y + targetCoords.y;
             nodeCoords.add(node);
         }
-        targetCoords = scaleNodeCoordinates(targetCoords, 100f, 250f);
+        targetCoords = scaleNodeCoordinates(targetCoords, ADD, SCALE_X, SCALE_Y);
 
         imageNodes = new HashMap<>();
         createImageNodes(target, targetNodes, targetCoords);
@@ -61,15 +69,16 @@ public class NodeView {
      * Scales world node coordinates to have more distance between each node.
      * @param targetCoords
      * @param add
-     * @param multiply
+     * @param multiplyX
+     * @param multiplyY
      * @return targetCoords with scaling, in world coordinates
      */
-    private Vector2 scaleNodeCoordinates(Vector2 targetCoords, float add, float multiply){
-        targetCoords.add(targetCoords.x * multiply, targetCoords.y * multiply);
+    private Vector2 scaleNodeCoordinates(Vector2 targetCoords, float add, float multiplyX, float multiplyY){
+        targetCoords.add(targetCoords.x * multiplyX, targetCoords.y * multiplyY);
         targetCoords.add(add, add);
 
         for (Vector2 node: nodeCoords) {
-            node.add(node.x * multiply, node.y * multiply);
+            node.add(node.x * multiplyX, node.y * multiplyY);
             node.add(add, add);
         }
         return targetCoords;
@@ -88,7 +97,11 @@ public class NodeView {
             assert(targetNodes.size == nodeCoords.size);
 
             ImageButton button = new ImageButton(drawable); //Set the button up
-            Vector2 pos = convertToIsometric(nodeCoords.get(i));
+            Vector2 pos = nearestIsoCenter(nodeCoords.get(i).x, nodeCoords.get(i).y);
+            // Account for difference between tile width and sprite width
+            pos.x -= (tRegion.getTexture().getWidth() - TILE_WIDTH) / 2;
+            pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+
             button.setPosition(pos.x, pos.y);
             button.setName(target.getName()+","+targetNodes.get(i));
 
@@ -99,7 +112,9 @@ public class NodeView {
          tRegion = new TextureRegion(new Texture(Gdx.files.internal("targetmale/green.png")));
          drawable = new TextureRegionDrawable(tRegion);
          ImageButton button = new ImageButton(drawable); //Set the button up
-         Vector2 pos = convertToIsometric(targetCoords);
+         Vector2 pos = nearestIsoCenter(targetCoords.x, targetCoords.y);
+         pos.x -= (tRegion.getTexture().getWidth() - TILE_WIDTH) / 2;
+         pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
          button.setPosition(pos.x, pos.y);
          button.setName(target.getName());
          imageNodes.put(target.getName(), button);
@@ -109,20 +124,46 @@ public class NodeView {
     }
 
     /**
-     * Converts world coordinates to isometric coordinates
-     * @param worldCoords
-     * @return the isometric coordinates
+     * Helper function that converts coordinates from world space to isometric space.
+     *
+     * @param coords   Coordinates in world space to transform
+     * @return         Given coordinates in isometric space
      */
-    public Vector2 convertToIsometric(Vector2 worldCoords) {
-        float oneOne = (float)Math.sqrt(3)/2;
-        float oneTwo = (float)Math.sqrt(3)/2;
-        float twoOne = (float)-1/2;
-        float twoTwo = (float)1/2;
-        Vector2 ans = new Vector2();
-        ans.x = oneOne * worldCoords.x + oneTwo * worldCoords.y;
-        ans.y = twoOne * worldCoords.x + twoTwo * worldCoords.y;
+    private Vector2 worldToIsometric(Vector2 coords) {
+        float tempx = coords.x;
+        float tempy = coords.y;
+        coords.x = 0.57735f * tempx - tempy;
+        coords.y = 0.57735f * tempx + tempy;
 
-        return ans;
+        return coords;
+    }
+
+    /**
+     * Helper function that gets the center of an isometric grid tile nearest to the given coordinates.
+     *
+     * Called when snapping an image to the center of a grid tile.
+     *
+     * The nearest isometric center is just stored in the vector cache [vec].
+     *
+     * @param x     x-coordinate of the location we want to find the nearest isometric center to
+     * @param y     y-coordinate of the location we want to find the nearest isometric center to
+     */
+    private Vector2 nearestIsoCenter(float x, float y){
+        // Transform world coordinates to isometric space
+        Vector2 vec = new Vector2(x,y);
+        vec = worldToIsometric(vec);
+        x = vec.x;
+        y = vec.y;
+
+        // Find the nearest isometric center
+        x = Math.round(x / TILE_HEIGHT);
+        y = Math.round(y / TILE_HEIGHT);
+
+        // Transform back to world space
+        vec.set(x * (0.5f * TILE_WIDTH) + y * (0.5f * TILE_WIDTH),
+                -x * (0.5f * TILE_HEIGHT) + y * (0.5f * TILE_HEIGHT));
+
+        return vec;
     }
 
 
