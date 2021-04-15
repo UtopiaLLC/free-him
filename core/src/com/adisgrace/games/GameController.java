@@ -393,6 +393,7 @@ public class GameController implements Screen {
         threaten.setScale(1f);
         threaten.addListener(new ClickListener()
         {
+
             Label  threatenLabel = new Label("Threaten: Threaten your target with a \n fact to blackmail to increase their stress " +
                     "for 2 AP", skin);
 
@@ -548,6 +549,7 @@ public class GameController implements Screen {
         otherJobs.setScale(1f);
         otherJobs.addListener(new ClickListener()
         {
+
             Label  otherJobLabel = new Label("Other Jobs: Make Money with 3 AP", skin);
 
             @Override
