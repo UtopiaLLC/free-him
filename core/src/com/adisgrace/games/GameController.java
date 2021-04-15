@@ -58,7 +58,7 @@ public class GameController implements Screen {
     /** currentZoom controls how much the camera is zoomed in or out */
     private float currentZoom;
     /** target is the specific target being attacked */
-    private TargetModel target;
+    private Array<TargetModel> targets;
     /** world is a variable that links to all the models in the project */
     private WorldModel world;
     /** activeVerb is the state of the toolbar buttons i.e. which button clicked or not clicked */
@@ -143,12 +143,17 @@ public class GameController implements Screen {
 
     public GameController() {
         canvas = new GameCanvas();
-//        Gdx.graphics.getWidth();
         ExtendViewport viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         viewport.setCamera(canvas.getCamera());
         currentZoom = canvas.getCamera().zoom;
         stage = new Stage(viewport);
         canvas.getCamera().zoom = 1.5f;
+
+        //TODO: write function to parse folder of level jsons
+        Array<String> levelJsons = new Array<>();
+
+
+        LevelController lc = new LevelController("level1.json");
 
         // Create and store targets in array
         Array<String> targetJsons = new Array<>();
@@ -160,7 +165,8 @@ public class GameController implements Screen {
         activeVerb = ActiveVerb.NONE;
 
         // Setting a target
-        target = world.getTarget("Patrick Westfield");
+//        target = world.getTarget("Patrick Westfield");
+        targets = lc.getTargets();
 
         //instantiating target and expose lists
         threatenedFacts = new Array<String>();
@@ -170,8 +176,12 @@ public class GameController implements Screen {
         canvas.drawIsometricGrid(stage, nodeWorldWidth, nodeWorldHeight);
 
         // Creating Nodes
-        nodeView = new NodeView(stage, target, world);
-        imageNodes = nodeView.getImageNodes();
+        imageNodes = new HashMap<>();
+        for (TargetModel target: targets) {
+            nodeView = new NodeView(stage, target, world);
+            imageNodes.putAll(nodeView.getImageNodes());
+        }
+
         for(ImageButton button : imageNodes.values()) { // Node Click Listeners
             final ImageButton b = button;
             button.addListener(new ClickListener()
@@ -188,11 +198,14 @@ public class GameController implements Screen {
         }
 
         // Adding all visible nodes
-        Array<String> displayedNodes= world.getDisplayedNodes().get(target.getName());
-        for(String str : displayedNodes) {
-            stage.addActor(imageNodes.get(target.getName()+","+str));
+        for (TargetModel target: targets) {
+            Array<String> displayedNodes= world.getDisplayedNodes().get(target.getName());
+            for(String str : displayedNodes) {
+                stage.addActor(imageNodes.get(target.getName()+","+str));
+            }
+            stage.addActor(imageNodes.get(target.getName()));
         }
-        stage.addActor(imageNodes.get(target.getName()));
+
 
         InputController ic = new InputController();
         cameraController = new CameraController(ic, canvas);
@@ -275,38 +288,6 @@ public class GameController implements Screen {
 
     }
 
-    /*
-    private void renderGrid() {
-
-        shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(1, 1, 1, 1);
-        Vector2 v1;
-        Vector2 v2;
-
-        //Vertical lines
-        float maxVertical = 8f * stage.getHeight();
-        float minVertical = -10f * stage.getHeight();
-        float maxHorizontal = 7f * stage.getWidth();
-        float minHorizontal = -10f * stage.getWidth();
-        float incrementV = (maxVertical - minVertical) / 26;
-
-        for (float i = minVertical; i < maxVertical; i = i+incrementV){
-            v1 = convertToIsometric(new Vector2(i, 10f * stage.getHeight()));
-            v2 = convertToIsometric(new Vector2(i, -10f * stage.getHeight()));
-            shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-        }
-
-        //Horizontal lines
-        for (float i = minHorizontal; i < maxHorizontal; i = i+incrementV){
-            v1 = convertToIsometric(new Vector2(10f * stage.getWidth(), i));
-            v2 = convertToIsometric(new Vector2(-10f * stage.getWidth(), i));
-            shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-        }
-        shapeRenderer.end();
-    }
-
-    */
     /**
      * This helper method sets all buttons in toolbar to their unchecked/original states
      */
@@ -862,14 +843,14 @@ public class GameController implements Screen {
         stress.setFontScale(2);
         ap = new Label("AP: " + Integer.toString(world.getPlayer().getAP()), skin);
         ap.setFontScale(2);
-        tStress = new Label("Target Stress: " + Integer.toString(target.getStress()), skin);
-        tStress.setFontScale(2);
-        tSusp = new Label("Target Suspicion: " + Integer.toString(target.getSuspicion()), skin);
+//        tStress = new Label("Target Stress: " + Integer.toString(target.getStress()), skin);
+//        tStress.setFontScale(2);
+//        tSusp = new Label("Target Suspicion: " + Integer.toString(target.getSuspicion()), skin);
         tSusp.setFontScale(2);
         money = new Label ("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()), skin);
         money.setFontScale(2);
-        tState = new Label("Target State: " + target.getState(), skin);
-        tState.setFontScale(2);
+//        tState = new Label("Target State: " + target.getState(), skin);
+//        tState.setFontScale(2);
 
         stats.top();
         stats.setFillParent(true);
@@ -958,17 +939,17 @@ public class GameController implements Screen {
                 }
                 break;
             case HARASS:
-                if(isTarget) {
-                    if(world.getPlayer().canHarass()) {
-                        world.harass(target.getName());
-                        createDialogBox("You harassed the target! They seem incredibly disturbed and got a bit stressed.");
-                        activeVerb = ActiveVerb.NONE;
-                    }
-                    else {
-                        createDialogBox("Insufficient AP to harass the target.");
-                        activeVerb = ActiveVerb.NONE;
-                    }
-                }
+//                if(isTarget) {
+//                    if(world.getPlayer().canHarass()) {
+//                        world.harass(target.getName());
+//                        createDialogBox("You harassed the target! They seem incredibly disturbed and got a bit stressed.");
+//                        activeVerb = ActiveVerb.NONE;
+//                    }
+//                    else {
+//                        createDialogBox("Insufficient AP to harass the target.");
+//                        activeVerb = ActiveVerb.NONE;
+//                    }
+//                }
                 break;
             case THREATEN:
                 if(isTarget) {
@@ -1109,7 +1090,7 @@ public class GameController implements Screen {
         blackmailDialog.setMovable(true);
         blackmailDialog.getContentTable().add( l ).prefWidth( 350 );
         Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
-        Map<String, String> summaryToFacts = new HashMap<String, String>();
+        Map<String, String> summaryToFacts = new HashMap<>();
         final Array<String> scannedFacts = new Array<>();
 
         Table table = blackmailDialog.getContentTable();
