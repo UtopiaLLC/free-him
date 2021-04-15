@@ -8,6 +8,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -35,10 +36,13 @@ public class GameController implements Screen {
         THREATEN,
         /**  Linked to Expose mode; Expose needs to be applied to a node after it has been clicked */
         EXPOSE,
-        /**  Linked to hack and scan commands*/
+        /**  Linked to overworking commands*/
         OVERWORK,
+        /** Linked to running more jobs to get bitecoin*/
         OTHER_JOBS,
+        /** Linked to relaxing to reduce stress*/
         RELAX,
+        /** Linked to no action being selected */
         NONE
     };
 
@@ -89,33 +93,60 @@ public class GameController implements Screen {
     /** list of facts used to threaten the target*/
     private Array<String> threatenedFacts;
 
+    /** The ImageButton for harass, to be initialized with given texture */
     private ImageButton harass;
+    /** Whether the harass button has been checked */
     private boolean harass_checked = false;
+    /** The ImageButton for threaten, to be initialized with given texture */
     private ImageButton threaten;
+    /** Whether the threaten button has been checked */
     private boolean threaten_checked = false;
+    /** The ImageButton for expose, to be initialized with given texture */
     private ImageButton expose;
+    /** Whether the expose button has been checked */
     private boolean expose_checked = false;
+    /** The ImageButton for overwork, to be initialized with given texture */
     private ImageButton overwork;
+    /** Whether the overwork button has been checked */
     private boolean overwork_checked = false;
+    /** The ImageButton for otherJobs, to be initialized with given texture */
     private ImageButton otherJobs;
+    /** Whether the otherJobs button has been checked */
     private boolean otherJobs_checked = false;
+    /** The ImageButton for relax, to be initialized with given texture */
     private ImageButton relax;
+    /** Whether the relax button has been checked */
     private boolean relax_checked = false;
-
+    /** model for player stats and actions */
     private PlayerModel player;
-
+    /** flag for when game ended*/
     private boolean ended = false;
+    /** flag for when all nodes need to not be clicked anymore*/
     private boolean nodeFreeze = false;
-
+    /** dialog box for blackmail commands*/
     private Dialog blackmailDialog;
+    /** flag for when blackmail operations are complete*/
     private boolean getRidOfBlackmail;
+    /** progress bar that tracks the stress level of players*/
     private ProgressBar stressBar;
+    /** label for the amount of bitecoin a player has*/
     private Label bitecoinAmount;
-
+    /** shapeRenderer for grid lines, may not be needed anymore*/
     private ShapeRenderer shapeRenderer;
+    /** controller for camera operations*/
+    private CameraController cameraController;
 
+    /** The smallest width the game window can take */
     private static final float MINWORLDWIDTH = 1280;
+    /** The smallest height the game window can take */
     private static final float MINWORLDHEIGHT = 720;
+
+    private static final int nodeWorldWidth = 20;
+    private static final int nodeWorldHeight = 20;
+
+    /** Dimensions of map tile */
+    private static final int TILE_HEIGHT = 256;
+    private static final int TILE_WIDTH = 444;
 
     public GameController() {
         canvas = new GameCanvas();
@@ -142,6 +173,9 @@ public class GameController implements Screen {
         threatenedFacts = new Array<String>();
         exposedFacts = new Array<String>();
 
+
+        canvas.drawIsometricGrid(stage, nodeWorldWidth, nodeWorldHeight);
+
         // Creating Nodes
         nodeView = new NodeView(stage, target, world);
         imageNodes = nodeView.getImageNodes();
@@ -167,11 +201,10 @@ public class GameController implements Screen {
         }
         stage.addActor(imageNodes.get(target.getName()));
 
+        InputController ic = new InputController();
+        cameraController = new CameraController(ic, canvas);
         createToolbar();
         shapeRenderer = new ShapeRenderer();
-
-
-
     }
 
     @Override
@@ -186,79 +219,24 @@ public class GameController implements Screen {
     public void render(float delta) {
 
         canvas.clear();
-
+        // If no action is currently selected, and the cursor is not hovering above any button, then remove any effects
         if (activeVerb == ActiveVerb.NONE && hoverVerb == ActiveVerb.NONE){
             unCheck();
         }
 
-        // Was supposed to freeze nodes and stop action if game ended or if popup window exists... Didn't work yet.
         if(!ended) {
-            moveCamera();
+            cameraController.moveCamera();
             toolbarStage.act(delta);
             if(!nodeFreeze) {
                 stage.act(delta);
-            } else {
-
             }
-
         }
-//        canvas.begin();
-//        canvas.end();
-
-
-        shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(1, 1, 1, 1);
-        Vector2 v1;
-        Vector2 v2;
-
-        //Vertical lines
-        float maxVertical = 8f * stage.getHeight();
-        float minVertical = -10f * stage.getHeight();
-        float maxHorizontal = 7f * stage.getWidth();
-        float minHorizontal = -10f * stage.getWidth();
-        float incrementV = (maxVertical - minVertical) / 26;
-//        float incrementH = (maxHorizontal - minHorizontal) / 60;
-
-        for (float i = minVertical; i < maxVertical; i = i+incrementV){
-            v1 = convertToIsometric(new Vector2(i, 10f * stage.getHeight()));
-            v2 = convertToIsometric(new Vector2(i, -10f * stage.getHeight()));
-            shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-        }
-//
-//        Vector2 v1 = convertToIsometric(new Vector2(stage.getWidth()/2, 10f * stage.getHeight()));
-//        Vector2 v2 = convertToIsometric(new Vector2(stage.getWidth()/2, -10f * stage.getHeight()));
-//        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-//
-//        v1 = convertToIsometric(new Vector2(stage.getWidth()/4, 10f * stage.getHeight()));
-//        v2 = convertToIsometric(new Vector2(stage.getWidth()/4, -10f * stage.getHeight()));
-//        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-//
-//        v1 = convertToIsometric(new Vector2(3 * stage.getWidth()/4, 10f * stage.getHeight()));
-//        v2 = convertToIsometric(new Vector2(3 * stage.getWidth()/4, -10f * stage.getHeight()));
-//        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-
-        //Horizontal lines
-        for (float i = minHorizontal; i < maxHorizontal; i = i+incrementV){
-            v1 = convertToIsometric(new Vector2(10f * stage.getWidth(), i));
-            v2 = convertToIsometric(new Vector2(-10f * stage.getWidth(), i));
-            shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-        }
-
-//        v1 = convertToIsometric(new Vector2(10f * stage.getWidth(), stage.getHeight()/2));
-//        v2 = convertToIsometric(new Vector2(-10f * stage.getWidth(), stage.getHeight()/2));
-//        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-
-
-        shapeRenderer.end();
 
         stage.getViewport().apply();
         stage.draw();
-
         toolbarStage.getViewport().apply();
         toolbarStage.draw();
         updateStats();
-
 
         if(world.getGameState() == WorldModel.GAMESTATE.LOSE && !ended) {
             createDialogBox("YOU LOSE!");
@@ -304,6 +282,41 @@ public class GameController implements Screen {
 
     }
 
+    /*
+    private void renderGrid() {
+
+        shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(1, 1, 1, 1);
+        Vector2 v1;
+        Vector2 v2;
+
+        //Vertical lines
+        float maxVertical = 8f * stage.getHeight();
+        float minVertical = -10f * stage.getHeight();
+        float maxHorizontal = 7f * stage.getWidth();
+        float minHorizontal = -10f * stage.getWidth();
+        float incrementV = (maxVertical - minVertical) / 26;
+
+        for (float i = minVertical; i < maxVertical; i = i+incrementV){
+            v1 = convertToIsometric(new Vector2(i, 10f * stage.getHeight()));
+            v2 = convertToIsometric(new Vector2(i, -10f * stage.getHeight()));
+            shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
+        }
+
+        //Horizontal lines
+        for (float i = minHorizontal; i < maxHorizontal; i = i+incrementV){
+            v1 = convertToIsometric(new Vector2(10f * stage.getWidth(), i));
+            v2 = convertToIsometric(new Vector2(-10f * stage.getWidth(), i));
+            shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
+        }
+        shapeRenderer.end();
+    }
+
+    */
+    /**
+     * This helper method sets all buttons in toolbar to their unchecked/original states
+     */
     private void unCheck(){
         harass_checked = false;
         threaten_checked = false;
@@ -320,6 +333,12 @@ public class GameController implements Screen {
         activeVerb = ActiveVerb.NONE;
     }
 
+    /**
+     * This method creates a harass button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for harass.
+     */
     private ImageButton createHarass(){
         harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/harass_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -329,7 +348,7 @@ public class GameController implements Screen {
         harass.setScale(1f);
         harass.addListener(new ClickListener()
         {
-            Label  harassLabel = new Label("Harass: 2 AP", skin);
+            Label  harassLabel = new Label("Harass: Harass your target to slightly increase their stress for 2 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -347,8 +366,9 @@ public class GameController implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                 if(activeVerb != ActiveVerb.HARASS){
-                    harassLabel.setX(event.getStageX());
-                    harassLabel.setY(event.getStageY());
+                    Vector2 zeroLoc = harass.localToStageCoordinates(new Vector2(0, harass.getHeight()));
+                    harassLabel.setX(zeroLoc.x);
+                    harassLabel.setY(zeroLoc.y);
                     toolbarStage.addActor(harassLabel);
                     hoverVerb = ActiveVerb.HARASS;
                     harass.setChecked(true);
@@ -365,6 +385,12 @@ public class GameController implements Screen {
         return harass;
     }
 
+    /**
+     * This method creates a threaten button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for threaten.
+     */
     private ImageButton createThreaten(){
         threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/threaten_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -374,7 +400,9 @@ public class GameController implements Screen {
         threaten.setScale(1f);
         threaten.addListener(new ClickListener()
         {
-            Label  threatenLabel = new Label("Threaten: 2 AP", skin);
+
+            Label  threatenLabel = new Label("Threaten: Threaten your target with a \n fact to blackmail to increase their stress " +
+                    "for 2 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -392,8 +420,9 @@ public class GameController implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                 if(activeVerb != ActiveVerb.THREATEN){
-                    threatenLabel.setX(event.getStageX());
-                    threatenLabel.setY(event.getStageY());
+                    Vector2 zeroLoc = threaten.localToStageCoordinates(new Vector2(0, threaten.getHeight()));
+                    threatenLabel.setX(zeroLoc.x);
+                    threatenLabel.setY(zeroLoc.y);
                     toolbarStage.addActor(threatenLabel);
                     hoverVerb = ActiveVerb.THREATEN;
                     threaten.setChecked(true);
@@ -409,6 +438,13 @@ public class GameController implements Screen {
         });
         return threaten;
     }
+
+    /**
+     * This method creates a expose button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for expose.
+     */
     private ImageButton createExpose(){
         expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/expose_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -417,44 +453,52 @@ public class GameController implements Screen {
         expose.setTransform(true);
         expose.setScale(1f);
         expose.addListener(new ClickListener()
+        {
+
+            Label  exposeLabel = new Label("Expose: Expose your target's fact to the public\n for large stress damage" +
+                    " for 2 AP", skin);
+
+            @Override
+            public void clicked(InputEvent event, float x, float y)
             {
-
-                Label  exposeLabel = new Label("Expose: 2 AP", skin);
-
-                @Override
-                public void clicked(InputEvent event, float x, float y)
-                {
-                    if (expose_checked == false){
-                        unCheck();
-                        activeVerb = ActiveVerb.EXPOSE;
-                        expose_checked = true;
-                        expose.setChecked(true);
-                    }else{
-                        unCheck();
-                    }
+                if (expose_checked == false){
+                    unCheck();
+                    activeVerb = ActiveVerb.EXPOSE;
+                    expose_checked = true;
+                    expose.setChecked(true);
+                }else{
+                    unCheck();
                 }
+            }
 
-                @Override
-                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-                    if(activeVerb != ActiveVerb.EXPOSE){
-                        exposeLabel.setX(event.getStageX());
-                        exposeLabel.setY(event.getStageY());
-                        toolbarStage.addActor(exposeLabel);
-                        hoverVerb = ActiveVerb.EXPOSE;
-                        expose.setChecked(true);
-                    }
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+                if(activeVerb != ActiveVerb.EXPOSE){
+                    Vector2 zeroLoc = expose.localToStageCoordinates(new Vector2(0, expose.getHeight()));
+                    exposeLabel.setX(zeroLoc.x);
+                    exposeLabel.setY(zeroLoc.y);
+                    toolbarStage.addActor(exposeLabel);
+                    hoverVerb = ActiveVerb.EXPOSE;
+                    expose.setChecked(true);
                 }
+            }
 
-                @Override
-                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-                    exposeLabel.remove();
-                    hoverVerb = ActiveVerb.NONE;
-                    if (activeVerb!=ActiveVerb.EXPOSE)expose.setChecked(false);
-                }
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+                exposeLabel.remove();
+                hoverVerb = ActiveVerb.NONE;
+                if (activeVerb!=ActiveVerb.EXPOSE)expose.setChecked(false);
+            }
         });
         return expose;
     }
 
+    /**
+     * This method creates a overwork button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for overwork.
+     */
     private ImageButton createOverwork(){
         overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -464,7 +508,7 @@ public class GameController implements Screen {
         overwork.setScale(1f);
         overwork.addListener(new ClickListener()
         {
-            Label  overworkLabel = new Label("Overwork: Gains AP, Increases Stress", skin);
+            Label  overworkLabel = new Label("Overwork: Gains 2 AP, but Increases Stress", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -478,8 +522,9 @@ public class GameController implements Screen {
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
 
                 if(activeVerb != ActiveVerb.OVERWORK){
-                    overworkLabel.setX(event.getStageX());
-                    overworkLabel.setY(event.getStageY());
+                    Vector2 zeroLoc = overwork.localToStageCoordinates(new Vector2(0, overwork.getHeight()));
+                    overworkLabel.setX(zeroLoc.x);
+                    overworkLabel.setY(zeroLoc.y);
                     toolbarStage.addActor(overworkLabel);
                     hoverVerb = ActiveVerb.OVERWORK;
                     overwork.setChecked(true);
@@ -496,6 +541,12 @@ public class GameController implements Screen {
         return overwork;
     }
 
+    /**
+     * This method creates a otherjobs button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for otherjobs.
+     */
     private ImageButton createOtherJobs(){
         otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/otherjobs_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -505,7 +556,8 @@ public class GameController implements Screen {
         otherJobs.setScale(1f);
         otherJobs.addListener(new ClickListener()
         {
-            Label  otherJobLabel = new Label("Other Jobs: 3 AP", skin);
+
+            Label  otherJobLabel = new Label("Other Jobs: Make Money with 3 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -518,8 +570,9 @@ public class GameController implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                 if(activeVerb != ActiveVerb.OTHER_JOBS){
-                    otherJobLabel.setX(event.getStageX());
-                    otherJobLabel.setY(event.getStageY());
+                    Vector2 zeroLoc = otherJobs.localToStageCoordinates(new Vector2(0, otherJobs.getHeight()));
+                    otherJobLabel.setX(zeroLoc.x);
+                    otherJobLabel.setY(zeroLoc.y);
                     toolbarStage.addActor(otherJobLabel);
                     hoverVerb = ActiveVerb.OTHER_JOBS;
                     otherJobs.setChecked(true);
@@ -536,6 +589,12 @@ public class GameController implements Screen {
         return otherJobs;
     }
 
+    /**
+     * This method creates a relax button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for relax.
+     */
     private ImageButton createRelax(){
         relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/relax_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -545,7 +604,7 @@ public class GameController implements Screen {
         relax.setScale(1f);
         relax.addListener(new ClickListener()
         {
-            Label  relaxLabel = new Label("Relax: Decreases Stress with AP", skin);
+            Label  relaxLabel = new Label("Relax: Decreases Stress with 1 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -558,8 +617,9 @@ public class GameController implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
                 if(activeVerb != ActiveVerb.RELAX){
-                    relaxLabel.setX(event.getStageX());
-                    relaxLabel.setY(event.getStageY());
+                    Vector2 zeroLoc = relax.localToStageCoordinates(new Vector2(0, relax.getHeight()));
+                    relaxLabel.setX(zeroLoc.x);
+                    relaxLabel.setY(zeroLoc.y);;
                     toolbarStage.addActor(relaxLabel);
                     hoverVerb = ActiveVerb.RELAX;
                     relax.setChecked(true);
@@ -576,6 +636,12 @@ public class GameController implements Screen {
         return relax;
     }
 
+    /**
+     * This method creates a EndDay button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for EndDay.
+     */
     private ImageButton createEndDay(){
         ImageButton end = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("UI/EndDay.png")))));
@@ -593,6 +659,12 @@ public class GameController implements Screen {
         return end;
     }
 
+    /**
+     * This method creates a Settings button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for Settings.
+     */
     private ImageButton createSettings(){
         ImageButton settings = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("UI/Settings.png")))));
@@ -609,6 +681,12 @@ public class GameController implements Screen {
         return settings;
     }
 
+    /**
+     * This method creates a Notebook button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for Notebook.
+     */
     private ImageButton createNotebook(){
         ImageButton notebook = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("UI/Notebook.png")))));
@@ -627,10 +705,15 @@ public class GameController implements Screen {
     }
 
     /**
-     * createToolbar creates a fixed toolbar with buttons linked to each of the player skills
+     * CreateToolbar creates a fixed toolbar with buttons linked to each of the player skills.
+     *
+     * It has three tables, one for the left side of the toolbar, one for the right side, and another for the
+     * skill bar.
+     *
+     * This function also adds a input multiplexer with each stage. The toolbar has higher priority for input
+     *
      */
     public void createToolbar() {
-        // Move to an outside class eventually
         ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         toolbarStage = new Stage(toolbarViewPort);
         skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
@@ -638,18 +721,10 @@ public class GameController implements Screen {
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(toolbarStage);
         inputMultiplexer.addProcessor(stage);
-
         Gdx.input.setInputProcessor(inputMultiplexer);
 
-        float width = Gdx.graphics.getWidth();
-        float height = Gdx.graphics.getHeight();
-
-
-
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
-        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
-        //toolbar.setBackground(drawable);
-
+        stressBar = new ProgressBar(0f, 100f, 1f, true, skin, "synthwave");
+        stressBar.setValue(player.getStress());
 
         createHarass();
         createExpose();
@@ -657,27 +732,98 @@ public class GameController implements Screen {
         createOtherJobs();
         createOverwork();
         createThreaten();
-
         ImageButton end = createEndDay();
         ImageButton settings = createSettings();
         ImageButton notebook = createNotebook();
 
+        Table toolbar = createToolbarTable(end, settings, notebook);
+        toolbarStage.addActor(toolbar);
+        toolbarStage.addActor(createStats());
+    }
+
+    /**
+     * This method creates a toolbar table with the leftside, rightside, and skill bar tables embedded inside.
+     *
+     * @param end ImageButton for end day
+     * @param notebook ImageButton for notebook
+     * @param settings ImageButton for settings
+     * @return the toolbar table
+     */
+    private Table createToolbarTable(ImageButton end, ImageButton notebook, ImageButton settings) {
+        float width = Gdx.graphics.getWidth();
+        float height = Gdx.graphics.getHeight();
+
         Table toolbar = new Table();
         toolbar.bottom();
         toolbar.setSize(width, .25f*height);
-        Table leftSide = new Table();
+
+        Table leftSide = createLeftsideTable(toolbar);
+        Table skillBar = createSkillBarTable(toolbar);
+        Table rightSide = createRightsideTable(toolbar, end, notebook, settings);
+
+        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
+        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
+        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
+        return toolbar;
+    }
+
+    /**
+     * This method creates a skill bar using threaten, expose, overwork, otherJobs, relac
+     * @param toolbar table that will encapsulate all other tables
+     * @return the skillBar table
+     */
+    private Table createSkillBarTable(Table toolbar) {
         Table skillBar = new Table();
-        Table rightSide = new Table();
-
-        leftSide.setSize(toolbar.getWidth()*.25f, toolbar.getHeight());
         skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
+        int numSkills = 6+1;
+        float pad = skillBar.getWidth() / 60f;
+        //skillBar.add(harass).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(overwork).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(relax).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        return skillBar;
+    }
+
+    /**
+     * This method creates the right side table with end day, notebook, settings
+     * @param toolbar table that will encapsulate all other tables
+     * @param end ImageButton for end
+     * @param notebook ImageButton for notebook
+     * @param settings ImageButton for settings
+     * @return the right side table
+     */
+    private Table createRightsideTable(Table toolbar, ImageButton end, ImageButton notebook, ImageButton settings) {
+        Table rightSide = new Table();
         rightSide.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
+        rightSide.add(end).width(rightSide.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
+        rightSide.row();
+        rightSide.add(notebook).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
+        rightSide.row();
+        rightSide.add(settings).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
+        return rightSide;
 
-        stressBar = new ProgressBar(0f, 100f, 1f, true, skin, "synthwave");
-        stressBar.setValue(player.getStress());
+    }
+
+    /**
+     * This method creates the left side table, which will have the bitecoin counter and the progress bar
+     * @param toolbar the table that will encapsulate all other tables
+     * @return the left side table
+     */
+    private Table createLeftsideTable(Table toolbar) {
+        Table leftSide = new Table();
+        leftSide.setSize(toolbar.getWidth()*.25f, toolbar.getHeight());
         leftSide.add(stressBar).left().width(75).height(244);
+        leftSide.add(createBitecoinStack());
+        return leftSide;
+    }
 
-
+    /**
+     * This method creates a Stack UI element that has the bitecoin numbers and the UI drawable
+     * @return the bitecoin stack
+     */
+    private Stack createBitecoinStack(){
         Stack bitecoinStack = new Stack();
 
         Image bitecoinCounter = new Image(new TextureRegionDrawable(new TextureRegion(
@@ -686,49 +832,58 @@ public class GameController implements Screen {
 
         bitecoinStack.add(bitecoinCounter);
         bitecoinStack.add(bitecoinAmount);
+        return bitecoinStack;
 
-        leftSide.add(bitecoinStack);
-
-
-        int numSkills = 6+1;
-
-        float pad = skillBar.getWidth() / 60f;
-        System.out.println(pad);
-        //skillBar.add(harass).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(overwork).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(relax).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-
-        end.align(Align.bottomRight);
-        rightSide.add(end).width(rightSide.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
-        rightSide.row();
-        rightSide.add(notebook).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
-        rightSide.row();
-        rightSide.add(settings).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
-
-        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
-        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
-        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
-
-        toolbarStage.addActor(toolbar);
-        toolbarStage.addActor(createStats());
     }
 
-    private Vector2 convertToIsometric(Vector2 worldCoords) {
-        float oneOne = (float)Math.sqrt(3)/2;
-        float oneTwo = (float)Math.sqrt(3)/2;
-        float twoOne = (float)-1/2;
-        float twoTwo = (float)1/2;
-        Vector2 ans = new Vector2();
-        ans.x = oneOne * worldCoords.x + oneTwo * worldCoords.y;
-        ans.y = twoOne * worldCoords.x + twoTwo * worldCoords.y;
+    /**
+     * Helper function that converts coordinates from world space to isometric space.
+     *
+     * @param coords   Coordinates in world space to transform
+     * @return         Given coordinates in isometric space
+     */
+    private Vector2 worldToIsometric(Vector2 coords) {
+        float tempx = coords.x;
+        float tempy = coords.y;
+        coords.x = 0.57735f * tempx - tempy;
+        coords.y = 0.57735f * tempx + tempy;
 
-        return ans;
+        return coords;
+    }
+
+    /**
+     * Helper function that gets the center of an isometric grid tile nearest to the given coordinates.
+     *
+     * Called when snapping an image to the center of a grid tile.
+     *
+     * The nearest isometric center is just stored in the vector cache [vec].
+     *
+     * @param x     x-coordinate of the location we want to find the nearest isometric center to
+     * @param y     y-coordinate of the location we want to find the nearest isometric center to
+     */
+    private Vector2 nearestIsoCenter(Vector2 vec, float x, float y){
+        // Transform world coordinates to isometric space
+        vec.set(x,y);
+        vec = worldToIsometric(vec);
+        x = vec.x;
+        y = vec.y;
+
+        // Find the nearest isometric center
+        x = Math.round(x / TILE_HEIGHT);
+        y = Math.round(y / TILE_HEIGHT);
+
+        // Transform back to world space
+        vec.set(x * (0.5f * TILE_WIDTH) + y * (0.5f * TILE_WIDTH),
+                -x * (0.5f * TILE_HEIGHT) + y * (0.5f * TILE_HEIGHT));
+
+        return vec;
     }
 
 
+    /**
+     * Creates a stats table that appears as the HUD
+     * @return the stats table
+     */
     private Table createStats() {
         Table stats = new Table();
         stress = new Label("Player Stress: " + Integer.toString((int)(world.getPlayer().getStress())), skin);
@@ -757,124 +912,11 @@ public class GameController implements Screen {
         return stats;
     }
 
-
-    /**
-     * Moves the camera based on the Input Keys
-     * Also allows for zooming + scales the movement and bounds based on zooming
-     *
-     */
-    public void moveCamera() {
-        camera = canvas.getCamera();
-        currentZoom = camera.zoom;
-        if(Gdx.input.isKeyPressed(Input.Keys.W)) {
-            camera.translate(0, 12*currentZoom*cameraSpeed(0)/acceleration_speed);
-        }if(Gdx.input.isKeyPressed(Input.Keys.A)) {
-            camera.translate(-12*currentZoom*cameraSpeed(2)/acceleration_speed, 0);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.S)) {
-            camera.translate(0, -12*currentZoom*cameraSpeed(1)/acceleration_speed);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            camera.translate(12*currentZoom*cameraSpeed(3)/acceleration_speed, 0);
-        }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.E)) {
-            camera.zoom = (.99f)*currentZoom;
-        } if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            camera.zoom = (1.01f)*currentZoom;
-        }
-
-        if(camera.zoom > 4.0f) {
-            camera.zoom = 4.0f;
-        }
-        if(camera.zoom < 1.0f) {
-            camera.zoom = 1.0f;
-        }
-
-        float camX = camera.position.x;
-        float camY = camera.position.y;
-
-        Vector2 camMin = new Vector2(-1500f, -1500f);//(camera.viewportWidth/2, camera.viewportHeight/2);
-        camMin.scl(camera.zoom/2); //bring to center and scale by the zoom level
-        Vector2 camMax = new Vector2(1500f, 1500f);
-        camMax.sub(camMin); //bring to center
-
-        //keep camera within borders
-        camX = Math.min(camMax.x, Math.max(camX, camMin.x));
-        camY = Math.min(camMax.y, Math.max(camY, camMin.y));
-
-        camera.position.set(camX, camY, camera.position.z);
-
-        camera.update();
-    }
-
-    /**
-     * Returns the camera speed given the direction, calculated with accumulated acceleration
-     * @param direction
-     */
-    public float cameraSpeed(int direction){
-        // 0 = up, 1 = down, 2 = left, 3 = right
-        float speed = 0f;
-        //acceleration_speed = 40;
-        switch (direction){
-            case 0:
-                if (up_acc == 0) clearSpeedRev(0);
-                up_acc += 1;
-                speed = up_acc > acceleration_speed ? acceleration_speed : up_acc;
-                break;
-            case 1:
-                if (down_acc == 0) clearSpeedRev(1);
-                down_acc += 1;
-                speed = down_acc > acceleration_speed ? acceleration_speed : down_acc;
-                break;
-            case 2:
-                if (left_acc == 0) clearSpeedRev(2);
-                left_acc += 1;
-                speed = left_acc > acceleration_speed ? acceleration_speed : left_acc;
-                break;
-            case 3:
-                if (right_acc == 0) clearSpeedRev(3);
-                right_acc += 1;
-                speed = right_acc > acceleration_speed ? acceleration_speed : right_acc;
-                break;
-        }
-        return speed;
-    }
-
-    /**
-     * Clears camera speed in all directions
-     * @param
-     */
-    private void clearSpeed(){
-        up_acc = 0;
-        down_acc = 0;
-        left_acc = 0;
-        right_acc = 0;
-        return;
-    }
-
-    /**
-     * Clears camera speed in reverse directions
-     * @param
-     */
-    private void clearSpeedRev(int direction){
-        switch (direction){
-            case 0:
-                down_acc = 0;
-            case 1:
-                up_acc = 0;
-            case 2:
-                right_acc = 0;
-            case 3:
-                left_acc = 0;
-        }
-        return;
-    }
-
     /**
      * Controls what actions the game needs to take on a specified node based on the
      * activeVerb that was clicked
-     * @param nodeName
+     * @param nodeName name of target and fact in the form "target_name,fact_id"
+     * @param button the node button
      */
     public void actOnNode(String nodeName, ImageButton button) {
         String[] nodeInfo = nodeName.split(",");
@@ -888,15 +930,26 @@ public class GameController implements Screen {
         switch (activeVerb) {
             case NONE:
                 if(!isTarget) {
-//                    world.hack(nodeInfo[0], nodeInfo[1]);
-//                    world.scan(nodeInfo[0], nodeInfo[1]);
-//                    createDialogBox(world.viewFact(nodeInfo[0], nodeInfo[1]));
                     switch (world.interactionType(nodeInfo[0], nodeInfo[1])) {
                         case HACK:
                             if(world.getPlayer().canHack()) {
+                                Texture node = new Texture("node/N_UnscannedNode_1.png");
+                                TextureRegion[][] regions = new TextureRegion(node).split(
+                                        node.getWidth() / 10,
+                                        node.getHeight() / 6);
+                                TextureRegion tRegion = regions[0][0];
+
+                                Texture node_base = new Texture("node/N_NodeBase_1.png");
+                                TextureRegion[][] node_regions = new TextureRegion(node_base).split(
+                                        node_base.getWidth() / 6,
+                                        node_base.getHeight() / 2);
+
+                                Texture combined = GameCanvas.combineTextures(tRegion, node_regions[0][0]);
+
+                                TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
+
                                 button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
-                                        new TextureRegionDrawable(new TextureRegion(new Texture(
-                                                Gdx.files.internal("node/red.png")))), null, null));
+                                        drawable, null, null));
                                 createDialogBox(world.interact(nodeInfo[0], nodeInfo[1]));
                                 reloadDisplayedNodes();
                             } else {
@@ -905,9 +958,21 @@ public class GameController implements Screen {
                             break;
                         case SCAN:
                             if(world.getPlayer().canScan()) {
+                                Texture node = new Texture("node/N_ScannedNode_2.png");
+                                TextureRegion[][] regions = new TextureRegion(node).split(
+                                        node.getWidth() / 10,
+                                        node.getHeight() / 6);
+                                TextureRegion tRegion = regions[0][0];
+
+                                Texture node_base = new Texture("node/N_NodeBase_1.png");
+                                TextureRegion[][] node_regions = new TextureRegion(node_base).split(
+                                        node_base.getWidth() / 6,
+                                        node_base.getHeight() / 2);
+
+                                Texture combined = GameCanvas.combineTextures(tRegion, node_regions[0][0]);
+                                TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
                                 button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
-                                        new TextureRegionDrawable(new TextureRegion(new Texture(
-                                                Gdx.files.internal("node/blue.png")))), null, null));
+                                        drawable, null, null));
                                 createDialogBox(world.interact(nodeInfo[0], nodeInfo[1]));
                                 reloadDisplayedNodes();
                             } else {
@@ -933,7 +998,6 @@ public class GameController implements Screen {
                         activeVerb = ActiveVerb.NONE;
                     }
                 }
-                //activeVerb = ActiveVerb.NONE;
                 break;
             case THREATEN:
                 if(isTarget) {
@@ -945,7 +1009,6 @@ public class GameController implements Screen {
                         activeVerb = ActiveVerb.NONE;
                     }
                 }
-                //activeVerb = ActiveVerb.NONE;
                 break;
             case EXPOSE:
                 if(isTarget) {
@@ -959,7 +1022,6 @@ public class GameController implements Screen {
                         }
                     }
                 }
-                //activeVerb = ActiveVerb.NONE;
                 break;
             default:
                 System.out.println("You shall not pass");
@@ -967,9 +1029,10 @@ public class GameController implements Screen {
         }
     }
 
+
     /**
      * Creates a dialog box with [s] at a reasonably-sized height and width
-     * @param s
+     * @param s the string displayed
      */
     public void createDialogBox(String s) {
         Dialog dialog = new Dialog("", skin) {
@@ -997,8 +1060,8 @@ public class GameController implements Screen {
     }
 
     /**
-     * Creates a dialog box with [s] at a reasonably-sized height and width
-     * @param s
+     * Creates a dialog box for the notebook with [s] at a reasonably-sized height and width
+     * @param s the string displayed
      */
     public void createNotebook(String s) {
         Dialog dialog = new Dialog("Notebook", skin) {
@@ -1021,7 +1084,9 @@ public class GameController implements Screen {
         dialog.getContentTable().add( l ).prefWidth( 350 );
         dialog.setMovable(true);
 
+        //Get all fact summaries that can potentially be displayed
         Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
+        //This will store the fact ids of all the scanned facts
         Array<String> scannedFacts = new Array<>();
 
         Table table = dialog.getContentTable();
@@ -1050,22 +1115,33 @@ public class GameController implements Screen {
     }
 
     /**
+     * This method allows you to select a fact to threaten or expose someone.
      *
-     * @param s
+     * Very similar to a notebook, except every fact has a listener that allows you to click and choose a fact
+     *
+     * If a fact has been used to threaten, it will not appear in the display for threaten
+     *
+     * If a fact has been used to expose, it will not appear in the display for threaten and expose
+     *
+     *
+     * @param s the text that is displayed above the facts to select
      */
     public void getBlackmailFact(String s) {
         blackmailDialog = new Dialog("Notebook", skin) {
             public void result(Object obj) {
+                //to activate the node clicking once more
                 nodeFreeze = false;
                 activeVerb = ActiveVerb.NONE;
             }
         };
         TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+
         blackmailDialog.setBackground(drawable);
         blackmailDialog.getBackground().setMinWidth(500);
         blackmailDialog.getBackground().setMinHeight(500);
         Label l = new Label( s, skin );
+        //scale sizing based on the amount of text
         if(s.length() > 50) {
             l.setFontScale(1.5f);
         }else {
@@ -1073,9 +1149,13 @@ public class GameController implements Screen {
         }
         l.setWrap( true );
         blackmailDialog.setMovable(true);
+        //Add the text to the center of the dialog box
         blackmailDialog.getContentTable().add( l ).prefWidth( 350 );
+        //Get all fact summaries that can potentially be displayed
         Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
-        Map<String, String> summaryToFacts = new HashMap<String, String>();
+        //This will store all mappings from summaries to a fact name
+        Map<String, String> summaryToFacts = new HashMap<>();
+        //This will store the fact ids of all the scanned facts
         final Array<String> scannedFacts = new Array<>();
 
         Table table = blackmailDialog.getContentTable();
@@ -1083,31 +1163,39 @@ public class GameController implements Screen {
             scannedFacts.add("No facts scanned yet!");
         }
         for (String fact_ : factSummaries.keySet()) {
+            //Should not add empty fact summaries
             if(!world.viewFactSummary(target.getName(), fact_).equals(""))
                 scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
+            //Add to both scannedFacts and summaryToFacts
             summaryToFacts.put(world.viewFactSummary(target.getName(), fact_), fact_);
         }
         table.setFillParent(false);
 
         table.row();
+        //Now, parse through all scannedFacts to see which are eligible for display
         for (int i = 0; i < scannedFacts.size; i++) {
             final int temp_i = i;
             //this should ALWAYS be overwritten in the code underneath
             Label k = new Label("No facts", skin);
             if(activeVerb == ActiveVerb.EXPOSE ){
+                //If a scanned fact has already been exposed, we can't expose it again
                 if (exposedFacts.contains(scannedFacts.get(temp_i), false) ) {
                     continue;
                 } else {
+                    //Else we can display it
                     k = new Label(scannedFacts.get(i), skin);
                 }
             } else if(activeVerb == ActiveVerb.THREATEN){
+                //If a scanned fact has already been used to threaten, we can't use it to threaten again
                 if (threatenedFacts.contains(scannedFacts.get(temp_i), false) ) {
                     continue;
                 } else {
+                    //Else we can display it
                     k = new Label(scannedFacts.get(i), skin);
                 }
             }
             k.setWrap(true);
+            //Add a listener that can be reachable via the name format "target_name,fact_id"
             k.setName(target.getName() + "," + summaryToFacts.get(scannedFacts.get(i)));
             k.addListener(new ClickListener() {
                 @Override
@@ -1119,16 +1207,21 @@ public class GameController implements Screen {
                         case HARASS:
 
                         case THREATEN:
+                            //Threaten the target
                             world.threaten(info[0], info[1]);
                             activeVerb = ActiveVerb.NONE;
                             createDialogBox("You threatened the target!");
+                            //Add this fact to the list of facts used to threaten
                             threatenedFacts.add(scannedFacts.get(temp_i));
                             break;
                         case EXPOSE:
+                            //Expose the target
                             world.expose(info[0], info[1]);
                             activeVerb = ActiveVerb.NONE;
                             createDialogBox("You exposed the target!");
+                            //Add this fact to the list of facts used to expose
                             exposedFacts.add(scannedFacts.get(temp_i));
+                            //Add this fact to the list of facts used to threaten
                             threatenedFacts.add(scannedFacts.get(temp_i));
                             break;
                         default:
@@ -1136,6 +1229,7 @@ public class GameController implements Screen {
                     }
                 }
             });
+            //Add the displayed fact to the middle of the blackmail dialog
             table.add(k).prefWidth(350);
             table.row();
         }
@@ -1143,6 +1237,7 @@ public class GameController implements Screen {
         blackmailDialog.button("Cancel", true); //sends "true" as the result
         blackmailDialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         blackmailDialog.show(toolbarStage);
+        //Make sure nothing else is able to be clicked while blackmail dialog is shown
         nodeFreeze = true;
     }
 

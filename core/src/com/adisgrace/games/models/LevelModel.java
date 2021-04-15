@@ -118,9 +118,9 @@ public class LevelModel {
         //binds each target string to a location in the level
         JsonValue locations = json.get("targetLocs");
         JsonValue.JsonIterator itr = locations.iterator();
+
         //This for loop assumes that there is an equal amount of targets and targetLocations
         for(String target: targetJsons){targetLocs.put(target, itr.next().asIntArray());}
-
 
         n_days = 0;
         rng = new Random();
@@ -184,6 +184,7 @@ public class LevelModel {
         return targetLocs.get(target);
     }
 
+
     /**
      * Returns the world coordinates for a given `target`.
      *
@@ -213,6 +214,7 @@ public class LevelModel {
      *
      * @return the world's current state
      */
+
     public LevelState getLevelState(){
         if(!player.isLiving())
             return LevelState.LOSE;
@@ -220,6 +222,7 @@ public class LevelModel {
         for(TargetModel t: targets.values()){
             if(t.getState() == TargetModel.TargetState.GAMEOVER)
                 return LevelState.LOSE;
+
         }
 
         boolean allDefeated = true;
@@ -236,6 +239,7 @@ public class LevelModel {
 
     public void nextDay(){
         n_days++;
+
     }
 
 
@@ -258,6 +262,16 @@ public class LevelModel {
      */
     public Set<String> getExposableFacts(String targetName){
         return exposableFacts.keySet();
+    }
+
+    /**
+     * Returns the world coordinates for a given `target`.
+     *
+     * @param targetName 	The string name of the selected target
+     * @return 				Vector world coordinates of the target's origin
+     */
+    public Vector2 getWorldCoordinates(String targetName){
+        return new Vector2(targetLocs.get(targetName)[0], targetLocs.get(targetName)[1]);
     }
 
 
@@ -312,13 +326,13 @@ public class LevelModel {
      * @param fact particular node id of target that would be interacted with
      * @return int representing resulting verb of interaction
      */
-    public WorldModel.Verb interactionType(String targetname, String fact){
+    public LevelModel.Verb interactionType(String targetname, String fact){
         if(contents.get(targetname).containsKey(fact))
             return WorldModel.Verb.VIEWFACT;
         if(hackedFacts.get(targetname).contains(fact, false))
             return WorldModel.Verb.SCAN;
         else
-            return WorldModel.Verb.HACK;
+            return LevelModel.Verb.HACK;
     }
 
     /**
@@ -357,17 +371,16 @@ public class LevelModel {
     /************************************************* PLAYER METHODS *************************************************/
 
 
-
     /**
      *	Calls the player's overwork function
      *
      *	@return the gamestate after this action
      */
-    public WorldModel.GAMESTATE overwork() {
+    public LevelModel.GAMESTATE overwork() {
         if(!player.overwork()){
-            return WorldModel.GAMESTATE.LOSE;
+            return LevelModel.GAMESTATE.LOSE;
         }
-        return WorldModel.GAMESTATE.ONGOING;
+        return LevelModel.GAMESTATE.ONGOING;
     }
 
 
@@ -377,9 +390,9 @@ public class LevelModel {
      *	@param ap 		the amount of action points that the player decides to spend on relaxing
      *	@return 		the gamestate after this action
      */
-    public WorldModel.GAMESTATE relax(int ap){
+    public LevelModel.GAMESTATE relax(int ap){
         player.relax(ap);
-        return WorldModel.GAMESTATE.ONGOING;
+        return LevelModel.GAMESTATE.ONGOING;
     }
 
     /**
