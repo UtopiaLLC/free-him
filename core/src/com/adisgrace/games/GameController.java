@@ -296,6 +296,9 @@ public class GameController implements Screen {
         shapeRenderer.end();
     }
 
+    /**
+     * This helper method sets all buttons in toolbar to their unchecked/original states
+     */
     private void unCheck(){
         harass_checked = false;
         threaten_checked = false;
@@ -312,6 +315,12 @@ public class GameController implements Screen {
         activeVerb = ActiveVerb.NONE;
     }
 
+    /**
+     * This method creates a harass button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for harass.
+     */
     private ImageButton createHarass(){
         harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/harass_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -357,6 +366,12 @@ public class GameController implements Screen {
         return harass;
     }
 
+    /**
+     * This method creates a threaten button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for threaten.
+     */
     private ImageButton createThreaten(){
         threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/threaten_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -401,6 +416,13 @@ public class GameController implements Screen {
         });
         return threaten;
     }
+
+    /**
+     * This method creates a expose button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for expose.
+     */
     private ImageButton createExpose(){
         expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/expose_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -447,6 +469,12 @@ public class GameController implements Screen {
         return expose;
     }
 
+    /**
+     * This method creates a overwork button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for overwork.
+     */
     private ImageButton createOverwork(){
         overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/overwork_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -488,6 +516,12 @@ public class GameController implements Screen {
         return overwork;
     }
 
+    /**
+     * This method creates a otherjobs button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for otherjobs.
+     */
     private ImageButton createOtherJobs(){
         otherJobs = new ImageButton(
                 new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -531,6 +565,12 @@ public class GameController implements Screen {
         return otherJobs;
     }
 
+    /**
+     * This method creates a relax button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for relax.
+     */
     private ImageButton createRelax(){
         relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("skills/relax_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
@@ -571,6 +611,12 @@ public class GameController implements Screen {
         return relax;
     }
 
+    /**
+     * This method creates a EndDay button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for EndDay.
+     */
     private ImageButton createEndDay(){
         ImageButton end = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("UI/EndDay.png")))));
@@ -588,6 +634,12 @@ public class GameController implements Screen {
         return end;
     }
 
+    /**
+     * This method creates a Settings button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for Settings.
+     */
     private ImageButton createSettings(){
         ImageButton settings = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("UI/Settings.png")))));
@@ -604,6 +656,12 @@ public class GameController implements Screen {
         return settings;
     }
 
+    /**
+     * This method creates a Notebook button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for Notebook.
+     */
     private ImageButton createNotebook(){
         ImageButton notebook = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
                 Gdx.files.internal("UI/Notebook.png")))));
@@ -622,7 +680,13 @@ public class GameController implements Screen {
     }
 
     /**
-     * createToolbar creates a fixed toolbar with buttons linked to each of the player skills
+     * CreateToolbar creates a fixed toolbar with buttons linked to each of the player skills.
+     *
+     * It has three tables, one for the left side of the toolbar, one for the right side, and another for the
+     * skill bar.
+     *
+     * This function also adds a input multiplexer with each stage. The toolbar has higher priority for input
+     *
      */
     public void createToolbar() {
         ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -652,6 +716,14 @@ public class GameController implements Screen {
         toolbarStage.addActor(createStats());
     }
 
+    /**
+     * This method creates a toolbar table with the leftside, rightside, and skill bar tables embedded inside.
+     *
+     * @param end ImageButton for end day
+     * @param notebook ImageButton for notebook
+     * @param settings ImageButton for settings
+     * @return the toolbar table
+     */
     private Table createToolbarTable(ImageButton end, ImageButton notebook, ImageButton settings) {
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight();
@@ -670,6 +742,11 @@ public class GameController implements Screen {
         return toolbar;
     }
 
+    /**
+     * This method creates a skill bar
+     * @param toolbar
+     * @return
+     */
     private Table createSkillBarTable(Table toolbar) {
         Table skillBar = new Table();
         skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
@@ -775,9 +852,6 @@ public class GameController implements Screen {
         switch (activeVerb) {
             case NONE:
                 if(!isTarget) {
-//                    world.hack(nodeInfo[0], nodeInfo[1]);
-//                    world.scan(nodeInfo[0], nodeInfo[1]);
-//                    createDialogBox(world.viewFact(nodeInfo[0], nodeInfo[1]));
                     switch (world.interactionType(nodeInfo[0], nodeInfo[1])) {
                         case HACK:
                             if(world.getPlayer().canHack()) {
@@ -820,7 +894,6 @@ public class GameController implements Screen {
                         activeVerb = ActiveVerb.NONE;
                     }
                 }
-                //activeVerb = ActiveVerb.NONE;
                 break;
             case THREATEN:
                 if(isTarget) {
@@ -832,7 +905,6 @@ public class GameController implements Screen {
                         activeVerb = ActiveVerb.NONE;
                     }
                 }
-                //activeVerb = ActiveVerb.NONE;
                 break;
             case EXPOSE:
                 if(isTarget) {
@@ -846,7 +918,6 @@ public class GameController implements Screen {
                         }
                     }
                 }
-                //activeVerb = ActiveVerb.NONE;
                 break;
             default:
                 System.out.println("You shall not pass");
