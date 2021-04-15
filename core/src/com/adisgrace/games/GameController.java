@@ -374,7 +374,7 @@ public class GameController implements Screen {
         threaten.setScale(1f);
         threaten.addListener(new ClickListener()
         {
-            Label  threatenLabel = new Label("Threaten: 2 AP", skin);
+            Label  threatenLabel = new Label("Threaten: 2 AP, select an evidence which you want to use against your target, increases stress.", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -419,7 +419,7 @@ public class GameController implements Screen {
         expose.addListener(new ClickListener()
             {
 
-                Label  exposeLabel = new Label("Expose: 2 AP", skin);
+                Label  exposeLabel = new Label("Expose: 2 AP, select an evidence and expose it to everyone, increases a moderate amount of stress.", skin);
 
                 @Override
                 public void clicked(InputEvent event, float x, float y)
@@ -505,7 +505,7 @@ public class GameController implements Screen {
         otherJobs.setScale(1f);
         otherJobs.addListener(new ClickListener()
         {
-            Label  otherJobLabel = new Label("Other Jobs: 3 AP", skin);
+            Label  otherJobLabel = new Label("Other Jobs: 3 AP, gain some bitecoins through working", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
