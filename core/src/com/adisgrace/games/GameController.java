@@ -166,12 +166,11 @@ public class GameController implements Screen {
 
         // Setting a target
 //        target = world.getTarget("Patrick Westfield");
-        targets = lc.getTargets();
+        targets = lc.
 
         //instantiating target and expose lists
         threatenedFacts = new Array<String>();
         exposedFacts = new Array<String>();
-
 
         canvas.drawIsometricGrid(stage, nodeWorldWidth, nodeWorldHeight);
 
