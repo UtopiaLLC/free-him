@@ -221,10 +221,14 @@ public class PlayerModel {
 
 	/**
 	 * Vtube function, make some money selling your virtual body on the internet
+	 *
+	 * @return the amount of currency earned
 	 */
-	public void vtube(){
-		this.incrementBitecoin((float)(VTUBE_INCOME_MEAN + rng.nextGaussian() * VTUBE_INCOME_STDEV));
+	public float vtube(){
+		float amount = (float)(VTUBE_INCOME_MEAN + rng.nextGaussian() * VTUBE_INCOME_STDEV);
+		this.incrementBitecoin(amount);
 		this.decrementAP(VTUBE_AP_COST);
+		return amount;
 	}
 
 	/**

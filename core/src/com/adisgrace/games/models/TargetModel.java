@@ -64,10 +64,7 @@ public class TargetModel {
 	private Array<int[]> firstConnectorCoords;
 	/** The connector types for the nodes that are immediately visible when the level begins, index corresponds to the node in firstNodes */
 	private Array<String > firstConnectorTypes;
-	/** The connector coordinates for all nodes, stored as array of locations of connections in level. In isometric coordinates. */
-	private Array<int[]> connectorCoords;
-	/** The connector types for all nodes, array of types of the connectors in a level, where each type is an enum */
-	private Array<String> connectorTypes;
+
 
 
 	/** Array of Target combos */
@@ -120,6 +117,20 @@ public class TargetModel {
 		// Sort alphabetically
 		neighbors.sort();
 
+		// Get firstConnectorCoords
+		firstConnectorCoords = new Array<>();
+		JsonValue firstConnectorCoordsArr = json.get("firstConnectorCoords");
+		itr = firstConnectorCoordsArr.iterator();
+		// Iterate through the firstConnectorCoords and add to Arraylist of firstConnectorCoords
+		while (itr.hasNext()){firstConnectorCoords.add(itr.next().asIntArray());}
+
+		// Get firstConnectorTypes
+		firstConnectorTypes = new Array<>();
+		JsonValue firstConnectorTypesArr = json.get("firstConnectorTypes");
+		itr = firstConnectorTypesArr.iterator();
+		// Iterate through the firstConnectorCoords and add to Arraylist of firstConnectorCoords
+		while (itr.hasNext()){firstConnectorTypes.add(itr.next().asString());}
+
 		// Get target coordinates
 		neighborArr = json.get("loc");
 		itr = neighborArr.iterator();
@@ -140,6 +151,8 @@ public class TargetModel {
 		int nodeX;
 		int nodeY;
 		Array<String> children = new Array<String>();
+		Array<int[]> connectorCoords = new Array<>();
+		Array<String> connectorTypes = new Array<>();
 		FactNode fn;
 		String nodeName;
 		JsonValue.JsonIterator nodeItr;
@@ -155,6 +168,19 @@ public class TargetModel {
 			nodeItr = nodeArr.iterator();
 			nodeX = nodeItr.next().asInt();
 			nodeY = nodeItr.next().asInt();
+
+			// Get connectorCoords
+			nodeArr = node.get("connectorCoords");
+			nodeItr = nodeArr.iterator();
+			// Iterate through the firstConnectorCoords and add to Arraylist of firstConnectorCoords
+			while (nodeItr.hasNext()){connectorCoords.add(nodeItr.next().asIntArray());}
+
+			// Get connectorTypes
+			nodeArr = node.get("connectorTypes");
+			nodeItr = nodeArr.iterator();
+			// Iterate through the firstConnectorCoords and add to Arraylist of firstConnectorCoords
+			while (nodeItr.hasNext()){connectorTypes.add(nodeItr.next().asString());}
+
 			// Get children
 			nodeArr = node.get("children");
 			nodeItr = nodeArr.iterator();
@@ -172,7 +198,7 @@ public class TargetModel {
 			fn = new FactNode(nodeName, node.getString("title"), node.getString("content"),
 					node.getString("summary"), new Array<String>(children), nodeX, nodeY,
 					node.getBoolean("locked"), node.getInt("targetStressDamage"),
-					node.getInt("playerStressDamage"));
+					node.getInt("playerStressDamage"), connectorCoords, connectorTypes);
 
 			// Store FactNode in podDict, mapped to name
 			podDict.put(nodeName, fn);
@@ -266,14 +292,7 @@ public class TargetModel {
 	 */
 	public Array<int[]> getFirstConnectorCoords(){ return firstConnectorCoords; }
 
-	/**
-	 * Returns the connector coordinates of the target.
-	 *
-	 * Array of locations of connections in isometric coordinates.
-	 *
-	 * @return the target's connector coordinates.
-	 */
-	public Array<int[]> getConnectorCoords(){ return connectorCoords; }
+
 
 	/**
 	 * Returns the first connector types of the target.
@@ -285,13 +304,27 @@ public class TargetModel {
 	public Array<String> getFirstConnectorTypes(){ return firstConnectorTypes; }
 
 	/**
-	 * Returns the connector types of the target.
+	 * Returns coordinates of connectors coming from fact
 	 *
-	 * Array of types of connections.
-	 *
-	 * @return the target's connector types.
+	 * @param fact the name of the fact
+	 * @return a list of coordinates that represent connections out of fact
 	 */
-	public Array<String> getConnectorTypes(){ return connectorTypes; }
+	public Array<int[]> getConnectorCoordsOf(String fact){
+		FactNode f = getFactNode(fact);
+		return f.getConnectorCoords();
+	}
+
+	/**
+	 * Returns the orientations of the connectors coming from fact
+	 *
+	 * @param fact the name of the fact
+	 * @return	a list of types that represent connections out of fact, in the same order as getConnectorCoordsOf(FactNode fact)
+	 */
+	public Array<String> getConnectorTypesOf(String fact){
+		FactNode f = getFactNode(fact);
+		return f.getConnectorTypes();
+	}
+
 
 	/**
 	 * Returns the names of this target's neighbors.
