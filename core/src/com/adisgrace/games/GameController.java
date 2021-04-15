@@ -8,6 +8,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -901,6 +902,25 @@ public class GameController implements Screen {
                     switch (world.interactionType(nodeInfo[0], nodeInfo[1])) {
                         case HACK:
                             if(world.getPlayer().canHack()) {
+
+                                Texture node = new Texture("node/N_UnscannedNode_1.png");
+                                TextureRegion[][] regions = new TextureRegion(node).split(
+                                        node.getWidth() / 10,
+                                        node.getHeight() / 6);
+                                TextureRegion tRegion = regions[0][0];
+
+                                Texture node_base = new Texture("node/N_NodeBase_1.png");
+                                TextureRegion[][] node_regions = new TextureRegion(node_base).split(
+                                        node_base.getWidth() / 6,
+                                        node_base.getHeight() / 2);
+
+                                Texture combined = GameCanvas.combineTextures(tRegion, node_regions[0][0]);
+
+
+
+                                //tRegion = new TextureRegion(new Texture(Gdx.files.internal("targetmale/green.png")));
+                                drawable = new TextureRegionDrawable(new TextureRegion(combined));
+
                                 button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
                                         new TextureRegionDrawable(new TextureRegion(new Texture(
                                                 Gdx.files.internal("node/red.png")))), null, null));
@@ -970,6 +990,7 @@ public class GameController implements Screen {
                 break;
         }
     }
+
 
     /**
      * Creates a dialog box with [s] at a reasonably-sized height and width

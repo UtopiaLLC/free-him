@@ -30,8 +30,8 @@ public class NodeView {
     private static final int TILE_WIDTH = 444;
 
     private static final float ADD = 0;
-    private static final float SCALE_X = 444/2f;
-    private static final float SCALE_Y = 256/2f;
+    private static final float SCALE_X = 444;
+    private static final float SCALE_Y = 256;
     private static final float LOCKED_OFFSET = 114.8725f;
 
     public NodeView(Stage stage, TargetModel target, WorldModel world) {
@@ -91,7 +91,12 @@ public class NodeView {
      * @param targetCoords
      */
     private void createImageNodes(TargetModel target, Array<String> targetNodes, Vector2 targetCoords) {
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("node/green.png")));
+        Texture lockedNode = new Texture("node/N_LockedNode_1.png");
+        TextureRegion[][] regions = new TextureRegion(lockedNode).split(
+                lockedNode.getWidth() / 6,
+                lockedNode.getHeight() / 2);
+        //TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("node/green.png")));
+        TextureRegion tRegion = regions[0][0];
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         for (int i = 0; i < targetNodes.size; i++) {
             assert(targetNodes.size == nodeCoords.size);
@@ -99,7 +104,8 @@ public class NodeView {
             ImageButton button = new ImageButton(drawable); //Set the button up
             Vector2 pos = nearestIsoCenter(nodeCoords.get(i).x, nodeCoords.get(i).y);
             // Account for difference between tile width and sprite width
-            pos.x -= (tRegion.getTexture().getWidth() - TILE_WIDTH) / 2;
+
+            pos.x -= (tRegion.getRegionWidth() - TILE_WIDTH) / 2;
             pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
 
             button.setPosition(pos.x, pos.y);
@@ -109,16 +115,31 @@ public class NodeView {
             stage.addActor(button);
         }
 
-         tRegion = new TextureRegion(new Texture(Gdx.files.internal("targetmale/green.png")));
-         drawable = new TextureRegionDrawable(tRegion);
-         ImageButton button = new ImageButton(drawable); //Set the button up
-         Vector2 pos = nearestIsoCenter(targetCoords.x, targetCoords.y);
-         pos.x -= (tRegion.getTexture().getWidth() - TILE_WIDTH) / 2;
-         pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
-         button.setPosition(pos.x, pos.y);
-         button.setName(target.getName());
-         imageNodes.put(target.getName(), button);
-         stage.addActor(button);
+        Texture target_Look = new Texture("node/N_TargetMale_1.png");
+        regions = new TextureRegion(target_Look).split(
+                target_Look.getWidth() / 6,
+                target_Look.getHeight() / 2);
+        tRegion = regions[0][0];
+
+        Texture node_base = new Texture("node/N_NodeBase_1.png");
+        TextureRegion[][] node_regions = new TextureRegion(node_base).split(
+                node_base.getWidth() / 6,
+                node_base.getHeight() / 2);
+
+        Texture combined = GameCanvas.combineTextures(tRegion, node_regions[0][0]);
+
+
+
+        //tRegion = new TextureRegion(new Texture(Gdx.files.internal("targetmale/green.png")));
+        drawable = new TextureRegionDrawable(new TextureRegion(combined));
+        ImageButton button = new ImageButton(drawable); //Set the button up
+        Vector2 pos = nearestIsoCenter(targetCoords.x, targetCoords.y);
+        pos.x -= (combined.getWidth() - TILE_WIDTH) / 2;
+        pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+        button.setPosition(pos.x, pos.y);
+        button.setName(target.getName());
+        imageNodes.put(target.getName(), button);
+        stage.addActor(button);
 
 
     }
