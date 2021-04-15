@@ -50,17 +50,16 @@ public class LevelEditorController implements Screen {
     /** Controller for view camera for node map */
     private final CameraController camera;
 
-    /** Stage where grid is drawn */
-    //Stage gridStage;
     /** Stage where nodes and connectors are drawn */
     Stage nodeStage;
     /** Stage where buttons are drawn on */
     Stage toolstage;
 
-    /** Array of all the images added */
-    Array<Image> images;
-    /** Hashmap of node names to their stress ratings */
-    ArrayMap<String, StressRating> nodeSRs;
+    /** Hashmap of node names to their LevelTiles */
+    ArrayMap<String, LevelTile> levelTiles;
+    /** Hashmap of coordinates and the names of the objects at that location */
+    ArrayMap<Vector2, Array<String>> levelMap;
+
     /** TODO: tracking connectors */
     /** Image representing the current node that is being clicked on */
     Image selectedNode;
@@ -83,7 +82,7 @@ public class LevelEditorController implements Screen {
     /** Dimensions of map tile */
     private static final float TILE_HEIGHT = 256.0f;
     private static final float TILE_WIDTH = 444.0f;
-    /** Constants for the y-offset for different node types */
+    /** Constant for the y-offset for different node types */
     private static final float LOCKED_OFFSET = 114.8725f;
 
     /** Scale of the buttons in the toolbar */
@@ -132,7 +131,8 @@ public class LevelEditorController implements Screen {
             new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_MoveMode_1.png"))),
             new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_EditMode_1.png"))),
             new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_DeleteMode_1.png"))),
-            new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_DrawMode_1.png")))
+            new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_DrawMode_1.png"))),
+            new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_SaveLevel_1.png")))
     };
     /** Order of stress rating buttons (None, Low, Medium, High) */
     private static final StressRating[] SR_ORDER = {StressRating.NONE, StressRating.LOW,
@@ -174,10 +174,10 @@ public class LevelEditorController implements Screen {
         // Create tool stage for buttons
         createToolStage();
 
-        // Initialize array of images
-        images = new Array<>();
-        // Initialize hashmap of tracked node stress ratings
-        nodeSRs = new ArrayMap<>();
+        // Initialize hashmap of level tiles
+        levelTiles = new ArrayMap<>();
+        // Initialize map of level tiles at coordinates
+        levelMap = new ArrayMap<>();
         // Initialize vector caches
         vec = new Vector2();
 
@@ -189,8 +189,158 @@ public class LevelEditorController implements Screen {
         lstyle = new Label.LabelStyle(font, Color.CYAN);
     }
 
-    /*********************************************** HELPER FUNCTIONS ***********************************************/
+    /************************************************** LEVELTILE ***************************************************/
+    /** Inner class representing a level tile at an isometric coordinate */
+    private class LevelTile {
+        /** Isometric coordinates representing tile's location */
+        float x;
+        float y;
+        /** Stress rating of the tile, if any */
+        StressRating sr;
+        /** The image itself stored at the tile */
+        Image im;
 
+        /**
+         * Constructor for a LevelTile.
+         */
+        private LevelTile(float x, float y, Image im, StressRating sr) {
+            this.x = x;
+            this.y = y;
+            this.im = im;
+            this.sr = sr;
+        }
+
+    }
+
+    /**
+     * Helper function that adds the tile with the given name to the given location
+     * in the level map. Given location is in isometric space.
+     *
+     * This function does not deal with levelTiles at all.
+     *
+     * @param name  Name of the image to add to the map.
+     * @param x     x-coordinate of location to add tile at.
+     * @param y     y-coordinate of location to add tile at.
+     */
+    private void addToMap(String name, float x, float y) {
+        vec.set(x,y);
+        // If coordinate already exists, add to existing array there
+        if (levelMap.containsKey(vec)) {
+            levelMap.get(vec).add(name);
+        }
+        // Otherwise, make a new one
+        else {
+            Array<String> arr = new Array<String>();
+            arr.add(name);
+            Vector2 newVec = new Vector2(vec.x,vec.y);
+            levelMap.put(newVec,arr);
+        }
+    }
+
+    /**
+     * Helper function that adds the tile with the given properties to the given location
+     * in the level. Given location is in isometric space.
+     *
+     * This adds the node to levelTiles and levelMap.
+     *
+     * @param im    Image representing the tile's appearance.
+     * @param x     x-coordinate of location to add tile at.
+     * @param y     y-coordinate of location to add tile at.
+     * @param sr    Stress rating of the tile.
+     */
+    private void addToLevel(Image im, float x, float y, StressRating sr) {
+        // Create corresponding LevelTile
+        LevelTile lt = new LevelTile(x,y,im,sr);
+        // Add to levelTiles
+        levelTiles.put(im.getName(),lt);
+        // Map to location in level map
+        addToMap(im.getName(),x,y);
+    }
+
+    /**
+     * Helper function that removes the tile with the given name from the level map.
+     *
+     * This function does not deal with levelTiles at all.
+     *
+     * @param name  Name of the image to remove from the map.
+     */
+    private void removeFromMap(String name) {
+        // Get the node's coordinates from levelTiles
+        LevelTile lt = levelTiles.get(name);
+        vec.set(lt.x,lt.y);
+        // Remove node from levelMap using coordinates
+        Array<String> nodes = levelMap.get(vec);
+        nodes.removeValue(name,false);
+        Vector2 newVec = new Vector2(vec.x,vec.y);
+        levelMap.put(newVec, nodes);
+    }
+
+    /**
+     * Helper function that removes the tile with the given name from the level.
+     *
+     * This removes the node from levelTiles and levelMap.
+     *
+     * @param name  Name of the image to remove from the map.
+     */
+    private void removeFromLevel(String name) {
+        removeFromMap(name);
+        levelTiles.removeKey(name);
+    }
+
+    /**
+     * Helper function that updates the levelTile with the given name so that
+     * it contains the given value.
+     *
+     * Given coordinates must be in isometric space.
+     *
+     * @param name      Name of LevelTile to modify.
+     * @param x         x-coordinate to change the LevelTile to.
+     * @param y         y-coordinate to change the LevelTile to.
+     */
+    private void updateLevelTile(String name, float x, float y) {
+        // Update the map itself as well to account for the change in location
+        removeFromMap(name);
+        addToMap(name,x,y);
+
+        // Update the array of level tiles
+        LevelTile lt = levelTiles.get(name);
+        lt.x = x;
+        lt.y = y;
+        levelTiles.put(name,lt);
+    }
+
+    /**
+     * Helper function that updates the levelTile with the given name so that
+     * it contains the given value.
+     *
+     * @param name      Name of LevelTile to modify.
+     * @param stress    StressRating to change the level tile's stress rating to.
+     */
+    private void updateLevelTile(String name, StressRating stress) {
+        LevelTile lt = levelTiles.get(name);
+        lt.sr = stress;
+        levelTiles.put(name,lt);
+    }
+
+    /**
+     * Helper function that updates the LevelTile with the given name to have
+     * a new name.
+     *
+     * @param name      Name of LevelTile to modify.
+     * @param newName   Name to change the LevelTile's name to.
+     */
+    private void updateLevelTile(String name, String newName) {
+        // Rename tile in levelMap
+        removeFromMap(name);
+        addToMap(newName,levelTiles.get(name).x,levelTiles.get(name).y);
+
+        // Rename tile in levelTiles
+        levelTiles.setKey(levelTiles.indexOfKey(name), newName);
+    }
+
+
+
+    /*************************************************** HELPERS ****************************************************/
     /**
      * Helper function that converts coordinates from world space to isometric space.
      *
@@ -204,11 +354,23 @@ public class LevelEditorController implements Screen {
     }
 
     /**
+     * Helper function that converts coordinates from isometric space to world space.
+     *
+     * @param coords   Coordinates in isometric space to transform
+     */
+    private void isometricToWorld(Vector2 coords) {
+        float tempx = coords.x;
+        float tempy = coords.y;
+        coords.x = tempx * (0.5f * TILE_WIDTH) + tempy * (0.5f * TILE_WIDTH);
+        coords.y = -tempx * (0.5f * TILE_HEIGHT) + tempy * (0.5f * TILE_HEIGHT);
+    }
+
+    /**
      * Helper function that gets the center of an isometric grid tile nearest to the given coordinates.
      *
      * Called when snapping an image to the center of a grid tile.
      *
-     * The nearest isometric center is just stored in the vector cache [vec].
+     * The nearest isometric center is just stored in the vector cache [vec], in isometric space.
      *
      * @param x     x-coordinate of the location we want to find the nearest isometric center to
      * @param y     y-coordinate of the location we want to find the nearest isometric center to
@@ -224,9 +386,8 @@ public class LevelEditorController implements Screen {
         x = Math.round(x / TILE_HEIGHT);
         y = Math.round(y / TILE_HEIGHT);
 
-        // Transform back to world space
-        vec.set(x * (0.5f * TILE_WIDTH) + y * (0.5f * TILE_WIDTH),
-                -x * (0.5f * TILE_HEIGHT) + y * (0.5f * TILE_HEIGHT));
+        // Return in isometric space
+        vec.set(x,y);
     }
 
     /**
@@ -341,6 +502,7 @@ public class LevelEditorController implements Screen {
      * - A button to create a new target.
      * - A button to create a new unlocked node.
      * - A button to create a new locked node.
+     * - A button to bring all nodes to the front, which is thematically similar.
      *
      * @param toolbar       The toolbar that the buttons are stored in.
      */
@@ -367,7 +529,9 @@ public class LevelEditorController implements Screen {
             // Add listeners to button, changing depending on which node the button creates
             button.addListener(new ChangeListener() {
                 @Override
-                public void changed(ChangeEvent event, Actor actor) {addNode(nodeType);}
+                public void changed(ChangeEvent event, Actor actor) {
+                    addNode(nodeType);
+                }
             });
 
             // Add button to stage
@@ -386,6 +550,7 @@ public class LevelEditorController implements Screen {
      * - A button to change to Move Mode, where nodes can be moved around.
      * - A button to change to Edit Mode, where the contents of nodes can be edited.
      * - A button to change to Delete Mode, where nodes can be deleted.
+     * - A button to save the level, which is not the same, but it looks good here.
      *
      * @param toolbar       The toolbar that the buttons are stored in.
      */
@@ -408,15 +573,30 @@ public class LevelEditorController implements Screen {
             button.setScale(BUTTON_SCALE);
             button.setPosition(xloc, height);
 
-            final Mode newMode = MODE_ORDER[k];
+            // For the actual mode creation buttons, do that
+            if (k < CHANGE_MODE_TRD_ORDER.length - 1) {
+                final Mode newMode = MODE_ORDER[k];
 
-            // TODO: some kind of text that shows the mode
-            // Add listeners to button, changing depending on which node the button creates
-            // Changes the editor mode to the one determined by the button
-            button.addListener(new ChangeListener() {
-                @Override
-                public void changed(ChangeEvent event, Actor actor) {changeEditorMode(newMode);}
-            });
+                // TODO: some kind of text that shows the mode
+                // Add listeners to button, changing depending on which node the button creates
+                // Changes the editor mode to the one determined by the button
+                button.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        changeEditorMode(newMode);
+                    }
+                });
+            }
+            // But make the save level button differently
+            else {
+                button.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        System.out.println("Saved");
+                        saveLevel();
+                    }
+                });
+            }
 
             // Add button to stage
             toolstage.addActor(button);
@@ -459,8 +639,7 @@ public class LevelEditorController implements Screen {
                     nodeStressRating.setDrawable(SR_TRD_ORDER[next]);
 
                     // Change the stress rating of the selected node accordingly
-                    String name = selectedNode.getName();
-                    nodeSRs.put(name,SR_ORDER[next]);
+                    updateLevelTile(selectedNode.getName(),SR_ORDER[next]);
                 }
             }
         }));
@@ -487,7 +666,7 @@ public class LevelEditorController implements Screen {
     private void addNode(int nodeType) {
         // If target, prompt for name before creating node
         if (nodeType == 0) {
-
+            // TODO: prompt for target name
         }
 
         // Create image
@@ -499,12 +678,10 @@ public class LevelEditorController implements Screen {
         // Set name of image, which is the node type, the string "Node," and a unique number
         String name = nodeType + "Node" + imgCount;
         im.setName(name);
-        // Add image to images
-        images.add(im);
         imgCount++;
 
-        // Add node to ArrayMap of stress ratings, initialized at an SR of None
-        nodeSRs.put(name,StressRating.NONE);
+        // Add to level, initialized with a stress rating of None
+        addToLevel(im,0,0,StressRating.NONE);
 
         // Get relevant low and high textures for this node
         final TextureRegionDrawable nodeLow = NODE_TRDS[nodeType];
@@ -541,6 +718,15 @@ public class LevelEditorController implements Screen {
 
                     // Get location that image should snap to
                     nearestIsoCenter(newX, newY);
+                    newX = vec.x;
+                    newY = vec.y;
+
+                    // Update LevelTile with new isometric location
+                    updateLevelTile(im.getName(), newX, newY);
+
+                    // Convert to world space
+                    vec.set(newX,newY);
+                    isometricToWorld(vec);
                     // Retrieve from vector cache
                     newX = vec.x;
                     newY = vec.y;
@@ -575,13 +761,14 @@ public class LevelEditorController implements Screen {
                     im.setDrawable(new TextureRegionDrawable(nodeHigh));
 
                     // Change the appearance and name of the stress rating button to reflect the SR of this node
-                    int ind = find(nodeSRs.get(im.getName()),SR_ORDER);
+                    int ind = find(levelTiles.get(im.getName()).sr,SR_ORDER);
                     nodeStressRating.setDrawable(SR_TRD_ORDER[ind]);
                     nodeStressRating.setName(SR_NAME_ORDER[ind]);
 
                     break;
                 // In Delete Mode, delete the node
                 case DELETE:
+                    removeFromLevel(im.getName());
                     im.remove();
                     break;
                 default:
@@ -592,7 +779,6 @@ public class LevelEditorController implements Screen {
     }
 
     /*********************************************** CONNECTORS ***********************************************/
-
     /**
      * Adds a connector to the grid tile at the given coordinates.
      *
@@ -611,24 +797,31 @@ public class LevelEditorController implements Screen {
         final Image im = new Image(new Texture(Gdx.files.internal(Connector.getAssetPath(Direction.N))));
         nodeStage.addActor(im);
 
-        // Set name of image, which defaults to "N"
-        im.setName("N");
+        // Set name of connector, which defaults to "N". The first letter is the connector, the second
+        // is a unique identifier.
+        im.setName("N" + imgCount);
+        imgCount++;
         // Set scale
         im.setScale(0.5f);
 
-        // TODO: put this back when isometric grid is moved to the canvas, not the stage
-        // Always move to the back
-        //im.toBack();
+        // Get nearest isometric center to where the mouse clicked
+        nearestIsoCenter(x, y);
+        x = vec.x;
+        y = vec.y - 1; // For some reason this is consistently off by 1, so we take care of that this way
 
-        // Get nearest isometric center to where the mouse clicked and fetch from vector cache
-        nearestIsoCenter(x,y);
+        // Add connector to level
+        addToLevel(im,x,y,StressRating.NONE);
+
+        // Convert to world space
+        vec.set(x,y+1); // Don't know why it needs to be y+1, but it does
+        isometricToWorld(vec);
+        // Retrieve from vector cache
         x = vec.x;
         y = vec.y;
+
         // Place connector at nearest isometric center
         im.setPosition(x - (TILE_WIDTH / 4), y - (TILE_HEIGHT / 4));
         im.setOrigin(0, 0);
-        // Add image to images
-        images.add(im);
 
         // Add listeners, which change their behavior depending on the editor mode
         // Add click listener that does something when the connector is left-clicked
@@ -639,8 +832,10 @@ public class LevelEditorController implements Screen {
                 // In Draw Mode, rotate the connector
                 case DRAW:
                     // Set the appearance and name to be the next connector
-                    int nextConn = nextEntry(im.getName(), CONN_NAME_ORDER);
-                    im.setName(CONN_NAME_ORDER[nextConn]);
+                    int nextConn = nextEntry(String.valueOf(im.getName().charAt(0)), CONN_NAME_ORDER);
+                    String name = CONN_NAME_ORDER[nextConn] + im.getName().charAt(1);
+                    updateLevelTile(im.getName(),name);
+                    im.setName(name);
                     im.setDrawable(new TextureRegionDrawable(
                             new Texture(Gdx.files.internal(
                                     // Path to connector asset
@@ -649,6 +844,7 @@ public class LevelEditorController implements Screen {
                     break;
                 // In Delete Mode, delete the connector
                 case DELETE:
+                    removeFromLevel(im.getName());
                     im.remove();
                     break;
                 default:
@@ -665,33 +861,34 @@ public class LevelEditorController implements Screen {
     }
 
     /**
-     * Helper function that clears all images in the level.
+     * Clears all images in the level.
      *
      * Called if the clear button "C" is pressed.
      */
     private void clearLevel() {
-        // Delete all images
-        images.clear();
-        // Clear saved data about node stress ratings
-        nodeSRs.clear();
+        // Remove all images from level
+        for (LevelTile lt : levelTiles.values()) {
+            lt.im.remove();
+        }
+        // Clear saved data about level tiles
+        levelTiles.clear();
+        levelMap.clear();
         // Reset image count
         imgCount = 0;
     }
 
     /**
-     * Helper function that undos the creation of the last image.
+     * Undos the creation of the last image.
      *
      * Called if the undo button "Z" is pressed.
      */
     private void undo() {
+        int size = levelTiles.size;
         // Do nothing if no images have been created
-        if (images.size <= 0) {return;}
-        // Remove last created image from array of created images
-        Image lastIm = images.pop();
-        // If last created image had its stress rating tracked, remove that as well
-        if(nodeSRs.containsKey(lastIm.getName())) {
-            nodeSRs.removeIndex(nodeSRs.indexOfKey(lastIm.getName()));
-        }
+        if (size <= 0) {return;}
+        // Remove last created image from array of created images and from level map
+        Image lastIm = levelTiles.getValueAt(size - 1).im;
+        removeFromLevel(lastIm.getName());
         // Actually remove image from screen
         lastIm.remove();
 
@@ -699,7 +896,7 @@ public class LevelEditorController implements Screen {
 
     @Override
     /**
-     * renders the game display at consistent time steps
+     * Renders the game display at consistent time steps.
      */
     public void render(float delta) {
         // PREUPDATE
@@ -723,8 +920,8 @@ public class LevelEditorController implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         nodeStage.act(delta);
         toolstage.act(delta);
-        //System.out.println(delta);
-        canvas.drawIsometricGrid(nodeStage, 15, 15);
+
+        canvas.drawIsometricGrid(nodeStage, 10, 10);
 
         nodeStage.draw();
         toolstage.draw();
@@ -761,6 +958,60 @@ public class LevelEditorController implements Screen {
     @Override
     public void dispose() {
 
+    }
+
+    /*********************************************** SAVE AND LOAD ***********************************************/
+
+    /** Values of placeholder constants */
+    private static final String TARGET_NAME = "Torchlight Employee";
+    private static final int TARGET_PARANOIA = 3;
+    private static final int TARGET_MAXSTRESS = 100;
+    private static final StressRating PS_DMG = StressRating.NONE;
+
+    /**
+     * Saves the level, constructing a model and producing a JSON.
+     */
+    private void saveLevel() {
+        // Create a LevelEditorModel
+        LevelEditorModel model = new LevelEditorModel();
+
+        int targetCount = 1;
+
+        // Go through each grid tile that contains LevelTiles
+        String c;
+        LevelTile lt;
+        String connector;
+        Array<Connector> connectors = new Array<>();
+        for (Vector2 pos : levelMap.keys()) {
+            connector = "";
+            // For each LevelTile in this grid tile
+            for (String tilename : levelMap.get(pos)) {
+                // Get identifier that can be used to identify type of tile
+                c = String.valueOf(tilename.charAt(0));
+                // Get the actual LevelTile
+                lt = levelTiles.get(tilename);
+                switch (c) {
+                    case "0": // TARGET NODE
+                        // Make target accordingly
+                        model.make_target(TARGET_NAME + " " + targetCount, TARGET_PARANOIA, 100, pos);
+                        targetCount++;
+                    case "1": // UNLOCKED NODE
+                        // Make unlocked node accordingly
+                        model.make_factnode(lt.im.getName(), lt.sr, PS_DMG, false, pos);
+                    case "2": // LOCKED NODE
+                        // Make locked node accordingly
+                        model.make_factnode(lt.im.getName(), lt.sr, PS_DMG, true, pos);
+                    default: // CONNECTOR
+                        // Add the direction to the connector string
+                        connector += c;
+                }
+            }
+            // Store new connector in array of connectors
+            connectors.add(new Connector(pos,connector));
+        }
+        // TODO: pass array of connectors into LevelEditorModel
+
+        // TODO: make JSON
     }
 
 

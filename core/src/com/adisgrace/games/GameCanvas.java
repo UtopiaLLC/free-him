@@ -1180,15 +1180,8 @@ public class GameCanvas {
 		begin();
 		//assuming grid tiles are (444, 256) in size
 		//drawing a 100 x 100 tile grid centered around the origin, offset so that (0, 0) is the center of the tile sprite
-		for(int col = 0; col <= width; col+=1){
-			for(int row = 0; row <= height; row+=1){
-				/**
-				final Image tile = new Image(new Texture(Gdx.files.internal("background/B_MapTileBG_2.png")));
-				tile.setX(col);
-				tile.setY(row);
-				stage.addActor(tile);
-				*/
-
+		for(int col = -width / 2; col <= width / 2; col+=1){
+			for(int row = -height / 2; row <= height / 2; row+=1){
 				draw(tile, Color.WHITE, 0, 0, (-twidth/2) + twidth*col, (-theight/2) + theight*row, 444, 256);
 			}
 		}
