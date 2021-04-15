@@ -89,17 +89,29 @@ public class GameController implements Screen {
     /** list of facts used to threaten the target*/
     private Array<String> threatenedFacts;
 
+    /** The ImageButton for harass, to be initialized with given texture */
     private ImageButton harass;
+    /** Whether the harass button has been checked */
     private boolean harass_checked = false;
+    /** The ImageButton for threaten, to be initialized with given texture */
     private ImageButton threaten;
+    /** Whether the threaten button has been checked */
     private boolean threaten_checked = false;
+    /** The ImageButton for expose, to be initialized with given texture */
     private ImageButton expose;
+    /** Whether the expose button has been checked */
     private boolean expose_checked = false;
+    /** The ImageButton for overwork, to be initialized with given texture */
     private ImageButton overwork;
+    /** Whether the overwork button has been checked */
     private boolean overwork_checked = false;
+    /** The ImageButton for otherJobs, to be initialized with given texture */
     private ImageButton otherJobs;
+    /** Whether the otherJobs button has been checked */
     private boolean otherJobs_checked = false;
+    /** The ImageButton for relax, to be initialized with given texture */
     private ImageButton relax;
+    /** Whether the relax button has been checked */
     private boolean relax_checked = false;
 
     private PlayerModel player;
@@ -114,7 +126,11 @@ public class GameController implements Screen {
 
     private ShapeRenderer shapeRenderer;
 
+    private CameraController cameraController;
+
+    /** The smallest width the game window can take */
     private static final float MINWORLDWIDTH = 1280;
+    /** The smallest height the game window can take */
     private static final float MINWORLDHEIGHT = 720;
 
     public GameController() {
@@ -167,11 +183,10 @@ public class GameController implements Screen {
         }
         stage.addActor(imageNodes.get(target.getName()));
 
+        InputController ic = new InputController();
+        cameraController = new CameraController(ic, canvas);
         createToolbar();
         shapeRenderer = new ShapeRenderer();
-
-
-
     }
 
     @Override
@@ -186,79 +201,26 @@ public class GameController implements Screen {
     public void render(float delta) {
 
         canvas.clear();
-
+        // If no action is currently selected, and the cursor is not hovering above any button, then remove any effects
         if (activeVerb == ActiveVerb.NONE && hoverVerb == ActiveVerb.NONE){
             unCheck();
         }
 
-        // Was supposed to freeze nodes and stop action if game ended or if popup window exists... Didn't work yet.
         if(!ended) {
-            moveCamera();
+            cameraController.moveCamera();
             toolbarStage.act(delta);
             if(!nodeFreeze) {
                 stage.act(delta);
-            } else {
-
             }
-
-        }
-//        canvas.begin();
-//        canvas.end();
-
-
-        shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(1, 1, 1, 1);
-        Vector2 v1;
-        Vector2 v2;
-
-        //Vertical lines
-        float maxVertical = 8f * stage.getHeight();
-        float minVertical = -10f * stage.getHeight();
-        float maxHorizontal = 7f * stage.getWidth();
-        float minHorizontal = -10f * stage.getWidth();
-        float incrementV = (maxVertical - minVertical) / 26;
-//        float incrementH = (maxHorizontal - minHorizontal) / 60;
-
-        for (float i = minVertical; i < maxVertical; i = i+incrementV){
-            v1 = convertToIsometric(new Vector2(i, 10f * stage.getHeight()));
-            v2 = convertToIsometric(new Vector2(i, -10f * stage.getHeight()));
-            shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-        }
-//
-//        Vector2 v1 = convertToIsometric(new Vector2(stage.getWidth()/2, 10f * stage.getHeight()));
-//        Vector2 v2 = convertToIsometric(new Vector2(stage.getWidth()/2, -10f * stage.getHeight()));
-//        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-//
-//        v1 = convertToIsometric(new Vector2(stage.getWidth()/4, 10f * stage.getHeight()));
-//        v2 = convertToIsometric(new Vector2(stage.getWidth()/4, -10f * stage.getHeight()));
-//        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-//
-//        v1 = convertToIsometric(new Vector2(3 * stage.getWidth()/4, 10f * stage.getHeight()));
-//        v2 = convertToIsometric(new Vector2(3 * stage.getWidth()/4, -10f * stage.getHeight()));
-//        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-
-        //Horizontal lines
-        for (float i = minHorizontal; i < maxHorizontal; i = i+incrementV){
-            v1 = convertToIsometric(new Vector2(10f * stage.getWidth(), i));
-            v2 = convertToIsometric(new Vector2(-10f * stage.getWidth(), i));
-            shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
         }
 
-//        v1 = convertToIsometric(new Vector2(10f * stage.getWidth(), stage.getHeight()/2));
-//        v2 = convertToIsometric(new Vector2(-10f * stage.getWidth(), stage.getHeight()/2));
-//        shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
-
-
-        shapeRenderer.end();
+        renderGrid();
 
         stage.getViewport().apply();
         stage.draw();
-
         toolbarStage.getViewport().apply();
         toolbarStage.draw();
         updateStats();
-
 
         if(world.getGameState() == WorldModel.GAMESTATE.LOSE && !ended) {
             createDialogBox("YOU LOSE!");
@@ -302,6 +264,36 @@ public class GameController implements Screen {
     @Override
     public void dispose() {
 
+    }
+
+    private void renderGrid() {
+
+        shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(1, 1, 1, 1);
+        Vector2 v1;
+        Vector2 v2;
+
+        //Vertical lines
+        float maxVertical = 8f * stage.getHeight();
+        float minVertical = -10f * stage.getHeight();
+        float maxHorizontal = 7f * stage.getWidth();
+        float minHorizontal = -10f * stage.getWidth();
+        float incrementV = (maxVertical - minVertical) / 26;
+
+        for (float i = minVertical; i < maxVertical; i = i+incrementV){
+            v1 = convertToIsometric(new Vector2(i, 10f * stage.getHeight()));
+            v2 = convertToIsometric(new Vector2(i, -10f * stage.getHeight()));
+            shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
+        }
+
+        //Horizontal lines
+        for (float i = minHorizontal; i < maxHorizontal; i = i+incrementV){
+            v1 = convertToIsometric(new Vector2(10f * stage.getWidth(), i));
+            v2 = convertToIsometric(new Vector2(-10f * stage.getWidth(), i));
+            shapeRenderer.line(v1.x, v1.y, v2.x, v2.y);
+        }
+        shapeRenderer.end();
     }
 
     private void unCheck(){
@@ -497,10 +489,13 @@ public class GameController implements Screen {
     }
 
     private ImageButton createOtherJobs(){
-        otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/otherjobs_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/otherjobs_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/otherjobs_select.png")))));
+        otherJobs = new ImageButton(
+                new TextureRegionDrawable(new TextureRegion(new Texture(
+                        Gdx.files.internal("skills/otherjobs_up.png")))),
+                new TextureRegionDrawable(new TextureRegion(new Texture(
+                        Gdx.files.internal("skills/otherjobs_down.png")))),
+                new TextureRegionDrawable(new TextureRegion(new Texture(
+                        Gdx.files.internal("skills/otherjobs_select.png")))));
         otherJobs.setTransform(true);
         otherJobs.setScale(1f);
         otherJobs.addListener(new ClickListener()
@@ -630,7 +625,6 @@ public class GameController implements Screen {
      * createToolbar creates a fixed toolbar with buttons linked to each of the player skills
      */
     public void createToolbar() {
-        // Move to an outside class eventually
         ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         toolbarStage = new Stage(toolbarViewPort);
         skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
@@ -638,18 +632,10 @@ public class GameController implements Screen {
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(toolbarStage);
         inputMultiplexer.addProcessor(stage);
-
         Gdx.input.setInputProcessor(inputMultiplexer);
 
-        float width = Gdx.graphics.getWidth();
-        float height = Gdx.graphics.getHeight();
-
-
-
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
-        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
-        //toolbar.setBackground(drawable);
-
+        stressBar = new ProgressBar(0f, 100f, 1f, true, skin, "synthwave");
+        stressBar.setValue(player.getStress());
 
         createHarass();
         createExpose();
@@ -657,27 +643,68 @@ public class GameController implements Screen {
         createOtherJobs();
         createOverwork();
         createThreaten();
-
         ImageButton end = createEndDay();
         ImageButton settings = createSettings();
         ImageButton notebook = createNotebook();
 
+        Table toolbar = createToolbarTable(end, settings, notebook);
+        toolbarStage.addActor(toolbar);
+        toolbarStage.addActor(createStats());
+    }
+
+    private Table createToolbarTable(ImageButton end, ImageButton notebook, ImageButton settings) {
+        float width = Gdx.graphics.getWidth();
+        float height = Gdx.graphics.getHeight();
+
         Table toolbar = new Table();
         toolbar.bottom();
         toolbar.setSize(width, .25f*height);
-        Table leftSide = new Table();
+
+        Table leftSide = createLeftsideTable(toolbar);
+        Table skillBar = createSkillBarTable(toolbar);
+        Table rightSide = createRightsideTable(toolbar, end, notebook, settings);
+
+        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
+        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
+        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
+        return toolbar;
+    }
+
+    private Table createSkillBarTable(Table toolbar) {
         Table skillBar = new Table();
-        Table rightSide = new Table();
-
-        leftSide.setSize(toolbar.getWidth()*.25f, toolbar.getHeight());
         skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
+        int numSkills = 6+1;
+        float pad = skillBar.getWidth() / 60f;
+        //skillBar.add(harass).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(overwork).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(relax).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        return skillBar;
+    }
+
+    private Table createRightsideTable(Table toolbar, ImageButton end, ImageButton notebook, ImageButton settings) {
+        Table rightSide = new Table();
         rightSide.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
+        rightSide.add(end).width(rightSide.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
+        rightSide.row();
+        rightSide.add(notebook).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
+        rightSide.row();
+        rightSide.add(settings).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
+        return rightSide;
 
-        stressBar = new ProgressBar(0f, 100f, 1f, true, skin, "synthwave");
-        stressBar.setValue(player.getStress());
+    }
+
+    private Table createLeftsideTable(Table toolbar) {
+        Table leftSide = new Table();
+        leftSide.setSize(toolbar.getWidth()*.25f, toolbar.getHeight());
         leftSide.add(stressBar).left().width(75).height(244);
+        leftSide.add(createBitecoinStack());
+        return leftSide;
+    }
 
-
+    private Stack createBitecoinStack(){
         Stack bitecoinStack = new Stack();
 
         Image bitecoinCounter = new Image(new TextureRegionDrawable(new TextureRegion(
@@ -686,34 +713,8 @@ public class GameController implements Screen {
 
         bitecoinStack.add(bitecoinCounter);
         bitecoinStack.add(bitecoinAmount);
+        return bitecoinStack;
 
-        leftSide.add(bitecoinStack);
-
-
-        int numSkills = 6+1;
-
-        float pad = skillBar.getWidth() / 60f;
-        System.out.println(pad);
-        //skillBar.add(harass).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(overwork).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(relax).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-
-        end.align(Align.bottomRight);
-        rightSide.add(end).width(rightSide.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
-        rightSide.row();
-        rightSide.add(notebook).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
-        rightSide.row();
-        rightSide.add(settings).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
-
-        toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
-        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
-        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
-
-        toolbarStage.addActor(toolbar);
-        toolbarStage.addActor(createStats());
     }
 
     private Vector2 convertToIsometric(Vector2 worldCoords) {
@@ -755,120 +756,6 @@ public class GameController implements Screen {
         stats.row();
         stats.add(ap).expandX().padTop(10);
         return stats;
-    }
-
-
-    /**
-     * Moves the camera based on the Input Keys
-     * Also allows for zooming + scales the movement and bounds based on zooming
-     *
-     */
-    public void moveCamera() {
-        camera = canvas.getCamera();
-        currentZoom = camera.zoom;
-        if(Gdx.input.isKeyPressed(Input.Keys.W)) {
-            camera.translate(0, 12*currentZoom*cameraSpeed(0)/acceleration_speed);
-        }if(Gdx.input.isKeyPressed(Input.Keys.A)) {
-            camera.translate(-12*currentZoom*cameraSpeed(2)/acceleration_speed, 0);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.S)) {
-            camera.translate(0, -12*currentZoom*cameraSpeed(1)/acceleration_speed);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            camera.translate(12*currentZoom*cameraSpeed(3)/acceleration_speed, 0);
-        }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.E)) {
-            camera.zoom = (.99f)*currentZoom;
-        } if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            camera.zoom = (1.01f)*currentZoom;
-        }
-
-        if(camera.zoom > 4.0f) {
-            camera.zoom = 4.0f;
-        }
-        if(camera.zoom < 1.0f) {
-            camera.zoom = 1.0f;
-        }
-
-        float camX = camera.position.x;
-        float camY = camera.position.y;
-
-        Vector2 camMin = new Vector2(-1500f, -1500f);//(camera.viewportWidth/2, camera.viewportHeight/2);
-        camMin.scl(camera.zoom/2); //bring to center and scale by the zoom level
-        Vector2 camMax = new Vector2(1500f, 1500f);
-        camMax.sub(camMin); //bring to center
-
-        //keep camera within borders
-        camX = Math.min(camMax.x, Math.max(camX, camMin.x));
-        camY = Math.min(camMax.y, Math.max(camY, camMin.y));
-
-        camera.position.set(camX, camY, camera.position.z);
-
-        camera.update();
-    }
-
-    /**
-     * Returns the camera speed given the direction, calculated with accumulated acceleration
-     * @param direction
-     */
-    public float cameraSpeed(int direction){
-        // 0 = up, 1 = down, 2 = left, 3 = right
-        float speed = 0f;
-        //acceleration_speed = 40;
-        switch (direction){
-            case 0:
-                if (up_acc == 0) clearSpeedRev(0);
-                up_acc += 1;
-                speed = up_acc > acceleration_speed ? acceleration_speed : up_acc;
-                break;
-            case 1:
-                if (down_acc == 0) clearSpeedRev(1);
-                down_acc += 1;
-                speed = down_acc > acceleration_speed ? acceleration_speed : down_acc;
-                break;
-            case 2:
-                if (left_acc == 0) clearSpeedRev(2);
-                left_acc += 1;
-                speed = left_acc > acceleration_speed ? acceleration_speed : left_acc;
-                break;
-            case 3:
-                if (right_acc == 0) clearSpeedRev(3);
-                right_acc += 1;
-                speed = right_acc > acceleration_speed ? acceleration_speed : right_acc;
-                break;
-        }
-        return speed;
-    }
-
-    /**
-     * Clears camera speed in all directions
-     * @param
-     */
-    private void clearSpeed(){
-        up_acc = 0;
-        down_acc = 0;
-        left_acc = 0;
-        right_acc = 0;
-        return;
-    }
-
-    /**
-     * Clears camera speed in reverse directions
-     * @param
-     */
-    private void clearSpeedRev(int direction){
-        switch (direction){
-            case 0:
-                down_acc = 0;
-            case 1:
-                up_acc = 0;
-            case 2:
-                right_acc = 0;
-            case 3:
-                left_acc = 0;
-        }
-        return;
     }
 
     /**
