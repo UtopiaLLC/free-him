@@ -1009,9 +1009,11 @@ public class LevelEditorController implements Screen {
             // Store new connector in array of connectors
             connectors.add(new Connector(pos,connector));
         }
-        // TODO: pass array of connectors into LevelEditorModel
+        // Pass all connectors into the model
+        model.make_connections(connectors);
 
-        // TODO: make JSON
+        // Make JSON
+        model.make_json();
     }
 
 
