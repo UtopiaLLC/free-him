@@ -18,10 +18,7 @@
 package com.adisgrace.games;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Affine2;
@@ -1202,6 +1199,66 @@ public class GameCanvas {
 		//Math should be right... but unsure. Have someone check and delete this comment once it's done?
 		setWidth((int)(rows * isometricWidth));
 		setHeight((int)(cols * isometricHeight));
+	}
+
+	public static Texture combineTextures(TextureRegion textureRegion1, TextureRegion textureRegion2) {
+//		texture1.getTextureData().prepare();
+//		Pixmap pixmap1 = texture1.getTextureData().consumePixmap();
+//
+//		texture2.getTextureData().prepare();
+//		Pixmap pixmap2 = texture2.getTextureData().consumePixmap();
+//
+//		pixmap1.drawPixmap(pixmap2, 0, 100);
+//		Texture textureResult = new Texture(pixmap1);
+//
+//		pixmap1.dispose();
+//		pixmap2.dispose();
+
+		TextureData textureData1 = textureRegion1.getTexture().getTextureData();
+		if (!textureData1.isPrepared()) {
+			textureData1.prepare();
+		}
+		Pixmap pixmap1 = new Pixmap(
+				textureRegion1.getRegionWidth(),
+				textureRegion1.getRegionHeight(),
+				textureData1.getFormat()
+		);
+		pixmap1.drawPixmap(
+				textureData1.consumePixmap(), // The other Pixmap
+				0, // The target x-coordinate (top left corner)
+				0, // The target y-coordinate (top left corner)
+				textureRegion1.getRegionX(), // The source x-coordinate (top left corner)
+				textureRegion1.getRegionY(), // The source y-coordinate (top left corner)
+				textureRegion1.getRegionWidth(), // The width of the area from the other Pixmap in pixels
+				textureRegion1.getRegionHeight() // The height of the area from the other Pixmap in pixels
+		);
+
+		TextureData textureData2 = textureRegion2.getTexture().getTextureData();
+		if (!textureData2.isPrepared()) {
+			textureData2.prepare();
+		}
+		Pixmap pixmap2 = new Pixmap(
+				textureRegion2.getRegionWidth(),
+				textureRegion2.getRegionHeight(),
+				textureData2.getFormat()
+		);
+		pixmap2.drawPixmap(
+				textureData2.consumePixmap(), // The other Pixmap
+				0, // The target x-coordinate (top left corner)
+				0, // The target y-coordinate (top left corner)
+				textureRegion2.getRegionX(), // The source x-coordinate (top left corner)
+				textureRegion2.getRegionY(), // The source y-coordinate (top left corner)
+				textureRegion2.getRegionWidth(), // The width of the area from the other Pixmap in pixels
+				textureRegion2.getRegionHeight() // The height of the area from the other Pixmap in pixels
+		);
+
+		pixmap1.drawPixmap(pixmap2, 0, 10);
+		Texture textureResult = new Texture(pixmap1);
+
+		pixmap1.dispose();
+		pixmap2.dispose();
+
+		return textureResult;
 	}
 
 }
