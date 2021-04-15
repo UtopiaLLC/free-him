@@ -5,9 +5,9 @@ import com.adisgrace.games.models.FactNode;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.awt.image.AreaAveragingScaleFilter;
+import java.io.*;
+import java.util.*;
 
 public class LevelEditorModel {
 
@@ -205,9 +205,9 @@ public class LevelEditorModel {
         int psDmg_ = stressRating_to_int(psDmg);
 
         //TODO implement locked in FactNode
-        //FactNode factNode = new FactNode(factName, "untitled fact", contents, summary, new Array<String>(),
-        //        (int)coords.x, (int)coords.y, "asset_path", tsDmg_, psDmg_, locked);
-        //factnodes.put(factName, factNode);
+        FactNode factNode = new FactNode(factName, "untitled fact", contents, summary, new Array<String>(),
+                (int)coords.x, (int)coords.y, locked, tsDmg_, psDmg_);
+        factnodes.put(factName, factNode);
     }
 
     /**
@@ -307,7 +307,7 @@ public class LevelEditorModel {
      * @param childName name of the child element
      * @param path list of connectors the connection passes through ordered from parent to child
      */
-    public void makeConnection(String parentName, String childName, Array<Connector> path){
+    public void make_connection(String parentName, String childName, Array<Connector> path){
         if(!connections.containsKey(parentName))
             connections.put(parentName, new HashMap<String, Array<Connector>>());
         connections.get(parentName).put(childName, path);
@@ -324,5 +324,251 @@ public class LevelEditorModel {
         connections.get(parentName).remove(childName);
     }
 
+    /**
+     * Automatically detects and creates connections from an array of Connector objects
+     * @param connections_ Array of connections on the map
+     */
+    public void make_connections(Array<Connector> connections_){
+//        Map<Vector2,Map<String,Object>> target_from_pos = new HashMap<>();
+//        for(Map<String,Object> t : targets.values()){
+//            target_from_pos.put((Vector2) t.get("pos"), t);
+//        }
+        Map<Vector2,FactNode> factnode_from_pos = new HashMap<>();
+        for(FactNode fn : factnodes.values()){
+            factnode_from_pos.put(new Vector2(fn.getX(), fn.getY()), fn);
+        }
+        Map<Vector2,Connector> connector_from_pos = new HashMap<>();
+        for(Connector c : connections_) {
+            connector_from_pos.put(new Vector2(c.xcoord,c.ycoord), c);
+        }
 
+        Set<Vector2> seen;
+        Array<Array<Vector2>> border;
+        Array<Vector2> path;
+        Array<Vector2> path2;
+        Array<Connector> path3;
+        Vector2 vec, vec2;
+        String dirs, newdirs = "";
+        for(Map<String,Object> target : targets.values()){
+            path = new Array<>();
+            path.add((Vector2)target.get("pos"));
+            seen = new HashSet<>();
+            seen.add((Vector2)target.get("pos"));
+            border = new Array<>();
+            border.add(path);
+            while(!border.isEmpty()){
+                path = border.pop();
+                seen.add(path.peek());
+                if(path.size > 1 && factnode_from_pos.containsKey(path.peek())) {
+                    path3 = new Array<>();
+                    dirs = "";
+                    vec = path.first();
+                    for(Vector2 pos : path){
+                        vec2 = new Vector2(pos);
+                        vec2.sub(vec);
+                        if(vec2.y == 1) {
+                            dirs += "N";
+                            newdirs = "S";
+                        }
+                        else if(vec2.y == -1) {
+                            dirs += "S";
+                            newdirs = "N";
+                        }
+                        else if(vec2.x == 1) {
+                            dirs += "E";
+                            newdirs = "W";
+                        }
+                        else if(vec2.y == -1) {
+                            dirs += "W";
+                            newdirs = "E";
+                        }
+                        path3.add(new Connector((int)pos.x, (int)pos.y, dirs));
+                        dirs = newdirs;
+                    }
+                    make_connection(
+                            (target.get("pos").equals(path.first())
+                                    ? target.get("targetName").toString()
+                                    : factnode_from_pos.get(path.first()).getNodeName()),
+                            factnode_from_pos.get(path.peek()).getNodeName(),
+                            path3
+                    );
+                    path2 = new Array<>();
+                    path2.add(path.peek());
+                    border.add(path2);
+                }
+                if(connector_from_pos.get(path.peek()).type.indexOf('N') >= 0){
+                    vec = new Vector2(path.peek().x, path.peek().y+1);
+                    if(!seen.contains(vec)){
+                        path2 = new Array<>(path);
+                        path2.add(vec);
+                        border.add(path2);
+                    }
+                }
+                if(connector_from_pos.get(path.peek()).type.indexOf('S') >= 0){
+                    vec = new Vector2(path.peek().x, path.peek().y-1);
+                    if(!seen.contains(vec)) {
+                        path2 = new Array<>(path);
+                        path2.add(vec);
+                        border.add(path2);
+                    }
+                }
+                if(connector_from_pos.get(path.peek()).type.indexOf('E') >= 0){
+                    vec = new Vector2(path.peek().x+1, path.peek().y);
+                    if(!seen.contains(vec)) {
+                        path2 = new Array<>(path);
+                        path2.add(vec);
+                        border.add(path2);
+                    }
+                }
+                if(connector_from_pos.get(path.peek()).type.indexOf('W') >= 0){
+                    vec = new Vector2(path.peek().x-1, path.peek().y);
+                    if(!seen.contains(vec)) {
+                        path2 = new Array<>(path);
+                        path2.add(vec);
+                        border.add(path2);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Writes level to a json with the given filename
+     * Targets are written to jsons named after their names, ie John Smith -> JohnSmith.json
+     * @param filename name of level file (not including .json file extension)
+     */
+    public void make_level_json(String filename) throws IOException{
+        BufferedWriter out;
+        out = new BufferedWriter(new FileWriter(filename + ".json"));
+        String targetlist = "", targetpositions = "";
+        for(Map<String,Object> target : targets.values()) {
+            targetlist += ", \"" + target.get("targetName") + "\"";
+            targetpositions += ", [" + (int)(((Vector2)target.get("pos")).x) + ", " +
+                    (int)(((Vector2)target.get("pos")).y) + "]";
+        }
+        targetlist = "[" + targetlist.substring(2) + "]";
+        targetpositions = "[" + targetpositions.substring(2) + "]";
+        out.write("{\n" +
+                "\t\"name\": " + filename + ",\n" +
+                "\t\"dims\": [" + level_width + ", " + level_height + "],\n" +
+                "\t\"targets\": " + targetlist + ",\n" +
+                "\t\"targetLocs\": " + targetpositions + "\n}"
+        );
+        out.flush();
+        out.close();
+        for(String targetname : targets.keySet())
+            make_target_json(targetname);
+    }
+
+    /**
+     * Returns an array containing all factnodes that are descendants of a target.
+     * MUST BE CALLED AFTER make_connections !
+     * @param targetName name of target
+     * @return array of factnode objects
+     */
+    private Array<FactNode> get_target_facts(String targetName){
+        Array<String> facts = new Array<>();
+        Array<String> border = new Array<>();
+        border.add(targetName);
+        String parent;
+        while(!border.isEmpty()){
+            parent = border.pop();
+            facts.addAll(new Array(connections.get(parent).keySet().toArray()));
+            border.addAll(new Array(connections.get(parent).keySet().toArray()));
+        }
+        Array<FactNode> factnodes_ = new Array<>();
+        for(String factname : facts)
+            factnodes_.add(factnodes.get(factname));
+        return factnodes_;
+    }
+
+    /**
+     * Writes a target to a json
+     * Output file has the same name as the target, ie John Smith -> JohnSmith.json
+     */
+    public void make_target_json(String targetName) throws IOException{
+        BufferedWriter out;
+        out = new BufferedWriter(new FileWriter(targetName.replaceAll(" ","") + ".json"));
+        Array<FactNode> factnodes_ = get_target_facts(targetName);
+        int targetx = (int)((Vector2)(targets.get(targetName)).get("pos")).x;
+        int targety = (int)((Vector2)(targets.get(targetName)).get("pos")).y;
+
+        String firstnodes = "";
+        for(String child : connections.get(targetName).keySet()) {
+            firstnodes += ", \"" + child + "\"";
+        }
+        firstnodes = "[" + firstnodes.substring(2) + "]";
+
+        String firstconnections = "";
+        String firstconnectiontypes = "";
+        String strcache1, strcache2;
+        Array<Connector> connection;
+        for(String child : connections.get(targetName).keySet()){
+            connection = connections.get(targetName).get(child);
+            strcache1 = "";
+            strcache2 = "";
+            for(Connector c : connection){
+                strcache1 += ", [" + (c.xcoord-targetx) + "," + (c.ycoord-targetx) + "]";
+                strcache2 += ", \"" + c.type + "\"";
+            }
+            firstconnections += ", [" + strcache1.substring(2) + "]";
+            firstconnectiontypes += ", [" + strcache2.substring(2) + "]";
+        }
+        firstconnections = "[" + firstconnections.substring(2) + "]";
+        firstconnectiontypes = "[" + firstconnectiontypes.substring(2) + "]";
+
+        String pod = "", nodeinfo, connections_, connectiontypes;
+        for(FactNode fact : get_target_facts(targetName)){
+            nodeinfo = "\t{\n" +
+                    "\t\t\"nodeName\": \"" + fact.getNodeName() + "\",\n" +
+                    "\t\t\"title\": \"" + fact.getTitle() + "\",\n" +
+                    "\t\t\"coords\": [" + (fact.getX()-targetx) + "," + (fact.getY()-targety) + "],\n" +
+                    "\t\t\"locked\": " + fact.getLocked() + ",\n" +
+                    "\t\t\"content\": " + fact.getContent() + ",\n" +
+                    "\t\t\"summary\": " + fact.getSummary() + ",\n";
+
+            strcache1 = "";
+            for(String childname : connections.get(fact.getNodeName()).keySet()){
+                strcache1 += ", \"" + childname + "\"";
+            }
+            strcache1 = "[" + strcache1.substring(2) + "]";
+            nodeinfo += "\t\t\"children\": " + strcache1 + ",\n" +
+                    "\t\t\"targetStressDamage\": " + fact.getTargetStressDmg() + ",\n" +
+                    "\t\t\"playerStressDamage\": " + fact.getPlayerStressDmg() + ",\n";
+
+            connections_ = "";
+            connectiontypes = "";
+            for(String childname : connections.get(fact.getNodeName()).keySet()){
+                strcache1 = "";
+                strcache2 = "";
+                for(Connector c : connections.get(fact.getNodeName()).get(childname)){
+                    strcache1 += ", [" + (c.xcoord-targetx) + "," + (c.ycoord-targety) + "]";
+                    strcache2 += ", \"" + c.type + "\"";
+                }
+                connections_ += ", [" + strcache1.substring(2) + "]";
+                connectiontypes += ", [" + strcache2.substring(2) + "]";
+            }
+            connections_ = "[" + connections_.substring(2) + "]";
+            connectiontypes = "[" + connectiontypes.substring(2) + "]";
+
+            nodeinfo += "\t\t\"connectorCoords\": " + connections_ + ",\n" +
+                    "\t\t\"connectorTypes\": " + connectiontypes + "\n\t}";
+
+            pod += nodeinfo;
+        }
+
+        out.write("{\n" +
+                "\t\"targetName\": \"" + targets.get(targetName).get("targetName") + "\",\n" +
+                "\t\"paranoia\": " + targets.get(targetName).get("paranoia") + ",\n" +
+                "\t\"maxStress\": " + targets.get(targetName).get("maxStress") + ",\n" +
+                "\t\"firstNodes\": " + firstnodes + ",\n" +
+                "\t\"firstConnectors\": " + firstconnections + ",\n" +
+                "\t\"firstConnectorTypes\": " + firstconnectiontypes + ",\n" +
+                "\t\"pod\": " + pod + ",\n" +
+                "\t\"combos\": " + "[]" + "\n}"
+        );
+
+        out.flush();
+        out.close();
+    }
 }

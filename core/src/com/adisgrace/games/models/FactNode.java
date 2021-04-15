@@ -48,7 +48,7 @@ public class FactNode {
 	 * @param x			X-coordinate
 	 * @param y			Y-coordinate
 	 * @param l	Whether the node is locked or not
-	 * @param tsDmg		Target stress damage
+	 * @param tsDmg		Target stress damgit puage
 	 * @param psDmg		Player stress damage
 	 */
 	public FactNode(String n, String t, String c, String s, Array<String> cdren, int x, int y, boolean l, int tsDmg, int psDmg) {
@@ -233,4 +233,5 @@ public class FactNode {
 	public void setTargetStressDmg(int dmg){
 		targetStressDmg = dmg;
 	}
+
 }
