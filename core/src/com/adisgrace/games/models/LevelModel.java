@@ -119,9 +119,9 @@ public class LevelModel {
         //binds each target string to a location in the level
         JsonValue locations = json.get("targetLocs");
         JsonValue.JsonIterator itr = locations.iterator();
+
         //This for loop assumes that there is an equal amount of targets and targetLocations
         for(String target: targetJsons){targetLocs.put(target, itr.next().asIntArray());}
-
 
         n_days = 0;
         rng = new Random();
@@ -157,8 +157,6 @@ public class LevelModel {
         return targetLocs.get(target);
     }
 
-
-
     /**
      * Returns the current state of this world.
      *
@@ -166,13 +164,13 @@ public class LevelModel {
      *
      * @return the world's current state
      */
-    public WorldModel.GAMESTATE getGameState(){
+    public LevelModel.GAMESTATE getGameState(){
         if(!player.isLiving())
-            return WorldModel.GAMESTATE.LOSE;
+            return LevelModel.GAMESTATE.LOSE;
 
         for(TargetModel t: targets.values()){
             if(t.getState() == TargetModel.TargetState.GAMEOVER)
-                return WorldModel.GAMESTATE.LOSE;
+                return LevelModel.GAMESTATE.LOSE;
         }
 
         boolean allDefeated = true;
@@ -182,9 +180,9 @@ public class LevelModel {
             }
         }
         if(allDefeated)
-            return WorldModel.GAMESTATE.WIN;
+            return LevelModel.GAMESTATE.WIN;
 
-        return WorldModel.GAMESTATE.ONGOING;
+        return LevelModel.GAMESTATE.ONGOING;
     }
 
 
@@ -216,7 +214,7 @@ public class LevelModel {
      * @return 				Vector world coordinates of the target's origin
      */
     public Vector2 getWorldCoordinates(String targetName){
-        return new Vector2(targets.get(targetName).getX(),targets.get(targetName).getY());
+        return new Vector2(targetLocs.get(targetName)[0], targetLocs.get(targetName)[1]);
     }
 
     /**
@@ -300,13 +298,13 @@ public class LevelModel {
      * @param fact particular node id of target that would be interacted with
      * @return int representing resulting verb of interaction
      */
-    public WorldModel.Verb interactionType(String targetname, String fact){
+    public LevelModel.Verb interactionType(String targetname, String fact){
         if(contents.get(targetname).containsKey(fact))
-            return WorldModel.Verb.VIEWFACT;
+            return LevelModel.Verb.VIEWFACT;
         if(hackednodes.get(targetname).contains(fact, false))
-            return WorldModel.Verb.SCAN;
+            return LevelModel.Verb.SCAN;
         else
-            return WorldModel.Verb.HACK;
+            return LevelModel.Verb.HACK;
     }
 
     /**
@@ -349,10 +347,11 @@ public class LevelModel {
      *
      * @return gamestate after napping
      */
-    public WorldModel.GAMESTATE nextTurn() {
+    public LevelModel.GAMESTATE nextTurn() {
         player.nextTurn();
         for(TargetModel t : targets.values()){
             t.nextTurn();
+            //TODO is this the way we want to implement traits?
         }
         n_days++;
         return this.getGameState();
@@ -363,11 +362,11 @@ public class LevelModel {
      *
      *	@return the gamestate after this action
      */
-    public WorldModel.GAMESTATE overwork() {
+    public LevelModel.GAMESTATE overwork() {
         if(!player.overwork()){
-            return WorldModel.GAMESTATE.LOSE;
+            return LevelModel.GAMESTATE.LOSE;
         }
-        return WorldModel.GAMESTATE.ONGOING;
+        return LevelModel.GAMESTATE.ONGOING;
     }
 
     /**
@@ -375,9 +374,9 @@ public class LevelModel {
      *
      *	@return the gamestate after this action
      */
-    public WorldModel.GAMESTATE vtube(){
+    public LevelModel.GAMESTATE vtube(){
         player.vtube();
-        return WorldModel.GAMESTATE.ONGOING;
+        return LevelModel.GAMESTATE.ONGOING;
     }
 
     /**
@@ -386,9 +385,9 @@ public class LevelModel {
      *	@param ap 		the amount of action points that the player decides to spend on relaxing
      *	@return 		the gamestate after this action
      */
-    public WorldModel.GAMESTATE relax(int ap){
+    public LevelModel.GAMESTATE relax(int ap){
         player.relax(ap);
-        return WorldModel.GAMESTATE.ONGOING;
+        return LevelModel.GAMESTATE.ONGOING;
     }
 
     /**
@@ -397,7 +396,7 @@ public class LevelModel {
      *	@param targetname 	name of target
      *	@return 			the gamestate after this action
      */
-    public WorldModel.GAMESTATE harass(String targetname){
+    public LevelModel.GAMESTATE harass(String targetname){
         // Get harass damage and inflict on target
         int stressDmg = targets.get(targetname).harass();
         targets.get(targetname).addStress(stressDmg);
