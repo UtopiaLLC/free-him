@@ -264,15 +264,6 @@ public class LevelModel {
         return exposableFacts.keySet();
     }
 
-    /**
-     * Returns the world coordinates for a given `target`.
-     *
-     * @param targetName 	The string name of the selected target
-     * @return 				Vector world coordinates of the target's origin
-     */
-    public Vector2 getWorldCoordinates(String targetName){
-        return new Vector2(targetLocs.get(targetName)[0], targetLocs.get(targetName)[1]);
-    }
 
 
 
@@ -319,21 +310,6 @@ public class LevelModel {
     }
 
 
-    /**
-     * Interaction that would result from calling interact(targetname,fact)
-     * Returns 0 for hack, 1 for scan, and 2 for viewFact
-     * @param targetname  target that would be interacted with
-     * @param fact particular node id of target that would be interacted with
-     * @return int representing resulting verb of interaction
-     */
-    public LevelModel.Verb interactionType(String targetname, String fact){
-        if(contents.get(targetname).containsKey(fact))
-            return WorldModel.Verb.VIEWFACT;
-        if(hackedFacts.get(targetname).contains(fact, false))
-            return WorldModel.Verb.SCAN;
-        else
-            return LevelModel.Verb.HACK;
-    }
 
     /**
      * Returns PlayerModel
