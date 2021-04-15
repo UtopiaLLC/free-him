@@ -761,9 +761,9 @@ public class GameController implements Screen {
     }
 
     /**
-     * This method creates a skill bar
-     * @param toolbar
-     * @return
+     * This method creates a skill bar using threaten, expose, overwork, otherJobs, relac
+     * @param toolbar table that will encapsulate all other tables
+     * @return the skillBar table
      */
     private Table createSkillBarTable(Table toolbar) {
         Table skillBar = new Table();
@@ -779,6 +779,14 @@ public class GameController implements Screen {
         return skillBar;
     }
 
+    /**
+     * This method creates the right side table with end day, notebook, settings
+     * @param toolbar table that will encapsulate all other tables
+     * @param end ImageButton for end
+     * @param notebook ImageButton for notebook
+     * @param settings ImageButton for settings
+     * @return the right side table
+     */
     private Table createRightsideTable(Table toolbar, ImageButton end, ImageButton notebook, ImageButton settings) {
         Table rightSide = new Table();
         rightSide.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
@@ -791,6 +799,11 @@ public class GameController implements Screen {
 
     }
 
+    /**
+     * This method creates the left side table, which will have the bitecoin counter and the progress bar
+     * @param toolbar the table that will encapsulate all other tables
+     * @return the left side table
+     */
     private Table createLeftsideTable(Table toolbar) {
         Table leftSide = new Table();
         leftSide.setSize(toolbar.getWidth()*.25f, toolbar.getHeight());
@@ -799,6 +812,10 @@ public class GameController implements Screen {
         return leftSide;
     }
 
+    /**
+     * This method creates a Stack UI element that has the bitecoin numbers and the UI drawable
+     * @return the bitecoin stack
+     */
     private Stack createBitecoinStack(){
         Stack bitecoinStack = new Stack();
 
@@ -856,6 +873,10 @@ public class GameController implements Screen {
     }
 
 
+    /**
+     * Creates a stats table that appears as the HUD
+     * @return the stats table
+     */
     private Table createStats() {
         Table stats = new Table();
         stress = new Label("Player Stress: " + Integer.toString((int)(world.getPlayer().getStress())), skin);
@@ -887,7 +908,8 @@ public class GameController implements Screen {
     /**
      * Controls what actions the game needs to take on a specified node based on the
      * activeVerb that was clicked
-     * @param nodeName
+     * @param nodeName name of target and fact in the form "target_name,fact_id"
+     * @param button the node button
      */
     public void actOnNode(String nodeName, ImageButton button) {
         String[] nodeInfo = nodeName.split(",");
@@ -1003,7 +1025,7 @@ public class GameController implements Screen {
 
     /**
      * Creates a dialog box with [s] at a reasonably-sized height and width
-     * @param s
+     * @param s the string displayed
      */
     public void createDialogBox(String s) {
         Dialog dialog = new Dialog("", skin) {
@@ -1031,8 +1053,8 @@ public class GameController implements Screen {
     }
 
     /**
-     * Creates a dialog box with [s] at a reasonably-sized height and width
-     * @param s
+     * Creates a dialog box for the notebook with [s] at a reasonably-sized height and width
+     * @param s the string displayed
      */
     public void createNotebook(String s) {
         Dialog dialog = new Dialog("Notebook", skin) {
@@ -1084,22 +1106,33 @@ public class GameController implements Screen {
     }
 
     /**
+     * This method allows you to select a fact to threaten or expose someone.
      *
-     * @param s
+     * Very similar to a notebook, except every fact has a listener that allows you to click and choose a fact
+     *
+     * If a fact has been used to threaten, it will not appear in the display for threaten
+     *
+     * If a fact has been used to expose, it will not appear in the display for threaten and expose
+     *
+     *
+     * @param s the text that is displayed above the facts to select
      */
     public void getBlackmailFact(String s) {
         blackmailDialog = new Dialog("Notebook", skin) {
             public void result(Object obj) {
+                //to activate the node clicking once more
                 nodeFreeze = false;
                 activeVerb = ActiveVerb.NONE;
             }
         };
         TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+
         blackmailDialog.setBackground(drawable);
         blackmailDialog.getBackground().setMinWidth(500);
         blackmailDialog.getBackground().setMinHeight(500);
         Label l = new Label( s, skin );
+        //scale sizing based on the amount of text
         if(s.length() > 50) {
             l.setFontScale(1.5f);
         }else {
@@ -1107,9 +1140,13 @@ public class GameController implements Screen {
         }
         l.setWrap( true );
         blackmailDialog.setMovable(true);
+        //Add the text to the center of the dialog box
         blackmailDialog.getContentTable().add( l ).prefWidth( 350 );
+        //Get all fact summaries that can potentially be displayed
         Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
-        Map<String, String> summaryToFacts = new HashMap<String, String>();
+        //This will store all mappings from summaries to a fact name
+        Map<String, String> summaryToFacts = new HashMap<>();
+        //This will store the fact ids of all the scanned facts
         final Array<String> scannedFacts = new Array<>();
 
         Table table = blackmailDialog.getContentTable();
@@ -1117,31 +1154,39 @@ public class GameController implements Screen {
             scannedFacts.add("No facts scanned yet!");
         }
         for (String fact_ : factSummaries.keySet()) {
+            //Should not add empty fact summaries
             if(!world.viewFactSummary(target.getName(), fact_).equals(""))
                 scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
+            //Add to both scannedFacts and summaryToFacts
             summaryToFacts.put(world.viewFactSummary(target.getName(), fact_), fact_);
         }
         table.setFillParent(false);
 
         table.row();
+        //Now, parse through all scannedFacts to see which are eligible for display
         for (int i = 0; i < scannedFacts.size; i++) {
             final int temp_i = i;
             //this should ALWAYS be overwritten in the code underneath
             Label k = new Label("No facts", skin);
             if(activeVerb == ActiveVerb.EXPOSE ){
+                //If a scanned fact has already been exposed, we can't expose it again
                 if (exposedFacts.contains(scannedFacts.get(temp_i), false) ) {
                     continue;
                 } else {
+                    //Else we can display it
                     k = new Label(scannedFacts.get(i), skin);
                 }
             } else if(activeVerb == ActiveVerb.THREATEN){
+                //If a scanned fact has already been used to threaten, we can't use it to threaten again
                 if (threatenedFacts.contains(scannedFacts.get(temp_i), false) ) {
                     continue;
                 } else {
+                    //Else we can display it
                     k = new Label(scannedFacts.get(i), skin);
                 }
             }
             k.setWrap(true);
+            //Add a listener that can be reachable via the name format "target_name,fact_id"
             k.setName(target.getName() + "," + summaryToFacts.get(scannedFacts.get(i)));
             k.addListener(new ClickListener() {
                 @Override
@@ -1153,16 +1198,21 @@ public class GameController implements Screen {
                         case HARASS:
 
                         case THREATEN:
+                            //Threaten the target
                             world.threaten(info[0], info[1]);
                             activeVerb = ActiveVerb.NONE;
                             createDialogBox("You threatened the target!");
+                            //Add this fact to the list of facts used to threaten
                             threatenedFacts.add(scannedFacts.get(temp_i));
                             break;
                         case EXPOSE:
+                            //Expose the target
                             world.expose(info[0], info[1]);
                             activeVerb = ActiveVerb.NONE;
                             createDialogBox("You exposed the target!");
+                            //Add this fact to the list of facts used to expose
                             exposedFacts.add(scannedFacts.get(temp_i));
+                            //Add this fact to the list of facts used to threaten
                             threatenedFacts.add(scannedFacts.get(temp_i));
                             break;
                         default:
@@ -1170,6 +1220,7 @@ public class GameController implements Screen {
                     }
                 }
             });
+            //Add the displayed fact to the middle of the blackmail dialog
             table.add(k).prefWidth(350);
             table.row();
         }
@@ -1177,6 +1228,7 @@ public class GameController implements Screen {
         blackmailDialog.button("Cancel", true); //sends "true" as the result
         blackmailDialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         blackmailDialog.show(toolbarStage);
+        //Make sure nothing else is able to be clicked while blackmail dialog is shown
         nodeFreeze = true;
     }
 
