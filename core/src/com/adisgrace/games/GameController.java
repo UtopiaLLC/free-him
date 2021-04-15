@@ -1077,7 +1077,9 @@ public class GameController implements Screen {
         dialog.getContentTable().add( l ).prefWidth( 350 );
         dialog.setMovable(true);
 
+        //Get all fact summaries that can potentially be displayed
         Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
+        //This will store the fact ids of all the scanned facts
         Array<String> scannedFacts = new Array<>();
 
         Table table = dialog.getContentTable();
