@@ -37,6 +37,11 @@ public class FactNode {
 	/** Integer representing the amount of stress damage scanning this Node deals to the player. */
 	private int playerStressDmg;
 
+	/** The connector coordinates for this node, stored as array of locations of connections in level. In isometric coordinates. */
+	private Array<int[]> connectorCoords;
+	/** The connector types for this node, array of types of the connectors in a level, where each type is an enum */
+	private Array<String> connectorTypes;
+
 	/**
 	 * Creates a FactNode with the given parameters.
 	 *
@@ -50,8 +55,10 @@ public class FactNode {
 	 * @param l	Whether the node is locked or not
 	 * @param tsDmg		Target stress damage
 	 * @param psDmg		Player stress damage
+	 * @param cCoords	connectorCoords
+	 * @param cTypes	connectorTypes
 	 */
-	public FactNode(String n, String t, String c, String s, Array<String> cdren, int x, int y, boolean l, int tsDmg, int psDmg) {
+	public FactNode(String n, String t, String c, String s, Array<String> cdren, int x, int y, boolean l, int tsDmg, int psDmg, Array<int[]> cCoords, Array<String> cTypes) {
 		nodeName = n;
 		title = t;
 		content = c;
@@ -62,6 +69,8 @@ public class FactNode {
 		locked = l;
 		targetStressDmg = tsDmg;
 		playerStressDmg = psDmg;
+		connectorCoords = cCoords;
+		connectorTypes = cTypes;
 	}
 
 	/**
@@ -233,4 +242,22 @@ public class FactNode {
 	public void setTargetStressDmg(int dmg){
 		targetStressDmg = dmg;
 	}
+
+	/**
+	 * Returns the connector coordinates of the node.
+	 *
+	 * Array of locations of connections in isometric coordinates.
+	 *
+	 * @return the node's connector coordinates.
+	 */
+	public Array<int[]> getConnectorCoords(){ return connectorCoords; }
+
+	/**
+	 * Returns the connector types of the node.
+	 *
+	 * Array of types of connections.
+	 *
+	 * @return the node's connector types.
+	 */
+	public Array<String> getConnectorTypes(){ return connectorTypes; }
 }
