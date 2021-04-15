@@ -303,6 +303,27 @@ public class TargetModel {
 	 */
 	public Array<String> getFirstConnectorTypes(){ return firstConnectorTypes; }
 
+	/**
+	 * Returns coordinates of connectors coming from fact
+	 *
+	 * @param fact the name of the fact
+	 * @return a list of coordinates that represent connections out of fact
+	 */
+	public Array<int[]> getConnectorCoordsOf(String fact){
+		FactNode f = getFactNode(fact);
+		return f.getConnectorCoords();
+	}
+
+	/**
+	 * Returns the orientations of the connectors coming from fact
+	 *
+	 * @param fact the name of the fact
+	 * @return	a list of types that represent connections out of fact, in the same order as getConnectorCoordsOf(FactNode fact)
+	 */
+	public Array<String> getConnectorTypesOf(String fact){
+		FactNode f = getFactNode(fact);
+		return f.getConnectorTypes();
+	}
 
 
 	/**
