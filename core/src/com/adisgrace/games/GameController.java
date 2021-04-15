@@ -36,10 +36,13 @@ public class GameController implements Screen {
         THREATEN,
         /**  Linked to Expose mode; Expose needs to be applied to a node after it has been clicked */
         EXPOSE,
-        /**  Linked to hack and scan commands*/
+        /**  Linked to overworking commands*/
         OVERWORK,
+        /** Linked to running more jobs to get bitecoin*/
         OTHER_JOBS,
+        /** Linked to relaxing to reduce stress*/
         RELAX,
+        /** Linked to no action being selected */
         NONE
     };
 
@@ -114,19 +117,23 @@ public class GameController implements Screen {
     private ImageButton relax;
     /** Whether the relax button has been checked */
     private boolean relax_checked = false;
-
+    /** model for player stats and actions */
     private PlayerModel player;
-
+    /** flag for when game ended*/
     private boolean ended = false;
+    /** flag for when all nodes need to not be clicked anymore*/
     private boolean nodeFreeze = false;
-
+    /** dialog box for blackmail commands*/
     private Dialog blackmailDialog;
+    /** flag for when blackmail operations are complete*/
     private boolean getRidOfBlackmail;
+    /** progress bar that tracks the stress level of players*/
     private ProgressBar stressBar;
+    /** label for the amount of bitecoin a player has*/
     private Label bitecoinAmount;
-
+    /** shapeRenderer for grid lines, may not be needed anymore*/
     private ShapeRenderer shapeRenderer;
-
+    /** controller for camera operations*/
     private CameraController cameraController;
 
     /** The smallest width the game window can take */
