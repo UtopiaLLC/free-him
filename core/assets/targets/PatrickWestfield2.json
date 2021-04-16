@@ -2,7 +2,7 @@
     "targetName": "Patrick Westfield",
     "paranoia": 3,
     "maxStress": 100,
-    "firstNodesCount": 3,
+    "firstNodesCount": 3
     "pod": [
         {
             "nodeName": "job",
