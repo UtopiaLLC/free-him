@@ -12,7 +12,7 @@ import java.util.*;
 public class LevelEditorModel {
 
     private String level_name;
-    private int level_width, level_height;
+    private int level_width = 0, level_height = 0;
 
     private Map<String, Map<String, Object>> targets;
     private Map<String, FactNode> factnodes;
@@ -490,6 +490,7 @@ public class LevelEditorModel {
         BufferedWriter out;
         out = new BufferedWriter(new FileWriter(targetName.replaceAll(" ","") + ".json"));
         Array<FactNode> factnodes_ = get_target_facts(targetName);
+
         int targetx = (int)((Vector2)(targets.get(targetName)).get("pos")).x;
         int targety = (int)((Vector2)(targets.get(targetName)).get("pos")).y;
 
@@ -501,7 +502,7 @@ public class LevelEditorModel {
 
         String firstconnections = "";
         String firstconnectiontypes = "";
-        String strcache1, strcache2;
+        String strcache1 = "", strcache2 = "";
         Array<Connector> connection;
         for(String child : connections.get(targetName).keySet()){
             connection = connections.get(targetName).get(child);
