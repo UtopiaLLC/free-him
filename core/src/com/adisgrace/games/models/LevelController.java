@@ -8,11 +8,7 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.*;
 
-enum LevelState{
-    ONGOING,
-    WIN,
-    LOSE
-}
+
 
 public class LevelController {
 
@@ -28,6 +24,18 @@ public class LevelController {
     }
 
 
+    /**
+     *
+     * @return the current state of the level
+     */
+    public LevelModel.LevelState getLevelState(){
+        return levelModel.getLevelState();
+    }
+
+    /**
+     *
+     * @return  how much money is made with other jobs, returns -1 upon failure
+     */
     public float otherJobs(){
         if(player.canVtube()){
             return player.vtube();
@@ -40,25 +48,25 @@ public class LevelController {
      * May throw runtime exceptions if provided invalid inputs
      * @param target target to hack
      * @param fact particular node id of target to hack
-     * @return was the hack successful?
+     * @return an int reflecting the result of the hack
      */
-    public boolean hack(String target, String fact){
+    public int hack(String target, String fact){
         Random rng = new Random();
 
         if(!levelModel.getTargets().containsKey(target))
-            return false;
+            return -1;
         if(!levelModel.getVisibleFacts().get(target).contains(fact, false)
                 || levelModel.getHackedFacts().get(target).contains(fact, false))
-            return false;
+            return -2;
         if(!player.canHack())
-            return false;
+            return -3;
         player.hack();
         if(rng.nextDouble() < 0.2){
             levelModel.getTargets().get(target).addSuspicion(25);
-            return false;
+            return -4;
         }
         levelModel.getHackedFacts().get(target).add(fact);
-        return true;
+        return 1;
     }
 
     /**
@@ -104,7 +112,7 @@ public class LevelController {
      *
      * @return gamestate after napping
      */
-    public LevelState endDay() {
+    public LevelModel.LevelState endDay() {
         player.nextTurn();
         for(TargetModel t : levelModel.getTargets().values()){
             t.nextTurn();
@@ -119,7 +127,7 @@ public class LevelController {
      *	@param target 	name of target
      *	@return 			the gamestate after this action
      */
-    public LevelState harass(String target){
+    public LevelModel.LevelState harass(String target){
         // Get harass damage and inflict on target
         int stressDmg = levelModel.getTargets().get(target).harass();
         levelModel.getTargets().get(target).addStress(stressDmg);
@@ -133,7 +141,7 @@ public class LevelController {
      * @param fact fact to expose
      * @return amount of stress increase on target
      */
-    public LevelState expose(String target, String fact){
+    public LevelModel.LevelState expose(String target, String fact){
         if(!levelModel.getTargets().containsKey(target))
             throw new RuntimeException("Invalid target");
         if(!levelModel.getContents().get(target).containsKey(fact))
@@ -155,7 +163,7 @@ public class LevelController {
      * @param fact fact to threaten target over
      * @return amount of stress increase on target
      */
-    public LevelState threaten(String target, String fact){
+    public LevelModel.LevelState threaten(String target, String fact){
         if(!levelModel.getTargets().containsKey(target))
             throw new RuntimeException("Invalid target");
         if(!levelModel.getContents().get(target).containsKey(fact))
@@ -217,14 +225,39 @@ public class LevelController {
         return levelModel.getTarget(target).getSuspicion();
     }
 
+
+    /**
+     *
+     * @return the amount of AP a player has remaining
+     */
+    public int getAP(){
+        return player.getAP();
+    }
+
+    /**
+     *
+     * @return how much stress the player has
+     */
+    public float getPlayerStress(){
+        return player.getStress();
+    }
+
+    /**
+     *
+     * @return how much currency the user has
+     */
+    public float getPlayerCurrency(){
+        return player.getBitecoin();
+    }
+
     /**
      * Returns the notes for a specific target
      *
      * @param target name of the target
      * @return All facts that the player has discovered about the target
      */
-    public Set<String> getNotes(String target){
-        return levelModel.getSummaries().get(target).keySet();
+    public Map<String, String> getNotes(String target){
+        return levelModel.getSummaries().get(target);
     }
 
     /**
@@ -308,5 +341,42 @@ public class LevelController {
 
         return connections;
     }
+
+    /**
+     * Checks the current state of a fact, whether it's locked, scannable, or viewable
+     *
+     * @param target name of the target
+     * @param fact name of the fact
+     * @return returns whether a node is currently locked (returns 1), scannable (returns 2), or viewable (returns 3)
+     */
+    public int getCurrentNodeState(String target, String fact){
+        if(levelModel.getContents().get(target).containsKey(fact))
+            return 1; //viewable
+        if(levelModel.getHackedFacts().get(target).contains(fact, false))
+            return 2; //scannable
+        else
+            return 3; //locked
+    }
+
+    /**
+     *
+     * @param target name of the target
+     * @param fact identifier of the fact
+     * @return the
+     */
+    public String viewFact(String target, String fact){
+        return levelModel.getContents().get(target).get(fact);
+    }
+
+    /**
+     *
+     * @param target name of the target
+     * @return visible nodes of target
+     */
+    public Array<String> getVisibleNodes(String target){
+        return levelModel.getVisibleFacts(target);
+    }
+
+
 
 }
