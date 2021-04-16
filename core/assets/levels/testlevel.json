@@ -1,0 +1,6 @@
+{
+	"name": "testlevel",
+	"dims": [0, 0],
+	"targets": ["Torchlight Employee 2", "Torchlight Employee 1"],
+	"targetLocs": [[0, 3], [0, 0]]
+}
