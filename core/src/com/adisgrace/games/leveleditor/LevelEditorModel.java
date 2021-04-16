@@ -358,11 +358,14 @@ public class LevelEditorModel {
             while(!border.isEmpty()){
                 path = border.pop();
                 seen.add(path.peek());
-                if(path.size > 1 && factnode_from_pos.containsKey(path.peek())) {
+                if(path.size > 1 && factnode_from_pos.containsKey(path.peek())){
                     path3 = new Array<>();
                     dirs = "";
                     vec = path.first();
-                    for(Vector2 pos : path){
+//                    for(Vector2 pos : path){
+                    Vector2 pos;
+                    for(int i = 1; i < path.size; i++){
+                        pos = path.get(i);
                         vec2 = new Vector2(pos);
                         vec2.sub(vec);
                         if(vec2.y == 1) {
@@ -490,6 +493,7 @@ public class LevelEditorModel {
     /**
      * Writes a target to a json
      * Output file has the same name as the target, ie John Smith -> JohnSmith.json
+     * @param targetName name of target to compile a json for
      */
     public void make_target_json(String targetName) throws IOException{
         System.out.printf("started saving target " + targetName);
@@ -501,28 +505,35 @@ public class LevelEditorModel {
         int targety = (int)((Vector2)(targets.get(targetName)).get("pos")).y;
 
         String firstnodes = "";
-        for(String child : connections.get(targetName).keySet()) {
-            firstnodes += ", \"" + child + "\"";
-        }
-        firstnodes = "[" + firstnodes.substring(2) + "]";
+        if(connections.containsKey(targetName)) {
+            for (String child : connections.get(targetName).keySet()) {
+                firstnodes += ", \"" + child + "\"";
+            }
+            firstnodes = "[" + firstnodes.substring(2) + "]";
+        } else firstnodes = "[]";
 
         String firstconnections = "";
         String firstconnectiontypes = "";
         String strcache1 = "", strcache2 = "";
         Array<Connector> connection;
-        for(String child : connections.get(targetName).keySet()){
-            connection = connections.get(targetName).get(child);
-            strcache1 = "";
-            strcache2 = "";
-            for(Connector c : connection){
-                strcache1 += ", [" + (c.xcoord-targetx) + "," + (c.ycoord-targetx) + "]";
-                strcache2 += ", \"" + c.type + "\"";
+        if(connections.containsKey(targetName)) {
+            for (String child : connections.get(targetName).keySet()) {
+                connection = connections.get(targetName).get(child);
+                strcache1 = "";
+                strcache2 = "";
+                for (Connector c : connection) {
+                    strcache1 += ", [" + (c.xcoord - targetx) + "," + (c.ycoord - targetx) + "]";
+                    strcache2 += ", \"" + c.type + "\"";
+                }
+                firstconnections += ", [" + strcache1.substring(2) + "]";
+                firstconnectiontypes += ", [" + strcache2.substring(2) + "]";
             }
-            firstconnections += ", [" + strcache1.substring(2) + "]";
-            firstconnectiontypes += ", [" + strcache2.substring(2) + "]";
+            firstconnections = "[" + firstconnections.substring(2) + "]";
+            firstconnectiontypes = "[" + firstconnectiontypes.substring(2) + "]";
+        } else {
+            firstconnections = "[]";
+            firstconnectiontypes = "[]";
         }
-        firstconnections = "[" + firstconnections.substring(2) + "]";
-        firstconnectiontypes = "[" + firstconnectiontypes.substring(2) + "]";
 
         String pod = "", nodeinfo, connections_, connectiontypes;
         for(FactNode fact : get_target_facts(targetName)){
@@ -570,7 +581,9 @@ public class LevelEditorModel {
 
             pod += nodeinfo;
         }
-        pod = "\t[\n" + pod.substring(2) + "\n\t]";
+        if(pod.length() > 0)
+            pod = "\t[\n" + pod.substring(2) + "\n\t]";
+        else pod = "\t[]";
 
         out.write("{\n" +
                 "\t\"targetName\": \"" + targets.get(targetName).get("targetName") + "\",\n" +
