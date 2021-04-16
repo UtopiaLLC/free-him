@@ -3,6 +3,17 @@
     "paranoia": 3,
     "maxStress": 100,
     "firstNodesCount": 3,
+    "firstNodes": [
+        "job",
+        "websearch",
+        "publicsearch"
+    ],
+    "neighbors": [
+        "Shelly",
+        "Fauci"
+    ],
+    "firstConnectorCoords":,
+
     "pod": [
         {
             "nodeName": "job",
@@ -13,7 +24,8 @@
             "summary": "Patrick has been a programmer at Torchlight's Seattle branch for two years.",
             "children": ["team","email","complaint"],
             "targetStressDamage": 1,
-            "playerStressDamage": 0
+            "playerStressDamage": 0,
+            "connectorCoords": ,
         },
         {
             "nodeName": "websearch",

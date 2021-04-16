@@ -267,6 +267,8 @@ public class LevelController {
      * @return  position of the target in isometric coordinates
      */
     public Vector2 getTargetPos(String target){
+        System.out.println(target);
+        System.out.println(levelModel.getTarget(target));
        return new Vector2(levelModel.getTarget(target).getX(),levelModel.getTarget(target).getY());
     }
 
@@ -365,6 +367,7 @@ public class LevelController {
      * @return the
      */
     public String viewFact(String target, String fact){
+        System.out.println("viewFact "+levelModel.getContents().get(target).get(fact));
         return levelModel.getContents().get(target).get(fact);
     }
 
