@@ -1,18 +1,39 @@
 {
   "targetName": "Torchlight Employee 2",
   "paranoia": 3,
-  "loc": [0, 3],
+  "loc": [
+    0,
+    3
+  ],
   "maxStress": 100,
-  "firstNodes": ["1Node2", "2Node3"],
+  "firstNodes": [
+    "1Node2",
+    "2Node3"
+  ],
   "firstNodesCount": 2,
-  "firstConnectors": [[1,3], [-1,3]],
-  "firstConnectorTypes": ["EW", "WE"],
+  "firstConnectors": [
+    [
+      1,
+      3
+    ],
+    [
+      -1,
+      3
+    ]
+  ],
+  "firstConnectorTypes": [
+    "EW",
+    "WE"
+  ],
   "neighbors": [],
-  "pod": 	[
+  "pod": [
     {
       "nodeName": "1Node2",
       "title": "untitled fact",
-      "coords": [1,0],
+      "coords": [
+        1,
+        0
+      ],
       "locked": true,
       "content": "You learn something entirely innocuous about your target.",
       "summary": "Nothing!",
@@ -25,7 +46,10 @@
     {
       "nodeName": "2Node3",
       "title": "untitled fact",
-      "coords": [-1,0],
+      "coords": [
+        -1,
+        0
+      ],
       "locked": false,
       "content": "You learn something entirely innocuous about your target.",
       "summary": "Nothing!",

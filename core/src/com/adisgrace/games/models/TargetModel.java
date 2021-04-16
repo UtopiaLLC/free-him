@@ -177,6 +177,8 @@ public class TargetModel {
 			// Get connectorCoords
 			nodeArr = node.get("connectorCoords");
 			nodeItr = nodeArr.iterator();
+
+			System.out.println(nodeName);
 			// Iterate through the firstConnectorCoords and add to Arraylist of firstConnectorCoords
 			while (nodeItr.hasNext()){connectorCoords.add(nodeItr.next().asIntArray());}
 

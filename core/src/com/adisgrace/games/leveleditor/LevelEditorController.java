@@ -63,7 +63,6 @@ public class LevelEditorController implements Screen {
     /** Hashmap of coordinates and the names of the objects at that location */
     ArrayMap<Vector2, Array<String>> levelMap;
 
-    /** TODO: tracking connectors */
     /** Image representing the current node that is being clicked on */
     Image selectedNode;
     /** Image representing stress rating of current node being clicked on */
@@ -595,7 +594,6 @@ public class LevelEditorController implements Screen {
                 button.addListener(new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
-                        System.out.println("Saved");
                         saveLevel();
                     }
                 });
@@ -978,6 +976,13 @@ public class LevelEditorController implements Screen {
         // Create a LevelEditorModel
         LevelEditorModel model = new LevelEditorModel();
 
+        // Get filename from user input in terminal
+        // TODO: get user input not from terminal
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Enter desired level name: ");
+        String fname =  scan.nextLine();
+
+        // Instantiate count of targets in level
         int targetCount = 1;
 
         // Go through each grid tile that contains LevelTiles
@@ -996,17 +1001,21 @@ public class LevelEditorController implements Screen {
                 switch (c) {
                     case "0": // TARGET NODE
                         // Make target accordingly
-                        model.make_target(TARGET_NAME + " " + targetCount, TARGET_PARANOIA, 100, pos);
+                        model.make_target(fname+ " " + TARGET_NAME + " " + targetCount, TARGET_PARANOIA, 100, pos);
                         targetCount++;
+                        break;
                     case "1": // UNLOCKED NODE
                         // Make unlocked node accordingly
                         model.make_factnode(lt.im.getName(), lt.sr, PS_DMG, false, pos);
+                        break;
                     case "2": // LOCKED NODE
                         // Make locked node accordingly
                         model.make_factnode(lt.im.getName(), lt.sr, PS_DMG, true, pos);
+                        break;
                     default: // CONNECTOR
                         // Add the direction to the connector string
                         connector += c;
+                        break;
                 }
             }
             // Store new connector in array of connectors
@@ -1017,19 +1026,13 @@ public class LevelEditorController implements Screen {
 
         // Make JSON
         try {
-            // Get filename from user input in terminal
-            // TODO: get user input not from terminal
-            Scanner scan = new Scanner(System.in);
-            System.out.println("Enter desired level name: ");
-            String fname =  scan.nextLine();
-
             // Don't need to include ".json"
             model.make_level_json(fname);
         }
         catch(IOException e) {
             System.out.println("make_level_json failed");
         }
+
+        System.out.println("Level " + fname + " Save Complete");
     }
-
-
 }

@@ -157,6 +157,14 @@ public class GameController implements Screen {
 
     private int currentLevel;
 
+    private Array<Connector> visibleConnectors;
+    private Vector2 connectorCoords;
+
+    private Texture NorthConnector;
+    private Texture SouthConnector;
+    private Texture EastConnector;
+    private Texture WestConnector;
+
     public GameController() {
         canvas = new GameCanvas();
         ExtendViewport viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -167,7 +175,7 @@ public class GameController implements Screen {
 
         //TODO: write function to parse folder of level jsons
         levelJsons = new Array<>();
-        levelJsons.add("testlevel.json");
+        levelJsons.add("level1.json");
         levelControllers = new Array<>();
 
         for(String s : levelJsons) {
@@ -198,6 +206,8 @@ public class GameController implements Screen {
         canvas.drawIsometricGrid(stage, nodeWorldWidth, nodeWorldHeight);
         canvas.endDebug();
 
+        skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
+
         // Creating Nodes
         imageNodes = new HashMap<>();
         for (TargetModel target: targets) {
@@ -205,16 +215,57 @@ public class GameController implements Screen {
             imageNodes.putAll(nodeView.getImageNodes());
         }
 
-        for(ImageButton button : imageNodes.values()) { // Node Click Listeners
+
+        for(final ImageButton button : imageNodes.values()) { // Node Click Listeners
             final ImageButton b = button;
             button.addListener(new ClickListener()
             {
+                Label hoverLabel = new Label("N/A", skin);
+
                 @Override
                 public void clicked(InputEvent event, float x, float y)
                 {
                     Actor cbutton = (Actor)event.getListenerActor();
                     //System.out.println(cbutton.getName());
                     actOnNode(cbutton.getName(), b);
+                }
+
+                @Override
+                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+
+                    Actor cbutton = (Actor)event.getListenerActor();
+                    String name = cbutton.getName();
+                    String [] nodeInfo = name.split(",");
+
+                    if(nodeInfo.length==1) {
+//                        tState = new Label("Target State: " + target.getState(), skin);
+//                        tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
+//                      tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));
+
+
+                        String hoverText = "Target Name: " + name + "\n" +
+                                "Target Stress: " + levelController.getTargetStress(name) + "\n" +
+                                "Target Suspicion: " + levelController.getTargetSuspicion(name) + "\n";
+
+
+                        hoverLabel.setText(hoverText);
+                        hoverLabel.setFontScale(2);
+
+                        //Vector2 zeroLoc = b.localToStageCoordinates(new Vector2(0, b.getHeight()));
+                        Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth()*.05f, Gdx.graphics.getHeight()*.9f);
+                        hoverLabel.setX(zeroLoc.x);
+                        hoverLabel.setY(zeroLoc.y);
+
+                        toolbarStage.addActor(hoverLabel);
+
+                    }
+
+                }
+
+                @Override
+                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                    super.exit(event, x, y, pointer, toActor);
+                    hoverLabel.remove();
                 }
             });
             button.remove();
@@ -229,16 +280,31 @@ public class GameController implements Screen {
             stage.addActor(imageNodes.get(target.getName()));
         }
 
-        Array<Connector> visibleConnectors = levelController.getAllVisibleConnectors();
+        NorthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("N")));
+        SouthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("S")));
+        WestConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("W")));
+        EastConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("E")));
+
+        visibleConnectors = levelController.getAllVisibleConnectors();
+        connectorCoords = new Vector2();
         canvas.begin();
         for(Connector connector : visibleConnectors) {
-            String type = connector.type;
-            for (int i = 0; i < type.length(); i++) {
-                String dir = type.substring(i, i+1);
-                Vector2 connectorCoord = new Vector2(connector.xcoord, connector.ycoord);
-                connectorCoord = isometricToWorld(connectorCoord);
-                canvas.draw(new Texture(Gdx.files.internal(Connector.getAssetPath(dir))),
-                        connectorCoord.x, connectorCoord.y);
+            connectorCoords.set(connector.xcoord, connector.ycoord);
+            connectorCoords = isometricToWorld(connectorCoords);
+            if(connector.type.contains("E")) {
+                canvas.draw(EastConnector,
+                        connectorCoords.x, connectorCoords.y);
+            }if(connector.type.contains("W")) {
+                canvas.draw(WestConnector,
+                        connectorCoords.x, connectorCoords.y);
+            }
+            if(connector.type.contains("N")) {
+                canvas.draw(NorthConnector,
+                        connectorCoords.x, connectorCoords.y);
+            }
+            if(connector.type.contains("S")) {
+                canvas.draw(SouthConnector,
+                        connectorCoords.x, connectorCoords.y);
             }
         }
 
@@ -265,16 +331,25 @@ public class GameController implements Screen {
         canvas.clear();
         canvas.drawIsometricGrid(stage,nodeWorldWidth,nodeWorldHeight);
 
-        Array<Connector> visibleConnectors = levelController.getAllVisibleConnectors();
+        visibleConnectors = levelController.getAllVisibleConnectors();
         canvas.begin();
         for(Connector connector : visibleConnectors) {
-            String type = connector.type;
-            for (int i = 0; i < type.length(); i++) {
-                String dir = type.substring(i, i+1);
-                Vector2 connectorCoord = new Vector2(connector.xcoord, connector.ycoord);
-                connectorCoord = isometricToWorld(connectorCoord);
-                canvas.draw(new Texture(Gdx.files.internal(Connector.getAssetPath(dir))),
-                        connectorCoord.x, connectorCoord.y);
+            connectorCoords.set(connector.xcoord, connector.ycoord);
+            connectorCoords = isometricToWorld(connectorCoords);
+            if(connector.type.contains("E")) {
+                canvas.draw(EastConnector,
+                        connectorCoords.x, connectorCoords.y);
+            }if(connector.type.contains("W")) {
+                canvas.draw(WestConnector,
+                        connectorCoords.x, connectorCoords.y);
+            }
+            if(connector.type.contains("N")) {
+                canvas.draw(NorthConnector,
+                        connectorCoords.x, connectorCoords.y);
+            }
+            if(connector.type.contains("S")) {
+                canvas.draw(SouthConnector,
+                        connectorCoords.x, connectorCoords.y);
             }
         }
 
@@ -790,7 +865,6 @@ public class GameController implements Screen {
     public void createToolbar() {
         ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         toolbarStage = new Stage(toolbarViewPort);
-        skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(toolbarStage);
@@ -1020,8 +1094,8 @@ public class GameController implements Screen {
                     switch (levelController.getCurrentNodeState(nodeInfo[0], nodeInfo[1])) {
                         case 3: //locked
                             int hack = levelController.hack(nodeInfo[0], nodeInfo[1]);
-                            if(hack <= -1) {
-                                System.out.println("HACK IS NOT WORKING");
+                            if(hack == -1 || hack == -2) {
+                                System.out.println("HACK IS NOT WORKING: " + hack);
                                 System.exit(1);
                             }
                             if(hack == 1) {
