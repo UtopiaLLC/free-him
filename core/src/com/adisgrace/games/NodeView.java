@@ -47,7 +47,7 @@ public class NodeView {
             node.y = node.y + targetCoords.y;
             nodeCoords.add(node);
         }
-        //targetCoords = scaleNodeCoordinates(targetCoords, ADD, SCALE_X, SCALE_Y);
+        targetCoords = scaleNodeCoordinates(targetCoords, ADD, SCALE_X, SCALE_Y);
 
         imageNodes = new HashMap<>();
         createImageNodes(target, targetNodes, targetCoords);

@@ -167,7 +167,8 @@ public class GameController implements Screen {
 
         //TODO: write function to parse folder of level jsons
         levelJsons = new Array<>();
-        levelJsons.add("level1.json");
+        levelJsons.add("testlevel.json");
+        levelControllers = new Array<>();
 
         for(String s : levelJsons) {
             levelControllers.add(new LevelController(s));
@@ -185,13 +186,17 @@ public class GameController implements Screen {
 
         // Setting a target
 //        target = world.getTarget("Patrick Westfield");
-        targets = (Array<TargetModel>) levelController.getTargetModels().values();
+        targets = new Array<>();
+        for (TargetModel t: levelController.getTargetModels().values()){
+            targets.add(t);
+        }
 
         //instantiating target and expose lists
         threatenedFacts = new Array<String>();
         exposedFacts = new Array<String>();
-
+        canvas.beginDebug();
         canvas.drawIsometricGrid(stage, nodeWorldWidth, nodeWorldHeight);
+        canvas.endDebug();
 
         // Creating Nodes
         imageNodes = new HashMap<>();
@@ -256,6 +261,21 @@ public class GameController implements Screen {
     public void render(float delta) {
 
         canvas.clear();
+        canvas.drawIsometricGrid(stage,nodeWorldWidth,nodeWorldHeight);
+
+        Array<Connector> visibleConnectors = levelController.getAllVisibleConnectors();
+        canvas.begin();
+        for(Connector connector : visibleConnectors) {
+            String type = connector.type;
+            for (int i = 0; i < type.length(); i++) {
+                String dir = type.substring(i, i+1);
+                canvas.draw(new Texture(Gdx.files.internal(Connector.getAssetPath(dir))),
+                        connector.xcoord, connector.ycoord);
+            }
+        }
+
+        canvas.end();
+
         // If no action is currently selected, and the cursor is not hovering above any button, then remove any effects
         if (activeVerb == ActiveVerb.NONE && hoverVerb == ActiveVerb.NONE){
             unCheck();
@@ -980,7 +1000,7 @@ public class GameController implements Screen {
             case NONE:
                 if(!isTarget) {
                     switch (levelController.getCurrentNodeState(nodeInfo[0], nodeInfo[1])) {
-                        case 1:
+                        case 3: //locked
                             int hack = levelController.hack(nodeInfo[0], nodeInfo[1]);
                             if(hack <= -1) {
                                 System.out.println("HACK IS NOT WORKING");
@@ -1015,7 +1035,7 @@ public class GameController implements Screen {
                                 createDialogBox("You failed to hack the node!");
                             }
                             break;
-                        case 2:
+                        case 2://scannable
                             boolean success = levelController.scan(nodeInfo[0], nodeInfo[1]);
                             if(success) {
                                 Texture node = new Texture("node/N_ScannedNode_2.png");
@@ -1039,7 +1059,7 @@ public class GameController implements Screen {
                                 createDialogBox("Insufficient AP to scan this node.");
                             }
                             break;
-                        case 3:
+                        case 1://viewable
                             createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
                             break;
                     }
@@ -1179,7 +1199,7 @@ public class GameController implements Screen {
             public void result(Object obj) {
                 nodeFreeze = false;
 
-                if((boolean)obj == true) {
+                if(obj.getClass() == Boolean.class) {
                     return;
                 }
 
@@ -1379,20 +1399,6 @@ public class GameController implements Screen {
                 stage.addActor(imageNodes.get(target.getName()+","+str));
             }
         }
-
-
-        Array<Connector> visibleConnectors = levelController.getAllVisibleConnectors();
-        canvas.begin();
-        for(Connector connector : visibleConnectors) {
-            String type = connector.type;
-            for (int i = 0; i < type.length(); i++) {
-                String dir = type.substring(i, i+1);
-                canvas.draw(new Texture(Gdx.files.internal(Connector.getAssetPath(dir))),
-                        connector.xcoord, connector.ycoord);
-            }
-        }
-
-        canvas.end();
 
     }
 
