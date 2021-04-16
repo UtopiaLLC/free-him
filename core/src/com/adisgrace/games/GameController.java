@@ -252,7 +252,7 @@ public class GameController implements Screen {
                         hoverLabel.setFontScale(2);
 
                         //Vector2 zeroLoc = b.localToStageCoordinates(new Vector2(0, b.getHeight()));
-                        Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth()*.05f, Gdx.graphics.getHeight()*.9f);
+                        Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth()*.05f, Gdx.graphics.getHeight()*.85f);
                         hoverLabel.setX(zeroLoc.x);
                         hoverLabel.setY(zeroLoc.y);
 
@@ -376,11 +376,13 @@ public class GameController implements Screen {
 
         if(levelController.getLevelState() == LevelModel.LevelState.LOSE && !ended) {
             createDialogBox("YOU LOSE!");
-            switchLevel(0);
+            ended = true;
+            //switchLevel(0);
 
         } else if (levelController.getLevelState() == LevelModel.LevelState.WIN && !ended) {
             createDialogBox("You Win!");
-            switchLevel(currentLevel+1);
+            ended = true;
+            //switchLevel(currentLevel+1);
         }
 
         if(getRidOfBlackmail) {
@@ -1513,7 +1515,7 @@ public class GameController implements Screen {
                 success = levelController.relax();
 
                 if(success) {
-                    createDialogBox("You rested for 1 AP and decreased your stress!");
+                    createDialogBox("You relaxed for 1 AP and decreased your stress!");
                 } else {
                     createDialogBox("Insufficient AP to relax.");
                 }

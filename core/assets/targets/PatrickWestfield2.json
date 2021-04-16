@@ -3,8 +3,8 @@
   "paranoia": 3,
   "maxStress": 100,
   "firstNodes": ["job", "websearch", "publicsearch"],
-  "firstConnectors": [[0,0],[1,0],[2,0],[2,1],[2,2],[0,-1],[0,-2],[-1,0],[-2,0]],
-  "firstConnectorTypes": [ "ESW","EW", "WN", "NS", "S",  "NS",  "N",   "EW",  "E"],
+  "firstConnectors": [[0,0],[1,0],[2,0],[2,1],[2,2],[0,-1],[0,-2],[-1,0],[-2,0], [5, -1], [6, -1]],
+  "firstConnectorTypes": [ "ESW","EW", "WN", "NS", "S",  "NS",  "N",   "EW",  "E", "E", "W"],
   "pod": [
     {
       "nodeName": "job",
