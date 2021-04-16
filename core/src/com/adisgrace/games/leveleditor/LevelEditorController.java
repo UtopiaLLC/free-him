@@ -23,6 +23,9 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
+import java.io.IOException;
+import java.util.Scanner;
+
 /**
  * Class for handling the level editor.
  *
@@ -1013,7 +1016,19 @@ public class LevelEditorController implements Screen {
         model.make_connections(connectors);
 
         // Make JSON
-        model.make_json();
+        try {
+            // Get filename from user input in terminal
+            // TODO: get user input not from terminal
+            Scanner scan = new Scanner(System.in);
+            System.out.println("Enter desired level name: ");
+            String fname =  scan.nextLine();
+
+            // Don't need to include ".json"
+            model.make_level_json(fname);
+        }
+        catch(IOException e) {
+            System.out.println("make_level_json failed");
+        }
     }
 
 
