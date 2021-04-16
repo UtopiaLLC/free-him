@@ -32,10 +32,10 @@ public class Connector {
     };
 
     /** The coordinates of the connector in isometric space */
-    int xcoord;
-    int ycoord;
+    public int xcoord;
+    public int ycoord;
     /** The string of directions representing the type of connector */
-    String type;
+    public String type;
 
     /** Paths for each type of connector */
     public static final String C_NORTH = "leveleditor/connectors/C_N_2.png";

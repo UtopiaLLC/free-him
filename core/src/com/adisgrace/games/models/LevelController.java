@@ -28,6 +28,18 @@ public class LevelController {
     }
 
 
+    /**
+     *
+     * @return the current state of the level
+     */
+    public LevelState getLevelState(){
+        return levelModel.getLevelState();
+    }
+
+    /**
+     *
+     * @return  how much money is made with other jobs, returns -1 upon failure
+     */
     public float otherJobs(){
         if(player.canVtube()){
             return player.vtube();
@@ -40,25 +52,25 @@ public class LevelController {
      * May throw runtime exceptions if provided invalid inputs
      * @param target target to hack
      * @param fact particular node id of target to hack
-     * @return was the hack successful?
+     * @return an int reflecting the result of the hack
      */
-    public boolean hack(String target, String fact){
+    public int hack(String target, String fact){
         Random rng = new Random();
 
         if(!levelModel.getTargets().containsKey(target))
-            return false;
+            return -1;
         if(!levelModel.getVisibleFacts().get(target).contains(fact, false)
                 || levelModel.getHackedFacts().get(target).contains(fact, false))
-            return false;
+            return -2;
         if(!player.canHack())
-            return false;
+            return -3;
         player.hack();
         if(rng.nextDouble() < 0.2){
             levelModel.getTargets().get(target).addSuspicion(25);
-            return false;
+            return -4;
         }
         levelModel.getHackedFacts().get(target).add(fact);
-        return true;
+        return 1;
     }
 
     /**
@@ -217,14 +229,39 @@ public class LevelController {
         return levelModel.getTarget(target).getSuspicion();
     }
 
+
+    /**
+     *
+     * @return the amount of AP a player has remaining
+     */
+    public int getAP(){
+        return player.getAP();
+    }
+
+    /**
+     *
+     * @return how much stress the player has
+     */
+    public float getPlayerStress(){
+        return player.getStress();
+    }
+
+    /**
+     *
+     * @return how much currency the user has
+     */
+    public float getPlayerCurrency(){
+        return player.getBitecoin();
+    }
+
     /**
      * Returns the notes for a specific target
      *
      * @param target name of the target
      * @return All facts that the player has discovered about the target
      */
-    public Set<String> getNotes(String target){
-        return levelModel.getSummaries().get(target).keySet();
+    public Map<String, String> getNotes(String target){
+        return levelModel.getSummaries().get(target);
     }
 
     /**
@@ -308,5 +345,17 @@ public class LevelController {
 
         return connections;
     }
+
+    /**
+     *
+     * @param target name of the target
+     * @param fact identifier of the fact
+     * @return the
+     */
+    public String viewFact(String target, String fact){
+        return levelModel.getContents().get(target).get(fact);
+    }
+
+
 
 }
