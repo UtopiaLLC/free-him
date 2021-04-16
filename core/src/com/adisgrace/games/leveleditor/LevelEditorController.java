@@ -23,6 +23,8 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
+import java.io.IOException;
+
 /**
  * Class for handling the level editor.
  *
@@ -1013,7 +1015,12 @@ public class LevelEditorController implements Screen {
         model.make_connections(connectors);
 
         // Make JSON
-        model.make_json();
+        try {
+            model.make_level_json("NewLevel.json");
+        }
+        catch(IOException e) {
+            System.out.println("make_level_json failed");
+        }
     }
 
 
