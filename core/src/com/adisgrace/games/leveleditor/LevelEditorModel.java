@@ -445,7 +445,7 @@ public class LevelEditorModel {
         out = new BufferedWriter(new FileWriter(filename + ".json"));
         String targetlist = "", targetpositions = "";
         for(Map<String,Object> target : targets.values()) {
-            targetlist += ", \"" + target.get("targetName") + "\"";
+            targetlist += ", \"" + target.get("targetName").toString().replaceAll(" ","") + ".json" + "\"";
             targetpositions += ", [" + (int)(((Vector2)target.get("pos")).x) + ", " +
                     (int)(((Vector2)target.get("pos")).y) + "]";
         }
