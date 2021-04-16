@@ -526,7 +526,7 @@ public class LevelEditorModel {
 
         String pod = "", nodeinfo, connections_, connectiontypes;
         for(FactNode fact : get_target_facts(targetName)){
-            nodeinfo = "\t{\n" +
+            nodeinfo = ",\n{\n" +
                     "\t\t\"nodeName\": \"" + fact.getNodeName() + "\",\n" +
                     "\t\t\"title\": \"" + fact.getTitle() + "\",\n" +
                     "\t\t\"coords\": [" + (fact.getX()-targetx) + "," + (fact.getY()-targety) + "],\n" +
@@ -570,6 +570,7 @@ public class LevelEditorModel {
 
             pod += nodeinfo;
         }
+        pod = "\t[\n" + pod.substring(2) + "\n\t]";
 
         out.write("{\n" +
                 "\t\"targetName\": \"" + targets.get(targetName).get("targetName") + "\",\n" +
