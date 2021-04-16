@@ -726,7 +726,7 @@ public class LevelEditorModel {
                     "\t\t\"coords\": [" + (fact.getX()-targetx) + "," + (fact.getY()-targety) + "],\n" +
                     "\t\t\"locked\": " + fact.getLocked() + ",\n" +
                     "\t\t\"content\": \"" + fact.getContent() + "\",\n" +
-                    "\t\t\"summary\": \"" + fact.getSummary() + "\",\n";
+                    "\t\t\"summary\": \"" + fact.getContent() + "\",\n"; //////////////////////TODO
 
             strcache1 = "";
             if(connections.containsKey(fact.getNodeName())) {
