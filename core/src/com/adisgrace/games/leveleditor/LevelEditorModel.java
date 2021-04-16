@@ -206,7 +206,7 @@ public class LevelEditorModel {
 
         //TODO implement locked in FactNode
         FactNode factNode = new FactNode(factName, "untitled fact", contents, summary, new Array<String>(),
-                (int)coords.x, (int)coords.y, locked, tsDmg_, psDmg_);
+                (int)coords.x, (int)coords.y, locked, tsDmg_, psDmg_, new Array<int[]>(), new Array<String>());
         factnodes.put(factName, factNode);
     }
 
