@@ -1,5 +1,6 @@
 package com.adisgrace.games;
 
+import com.adisgrace.games.models.LevelController;
 import com.adisgrace.games.models.TargetModel;
 import com.adisgrace.games.models.WorldModel;
 import com.badlogic.gdx.Gdx;
@@ -13,6 +14,7 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class NodeView {
     /** stage is a Scene2d scene graph that contains all hierarchies of Scene2d Actors */
@@ -34,10 +36,10 @@ public class NodeView {
     private static final float SCALE_Y = 256;
     private static final float LOCKED_OFFSET = 114.8725f;
 
-    public NodeView(Stage stage, TargetModel target, WorldModel world) {
+    public NodeView(Stage stage, TargetModel target, LevelController levelController) {
         this.stage = stage;
         nodeCoords = new Array<>();
-        Vector2 targetCoords = world.getWorldCoordinates(target.getName());
+        Vector2 targetCoords = levelController.getTargetPos(target.getName());
         Array<String> targetNodes = target.getNodes();
         for (String nodeName: targetNodes ){
             Vector2 node = target.getNodeCoords(nodeName);

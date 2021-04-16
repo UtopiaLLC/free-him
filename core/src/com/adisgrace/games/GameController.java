@@ -1,5 +1,6 @@
 package com.adisgrace.games;
 
+import com.adisgrace.games.models.LevelController;
 import com.adisgrace.games.models.PlayerModel;
 import com.adisgrace.games.models.TargetModel;
 import com.adisgrace.games.models.WorldModel;
@@ -23,6 +24,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
+import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,12 +38,17 @@ public class GameController implements Screen {
         THREATEN,
         /**  Linked to Expose mode; Expose needs to be applied to a node after it has been clicked */
         EXPOSE,
-        /**  Linked to hack and scan commands*/
+        /**  Linked to overworking commands*/
         OVERWORK,
+        /** Linked to running more jobs to get bitecoin*/
         OTHER_JOBS,
+        /** Linked to relaxing to reduce stress*/
         RELAX,
+        /** Linked to no action being selected */
         NONE
     };
+
+    private Array<String> targetJsons = {"level1.json", "level2.json"};
 
     /** canvas is the primary view class of the game */
     private GameCanvas canvas;
@@ -60,7 +67,8 @@ public class GameController implements Screen {
     /** target is the specific target being attacked */
     private Array<TargetModel> targets;
     /** world is a variable that links to all the models in the project */
-    private WorldModel world;
+    //private WorldModel world;
+    LevelController levelController;
     /** activeVerb is the state of the toolbar buttons i.e. which button clicked or not clicked */
     private ActiveVerb activeVerb;
     /** hoverVerb is the verb that is currently being hovered over by the cursor */
@@ -114,19 +122,23 @@ public class GameController implements Screen {
     private ImageButton relax;
     /** Whether the relax button has been checked */
     private boolean relax_checked = false;
-
+    /** model for player stats and actions */
     private PlayerModel player;
-
+    /** flag for when game ended*/
     private boolean ended = false;
+    /** flag for when all nodes need to not be clicked anymore*/
     private boolean nodeFreeze = false;
-
+    /** dialog box for blackmail commands*/
     private Dialog blackmailDialog;
+    /** flag for when blackmail operations are complete*/
     private boolean getRidOfBlackmail;
+    /** progress bar that tracks the stress level of players*/
     private ProgressBar stressBar;
+    /** label for the amount of bitecoin a player has*/
     private Label bitecoinAmount;
-
+    /** shapeRenderer for grid lines, may not be needed anymore*/
     private ShapeRenderer shapeRenderer;
-
+    /** controller for camera operations*/
     private CameraController cameraController;
 
     /** The smallest width the game window can take */
@@ -153,20 +165,20 @@ public class GameController implements Screen {
         Array<String> levelJsons = new Array<>();
 
 
-        LevelController lc = new LevelController("level1.json");
+        levelController = new LevelController("level1.json");
 
         // Create and store targets in array
-        Array<String> targetJsons = new Array<>();
-        targetJsons.add("PatrickWestfield.json");
+//        Array<String> targetJsons = new Array<>();
+//        targetJsons.add("PatrickWestfield.json");
 
         // Create new WorldModel with given target JSONs
-        world = new WorldModel(targetJsons);
-        player = world.getPlayer();
+        //world = new WorldModel(targetJsons);
+        player = levelController.getPlayer();
         activeVerb = ActiveVerb.NONE;
 
         // Setting a target
 //        target = world.getTarget("Patrick Westfield");
-        targets = lc.
+        targets = (Array<TargetModel>) levelController.getTargetModels().values();
 
         //instantiating target and expose lists
         threatenedFacts = new Array<String>();
@@ -177,7 +189,7 @@ public class GameController implements Screen {
         // Creating Nodes
         imageNodes = new HashMap<>();
         for (TargetModel target: targets) {
-            nodeView = new NodeView(stage, target, world);
+            nodeView = new NodeView(stage, target, levelController);
             imageNodes.putAll(nodeView.getImageNodes());
         }
 
@@ -198,7 +210,7 @@ public class GameController implements Screen {
 
         // Adding all visible nodes
         for (TargetModel target: targets) {
-            Array<String> displayedNodes= world.getDisplayedNodes().get(target.getName());
+            Array<String> displayedNodes= levelController.getDisplayedNodes().get(target.getName());
             for(String str : displayedNodes) {
                 stage.addActor(imageNodes.get(target.getName()+","+str));
             }
@@ -247,7 +259,7 @@ public class GameController implements Screen {
             createDialogBox("YOU LOSE!");
             ended = true;
 
-        } else if (world.getGameState() == WorldModel.GAMESTATE.WIN && !ended) {
+        } else if (levelController.getGameState() == WorldModel.GAMESTATE.WIN && !ended) {
             createDialogBox("You Win!");
             ended = true;
         }
@@ -626,7 +638,7 @@ public class GameController implements Screen {
             public void clicked(InputEvent event, float x, float y)
             {
                 createDialogBox("You end the day after a long battle of psychological warfare.");
-                world.nextTurn();
+                levelController.endDay();
             }
         });
         return end;
@@ -741,9 +753,9 @@ public class GameController implements Screen {
     }
 
     /**
-     * This method creates a skill bar
-     * @param toolbar
-     * @return
+     * This method creates a skill bar using threaten, expose, overwork, otherJobs, relac
+     * @param toolbar table that will encapsulate all other tables
+     * @return the skillBar table
      */
     private Table createSkillBarTable(Table toolbar) {
         Table skillBar = new Table();
@@ -759,6 +771,14 @@ public class GameController implements Screen {
         return skillBar;
     }
 
+    /**
+     * This method creates the right side table with end day, notebook, settings
+     * @param toolbar table that will encapsulate all other tables
+     * @param end ImageButton for end
+     * @param notebook ImageButton for notebook
+     * @param settings ImageButton for settings
+     * @return the right side table
+     */
     private Table createRightsideTable(Table toolbar, ImageButton end, ImageButton notebook, ImageButton settings) {
         Table rightSide = new Table();
         rightSide.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
@@ -771,6 +791,11 @@ public class GameController implements Screen {
 
     }
 
+    /**
+     * This method creates the left side table, which will have the bitecoin counter and the progress bar
+     * @param toolbar the table that will encapsulate all other tables
+     * @return the left side table
+     */
     private Table createLeftsideTable(Table toolbar) {
         Table leftSide = new Table();
         leftSide.setSize(toolbar.getWidth()*.25f, toolbar.getHeight());
@@ -779,6 +804,10 @@ public class GameController implements Screen {
         return leftSide;
     }
 
+    /**
+     * This method creates a Stack UI element that has the bitecoin numbers and the UI drawable
+     * @return the bitecoin stack
+     */
     private Stack createBitecoinStack(){
         Stack bitecoinStack = new Stack();
 
@@ -836,6 +865,10 @@ public class GameController implements Screen {
     }
 
 
+    /**
+     * Creates a stats table that appears as the HUD
+     * @return the stats table
+     */
     private Table createStats() {
         Table stats = new Table();
         stress = new Label("Player Stress: " + Integer.toString((int)(world.getPlayer().getStress())), skin);
@@ -845,9 +878,9 @@ public class GameController implements Screen {
 //        tStress = new Label("Target Stress: " + Integer.toString(target.getStress()), skin);
 //        tStress.setFontScale(2);
 //        tSusp = new Label("Target Suspicion: " + Integer.toString(target.getSuspicion()), skin);
-        tSusp.setFontScale(2);
-        money = new Label ("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()), skin);
-        money.setFontScale(2);
+//        tSusp.setFontScale(2);
+//        money = new Label ("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()), skin);
+//        money.setFontScale(2);
 //        tState = new Label("Target State: " + target.getState(), skin);
 //        tState.setFontScale(2);
 
@@ -855,11 +888,10 @@ public class GameController implements Screen {
         stats.setFillParent(true);
 
         //stats.add(stress).expandX().padTop(20);
-        stats.add(tState).expandX().padTop(20);
+//        stats.add(tState).expandX().padTop(20);
         //stats.add(money).expandX().padTop(20);
-        stats.add(tStress).expandX().padTop(20);
-        stats.add(tSusp).expandX().padTop(20);
-        stats.row();
+//        stats.add(tStress).expandX().padTop(20);
+//        stats.add(tSusp).expandX().padTop(20);
         stats.add(ap).expandX().padTop(10);
         return stats;
     }
@@ -867,7 +899,8 @@ public class GameController implements Screen {
     /**
      * Controls what actions the game needs to take on a specified node based on the
      * activeVerb that was clicked
-     * @param nodeName
+     * @param nodeName name of target and fact in the form "target_name,fact_id"
+     * @param button the node button
      */
     public void actOnNode(String nodeName, ImageButton button) {
         String[] nodeInfo = nodeName.split(",");
@@ -881,7 +914,7 @@ public class GameController implements Screen {
         switch (activeVerb) {
             case NONE:
                 if(!isTarget) {
-                    switch (world.interactionType(nodeInfo[0], nodeInfo[1])) {
+                    switch (levelController.interactionType(nodeInfo[0], nodeInfo[1])) {
                         case HACK:
                             if(world.getPlayer().canHack()) {
                                 Texture node = new Texture("node/N_UnscannedNode_1.png");
@@ -953,7 +986,7 @@ public class GameController implements Screen {
             case THREATEN:
                 if(isTarget) {
                     if(world.getPlayer().canThreaten()) {
-                        getBlackmailFact("Select a fact to threaten the target with.");
+                        getBlackmailFact("Select a fact to threaten the target with.", nodeInfo[0]);
                     }
                     else {
                         createDialogBox("Insufficient AP to threaten the target.");
@@ -965,7 +998,7 @@ public class GameController implements Screen {
                 if(isTarget) {
                     if(isTarget) {
                         if(world.getPlayer().canExpose()) {
-                            getBlackmailFact("Select a fact to expose the target with.");
+                            getBlackmailFact("Select a fact to expose the target with.", nodeInfo[0]);
                         }
                         else {
                             createDialogBox("Insufficient AP to expose the target.");
@@ -983,7 +1016,7 @@ public class GameController implements Screen {
 
     /**
      * Creates a dialog box with [s] at a reasonably-sized height and width
-     * @param s
+     * @param s the string displayed
      */
     public void createDialogBox(String s) {
         Dialog dialog = new Dialog("", skin) {
@@ -1011,10 +1044,10 @@ public class GameController implements Screen {
     }
 
     /**
-     * Creates a dialog box with [s] at a reasonably-sized height and width
-     * @param s
+     * Creates a dialog box for the notebook with [s] at a reasonably-sized height and width
+     * @param s the string displayed
      */
-    public void createNotebook(String s) {
+    public void createNotebook(String s, String targetName) {
         Dialog dialog = new Dialog("Notebook", skin) {
             public void result(Object obj) {
                 nodeFreeze = false;
@@ -1035,7 +1068,9 @@ public class GameController implements Screen {
         dialog.getContentTable().add( l ).prefWidth( 350 );
         dialog.setMovable(true);
 
-        Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
+        //Get all fact summaries that can potentially be displayed
+        Map<String, String> factSummaries = levelController.viewFactSummaries(targetName);
+        //This will store the fact ids of all the scanned facts
         Array<String> scannedFacts = new Array<>();
 
         Table table = dialog.getContentTable();
@@ -1043,8 +1078,8 @@ public class GameController implements Screen {
             scannedFacts.add("No facts scanned yet!");
         }
         for (String fact_ : factSummaries.keySet()) {
-            if (!world.viewFactSummary(target.getName(), fact_).equals(""))
-                scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
+            if (!world.viewFactSummary(targetName, fact_).equals(""))
+                scannedFacts.add(world.viewFactSummary(targetName, fact_));
         }
         table.setFillParent(false);
 
@@ -1063,22 +1098,24 @@ public class GameController implements Screen {
         nodeFreeze = true;
     }
 
-    /**
-     *
-     * @param s
-     */
-    public void getBlackmailFact(String s) {
-        blackmailDialog = new Dialog("Notebook", skin) {
+    public void createNotebookTargetSelector(String s) {
+        Dialog dialog = new Dialog("Notebook", skin) {
             public void result(Object obj) {
                 nodeFreeze = false;
-                activeVerb = ActiveVerb.NONE;
+
+                if((boolean)obj == true) {
+                    return;
+                }
+
+                createNotebook("Notebook:", targets.get((int)obj).getName());
             }
         };
+
         TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
-        blackmailDialog.setBackground(drawable);
-        blackmailDialog.getBackground().setMinWidth(500);
-        blackmailDialog.getBackground().setMinHeight(500);
+        dialog.setBackground(drawable);
+        dialog.getBackground().setMinWidth(500);
+        dialog.getBackground().setMinHeight(500);
         Label l = new Label( s, skin );
         if(s.length() > 50) {
             l.setFontScale(1.5f);
@@ -1086,10 +1123,60 @@ public class GameController implements Screen {
             l.setFontScale(2f);
         }
         l.setWrap( true );
+        dialog.getContentTable().add( l ).prefWidth( 350 );
+        dialog.setMovable(true);
+
+        for(int i = 0; i < targets.size; i++) {
+            dialog.button(targets.get(i).getName(), i);
+        }
+        dialog.button("Cancel", true); //sends "true" as the result
+        dialog.show(toolbarStage);
+    }
+
+    /**
+     * This method allows you to select a fact to threaten or expose someone.
+     *
+     * Very similar to a notebook, except every fact has a listener that allows you to click and choose a fact
+     *
+     * If a fact has been used to threaten, it will not appear in the display for threaten
+     *
+     * If a fact has been used to expose, it will not appear in the display for threaten and expose
+     *
+     *
+     * @param s the text that is displayed above the facts to select
+     */
+    public void getBlackmailFact(String s, String targetName) {
+        blackmailDialog = new Dialog("Notebook", skin) {
+            public void result(Object obj) {
+                //to activate the node clicking once more
+                nodeFreeze = false;
+                activeVerb = ActiveVerb.NONE;
+            }
+        };
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+
+        blackmailDialog.setBackground(drawable);
+        blackmailDialog.getBackground().setMinWidth(500);
+        blackmailDialog.getBackground().setMinHeight(500);
+        Label l = new Label( s, skin );
+        //scale sizing based on the amount of text
+        if(s.length() > 50) {
+            l.setFontScale(1.5f);
+        }else {
+            l.setFontScale(2f);
+        }
+        l.setWrap( true );
         blackmailDialog.setMovable(true);
+        //Add the text to the center of the dialog box
         blackmailDialog.getContentTable().add( l ).prefWidth( 350 );
-        Map<String, String> factSummaries = world.viewFactSummaries(target.getName());
+        //Get all fact summaries that can potentially be displayed
+        Map<String, String> factSummaries = world.viewFactSummaries(targetName);
+
+        //This will store all mappings from summaries to a fact name
         Map<String, String> summaryToFacts = new HashMap<>();
+        //This will store the fact ids of all the scanned facts
+
         final Array<String> scannedFacts = new Array<>();
 
         Table table = blackmailDialog.getContentTable();
@@ -1097,32 +1184,40 @@ public class GameController implements Screen {
             scannedFacts.add("No facts scanned yet!");
         }
         for (String fact_ : factSummaries.keySet()) {
-            if(!world.viewFactSummary(target.getName(), fact_).equals(""))
-                scannedFacts.add(world.viewFactSummary(target.getName(), fact_));
-            summaryToFacts.put(world.viewFactSummary(target.getName(), fact_), fact_);
+            //Should not add empty fact summaries
+            if(!world.viewFactSummary(targetName, fact_).equals(""))
+                scannedFacts.add(world.viewFactSummary(targetName, fact_));
+            //Add to both scannedFacts and summaryToFacts
+            summaryToFacts.put(world.viewFactSummary(targetName, fact_), fact_);
         }
         table.setFillParent(false);
 
         table.row();
+        //Now, parse through all scannedFacts to see which are eligible for display
         for (int i = 0; i < scannedFacts.size; i++) {
             final int temp_i = i;
             //this should ALWAYS be overwritten in the code underneath
             Label k = new Label("No facts", skin);
             if(activeVerb == ActiveVerb.EXPOSE ){
+                //If a scanned fact has already been exposed, we can't expose it again
                 if (exposedFacts.contains(scannedFacts.get(temp_i), false) ) {
                     continue;
                 } else {
+                    //Else we can display it
                     k = new Label(scannedFacts.get(i), skin);
                 }
             } else if(activeVerb == ActiveVerb.THREATEN){
+                //If a scanned fact has already been used to threaten, we can't use it to threaten again
                 if (threatenedFacts.contains(scannedFacts.get(temp_i), false) ) {
                     continue;
                 } else {
+                    //Else we can display it
                     k = new Label(scannedFacts.get(i), skin);
                 }
             }
             k.setWrap(true);
-            k.setName(target.getName() + "," + summaryToFacts.get(scannedFacts.get(i)));
+            //Add a listener that can be reachable via the name format "target_name,fact_id"
+            k.setName(targetName + "," + summaryToFacts.get(scannedFacts.get(i)));
             k.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -1133,16 +1228,21 @@ public class GameController implements Screen {
                         case HARASS:
 
                         case THREATEN:
+                            //Threaten the target
                             world.threaten(info[0], info[1]);
                             activeVerb = ActiveVerb.NONE;
                             createDialogBox("You threatened the target!");
+                            //Add this fact to the list of facts used to threaten
                             threatenedFacts.add(scannedFacts.get(temp_i));
                             break;
                         case EXPOSE:
+                            //Expose the target
                             world.expose(info[0], info[1]);
                             activeVerb = ActiveVerb.NONE;
                             createDialogBox("You exposed the target!");
+                            //Add this fact to the list of facts used to expose
                             exposedFacts.add(scannedFacts.get(temp_i));
+                            //Add this fact to the list of facts used to threaten
                             threatenedFacts.add(scannedFacts.get(temp_i));
                             break;
                         default:
@@ -1150,6 +1250,7 @@ public class GameController implements Screen {
                     }
                 }
             });
+            //Add the displayed fact to the middle of the blackmail dialog
             table.add(k).prefWidth(350);
             table.row();
         }
@@ -1157,6 +1258,7 @@ public class GameController implements Screen {
         blackmailDialog.button("Cancel", true); //sends "true" as the result
         blackmailDialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         blackmailDialog.show(toolbarStage);
+        //Make sure nothing else is able to be clicked while blackmail dialog is shown
         nodeFreeze = true;
     }
 
@@ -1189,17 +1291,19 @@ public class GameController implements Screen {
         dialog.button("No", false);  //sends "false" as the result
         dialog.show(toolbarStage);
 
-
     }
 
     /**
      * Display all fact nodes of a target node that is visible
      */
     public void reloadDisplayedNodes() {
-        Array<String> displayedNodes= world.getDisplayedNodes().get(target.getName());
-        for(String str : displayedNodes) {
-            stage.addActor(imageNodes.get(target.getName()+","+str));
+        for(TargetModel target : targets) {
+            Array<String> displayedNodes= world.getDisplayedNodes().get(target.getName());
+            for(String str : displayedNodes) {
+                stage.addActor(imageNodes.get(target.getName()+","+str));
+            }
         }
+
 
     }
 
@@ -1211,7 +1315,7 @@ public class GameController implements Screen {
         switch(s) {
             case "overwork":
                 if(world.getPlayer().canOverwork()) {
-                    world.overwork();
+                    levelController.overwork();
                     createDialogBox("You overworked yourself and gained 2 AP at the cost of your sanity...");
                 } else {
                     createDialogBox("You cannot overwork anymore today!");
@@ -1219,7 +1323,7 @@ public class GameController implements Screen {
                 break;
             case "relax":
                 if(world.getPlayer().canRelax()) {
-                    world.relax(1);
+                    levelController.relax(1);
                     createDialogBox("You rested for 1 AP and decreased your stress!");
                 } else {
                     createDialogBox("Insufficient AP to relax.");
@@ -1227,14 +1331,15 @@ public class GameController implements Screen {
                 break;
             case "otherJobs":
                 if(world.getPlayer().canVtube()) {
-                    world.vtube();
+                    levelController.otherJobs();
                     createDialogBox("You did some other jobs and earned some more bitecoin for yourself!");
                 } else {
                     createDialogBox("Insufficient AP to do other jobs");
                 }
                 break;
             case "notebook":
-                createNotebook("Notebook:");
+                //createNotebook("Notebook:");
+                createNotebookTargetSelector("Select a target to view facts for.");
                 break;
             default:
                 System.out.println("You shall not pass");
@@ -1245,12 +1350,12 @@ public class GameController implements Screen {
      * Updates the stats HUD with current values
      */
     public void updateStats(){
-        stress.setText("Player Stress: " + Integer.toString((int)world.getPlayer().getStress()));
+        //stress.setText("Player Stress: " + Integer.toString((int)world.getPlayer().getStress()));
         stressBar.setValue(player.getStress());
         bitecoinAmount.setText(Integer.toString((int)player.getBitecoin()));
         ap.setText("AP: " + Integer.toString(world.getPlayer().getAP()));
-        tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
-        tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));
-        money.setText("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()));
+//        tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
+//        tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));
+//        money.setText("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()));
     }
 }
