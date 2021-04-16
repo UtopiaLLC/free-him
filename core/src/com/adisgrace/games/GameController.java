@@ -1,6 +1,7 @@
 package com.adisgrace.games;
 
 import com.adisgrace.games.models.*;
+import com.adisgrace.games.util.Connector;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
@@ -47,6 +48,9 @@ public class GameController implements Screen {
 
     private Array<String> levelJsons;
     private Array<LevelController> levelControllers;
+
+    private final int THREATEN_AP_COST = 2;
+    private final int EXPOSE_AP_COST = 3;
 
     /** canvas is the primary view class of the game */
     private GameCanvas canvas;
@@ -213,12 +217,25 @@ public class GameController implements Screen {
 
         // Adding all visible nodes
         for (TargetModel target: targets) {
-            Array<String> displayedNodes= levelController.getDisplayedNodes().get(target.getName());
+            Array<String> displayedNodes= levelController.getVisibleNodes(target.getName());
             for(String str : displayedNodes) {
                 stage.addActor(imageNodes.get(target.getName()+","+str));
             }
             stage.addActor(imageNodes.get(target.getName()));
         }
+
+        Array<Connector> visibleConnectors = levelController.getAllVisibleConnectors();
+        canvas.begin();
+        for(Connector connector : visibleConnectors) {
+            String type = connector.type;
+            for (int i = 0; i < type.length(); i++) {
+                String dir = type.substring(i, i+1);
+                canvas.draw(new Texture(Gdx.files.internal(Connector.getAssetPath(dir))),
+                        connector.xcoord, connector.ycoord);
+            }
+        }
+
+        canvas.end();
 
 
         InputController ic = new InputController();
@@ -258,13 +275,13 @@ public class GameController implements Screen {
         toolbarStage.draw();
         updateStats();
 
-        if(levelController.getLevelState() == LevelState.LOSE && !ended) {
+        if(levelController.getLevelState() == LevelModel.LevelState.LOSE && !ended) {
             createDialogBox("YOU LOSE!");
-            ended = true;
+            switchLevel(0);
 
-        } else if (levelController.getLevelState() == LevelState.WIN && !ended) {
+        } else if (levelController.getLevelState() == LevelModel.LevelState.WIN && !ended) {
             createDialogBox("You Win!");
-            ended = true;
+            switchLevel(currentLevel+1);
         }
 
         if(getRidOfBlackmail) {
@@ -338,7 +355,7 @@ public class GameController implements Screen {
 
         // Adding all visible nodes
         for (TargetModel target: targets) {
-            Array<String> displayedNodes= levelController.getDisplayedNodes().get(target.getName());
+            Array<String> displayedNodes= levelController.getVisibleNodes(target.getName());
             for(String str : displayedNodes) {
                 stage.addActor(imageNodes.get(target.getName()+","+str));
             }
@@ -489,7 +506,7 @@ public class GameController implements Screen {
         {
 
             Label  exposeLabel = new Label("Expose: Expose your target's fact to the public\n for large stress damage" +
-                    " for 2 AP", skin);
+                    " for 3 AP", skin);
 
             @Override
             public void clicked(InputEvent event, float x, float y)
@@ -757,7 +774,7 @@ public class GameController implements Screen {
         Gdx.input.setInputProcessor(inputMultiplexer);
 
         stressBar = new ProgressBar(0f, 100f, 1f, true, skin, "synthwave");
-        stressBar.setValue(player.getStress());
+        stressBar.setValue(levelController.getPlayerStress());
 
         createHarass();
         createExpose();
@@ -861,7 +878,7 @@ public class GameController implements Screen {
 
         Image bitecoinCounter = new Image(new TextureRegionDrawable(new TextureRegion(
                 new Texture("UI/BitecoinCounter.png"))));
-        bitecoinAmount = new Label(Integer.toString((int)player.getBitecoin()), skin, "bitcoin");
+        bitecoinAmount = new Label(Integer.toString((int)levelController.getPlayerCurrency()), skin, "bitcoin");
 
         bitecoinStack.add(bitecoinCounter);
         bitecoinStack.add(bitecoinAmount);
@@ -919,9 +936,9 @@ public class GameController implements Screen {
      */
     private Table createStats() {
         Table stats = new Table();
-        stress = new Label("Player Stress: " + Integer.toString((int)(world.getPlayer().getStress())), skin);
+        stress = new Label("Player Stress: " + Integer.toString((int)(levelController.getPlayerStress())), skin);
         stress.setFontScale(2);
-        ap = new Label("AP: " + Integer.toString(world.getPlayer().getAP()), skin);
+        ap = new Label("AP: " + Integer.toString(levelController.getAP()), skin);
         ap.setFontScale(2);
 //        tStress = new Label("Target Stress: " + Integer.toString(target.getStress()), skin);
 //        tStress.setFontScale(2);
@@ -962,8 +979,8 @@ public class GameController implements Screen {
         switch (activeVerb) {
             case NONE:
                 if(!isTarget) {
-                    switch (levelController.interactionType(nodeInfo[0], nodeInfo[1])) {
-                        case HACK:
+                    switch (levelController.getCurrentNodeState(nodeInfo[0], nodeInfo[1])) {
+                        case 1:
                             int hack = levelController.hack(nodeInfo[0], nodeInfo[1]);
                             if(hack <= -1) {
                                 System.out.println("HACK IS NOT WORKING");
@@ -998,7 +1015,7 @@ public class GameController implements Screen {
                                 createDialogBox("You failed to hack the node!");
                             }
                             break;
-                        case SCAN:
+                        case 2:
                             boolean success = levelController.scan(nodeInfo[0], nodeInfo[1]);
                             if(success) {
                                 Texture node = new Texture("node/N_ScannedNode_2.png");
@@ -1022,7 +1039,7 @@ public class GameController implements Screen {
                                 createDialogBox("Insufficient AP to scan this node.");
                             }
                             break;
-                        case VIEWFACT:
+                        case 3:
                             createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
                             break;
                     }
@@ -1044,7 +1061,7 @@ public class GameController implements Screen {
                 break;
             case THREATEN:
                 if(isTarget) {
-                    if(world.getPlayer().canThreaten()) {
+                    if(levelController.getAP() >= THREATEN_AP_COST) {
                         getBlackmailFact("Select a fact to threaten the target with.", nodeInfo[0]);
                     }
                     else {
@@ -1056,7 +1073,7 @@ public class GameController implements Screen {
             case EXPOSE:
                 if(isTarget) {
                     if(isTarget) {
-                        if(world.getPlayer().canExpose()) {
+                        if(levelController.getAP() >= EXPOSE_AP_COST) {
                             getBlackmailFact("Select a fact to expose the target with.", nodeInfo[0]);
                         }
                         else {
@@ -1363,6 +1380,19 @@ public class GameController implements Screen {
             }
         }
 
+
+        Array<Connector> visibleConnectors = levelController.getAllVisibleConnectors();
+        canvas.begin();
+        for(Connector connector : visibleConnectors) {
+            String type = connector.type;
+            for (int i = 0; i < type.length(); i++) {
+                String dir = type.substring(i, i+1);
+                canvas.draw(new Texture(Gdx.files.internal(Connector.getAssetPath(dir))),
+                        connector.xcoord, connector.ycoord);
+            }
+        }
+
+        canvas.end();
 
     }
 
