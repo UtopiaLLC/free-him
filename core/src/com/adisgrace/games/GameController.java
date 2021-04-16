@@ -48,7 +48,8 @@ public class GameController implements Screen {
         NONE
     };
 
-    private Array<String> targetJsons = {"level1.json", "level2.json"};
+    private Array<String> levelJsons;
+    private Array<LevelController> levelControllers;
 
     /** canvas is the primary view class of the game */
     private GameCanvas canvas;
@@ -123,7 +124,7 @@ public class GameController implements Screen {
     /** Whether the relax button has been checked */
     private boolean relax_checked = false;
     /** model for player stats and actions */
-    private PlayerModel player;
+    //private PlayerModel player;
     /** flag for when game ended*/
     private boolean ended = false;
     /** flag for when all nodes need to not be clicked anymore*/
@@ -153,6 +154,8 @@ public class GameController implements Screen {
     private static final int TILE_HEIGHT = 256;
     private static final int TILE_WIDTH = 444;
 
+    private int currentLevel;
+
     public GameController() {
         canvas = new GameCanvas();
         ExtendViewport viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -162,10 +165,15 @@ public class GameController implements Screen {
         canvas.getCamera().zoom = 1.5f;
 
         //TODO: write function to parse folder of level jsons
-        Array<String> levelJsons = new Array<>();
+        levelJsons = new Array<>();
+        levelJsons.add("level1.json");
+
+        for(String s : levelJsons) {
+            levelControllers.add(new LevelController(s));
+        }
 
 
-        levelController = new LevelController("level1.json");
+        levelController = levelControllers.get(0);
 
         // Create and store targets in array
 //        Array<String> targetJsons = new Array<>();
@@ -173,7 +181,6 @@ public class GameController implements Screen {
 
         // Create new WorldModel with given target JSONs
         //world = new WorldModel(targetJsons);
-        player = levelController.getPlayer();
         activeVerb = ActiveVerb.NONE;
 
         // Setting a target
@@ -259,7 +266,7 @@ public class GameController implements Screen {
             createDialogBox("YOU LOSE!");
             ended = true;
 
-        } else if (levelController.getGameState() == WorldModel.GAMESTATE.WIN && !ended) {
+        } else if (world.getGameState() == WorldModel.GAMESTATE.WIN && !ended) {
             createDialogBox("You Win!");
             ended = true;
         }
@@ -934,7 +941,12 @@ public class GameController implements Screen {
 
                                 button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
                                         drawable, null, null));
-                                createDialogBox(world.interact(nodeInfo[0], nodeInfo[1]));
+                                boolean hack = levelController.hack(nodeInfo[0], nodeInfo[1]);
+                                if(hack) {
+                                    createDialogBox("You hacked the node successfully!");
+                                } else {
+                                    createDialogBox("You failed to hack the node!");
+                                }
                                 reloadDisplayedNodes();
                             } else {
                                 createDialogBox("Insufficient AP to hack this node.");
@@ -957,14 +969,14 @@ public class GameController implements Screen {
                                 TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
                                 button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
                                         drawable, null, null));
-                                createDialogBox(world.interact(nodeInfo[0], nodeInfo[1]));
+                                createDialogBox(levelController.scan(nodeInfo[0], nodeInfo[1]));
                                 reloadDisplayedNodes();
                             } else {
                                 createDialogBox("Insufficient AP to scan this node.");
                             }
                             break;
                         case VIEWFACT:
-                            createDialogBox(world.interact(nodeInfo[0], nodeInfo[1]));
+                            createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
                             break;
                     }
 
@@ -1229,7 +1241,7 @@ public class GameController implements Screen {
 
                         case THREATEN:
                             //Threaten the target
-                            world.threaten(info[0], info[1]);
+                            levelController.threaten(info[0], info[1]);
                             activeVerb = ActiveVerb.NONE;
                             createDialogBox("You threatened the target!");
                             //Add this fact to the list of facts used to threaten
@@ -1237,7 +1249,7 @@ public class GameController implements Screen {
                             break;
                         case EXPOSE:
                             //Expose the target
-                            world.expose(info[0], info[1]);
+                            levelController.expose(info[0], info[1]);
                             activeVerb = ActiveVerb.NONE;
                             createDialogBox("You exposed the target!");
                             //Add this fact to the list of facts used to expose
@@ -1312,27 +1324,30 @@ public class GameController implements Screen {
      * @param s
      */
     public void callConfirmFunction(String s) {
+        boolean success;
         switch(s) {
             case "overwork":
-                if(world.getPlayer().canOverwork()) {
-                    levelController.overwork();
+                success = levelController.overwork();
+                if(success) {
                     createDialogBox("You overworked yourself and gained 2 AP at the cost of your sanity...");
                 } else {
                     createDialogBox("You cannot overwork anymore today!");
                 }
                 break;
             case "relax":
-                if(world.getPlayer().canRelax()) {
-                    levelController.relax(1);
+                success = levelController.relax();
+
+                if(success) {
                     createDialogBox("You rested for 1 AP and decreased your stress!");
                 } else {
                     createDialogBox("Insufficient AP to relax.");
                 }
                 break;
             case "otherJobs":
-                if(world.getPlayer().canVtube()) {
-                    levelController.otherJobs();
-                    createDialogBox("You did some other jobs and earned some more bitecoin for yourself!");
+                float money = levelController.otherJobs();
+                if(money != -1f) {
+
+                    createDialogBox("You did some other jobs and earned some " + Float.toString(money) +  " bitecoin for yourself!");
                 } else {
                     createDialogBox("Insufficient AP to do other jobs");
                 }
