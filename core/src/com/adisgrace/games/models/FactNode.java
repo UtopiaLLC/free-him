@@ -53,7 +53,7 @@ public class FactNode {
 	 * @param x			X-coordinate
 	 * @param y			Y-coordinate
 	 * @param l	Whether the node is locked or not
-	 * @param tsDmg		Target stress damage
+	 * @param tsDmg		Target stress damgit puage
 	 * @param psDmg		Player stress damage
 	 * @param cCoords	connectorCoords
 	 * @param cTypes	connectorTypes
