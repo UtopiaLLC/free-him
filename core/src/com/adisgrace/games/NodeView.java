@@ -40,6 +40,8 @@ public class NodeView {
         this.stage = stage;
         nodeCoords = new Array<>();
         Vector2 targetCoords = levelController.getTargetPos(target.getName());
+
+        System.out.println(levelController.getTargetPos(target.getName()));
         Array<String> targetNodes = target.getNodes();
         for (String nodeName: targetNodes ){
             Vector2 node = target.getNodeCoords(nodeName);
@@ -104,7 +106,7 @@ public class NodeView {
             assert(targetNodes.size == nodeCoords.size);
 
             ImageButton button = new ImageButton(drawable); //Set the button up
-            Vector2 pos = nearestIsoCenter(nodeCoords.get(i).x, nodeCoords.get(i).y);
+            Vector2 pos = isometricToWorld(nodeCoords.get(i));
             // Account for difference between tile width and sprite width
 
             pos.x -= (tRegion.getRegionWidth() - TILE_WIDTH) / 2;
@@ -123,7 +125,7 @@ public class NodeView {
                 target_Look.getHeight() / 2);
         tRegion = regions[0][0];
 
-        Texture node_base = new Texture("node/N_NodeBase_1.png");
+        Texture node_base = new Texture("node/N_TargetBase_1.png");
         TextureRegion[][] node_regions = new TextureRegion(node_base).split(
                 node_base.getWidth() / 6,
                 node_base.getHeight() / 2);
@@ -135,7 +137,7 @@ public class NodeView {
         //tRegion = new TextureRegion(new Texture(Gdx.files.internal("targetmale/green.png")));
         drawable = new TextureRegionDrawable(new TextureRegion(combined));
         ImageButton button = new ImageButton(drawable); //Set the button up
-        Vector2 pos = nearestIsoCenter(targetCoords.x, targetCoords.y);
+        Vector2 pos = isometricToWorld(targetCoords);
         pos.x -= (combined.getWidth() - TILE_WIDTH) / 2;
         pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
         button.setPosition(pos.x, pos.y);

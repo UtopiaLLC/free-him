@@ -122,6 +122,7 @@ public class LevelModel {
 //            targets.put(t.getName(), t);
             TargetModel t = addTarget(targetJson);
             targetLocs.put(t.getName(), itr.next().asIntArray());
+
         }
 
         n_days = 0;

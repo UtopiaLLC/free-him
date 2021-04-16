@@ -269,7 +269,10 @@ public class LevelController {
     public Vector2 getTargetPos(String target){
         System.out.println(target);
         System.out.println(levelModel.getTarget(target));
-       return new Vector2(levelModel.getTarget(target).getX(),levelModel.getTarget(target).getY());
+       //return new Vector2(levelModel.getTarget(target).getX(),levelModel.getTarget(target).getY());
+        int [] targetLoc = levelModel.getTargetLoc(target);
+
+        return new Vector2(targetLoc[0], targetLoc[1]);
     }
 
     /**

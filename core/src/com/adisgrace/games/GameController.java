@@ -235,8 +235,10 @@ public class GameController implements Screen {
             String type = connector.type;
             for (int i = 0; i < type.length(); i++) {
                 String dir = type.substring(i, i+1);
+                Vector2 connectorCoord = new Vector2(connector.xcoord, connector.ycoord);
+                connectorCoord = isometricToWorld(connectorCoord);
                 canvas.draw(new Texture(Gdx.files.internal(Connector.getAssetPath(dir))),
-                        connector.xcoord, connector.ycoord);
+                        connectorCoord.x, connectorCoord.y);
             }
         }
 
@@ -269,8 +271,10 @@ public class GameController implements Screen {
             String type = connector.type;
             for (int i = 0; i < type.length(); i++) {
                 String dir = type.substring(i, i+1);
+                Vector2 connectorCoord = new Vector2(connector.xcoord, connector.ycoord);
+                connectorCoord = isometricToWorld(connectorCoord);
                 canvas.draw(new Texture(Gdx.files.internal(Connector.getAssetPath(dir))),
-                        connector.xcoord, connector.ycoord);
+                        connectorCoord.x, connectorCoord.y);
             }
         }
 
@@ -917,6 +921,20 @@ public class GameController implements Screen {
         float tempy = coords.y;
         coords.x = 0.57735f * tempx - tempy;
         coords.y = 0.57735f * tempx + tempy;
+
+        return coords;
+    }
+
+    /**
+     * Helper function that converts coordinates from isometric space to world space.
+     *
+     * @param coords   Coordinates in isometric space to transform
+     */
+    private Vector2 isometricToWorld(Vector2 coords) {
+        float tempx = coords.x;
+        float tempy = coords.y;
+        coords.x = tempx * (0.5f * TILE_WIDTH) + tempy * (0.5f * TILE_WIDTH);
+        coords.y = -tempx * (0.5f * TILE_HEIGHT) + tempy * (0.5f * TILE_HEIGHT);
 
         return coords;
     }
