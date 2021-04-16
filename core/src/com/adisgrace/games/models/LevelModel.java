@@ -18,6 +18,12 @@ import com.badlogic.gdx.utils.JsonReader;
  */
 
 public class LevelModel {
+    public enum LevelState{
+        ONGOING,
+        WIN,
+        LOSE
+    }
+
     // Name of the Level
     private String name;
 
@@ -79,11 +85,6 @@ public class LevelModel {
         VIEWFACT,
         SCAN,
         HACK,
-        RELAX,
-        NEXTTURN,
-        OVERWORK,
-        THREATEN,
-        VTUBE
     }
 
     /**

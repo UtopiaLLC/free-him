@@ -8,11 +8,7 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.*;
 
-enum LevelState{
-    ONGOING,
-    WIN,
-    LOSE
-}
+
 
 public class LevelController {
 
@@ -32,7 +28,7 @@ public class LevelController {
      *
      * @return the current state of the level
      */
-    public LevelState getLevelState(){
+    public LevelModel.LevelState getLevelState(){
         return levelModel.getLevelState();
     }
 
@@ -116,7 +112,7 @@ public class LevelController {
      *
      * @return gamestate after napping
      */
-    public LevelState endDay() {
+    public LevelModel.LevelState endDay() {
         player.nextTurn();
         for(TargetModel t : levelModel.getTargets().values()){
             t.nextTurn();
@@ -131,7 +127,7 @@ public class LevelController {
      *	@param target 	name of target
      *	@return 			the gamestate after this action
      */
-    public LevelState harass(String target){
+    public LevelModel.LevelState harass(String target){
         // Get harass damage and inflict on target
         int stressDmg = levelModel.getTargets().get(target).harass();
         levelModel.getTargets().get(target).addStress(stressDmg);
@@ -145,7 +141,7 @@ public class LevelController {
      * @param fact fact to expose
      * @return amount of stress increase on target
      */
-    public LevelState expose(String target, String fact){
+    public LevelModel.LevelState expose(String target, String fact){
         if(!levelModel.getTargets().containsKey(target))
             throw new RuntimeException("Invalid target");
         if(!levelModel.getContents().get(target).containsKey(fact))
@@ -167,7 +163,7 @@ public class LevelController {
      * @param fact fact to threaten target over
      * @return amount of stress increase on target
      */
-    public LevelState threaten(String target, String fact){
+    public LevelModel.LevelState threaten(String target, String fact){
         if(!levelModel.getTargets().containsKey(target))
             throw new RuntimeException("Invalid target");
         if(!levelModel.getContents().get(target).containsKey(fact))
@@ -347,6 +343,22 @@ public class LevelController {
     }
 
     /**
+     * Checks the current state of a fact, whether it's locked, scannable, or viewable
+     *
+     * @param target name of the target
+     * @param fact name of the fact
+     * @return returns whether a node is currently locked (returns 1), scannable (returns 2), or viewable (returns 3)
+     */
+    public int getCurrentNodeState(String target, String fact){
+        if(levelModel.getContents().get(target).containsKey(fact))
+            return 1; //viewable
+        if(levelModel.getHackedFacts().get(target).contains(fact, false))
+            return 2; //scannable
+        else
+            return 3; //locked
+    }
+
+    /**
      *
      * @param target name of the target
      * @param fact identifier of the fact
@@ -354,6 +366,15 @@ public class LevelController {
      */
     public String viewFact(String target, String fact){
         return levelModel.getContents().get(target).get(fact);
+    }
+
+    /**
+     *
+     * @param target name of the target
+     * @return visible nodes of target
+     */
+    public Array<String> getVisibleNodes(String target){
+        return levelModel.getVisibleFacts(target);
     }
 
 
