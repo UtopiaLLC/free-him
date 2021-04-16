@@ -1,0 +1,50 @@
+{
+	"targetName": "test Torchlight Employee 1",
+	"paranoia": 3,
+	"maxStress": 100,
+	"firstNodes": ["1Node1", "2Node2"],
+	"firstConnectors": [[[-1,2]], [[1,1]]],
+	"firstConnectorTypes": [["S"], ["SN"]],
+	"pod": 	[
+{
+		"nodeName": "1Node1",
+		"title": "untitled fact",
+		"coords": [-1,2],
+		"locked": false,
+		"content": "You learn something entirely innocuous about your target.",
+		"summary": "Nothing!",
+		"children": [],
+		"targetStressDamage": 0,
+		"playerStressDamage": 0,
+		"connectorCoords": [],
+		"connectorTypes": []
+	},
+{
+		"nodeName": "2Node2",
+		"title": "untitled fact",
+		"coords": [1,1],
+		"locked": true,
+		"content": "You learn something entirely innocuous about your target.",
+		"summary": "Nothing!",
+		"children": ["1Node15"],
+		"targetStressDamage": 0,
+		"playerStressDamage": 0,
+		"connectorCoords": [[[2,2]]],
+		"connectorTypes": [["S"]]
+	},
+{
+		"nodeName": "1Node15",
+		"title": "untitled fact",
+		"coords": [2,2],
+		"locked": false,
+		"content": "You learn something entirely innocuous about your target.",
+		"summary": "Nothing!",
+		"children": [],
+		"targetStressDamage": 0,
+		"playerStressDamage": 0,
+		"connectorCoords": [],
+		"connectorTypes": []
+	}
+	],
+	"combos": []
+}
