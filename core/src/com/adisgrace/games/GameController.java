@@ -148,8 +148,8 @@ public class GameController implements Screen {
     /** The smallest height the game window can take */
     private static final float MINWORLDHEIGHT = 720;
 
-    private static final int nodeWorldWidth = 20;
-    private static final int nodeWorldHeight = 20;
+    private static final int nodeWorldWidth = 15;
+    private static final int nodeWorldHeight = 15;
 
     /** Dimensions of map tile */
     private static final int TILE_HEIGHT = 256;

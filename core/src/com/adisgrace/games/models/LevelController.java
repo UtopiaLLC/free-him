@@ -367,7 +367,6 @@ public class LevelController {
      * @return the
      */
     public String viewFact(String target, String fact){
-        System.out.println("viewFact "+levelModel.getContents().get(target).get(fact));
         return levelModel.getContents().get(target).get(fact);
     }
 

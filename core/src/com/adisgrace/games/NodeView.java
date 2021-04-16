@@ -47,7 +47,7 @@ public class NodeView {
             node.y = node.y + targetCoords.y;
             nodeCoords.add(node);
         }
-        targetCoords = scaleNodeCoordinates(targetCoords, ADD, SCALE_X, SCALE_Y);
+        //targetCoords = scaleNodeCoordinates(targetCoords, ADD, SCALE_X, SCALE_Y);
 
         imageNodes = new HashMap<>();
         createImageNodes(target, targetNodes, targetCoords);
@@ -147,16 +147,15 @@ public class NodeView {
     }
 
     /**
-     * Helper function that converts coordinates from world space to isometric space.
+     * Helper function that converts coordinates from isometric space to world space.
      *
-     * @param coords   Coordinates in world space to transform
-     * @return         Given coordinates in isometric space
+     * @param coords   Coordinates in isometric space to transform
      */
-    private Vector2 worldToIsometric(Vector2 coords) {
+    private Vector2 isometricToWorld(Vector2 coords) {
         float tempx = coords.x;
         float tempy = coords.y;
-        coords.x = 0.57735f * tempx - tempy;
-        coords.y = 0.57735f * tempx + tempy;
+        coords.x = tempx * (0.5f * TILE_WIDTH) + tempy * (0.5f * TILE_WIDTH);
+        coords.y = -tempx * (0.5f * TILE_HEIGHT) + tempy * (0.5f * TILE_HEIGHT);
 
         return coords;
     }
@@ -174,7 +173,7 @@ public class NodeView {
     private Vector2 nearestIsoCenter(float x, float y){
         // Transform world coordinates to isometric space
         Vector2 vec = new Vector2(x,y);
-        vec = worldToIsometric(vec);
+        vec = isometricToWorld(vec);
         x = vec.x;
         y = vec.y;
 

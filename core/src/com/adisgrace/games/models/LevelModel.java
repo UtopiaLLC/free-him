@@ -253,7 +253,6 @@ public class LevelModel {
      * @return 				Array of fact IDs that are visible to the player
      */
     public Array<String> getVisibleFacts(String targetName){
-        System.out.println("visibleFactS: "+ visibleFacts.get(targetName));
         return visibleFacts.get(targetName);
     }
 
