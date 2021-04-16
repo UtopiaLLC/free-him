@@ -356,6 +356,15 @@ public class LevelController {
         return levelModel.getContents().get(target).get(fact);
     }
 
+    /**
+     *
+     * @param target name of the target
+     * @return visible nodes of target
+     */
+    public Array<String> getVisibleNodes(String target){
+        return levelModel.getVisibleFacts(target);
+    }
+
 
 
 }
