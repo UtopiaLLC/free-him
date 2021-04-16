@@ -1182,6 +1182,25 @@ public class GameController implements Screen {
                         createDialogBox("Insufficient AP to threaten the target.");
                         activeVerb = ActiveVerb.NONE;
                     }
+
+                    if(levelController.getTargetStress(nodeInfo[0]) >=40) {
+                        Texture target_Look = new Texture("node/N_TargetMale_1.png");
+                        TextureRegion[][] regions = new TextureRegion(target_Look).split(
+                                target_Look.getWidth() / 6,
+                                target_Look.getHeight() / 2);
+                        TextureRegion tRegion = regions[3][0];
+
+                        Texture node_base = new Texture("node/N_TargetBase_1.png");
+                        TextureRegion[][] node_regions = new TextureRegion(node_base).split(
+                                node_base.getWidth() / 6,
+                                node_base.getHeight() / 2);
+
+                        Texture combined = GameCanvas.combineTextures(tRegion, node_regions[3][0]);
+
+                        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
+                        button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
+                                drawable, null, null));
+                    }
                 }
                 break;
             case EXPOSE:
@@ -1193,6 +1212,24 @@ public class GameController implements Screen {
                         else {
                             createDialogBox("Insufficient AP to expose the target.");
                             activeVerb = ActiveVerb.NONE;
+                        }
+                        if(levelController.getTargetStress(nodeInfo[0]) >=40) {
+                            Texture target_Look = new Texture("node/N_TargetMale_1.png");
+                            TextureRegion[][] regions = new TextureRegion(target_Look).split(
+                                    target_Look.getWidth() / 6,
+                                    target_Look.getHeight() / 2);
+                            TextureRegion tRegion = regions[3][0];
+
+                            Texture node_base = new Texture("node/N_TargetBase_1.png");
+                            TextureRegion[][] node_regions = new TextureRegion(node_base).split(
+                                    node_base.getWidth() / 6,
+                                    node_base.getHeight() / 2);
+
+                            Texture combined = GameCanvas.combineTextures(tRegion, node_regions[3][0]);
+
+                            TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
+                            button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
+                                    drawable, null, null));
                         }
                     }
                 }

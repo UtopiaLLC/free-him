@@ -1,7 +1,7 @@
 {
 	"targetName": "Torchlight Employee 1",
 	"paranoia": 3,
-	"maxStress": 30,
+	"maxStress": 40,
 	"firstNodes": ["2Node5", "2Node6", "2Node9", "2Node2"],
 	"firstConnectors": [[-5,-6], [-3,-5], [-5, -5], [-5, -7], [-5, -4], [-8, -4], [-7, -4], [-6, -4], [-4, -4], [-3, -4]],
 	"firstConnectorTypes": ["NS", "NS", "NS", "N", "EWS", "EW", "EW", "EW", "EW", "WNS"],
