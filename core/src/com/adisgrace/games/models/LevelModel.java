@@ -111,17 +111,19 @@ public class LevelModel {
         width = dims[0];
         height = dims[1];
 
-        //binds each target string to a targetModel
-        for(String target: targetJsons){
-            targets.put(target, new TargetModel(target));
-        }
-
         //binds each target string to a location in the level
         JsonValue locations = json.get("targetLocs");
         JsonValue.JsonIterator itr = locations.iterator();
+        targetLocs = new HashMap<>();
 
+        //binds each target string to a targetModel
         //This for loop assumes that there is an equal amount of targets and targetLocations
-        for(String target: targetJsons){targetLocs.put(target, itr.next().asIntArray());}
+        for(String targetJson: targetJsons){
+//            targets.put(t.getName(), t);
+            TargetModel t = addTarget(targetJson);
+            targetLocs.put(t.getName(), itr.next().asIntArray());
+
+        }
 
         n_days = 0;
         rng = new Random();
@@ -277,7 +279,7 @@ public class LevelModel {
      * New target world coords are 0,0, but does not change existing coordinates.
      * @param t name of json file containing target data
      */
-    public void addTarget(String t){
+    private TargetModel addTarget(String t){
         TargetModel target = new TargetModel(t);
         t = target.getName();
         targets.put(t, target);
@@ -289,27 +291,8 @@ public class LevelModel {
         for(String fact: target.getFirstNodes()){
             visibleFacts.get(t).add(fact);
         }
+        return target;
     }
-
-    /**
-     * Adds target to model.
-     * @param t name of json file containing target data
-     * @param coords world coordinates of target
-     */
-    public void addTarget(String t, Vector2 coords){
-        TargetModel target = new TargetModel(t);
-        t = target.getName();
-        targets.put(t, target);
-        summaries.put(t, new HashMap<String, String>());
-        contents.put(t, new HashMap<String, String>());
-        hackedFacts.put(t, new Array<String>());
-        exposableFacts.put(t, new Array<String>());
-        visibleFacts.put(t, new Array<String>());
-        for(String fact: target.getFirstNodes()){
-            visibleFacts.get(t).add(fact);
-        }
-    }
-
 
 
     /**

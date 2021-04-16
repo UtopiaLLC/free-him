@@ -267,7 +267,12 @@ public class LevelController {
      * @return  position of the target in isometric coordinates
      */
     public Vector2 getTargetPos(String target){
-       return new Vector2(levelModel.getTarget(target).getX(),levelModel.getTarget(target).getY());
+        System.out.println(target);
+        System.out.println(levelModel.getTarget(target));
+       //return new Vector2(levelModel.getTarget(target).getX(),levelModel.getTarget(target).getY());
+        int [] targetLoc = levelModel.getTargetLoc(target);
+
+        return new Vector2(targetLoc[0], targetLoc[1]);
     }
 
     /**

@@ -109,17 +109,22 @@ public class TargetModel {
 		JsonValue.JsonIterator itr;
 
 		// Get neighbors
-		neighbors = new Array<String>();
-		JsonValue neighborArr = json.get("neighbors");
-		itr = neighborArr.iterator();
-		// Iterate through neighbors and add to ArrayList of neighbors
-		while (itr.hasNext()) {neighbors.add(itr.next().asString());}
-		// Sort alphabetically
-		neighbors.sort();
+//		neighbors = new Array<String>();
+//		JsonValue neighborArr = json.get("neighbors");
+//		itr = neighborArr.iterator();
+//		// Iterate through neighbors and add to ArrayList of neighbors
+//		while (itr.hasNext()) {neighbors.add(itr.next().asString());}
+//		// Sort alphabetically
+//		neighbors.sort();
+
+		firstNodes = new Array<>();
+		JsonValue firstNodesArr = json.get("firstNodes");
+		itr = firstNodesArr.iterator();
+		while (itr.hasNext()){firstNodes.add(itr.next().asString());}
 
 		// Get firstConnectorCoords
 		firstConnectorCoords = new Array<>();
-		JsonValue firstConnectorCoordsArr = json.get("firstConnectorCoords");
+		JsonValue firstConnectorCoordsArr = json.get("firstConnectors");
 		itr = firstConnectorCoordsArr.iterator();
 		// Iterate through the firstConnectorCoords and add to Arraylist of firstConnectorCoords
 		while (itr.hasNext()){firstConnectorCoords.add(itr.next().asIntArray());}
@@ -131,21 +136,21 @@ public class TargetModel {
 		// Iterate through the firstConnectorCoords and add to Arraylist of firstConnectorCoords
 		while (itr.hasNext()){firstConnectorTypes.add(itr.next().asString());}
 
-		// Get target coordinates
-		neighborArr = json.get("loc");
-		itr = neighborArr.iterator();
-		locX = itr.next().asInt();
-		locY = itr.next().asInt();
+//		// Get target coordinates
+//		neighborArr = json.get("loc");
+//		itr = neighborArr.iterator();
+//		locX = itr.next().asInt();
+//		locY = itr.next().asInt();
 
 		// Get nodes
 		JsonValue nodesArr = json.get("pod");
 		itr = nodesArr.iterator();
 		// Get number of firstNodes
-		int firstNodesCount = json.getInt("firstNodesCount");
+		//int firstNodesCount = json.getInt("firstNodesCount");
 
 		// Initializations
 		podDict = new HashMap<String, FactNode>();
-		firstNodes = new Array<String>();
+		//firstNodes = new Array<String>();
 		JsonValue nodeArr;
 		JsonValue node;
 		int nodeX;
@@ -172,6 +177,8 @@ public class TargetModel {
 			// Get connectorCoords
 			nodeArr = node.get("connectorCoords");
 			nodeItr = nodeArr.iterator();
+
+			System.out.println(nodeName);
 			// Iterate through the firstConnectorCoords and add to Arraylist of firstConnectorCoords
 			while (nodeItr.hasNext()){connectorCoords.add(nodeItr.next().asIntArray());}
 
@@ -188,11 +195,11 @@ public class TargetModel {
 			while (nodeItr.hasNext()) {children.add(nodeItr.next().asString());}
 			children.sort();
 
-			// If node is one of the first nodes, add it to firstNodes
-			if (firstNodesCount > 0) {
-				firstNodes.add(nodeName);
-				firstNodesCount--;
-			}
+//			// If node is one of the first nodes, add it to firstNodes
+//			if (firstNodesCount > 0) {
+//				firstNodes.add(nodeName);
+//				firstNodesCount--;
+//			}
 
 			// Create FactNode
 			fn = new FactNode(nodeName, node.getString("title"), node.getString("content"),

@@ -1,5 +1,6 @@
 package com.adisgrace.games;
 
+import com.adisgrace.games.models.LevelController;
 import com.adisgrace.games.models.TargetModel;
 import com.adisgrace.games.models.WorldModel;
 import com.badlogic.gdx.Gdx;
@@ -13,6 +14,7 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class NodeView {
     /** stage is a Scene2d scene graph that contains all hierarchies of Scene2d Actors */
@@ -34,10 +36,12 @@ public class NodeView {
     private static final float SCALE_Y = 256;
     private static final float LOCKED_OFFSET = 114.8725f;
 
-    public NodeView(Stage stage, TargetModel target, WorldModel world) {
+    public NodeView(Stage stage, TargetModel target, LevelController levelController) {
         this.stage = stage;
         nodeCoords = new Array<>();
-        Vector2 targetCoords = world.getWorldCoordinates(target.getName());
+        Vector2 targetCoords = levelController.getTargetPos(target.getName());
+
+        System.out.println(levelController.getTargetPos(target.getName()));
         Array<String> targetNodes = target.getNodes();
         for (String nodeName: targetNodes ){
             Vector2 node = target.getNodeCoords(nodeName);
@@ -45,7 +49,7 @@ public class NodeView {
             node.y = node.y + targetCoords.y;
             nodeCoords.add(node);
         }
-        targetCoords = scaleNodeCoordinates(targetCoords, ADD, SCALE_X, SCALE_Y);
+        //targetCoords = scaleNodeCoordinates(targetCoords, ADD, SCALE_X, SCALE_Y);
 
         imageNodes = new HashMap<>();
         createImageNodes(target, targetNodes, targetCoords);
@@ -102,7 +106,7 @@ public class NodeView {
             assert(targetNodes.size == nodeCoords.size);
 
             ImageButton button = new ImageButton(drawable); //Set the button up
-            Vector2 pos = nearestIsoCenter(nodeCoords.get(i).x, nodeCoords.get(i).y);
+            Vector2 pos = isometricToWorld(nodeCoords.get(i));
             // Account for difference between tile width and sprite width
 
             pos.x -= (tRegion.getRegionWidth() - TILE_WIDTH) / 2;
@@ -121,7 +125,7 @@ public class NodeView {
                 target_Look.getHeight() / 2);
         tRegion = regions[0][0];
 
-        Texture node_base = new Texture("node/N_NodeBase_1.png");
+        Texture node_base = new Texture("node/N_TargetBase_1.png");
         TextureRegion[][] node_regions = new TextureRegion(node_base).split(
                 node_base.getWidth() / 6,
                 node_base.getHeight() / 2);
@@ -133,7 +137,7 @@ public class NodeView {
         //tRegion = new TextureRegion(new Texture(Gdx.files.internal("targetmale/green.png")));
         drawable = new TextureRegionDrawable(new TextureRegion(combined));
         ImageButton button = new ImageButton(drawable); //Set the button up
-        Vector2 pos = nearestIsoCenter(targetCoords.x, targetCoords.y);
+        Vector2 pos = isometricToWorld(targetCoords);
         pos.x -= (combined.getWidth() - TILE_WIDTH) / 2;
         pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
         button.setPosition(pos.x, pos.y);
@@ -145,16 +149,15 @@ public class NodeView {
     }
 
     /**
-     * Helper function that converts coordinates from world space to isometric space.
+     * Helper function that converts coordinates from isometric space to world space.
      *
-     * @param coords   Coordinates in world space to transform
-     * @return         Given coordinates in isometric space
+     * @param coords   Coordinates in isometric space to transform
      */
-    private Vector2 worldToIsometric(Vector2 coords) {
+    private Vector2 isometricToWorld(Vector2 coords) {
         float tempx = coords.x;
         float tempy = coords.y;
-        coords.x = 0.57735f * tempx - tempy;
-        coords.y = 0.57735f * tempx + tempy;
+        coords.x = tempx * (0.5f * TILE_WIDTH) + tempy * (0.5f * TILE_WIDTH);
+        coords.y = -tempx * (0.5f * TILE_HEIGHT) + tempy * (0.5f * TILE_HEIGHT);
 
         return coords;
     }
@@ -172,7 +175,7 @@ public class NodeView {
     private Vector2 nearestIsoCenter(float x, float y){
         // Transform world coordinates to isometric space
         Vector2 vec = new Vector2(x,y);
-        vec = worldToIsometric(vec);
+        vec = isometricToWorld(vec);
         x = vec.x;
         y = vec.y;
 
