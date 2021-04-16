@@ -1,9 +1,6 @@
 package com.adisgrace.games;
 
-import com.adisgrace.games.models.LevelController;
-import com.adisgrace.games.models.PlayerModel;
-import com.adisgrace.games.models.TargetModel;
-import com.adisgrace.games.models.WorldModel;
+import com.adisgrace.games.models.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
@@ -172,7 +169,6 @@ public class GameController implements Screen {
             levelControllers.add(new LevelController(s));
         }
 
-
         levelController = levelControllers.get(0);
 
         // Create and store targets in array
@@ -262,11 +258,11 @@ public class GameController implements Screen {
         toolbarStage.draw();
         updateStats();
 
-        if(world.getGameState() == WorldModel.GAMESTATE.LOSE && !ended) {
+        if(levelController.getLevelState() == LevelState.LOSE && !ended) {
             createDialogBox("YOU LOSE!");
             ended = true;
 
-        } else if (world.getGameState() == WorldModel.GAMESTATE.WIN && !ended) {
+        } else if (levelController.getLevelState() == LevelState.WIN && !ended) {
             createDialogBox("You Win!");
             ended = true;
         }
@@ -303,6 +299,51 @@ public class GameController implements Screen {
 
     @Override
     public void dispose() {
+
+    }
+
+    public void switchLevel(int newLevel) {
+        levelController = levelControllers.get(newLevel);
+        activeVerb = ActiveVerb.NONE;
+
+        targets = (Array<TargetModel>) levelController.getTargetModels().values();
+
+        //instantiating target and expose lists
+        threatenedFacts = new Array<String>();
+        exposedFacts = new Array<String>();
+
+        stage.clear();
+
+        // Creating Nodes
+        imageNodes = new HashMap<>();
+        for (TargetModel target: targets) {
+            nodeView = new NodeView(stage, target, levelController);
+            imageNodes.putAll(nodeView.getImageNodes());
+        }
+
+        for(ImageButton button : imageNodes.values()) { // Node Click Listeners
+            final ImageButton b = button;
+            button.addListener(new ClickListener()
+            {
+                @Override
+                public void clicked(InputEvent event, float x, float y)
+                {
+                    Actor cbutton = (Actor)event.getListenerActor();
+                    //System.out.println(cbutton.getName());
+                    actOnNode(cbutton.getName(), b);
+                }
+            });
+            button.remove();
+        }
+
+        // Adding all visible nodes
+        for (TargetModel target: targets) {
+            Array<String> displayedNodes= levelController.getDisplayedNodes().get(target.getName());
+            for(String str : displayedNodes) {
+                stage.addActor(imageNodes.get(target.getName()+","+str));
+            }
+            stage.addActor(imageNodes.get(target.getName()));
+        }
 
     }
 
@@ -923,7 +964,12 @@ public class GameController implements Screen {
                 if(!isTarget) {
                     switch (levelController.interactionType(nodeInfo[0], nodeInfo[1])) {
                         case HACK:
-                            if(world.getPlayer().canHack()) {
+                            int hack = levelController.hack(nodeInfo[0], nodeInfo[1]);
+                            if(hack <= -1) {
+                                System.out.println("HACK IS NOT WORKING");
+                                System.exit(1);
+                            }
+                            if(hack == 1) {
                                 Texture node = new Texture("node/N_UnscannedNode_1.png");
                                 TextureRegion[][] regions = new TextureRegion(node).split(
                                         node.getWidth() / 10,
@@ -941,19 +987,20 @@ public class GameController implements Screen {
 
                                 button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
                                         drawable, null, null));
-                                boolean hack = levelController.hack(nodeInfo[0], nodeInfo[1]);
-                                if(hack) {
-                                    createDialogBox("You hacked the node successfully!");
-                                } else {
-                                    createDialogBox("You failed to hack the node!");
-                                }
+
+                                createDialogBox("You hacked the node successfully!");
+
+
                                 reloadDisplayedNodes();
-                            } else {
+                            } else if(hack == -3) {
                                 createDialogBox("Insufficient AP to hack this node.");
+                            } else if(hack == -4) {
+                                createDialogBox("You failed to hack the node!");
                             }
                             break;
                         case SCAN:
-                            if(world.getPlayer().canScan()) {
+                            boolean success = levelController.scan(nodeInfo[0], nodeInfo[1]);
+                            if(success) {
                                 Texture node = new Texture("node/N_ScannedNode_2.png");
                                 TextureRegion[][] regions = new TextureRegion(node).split(
                                         node.getWidth() / 10,
@@ -969,7 +1016,7 @@ public class GameController implements Screen {
                                 TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
                                 button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
                                         drawable, null, null));
-                                createDialogBox(levelController.scan(nodeInfo[0], nodeInfo[1]));
+                                createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
                                 reloadDisplayedNodes();
                             } else {
                                 createDialogBox("Insufficient AP to scan this node.");
@@ -1081,7 +1128,7 @@ public class GameController implements Screen {
         dialog.setMovable(true);
 
         //Get all fact summaries that can potentially be displayed
-        Map<String, String> factSummaries = levelController.viewFactSummaries(targetName);
+        Map<String, String> factSummaries = levelController.getNotes(targetName);
         //This will store the fact ids of all the scanned facts
         Array<String> scannedFacts = new Array<>();
 
@@ -1090,8 +1137,8 @@ public class GameController implements Screen {
             scannedFacts.add("No facts scanned yet!");
         }
         for (String fact_ : factSummaries.keySet()) {
-            if (!world.viewFactSummary(targetName, fact_).equals(""))
-                scannedFacts.add(world.viewFactSummary(targetName, fact_));
+            if (factSummaries.containsKey(fact_))
+                scannedFacts.add(factSummaries.get(fact_));
         }
         table.setFillParent(false);
 
@@ -1183,7 +1230,7 @@ public class GameController implements Screen {
         //Add the text to the center of the dialog box
         blackmailDialog.getContentTable().add( l ).prefWidth( 350 );
         //Get all fact summaries that can potentially be displayed
-        Map<String, String> factSummaries = world.viewFactSummaries(targetName);
+        Map<String, String> factSummaries = levelController.getNotes(targetName);
 
         //This will store all mappings from summaries to a fact name
         Map<String, String> summaryToFacts = new HashMap<>();
@@ -1197,10 +1244,10 @@ public class GameController implements Screen {
         }
         for (String fact_ : factSummaries.keySet()) {
             //Should not add empty fact summaries
-            if(!world.viewFactSummary(targetName, fact_).equals(""))
-                scannedFacts.add(world.viewFactSummary(targetName, fact_));
+            if (factSummaries.containsKey(fact_))
+                scannedFacts.add(factSummaries.get(fact_));
             //Add to both scannedFacts and summaryToFacts
-            summaryToFacts.put(world.viewFactSummary(targetName, fact_), fact_);
+            summaryToFacts.put(factSummaries.get(fact_), fact_);
         }
         table.setFillParent(false);
 
@@ -1310,7 +1357,7 @@ public class GameController implements Screen {
      */
     public void reloadDisplayedNodes() {
         for(TargetModel target : targets) {
-            Array<String> displayedNodes= world.getDisplayedNodes().get(target.getName());
+            Array<String> displayedNodes= levelController.getVisibleNodes(target.getName());
             for(String str : displayedNodes) {
                 stage.addActor(imageNodes.get(target.getName()+","+str));
             }
@@ -1366,9 +1413,9 @@ public class GameController implements Screen {
      */
     public void updateStats(){
         //stress.setText("Player Stress: " + Integer.toString((int)world.getPlayer().getStress()));
-        stressBar.setValue(player.getStress());
-        bitecoinAmount.setText(Integer.toString((int)player.getBitecoin()));
-        ap.setText("AP: " + Integer.toString(world.getPlayer().getAP()));
+        stressBar.setValue(levelController.getPlayerStress());
+        bitecoinAmount.setText(Integer.toString((int)levelController.getPlayerCurrency()));
+        ap.setText("AP: " + Integer.toString(levelController.getAP()));
 //        tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
 //        tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));
 //        money.setText("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()));
