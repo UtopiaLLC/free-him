@@ -204,7 +204,6 @@ public class LevelEditorModel {
         // converts StressRating psDmg to integer value psDmg
         int psDmg_ = stressRating_to_int(psDmg);
 
-        //TODO implement locked in FactNode
         FactNode factNode = new FactNode(factName, "untitled fact", contents, summary, new Array<String>(),
                 (int)coords.x, (int)coords.y, locked, tsDmg_, psDmg_, new Array<int[]>(), new Array<String>());
         factnodes.put(factName, factNode);
@@ -396,7 +395,7 @@ public class LevelEditorModel {
                     path2.add(path.peek());
                     border.add(path2);
                 }
-                if(connector_from_pos.get(path.peek()).type.indexOf('N') >= 0){
+                if(path.size > 0 && connector_from_pos.get(path.peek()).type.indexOf('N') >= 0){
                     vec = new Vector2(path.peek().x, path.peek().y+1);
                     if(!seen.contains(vec)){
                         path2 = new Array<>(path);
@@ -404,7 +403,7 @@ public class LevelEditorModel {
                         border.add(path2);
                     }
                 }
-                if(connector_from_pos.get(path.peek()).type.indexOf('S') >= 0){
+                if(path.size > 0 && connector_from_pos.get(path.peek()).type.indexOf('S') >= 0){
                     vec = new Vector2(path.peek().x, path.peek().y-1);
                     if(!seen.contains(vec)) {
                         path2 = new Array<>(path);
@@ -412,7 +411,7 @@ public class LevelEditorModel {
                         border.add(path2);
                     }
                 }
-                if(connector_from_pos.get(path.peek()).type.indexOf('E') >= 0){
+                if(path.size > 0 && connector_from_pos.get(path.peek()).type.indexOf('E') >= 0){
                     vec = new Vector2(path.peek().x+1, path.peek().y);
                     if(!seen.contains(vec)) {
                         path2 = new Array<>(path);
@@ -420,7 +419,7 @@ public class LevelEditorModel {
                         border.add(path2);
                     }
                 }
-                if(connector_from_pos.get(path.peek()).type.indexOf('W') >= 0){
+                if(path.size > 0 && connector_from_pos.get(path.peek()).type.indexOf('W') >= 0){
                     vec = new Vector2(path.peek().x-1, path.peek().y);
                     if(!seen.contains(vec)) {
                         path2 = new Array<>(path);
@@ -438,6 +437,7 @@ public class LevelEditorModel {
      * @param filename name of level file (not including .json file extension)
      */
     public void make_level_json(String filename) throws IOException{
+        System.out.println("started saving level");
         BufferedWriter out;
         out = new BufferedWriter(new FileWriter(filename + ".json"));
         String targetlist = "", targetpositions = "";
@@ -449,7 +449,7 @@ public class LevelEditorModel {
         targetlist = "[" + targetlist.substring(2) + "]";
         targetpositions = "[" + targetpositions.substring(2) + "]";
         out.write("{\n" +
-                "\t\"name\": " + filename + ",\n" +
+                "\t\"name\": \"" + filename + "\",\n" +
                 "\t\"dims\": [" + level_width + ", " + level_height + "],\n" +
                 "\t\"targets\": " + targetlist + ",\n" +
                 "\t\"targetLocs\": " + targetpositions + "\n}"
@@ -458,6 +458,7 @@ public class LevelEditorModel {
         out.close();
         for(String targetname : targets.keySet())
             make_target_json(targetname);
+        System.out.println("finished saving level");
     }
 
     /**
@@ -471,10 +472,14 @@ public class LevelEditorModel {
         Array<String> border = new Array<>();
         border.add(targetName);
         String parent;
+        Set<String> t;
         while(!border.isEmpty()){
             parent = border.pop();
-            facts.addAll(new Array(connections.get(parent).keySet().toArray()));
-            border.addAll(new Array(connections.get(parent).keySet().toArray()));
+            if(!connections.containsKey(parent))
+                continue;
+            t = connections.get(parent).keySet();
+            facts.addAll(new Array(t.toArray()));
+            border.addAll(new Array(t.toArray()));
         }
         Array<FactNode> factnodes_ = new Array<>();
         for(String factname : facts)
@@ -487,6 +492,7 @@ public class LevelEditorModel {
      * Output file has the same name as the target, ie John Smith -> JohnSmith.json
      */
     public void make_target_json(String targetName) throws IOException{
+        System.out.printf("started saving target " + targetName);
         BufferedWriter out;
         out = new BufferedWriter(new FileWriter(targetName.replaceAll(" ","") + ".json"));
         Array<FactNode> factnodes_ = get_target_facts(targetName);
@@ -525,32 +531,39 @@ public class LevelEditorModel {
                     "\t\t\"title\": \"" + fact.getTitle() + "\",\n" +
                     "\t\t\"coords\": [" + (fact.getX()-targetx) + "," + (fact.getY()-targety) + "],\n" +
                     "\t\t\"locked\": " + fact.getLocked() + ",\n" +
-                    "\t\t\"content\": " + fact.getContent() + ",\n" +
-                    "\t\t\"summary\": " + fact.getSummary() + ",\n";
+                    "\t\t\"content\": \"" + fact.getContent() + "\",\n" +
+                    "\t\t\"summary\": \"" + fact.getSummary() + "\",\n";
 
             strcache1 = "";
-            for(String childname : connections.get(fact.getNodeName()).keySet()){
-                strcache1 += ", \"" + childname + "\"";
-            }
-            strcache1 = "[" + strcache1.substring(2) + "]";
+            if(connections.containsKey(fact.getNodeName())) {
+                for (String childname : connections.get(fact.getNodeName()).keySet()) {
+                    strcache1 += ", \"" + childname + "\"";
+                }
+                strcache1 = "[" + strcache1.substring(2) + "]";
+            } else strcache1 = "[]";
             nodeinfo += "\t\t\"children\": " + strcache1 + ",\n" +
                     "\t\t\"targetStressDamage\": " + fact.getTargetStressDmg() + ",\n" +
                     "\t\t\"playerStressDamage\": " + fact.getPlayerStressDmg() + ",\n";
 
             connections_ = "";
             connectiontypes = "";
-            for(String childname : connections.get(fact.getNodeName()).keySet()){
-                strcache1 = "";
-                strcache2 = "";
-                for(Connector c : connections.get(fact.getNodeName()).get(childname)){
-                    strcache1 += ", [" + (c.xcoord-targetx) + "," + (c.ycoord-targety) + "]";
-                    strcache2 += ", \"" + c.type + "\"";
+            if(connections.containsKey(fact.getNodeName())) {
+                for (String childname : connections.get(fact.getNodeName()).keySet()) {
+                    strcache1 = "";
+                    strcache2 = "";
+                    for (Connector c : connections.get(fact.getNodeName()).get(childname)) {
+                        strcache1 += ", [" + (c.xcoord - targetx) + "," + (c.ycoord - targety) + "]";
+                        strcache2 += ", \"" + c.type + "\"";
+                    }
+                    connections_ += ", [" + strcache1.substring(2) + "]";
+                    connectiontypes += ", [" + strcache2.substring(2) + "]";
                 }
-                connections_ += ", [" + strcache1.substring(2) + "]";
-                connectiontypes += ", [" + strcache2.substring(2) + "]";
+                connections_ = "[" + connections_.substring(2) + "]";
+                connectiontypes = "[" + connectiontypes.substring(2) + "]";
+            } else {
+                connections_ = "[]";
+                connectiontypes = "[]";
             }
-            connections_ = "[" + connections_.substring(2) + "]";
-            connectiontypes = "[" + connectiontypes.substring(2) + "]";
 
             nodeinfo += "\t\t\"connectorCoords\": " + connections_ + ",\n" +
                     "\t\t\"connectorTypes\": " + connectiontypes + "\n\t}";
@@ -571,5 +584,7 @@ public class LevelEditorModel {
 
         out.flush();
         out.close();
+
+        System.out.println("finished saving target " + targetName);
     }
 }
