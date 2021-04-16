@@ -51,8 +51,10 @@ public class InputController {
 	private boolean ePressed;
 	private boolean qPressed;
 
-	/** Whether right-click is pressed */
+	/** Whether right-click was just pressed */
 	private boolean rightClicked;
+	/** Whether left-click was just pressed */
+	private boolean leftClicked;
 
 	/** Whether C, the clear button, has been pressed */
 	private boolean cPressed;
@@ -114,6 +116,13 @@ public class InputController {
 	public boolean didRightClick() {return rightClicked;}
 
 	/**
+	 * Returns true if left click is pressed and was not previously pressed.
+	 *
+	 * @return true if left click is pressed and was not previously pressed.
+	 */
+	public boolean didLeftClick() {return leftClicked;}
+
+	/**
 	 * Returns true if the C key was pressed.
 	 *
 	 * @return true if the C key was pressed.
@@ -173,8 +182,9 @@ public class InputController {
 		mouseX = Gdx.input.getX();
 		mouseY = Gdx.input.getY();
 
-		// See if right mouse button is being clicked
+		// See if mouse buttons are being clicked
 		rightClicked = Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT);
+		leftClicked = Gdx.input.isButtonJustPressed(Input.Buttons.LEFT);
 
 		// Read from keyboard
 		readKeyboard();
