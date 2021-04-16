@@ -344,7 +344,7 @@ public class GameCanvas {
     	global.mulLeft(camera.combined);
 		spriteBatch.setProjectionMatrix(global);
 		
-		setBlendState(BlendState.NO_PREMULT);
+		setBlendState(BlendState.ALPHA_BLEND);
 		spriteBatch.begin();
     	active = DrawPass.STANDARD;
     }
@@ -1171,16 +1171,19 @@ public class GameCanvas {
 	 * @param height	the vertical radius of the grid
 	 */
 	public void drawIsometricGrid(Stage stage, int width, int height){
+		int twidth = 444;
+		int theight = 256;
+		final Texture tile = new Texture(Gdx.files.internal("background/B_MapTileBG_2.png"));
+		begin();
 		//assuming grid tiles are (444, 256) in size
 		//drawing a 100 x 100 tile grid centered around the origin, offset so that (0, 0) is the center of the tile sprite
-		for(int col = -(444*width) -222; col <= (444*width) + 222; col+=444){
-			for(int row = -(256*height) -128; row <= (256*height) + 128; row+=256){
-				final Image tile = new Image(new Texture(Gdx.files.internal("background/B_MapTileBG_2.png")));
-				tile.setX(col);
-				tile.setY(row);
-				stage.addActor(tile);
+		for(int col = -width / 2; col <= width / 2; col+=1){
+			for(int row = -height / 2; row <= height / 2; row+=1){
+				draw(tile, Color.WHITE, 0, 0, (-twidth/2) + twidth*col, (-theight/2) + theight*row, 444, 256);
 			}
 		}
+
+		end();
 
 	}
 
@@ -1193,12 +1196,13 @@ public class GameCanvas {
 	public void setIsometricSize(int rows, int cols){
 		//each tile is 444 x 128
 		//since it's isometric, we need to get the length of the diagonals from the rows and cols
-		double isometricWidth = 444 * Math.cos(30) + 256 * Math.cos(60);
-		double isometricHeight = 444 * Math.sin(30) + 256 * Math.sin(60);
+		int hypoteneuse = 256;
 
 		//Math should be right... but unsure. Have someone check and delete this comment once it's done?
-		setWidth((int)(rows * isometricWidth));
-		setHeight((int)(cols * isometricHeight));
+		setWidth((int)((Math.sqrt(3)/2)*hypoteneuse*(rows + cols)));
+		setHeight((int)((0.5)*hypoteneuse*(rows + cols)));
+
+		System.out.println(getWidth() + ", " + getHeight());
 	}
 
 	public static Texture combineTextures(TextureRegion textureRegion1, TextureRegion textureRegion2) {

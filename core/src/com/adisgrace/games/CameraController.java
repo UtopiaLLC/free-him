@@ -16,8 +16,8 @@ public class CameraController {
     private float currentZoom;
 
     /** Vector caches to avoid initializing vectors every time */
-    private Vector2 vec;
-    private Vector3 vec3;
+    private Vector2 vec = new Vector2();
+    private Vector3 vec3 = new Vector3();
 
     /** time taken for camera to accelerate to max speed */
     private final static int ACCELERATION_SPEED = 40;
