@@ -595,6 +595,7 @@ public class LevelEditorController implements Screen {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
                         saveLevel();
+                        //System.out.println("Level Saved");
                     }
                 });
             }
@@ -834,7 +835,7 @@ public class LevelEditorController implements Screen {
                 case DRAW:
                     // Set the appearance and name to be the next connector
                     int nextConn = nextEntry(String.valueOf(im.getName().charAt(0)), CONN_NAME_ORDER);
-                    String name = CONN_NAME_ORDER[nextConn] + im.getName().charAt(1);
+                    String name = CONN_NAME_ORDER[nextConn] + im.getName().substring(1);
                     updateLevelTile(im.getName(),name);
                     im.setName(name);
                     im.setDrawable(new TextureRegionDrawable(
@@ -973,6 +974,8 @@ public class LevelEditorController implements Screen {
      * Saves the level, constructing a model and producing a JSON.
      */
     private void saveLevel() {
+        // TODO: if there are overlapping connectors, delete the extras
+
         // Create a LevelEditorModel
         LevelEditorModel model = new LevelEditorModel();
 
