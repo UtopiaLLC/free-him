@@ -190,7 +190,8 @@ public class LevelEditorModel {
         int psDmg_ = stressRating_to_int(psDmg);
 
         FactNode factNode = new FactNode(factName, "untitled fact", contents, summary, new Array<String>(),
-                (int)coords.x, (int)coords.y, locked, tsDmg_, psDmg_, new Array<int[]>(), new Array<String>());
+                (int)coords.x, (int)coords.y, locked, tsDmg_, psDmg_, new Array<Array<Vector2>>(),
+                new Array<Array<String>>());
         factnodes.put(factName, factNode);
     }
 
@@ -492,7 +493,7 @@ public class LevelEditorModel {
         out = new BufferedWriter(new FileWriter("levels/" + filename + ".json"));
         String targetlist = "", targetpositions = "";
         for(Target target : targets.values()) {
-            targetlist += ", \"" + target.name + "\"";
+            targetlist += ", \"" + target.name.replaceAll(" ","") + ".json" + "\"";
             targetpositions += ", [" + (int)(target.x) + ", " + (int)(target.y) + "]";
         }
         targetlist = "[" + targetlist.substring(2) + "]";

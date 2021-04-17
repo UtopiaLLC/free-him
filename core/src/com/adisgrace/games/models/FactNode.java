@@ -1,6 +1,9 @@
 package com.adisgrace.games.models;
 
+import com.adisgrace.games.util.Connector;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 
 /**
  * A model class representing a ship.
@@ -37,10 +40,10 @@ public class FactNode {
 	/** Integer representing the amount of stress damage scanning this Node deals to the player. */
 	private int playerStressDmg;
 
-	/** The connector coordinates for this node, stored as array of locations of connections in level. In isometric coordinates. */
-	private Array<int[]> connectorCoords;
-	/** The connector types for this node, array of types of the connectors in a level, where each type is an enum */
-	private Array<String> connectorTypes;
+	/** The connector coordinates for the paths from this node, stored as array of locations of connections in level. In isometric coordinates. */
+	private Array<Array<Vector2>> connectorCoords;
+	/** The connector types for the paths from this node, array of types of the connectors in a level, where each type is an enum */
+	private Array<Array<String>> connectorTypes;
 
 	/**
 	 * Creates a FactNode with the given parameters.
@@ -58,7 +61,8 @@ public class FactNode {
 	 * @param cCoords	connectorCoords
 	 * @param cTypes	connectorTypes
 	 */
-	public FactNode(String n, String t, String c, String s, Array<String> cdren, int x, int y, boolean l, int tsDmg, int psDmg, Array<int[]> cCoords, Array<String> cTypes) {
+	public FactNode(String n, String t, String c, String s, Array<String> cdren, int x, int y, boolean l, int tsDmg,
+					int psDmg, Array<Array<Vector2>> cCoords, Array<Array<String>> cTypes) {
 		nodeName = n;
 		title = t;
 		content = c;
@@ -250,7 +254,17 @@ public class FactNode {
 	 *
 	 * @return the node's connector coordinates.
 	 */
-	public Array<int[]> getConnectorCoords(){ return connectorCoords; }
+	public Array<Vector2> getConnectorCoords(){
+		// TODO: doesn't discriminate currently between which path goes to which node, which makes animations impossible
+		Array<Vector2> allCoords = new Array<>();
+		// Got through each coordinate in firstConnectorPaths and add to an array of all coordinates
+		for (Array<Vector2> path : connectorCoords) {
+			for (Vector2 coord : path) {
+				allCoords.add(coord);
+			}
+		}
+		return allCoords;
+	}
 
 	/**
 	 * Returns the connector types of the node.
@@ -259,5 +273,39 @@ public class FactNode {
 	 *
 	 * @return the node's connector types.
 	 */
-	public Array<String> getConnectorTypes(){ return connectorTypes; }
+	public Array<String> getConnectorTypes(){
+		// TODO: doesn't discriminate currently between which path goes to which node, which makes animations impossible
+		Array<String> allTypes = new Array<>();
+		// Got through each coordinate in firstConnectorTypes and add to an array of all types
+		for (Array<String> path : connectorTypes) {
+			for (String type : path) {
+				allTypes.add(type);
+			}
+		}
+		return allTypes;
+	}
+
+	/**
+	 * Returns an array of connectors from this node to the given child.
+	 *
+	 * @param childName	The name of the child to return the path to
+	 * @return			An array of connectors forming the path to the child
+	 */
+	public Array<Connector> getPathToChild(String childName) {
+		Array<Connector> path = new Array<>();
+		// Get the index corresponding to the given child
+		int ind = children.indexOf(childName,false);
+
+		// Get coordinates and types of connectors on path to child
+		Array<Vector2> coords = connectorCoords.get(ind);
+		Array<String> types = connectorTypes.get(ind);
+
+		// Arrange the coordinates and types into an array of Connectors
+		for (int k=0; k<coords.size; k++) {
+			path.add(new Connector(coords.get(k), types.get(k)));
+		}
+
+		return path;
+	}
+
 }

@@ -1,7 +1,10 @@
-package com.adisgrace.games.models;
+package com.adisgrace.games;
 
 //should handle all interactions with the LevelModel
 
+import com.adisgrace.games.models.LevelModel;
+import com.adisgrace.games.models.PlayerModel;
+import com.adisgrace.games.models.TargetModel;
 import com.adisgrace.games.util.Connector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -310,11 +313,11 @@ public class LevelController {
         Set<String> targets = levelModel.getTargets().keySet();
         for(String target: targets){
             //add connectors originating from target
-            Array<int[]> coordinates = levelModel.getTarget(target).getFirstConnectorCoords();
+            Array<Vector2> coordinates = levelModel.getTarget(target).getFirstConnectorCoords();
             Array<String> types = levelModel.getTarget(target).getFirstConnectorTypes();
             for(int i = 0; i < coordinates.size; i++){
-                int[] coordinate = coordinates.get(i);
-                connections.add(new Connector(coordinate[0], coordinate[1], types.get(i)));
+                Vector2 coordinate = coordinates.get(i);
+                connections.add(new Connector((int)coordinate.x, (int)coordinate.y, types.get(i)));
             }
 
             for(String fact: levelModel.getVisibleFacts(target)){
@@ -336,12 +339,12 @@ public class LevelController {
      */
     public Array<Connector> getConnectorsOf(String target, String fact){
         Array<Connector> connections = new Array<>();
-        Array<int[]> coordinates = levelModel.getTarget(target).getConnectorCoordsOf(fact);
+        Array<Vector2> coordinates = levelModel.getTarget(target).getConnectorCoordsOf(fact);
         Array<String> types = levelModel.getTarget(target).getConnectorTypesOf(fact);
 
         for(int i = 0; i < coordinates.size; i++){
-            int[] coordinate = coordinates.get(i);
-            connections.add(new Connector(coordinate[0], coordinate[1], types.get(i)));
+            Vector2 coordinate = coordinates.get(i);
+            connections.add(new Connector((int)coordinate.x, (int)coordinate.y, types.get(i)));
         }
 
         return connections;

@@ -7,7 +7,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -22,7 +21,6 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
-import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -175,7 +173,7 @@ public class GameController implements Screen {
 
         //TODO: write function to parse folder of level jsons
         levelJsons = new Array<>();
-        levelJsons.add("level1.json");
+        levelJsons.add("sample-level-1.json");
         levelControllers = new Array<>();
 
         for(String s : levelJsons) {
