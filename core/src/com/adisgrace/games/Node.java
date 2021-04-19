@@ -1,4 +1,4 @@
-package com.uiteam.game;
+package com.adisgrace.games;
 
 import com.adisgrace.games.NodeView;
 import com.badlogic.gdx.Gdx;
@@ -22,19 +22,19 @@ public class Node extends Group {
         TARGET
     };
 
+    private final int NODE_TOP_OFFSET = 10;
+
     private Vector2 position;
     private Animation<TextureRegion> topAnimation;
     private TextureRegion nodeBaseReg;
 
     private int nodeType;
     private NodeState nodeState;
+    
+    private float stateTime;
+    private TextureRegion reg;
 
-    public Image nodeTop;
-    public Image nodeBase;
-
-
-    float stateTime;
-
+    private int colorBoi = 0;
 
     public Node(float x, float y, String name, int type, NodeState state) {
 
@@ -48,18 +48,22 @@ public class Node extends Group {
 
         changeTextures(nodeState, nodeType);
 
-        setBounds(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
+        setBounds(x, y, nodeBaseReg.getRegionWidth(), nodeBaseReg.getRegionHeight());
         setTouchable(Touchable.enabled);
 
         stateTime = 0f;
+
+        reg = nodeBaseReg;
     }
 
     public void changeColor(int type) {
-
+        nodeType = type;
+        changeTextures(nodeState, type);
     }
 
     public void changeState(NodeState state) {
-
+        nodeState = state;
+        changeTextures(state, nodeType);
     }
 
     private void changeTextures(NodeState nodeState, int nodeType) {
@@ -70,15 +74,17 @@ public class Node extends Group {
                 break;
             case UNSCANNED:
                 topAnimation = NodeView.getUnscannedNode(nodeType);
-                //nodeBaseReg = NodeView.getLockedNode(nodeType);
+                nodeBaseReg = NodeView.getNodeBase(nodeType);
+                break;
             case SCANNED:
                 topAnimation = NodeView.getScannedNode(nodeType);
-                //nodeBaseReg = NodeView.getLockedNode(nodeType);
+                nodeBaseReg = NodeView.getNodeBase(nodeType);
+                break;
             case TARGET:
                 //topAnimation = NodeView.getTargetNode(nodeType);
-                nodeBaseReg = NodeView.getLockedNode(nodeType);
-
-
+                topAnimation = null;
+                nodeBaseReg = NodeView.getTargetNode(nodeType);
+                break;
         }
     }
 
@@ -87,28 +93,37 @@ public class Node extends Group {
     public void act(float delta) {
         super.act(delta);
 
-        stateTime += delta;
-        reg = walkAnimation.getKeyFrame(stateTime,true);
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-//        sprite.draw(batch);
+        super.draw(batch, parentAlpha);
 
+//        if(Gdx.graphics.getDeltaTime() > 0.015) {
+//            colorBoi++;
+//            if(colorBoi > 11) {
+//                colorBoi = 0;
+//            }
+//            changeColor(colorBoi);
+//            System.out.println(colorBoi);
+//        }
 
+        if(nodeState != NodeState.TARGET && nodeState != NodeState.LOCKED) {
+            stateTime += Gdx.graphics.getDeltaTime();
+            reg = topAnimation.getKeyFrame(stateTime, true);
+        } else {
+            reg = nodeBaseReg;
+        }
+
+        Color color = getColor();
+        batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
+        if(nodeState != NodeState.TARGET && nodeState != NodeState.LOCKED) {
+            batch.draw(nodeBaseReg, getX(), getY(), getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+            batch.draw(reg, getX(), getY(), getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+        } else {
+            batch.draw(reg, getX(), getY(), getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+            //batch.draw(reg, getX(), getY(), getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+        }
     }
 }
 
-//        addListener(new InputListener() {
-//            @Override
-//            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-//                super.enter(event, x, y, pointer, fromActor);
-//                setTexture(new Texture(Gdx.files.internal("Globe_icon_hover.png")));
-//            }
-//
-//            @Override
-//            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-//                super.exit(event, x, y, pointer, toActor);
-//                setTexture(new Texture(Gdx.files.internal("Globe_icon.png")));
-//            }
-//        });

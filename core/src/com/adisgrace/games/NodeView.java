@@ -15,7 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
-import org.w3c.dom.Node;
 
 import javax.swing.plaf.TextUI;
 import java.util.HashMap;
@@ -31,7 +30,7 @@ public class NodeView {
      *  The key is a string concatenation of [targetName,factNodeName] or [targetName]
      *  The value is the corresponding ImageButton
      */
-    private Map<String, ImageButton> imageNodes;
+    private Map<String, Node> imageNodes;
 
     /** Dimensions of map tile */
     private static final int TILE_HEIGHT = 256;
@@ -70,7 +69,7 @@ public class NodeView {
      *
      * @return imageNodes
      */
-    public Map<String, ImageButton> getImageNodes() {
+    public Map<String, Node> getImageNodes() {
         return imageNodes;
     }
 
@@ -104,28 +103,25 @@ public class NodeView {
         for (int i = 0; i < targetNodes.size; i++) {
             assert(targetNodes.size == nodeCoords.size);
 
-            ImageButton button = new ImageButton(NodeView.getLockedNode(0)); //Set the button up
+            //ImageButton button = new ImageButton(NodeView.getLockedNode(0)); //Set the button up
             Vector2 pos = isometricToWorld(nodeCoords.get(i));
             // Account for difference between tile width and sprite width
-
-            pos.x -= (NodeView.getLockedNode(0).getRegion().getRegionWidth() - TILE_WIDTH) / 2;
+            pos.x -= (NodeView.getLockedNode(0).getRegionWidth() - TILE_WIDTH) / 2;
             pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
 
-            button.setPosition(pos.x, pos.y);
-            button.setName(target.getName()+","+targetNodes.get(i));
-
-            imageNodes.put(target.getName()+","+targetNodes.get(i), button);
-            stage.addActor(button);
+            Node node = new Node(pos.x, pos.y, target.getName()+","+targetNodes.get(i), 0, Node.NodeState.LOCKED);
+            imageNodes.put(target.getName()+","+targetNodes.get(i), node);
+            stage.addActor(node);
         }
 
-        ImageButton button = new ImageButton(NodeView.getTargetNode(0)); //Set the button up
+        //ImageButton button = new ImageButton(NodeView.getTargetNode(0)); //Set the button up
         Vector2 pos = isometricToWorld(targetCoords);
-        pos.x -= (NodeView.getTargetNode(0).getRegion().getTexture().getWidth() - TILE_WIDTH) / 2;
+        pos.x -= (NodeView.getTargetNode(0).getTexture().getWidth() - TILE_WIDTH) / 2;
         pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
-        button.setPosition(pos.x, pos.y);
-        button.setName(target.getName());
-        imageNodes.put(target.getName(), button);
-        stage.addActor(button);
+
+        Node targetNode = new Node(pos.x, pos.y, target.getName(), 0, Node.NodeState.TARGET);
+        imageNodes.put(target.getName(), targetNode);
+        stage.addActor(targetNode);
 
 
     }
@@ -348,9 +344,9 @@ public class NodeView {
                 node_base.getHeight() / 2);
 
         for(int i = 0; i < 6; i++) {
-            targetNodes.add(new TextureRegion(node_regions[0][i]));
+            nodeBases.add(new TextureRegion(node_regions[0][i]));
 
-            targetNodes.add(new TextureRegion(node_regions[1][i]));
+            nodeBases.add(new TextureRegion(node_regions[1][i]));
 
         }
 
