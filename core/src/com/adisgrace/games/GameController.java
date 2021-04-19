@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import org.w3c.dom.Node;
 
 import java.lang.annotation.Target;
 import java.util.HashMap;
@@ -210,6 +211,8 @@ public class GameController implements Screen {
 
         // Creating Nodes
         imageNodes = new HashMap<>();
+
+        NodeView.loadAnimations();
         for (TargetModel target: targets) {
             nodeView = new NodeView(stage, target, levelController);
             imageNodes.putAll(nodeView.getImageNodes());
@@ -1101,23 +1104,9 @@ public class GameController implements Screen {
                                 System.exit(1);
                             }
                             if(hack == 1) {
-                                Texture node = new Texture("node/N_UnscannedNode_1.png");
-                                TextureRegion[][] regions = new TextureRegion(node).split(
-                                        node.getWidth() / 10,
-                                        node.getHeight() / 6);
-                                TextureRegion tRegion = regions[0][0];
-
-                                Texture node_base = new Texture("node/N_NodeBase_1.png");
-                                TextureRegion[][] node_regions = new TextureRegion(node_base).split(
-                                        node_base.getWidth() / 6,
-                                        node_base.getHeight() / 2);
-
-                                Texture combined = GameCanvas.combineTextures(tRegion, node_regions[0][0]);
-
-                                TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
 
                                 button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
-                                        drawable, null, null));
+                                        NodeView.getUnscannedNode(11), null, null));
 
                                 createDialogBox("You hacked the node successfully!");
 
@@ -1132,21 +1121,9 @@ public class GameController implements Screen {
                         case 2://scannable
                             boolean success = levelController.scan(nodeInfo[0], nodeInfo[1]);
                             if(success) {
-                                Texture node = new Texture("node/N_ScannedNode_2.png");
-                                TextureRegion[][] regions = new TextureRegion(node).split(
-                                        node.getWidth() / 10,
-                                        node.getHeight() / 6);
-                                TextureRegion tRegion = regions[0][0];
 
-                                Texture node_base = new Texture("node/N_NodeBase_1.png");
-                                TextureRegion[][] node_regions = new TextureRegion(node_base).split(
-                                        node_base.getWidth() / 6,
-                                        node_base.getHeight() / 2);
-
-                                Texture combined = GameCanvas.combineTextures(tRegion, node_regions[0][0]);
-                                TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
                                 button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
-                                        drawable, null, null));
+                                        NodeView.getScannedNode(0), null, null));
                                 createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
                                 reloadDisplayedNodes();
                             } else {
