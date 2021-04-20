@@ -42,6 +42,8 @@ public class TraitModel {
 
     /** How much stress the therapist heals */
     public static final int HEALING_CONST = 3;
+    /** What percentage stress is being spread by the target */
+    public static final float GOSSIP_CONST = .05f;
     /** Traits of a target, stored as an arrayList of Traits */
     private ArrayList<Trait> traits;
 

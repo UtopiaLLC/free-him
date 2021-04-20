@@ -292,9 +292,23 @@ public class WorldModel {
 		for(TargetModel t : targets.values()){
 			// therapist trait implemented over here
 			if (t.getTraits().is_therapist()){
-				// if target is a therapist, reduce stress of all targets
-				for (TargetModel tt : targets.values()){
-					tt.therapy();
+				// if target is a therapist and is alive, reduce stress of all targets
+				if (t.getState() != TargetModel.TargetState.DEFEATED){
+					for (TargetModel tt : targets.values()){
+						tt.therapy();
+					}
+				}
+			}
+			// gossip trait implemented over here
+			if (t.getTraits().is_gossip()){
+				// if target is gossip and is alive, spread suspicion to all other targets
+				if (t.getState() != TargetModel.TargetState.DEFEATED){
+					for (TargetModel tt : targets.values()){
+						// target does not spread suspicion to itself
+						if (tt != t){
+							tt.receive_gossip(t.spread_gossip());
+						}
+					}
 				}
 			}
 			t.nextTurn();

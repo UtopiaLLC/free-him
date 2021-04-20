@@ -132,9 +132,11 @@ public class LevelModel {
         // iterate over all targets to see if any is paranoiac
         for (TargetModel t : targets.values()){
             if (t.getTraits().is_paranoiac()){
-                //If a target is paranoiac, reduce paranoia of all targets in level by 1
-                for (TargetModel tt : targets.values()){
-                    tt.reduce_paranoia(1);
+                //If a target is paranoiac and is alive, reduce paranoia of all targets in level by 1
+                if (t.getState() != TargetModel.TargetState.DEFEATED){
+                    for (TargetModel tt : targets.values()){
+                        tt.reduce_paranoia(1);
+                    }
                 }
             }
         }

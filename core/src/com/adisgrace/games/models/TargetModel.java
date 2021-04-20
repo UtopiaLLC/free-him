@@ -507,6 +507,22 @@ public class TargetModel {
 	}
 
 	/**
+	 * The amount of suspicion give to other targets from this target, at least 1
+	 * */
+	public int spread_gossip(){
+		return Math.max((int)(suspicion*TraitModel.GOSSIP_CONST), 1);
+	}
+
+	/**
+	 * The amount of suspicion received from other targets from this target
+	 *
+	 * @param r			The amount of suspicion received from gossip
+	 * */
+	public void receive_gossip(int r){
+		suspicion += r;
+	}
+
+	/**
 	 * Increases the target's stress by the given amount.
 	 * 
 	 * Returns true if the target is still active after adding the stress, and false otherwise,
