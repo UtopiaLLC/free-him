@@ -17,6 +17,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 /**
  * Class for reading player input. 
@@ -157,6 +162,60 @@ public class InputController {
 	 * if it exists.  Otherwise, it falls back to the keyboard control.
 	 */
 	public InputController() {
+	}
+
+	public void addNodeListener(Node n, final Skin skin, final Runnable actOnNode,
+								final LevelController levelController) {
+		n.addListener(new ClickListener()
+		{
+			Label hoverLabel = new Label("N/A", skin);
+
+			@Override
+			public void clicked(InputEvent event, float x, float y)
+			{
+				Actor cbutton = (Actor)event.getListenerActor();
+				//System.out.println(cbutton.getName());
+				actOnNode.run();
+			}
+
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+
+				Actor cbutton = (Actor)event.getListenerActor();
+				String name = cbutton.getName();
+				String [] nodeInfo = name.split(",");
+
+				if(nodeInfo.length==1) {
+//                        tState = new Label("Target State: " + target.getState(), skin);
+//                        tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
+//                      tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));
+
+
+					String hoverText = "Target Name: " + name + "\n" +
+							"Target Stress: " + levelController.getTargetStress(name) + "\n" +
+							"Target Suspicion: " + levelController.getTargetSuspicion(name) + "\n";
+
+
+					hoverLabel.setText(hoverText);
+					hoverLabel.setFontScale(2);
+
+					//Vector2 zeroLoc = b.localToStageCoordinates(new Vector2(0, b.getHeight()));
+					Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth()*.05f, Gdx.graphics.getHeight()*.85f);
+					hoverLabel.setX(zeroLoc.x);
+					hoverLabel.setY(zeroLoc.y);
+
+					GameController.toolbarStage.addActor(hoverLabel);
+
+				}
+
+			}
+
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+				super.exit(event, x, y, pointer, toActor);
+				hoverLabel.remove();
+			}
+		});
 	}
 
 	/**
