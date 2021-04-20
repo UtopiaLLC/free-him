@@ -95,6 +95,8 @@ public class GameCanvas {
 	/** Cache object to handle raw textures */
 	private TextureRegion holder;
 
+	private Texture tile;
+
 	/**
 	 * Creates a new GameCanvas determined by the application configuration.
 	 * 
@@ -118,6 +120,8 @@ public class GameCanvas {
 		local  = new Affine2();
 		global = new Matrix4();
 		vertex = new Vector2();
+
+		tile = new Texture(Gdx.files.internal("background/B_MapTileBG_2.png"));
 	}
 		
     /**
@@ -1173,7 +1177,6 @@ public class GameCanvas {
 	public void drawIsometricGrid(Stage stage, int width, int height){
 		int twidth = 444;
 		int theight = 256;
-		final Texture tile = new Texture(Gdx.files.internal("background/B_MapTileBG_2.png"));
 		begin();
 		//assuming grid tiles are (444, 256) in size
 		//drawing a 100 x 100 tile grid centered around the origin, offset so that (0, 0) is the center of the tile sprite
