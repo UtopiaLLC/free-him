@@ -131,7 +131,7 @@ public class LevelModel {
         // Implements target trait : paranoiac
         // iterate over all targets to see if any is paranoiac
         for (TargetModel t : targets.values()){
-            if (t.getTraits().isParanoiac()){
+            if (t.getTraits().is_paranoiac()){
                 //If a target is paranoiac, reduce paranoia of all targets in level by 1
                 for (TargetModel tt : targets.values()){
                     tt.reduce_paranoia(1);

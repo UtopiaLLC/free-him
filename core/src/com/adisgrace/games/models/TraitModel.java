@@ -25,7 +25,7 @@ public class TraitModel {
         /** spreads percentage of their suspicion to all targets in level */
         gossip,
         /** interacting with them (blackmail skills) increases your stress */
-        off_Putting,
+        off_putting,
         /** after their suspicion is first raised, it automatically rises by a small amount every turn */
         naturally_suspicious,
         /** you get more money when performing actions that get you money on them */
@@ -62,7 +62,7 @@ public class TraitModel {
                     traits.add(Trait.gossip);
                     break;
                 case "off_Putting":
-                    traits.add(Trait.off_Putting);
+                    traits.add(Trait.off_putting);
                     break;
                 case "naturally_suspicious":
                     traits.add(Trait.naturally_suspicious);
@@ -89,7 +89,70 @@ public class TraitModel {
     /**
      * Returns whether the specific target is paranoiac.
      * */
-    public boolean isParanoiac(){
+    public boolean is_paranoiac(){
         return traits.contains(Trait.paranoiac);
+    }
+
+    /**
+     * Returns whether the specific target is therapist.
+     * */
+    public boolean is_therapist(){
+        return traits.contains(Trait.therapist);
+    }
+
+    /**
+     * Returns whether the specific target is gossip.
+     * */
+    public boolean is_gossip(){
+        return traits.contains(Trait.gossip);
+    }
+
+    /**
+     * Returns whether the specific target is off_putting.
+     * */
+    public boolean is_off_putting(){
+        return traits.contains(Trait.off_putting);
+    }
+
+    /**
+     * Returns whether the specific target is naturally_suspicious.
+     * */
+    public boolean is_naturally_suspicious(){
+        return traits.contains(Trait.naturally_suspicious);
+    }
+
+    /**
+     * Returns whether the specific target is rich.
+     * */
+    public boolean is_rich(){
+        return traits.contains(Trait.rich);
+    }
+
+    /**
+     * Returns whether the specific target is technologically_literate.
+     * */
+    public boolean is_technologically_literate(){
+        return traits.contains(Trait.technologically_literate);
+    }
+
+    /**
+     * Returns whether the specific target is bad_connection.
+     * */
+    public boolean is_bad_connection(){
+        return traits.contains(Trait.bad_connection);
+    }
+
+    /**
+     * Returns whether the specific target is technologically_illiterate.
+     * */
+    public boolean is_technologically_illiterate(){
+        return traits.contains(Trait.technologically_illiterate);
+    }
+
+    /**
+     * Returns whether the specific target is sensitive.
+     * */
+    public boolean is_sensitive(){
+        return traits.contains(Trait.sensitive);
     }
 }
