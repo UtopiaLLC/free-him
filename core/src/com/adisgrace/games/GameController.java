@@ -53,11 +53,11 @@ public class GameController implements Screen {
     /** canvas is the primary view class of the game */
     private GameCanvas canvas;
     /** stage is a Scene2d scene graph that contains all hierarchies of Scene2d Actors */
-    private Stage stage;
+    public static Stage stage;
     /** stage is a Scene2d scene graph that contains all hierarchies of Scene2d Actors specifically for the toolbar and
      * the HUD.
      */
-    private Stage toolbarStage;
+    public static Stage toolbarStage;
     /** skin is the button skin for use in the toolbar */
     private Skin skin;
     /** camera controls panning the node map */
@@ -140,6 +140,8 @@ public class GameController implements Screen {
     private ShapeRenderer shapeRenderer;
     /** controller for camera operations*/
     private CameraController cameraController;
+    /** controller for input operations*/
+    private InputController ic;
 
     /** The smallest width the game window can take */
     private static final float MINWORLDWIDTH = 1280;
@@ -215,61 +217,8 @@ public class GameController implements Screen {
             imageNodes.putAll(nodeView.getImageNodes());
         }
 
-
-        for(final Node button : imageNodes.values()) { // Node Click Listeners
-            final Node b = button;
-            button.addListener(new ClickListener()
-            {
-                Label hoverLabel = new Label("N/A", skin);
-
-                @Override
-                public void clicked(InputEvent event, float x, float y)
-                {
-                    Actor cbutton = (Actor)event.getListenerActor();
-                    //System.out.println(cbutton.getName());
-                    actOnNode(cbutton.getName(), b);
-                }
-
-                @Override
-                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-
-                    Actor cbutton = (Actor)event.getListenerActor();
-                    String name = cbutton.getName();
-                    String [] nodeInfo = name.split(",");
-
-                    if(nodeInfo.length==1) {
-//                        tState = new Label("Target State: " + target.getState(), skin);
-//                        tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
-//                      tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));
-
-
-                        String hoverText = "Target Name: " + name + "\n" +
-                                "Target Stress: " + levelController.getTargetStress(name) + "\n" +
-                                "Target Suspicion: " + levelController.getTargetSuspicion(name) + "\n";
-
-
-                        hoverLabel.setText(hoverText);
-                        hoverLabel.setFontScale(2);
-
-                        //Vector2 zeroLoc = b.localToStageCoordinates(new Vector2(0, b.getHeight()));
-                        Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth()*.05f, Gdx.graphics.getHeight()*.85f);
-                        hoverLabel.setX(zeroLoc.x);
-                        hoverLabel.setY(zeroLoc.y);
-
-                        toolbarStage.addActor(hoverLabel);
-
-                    }
-
-                }
-
-                @Override
-                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                    super.exit(event, x, y, pointer, toActor);
-                    hoverLabel.remove();
-                }
-            });
-            button.remove();
-        }
+        ic = new InputController();
+        addNodeListeners(imageNodes);
 
         // Adding all visible nodes
         for (TargetModel target: targets) {
@@ -311,7 +260,7 @@ public class GameController implements Screen {
         canvas.end();
 
 
-        InputController ic = new InputController();
+
         cameraController = new CameraController(ic, canvas);
         createToolbar();
         shapeRenderer = new ShapeRenderer();
@@ -418,6 +367,24 @@ public class GameController implements Screen {
     @Override
     public void dispose() {
 
+    }
+
+    /**
+     * Delegates responsibility of adding click listeners to all
+     * the nodes to the InputController
+     * @param imageNodes map from node id to node
+     */
+    private void addNodeListeners(Map<String,Node> imageNodes) {
+        for(final Node button : imageNodes.values()) { // Node Click Listeners
+            final Node b = button;
+            ic.addNodeListener(b, skin, new Runnable() {
+                @Override
+                public void run() {
+                    actOnNode(b.getName(), b);
+                }
+            }, levelController);
+            button.remove();
+        }
     }
 
     public void switchLevel(int newLevel) {
