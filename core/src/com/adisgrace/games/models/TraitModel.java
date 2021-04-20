@@ -23,7 +23,7 @@ public class TraitModel {
         /** enemy decreases the stress of all targets in level over time */
         therapist, // Implementation in WorldModel.nextTurn + targetModel.therapy
         /** spreads percentage of their suspicion to all targets in level */
-        gossip,
+        gossip,    // Implementation in WorldModel.nextTurn + targetModel.spread_gossip/receive_gossip
         /** interacting with them (blackmail skills) increases your stress */
         off_putting,
         /** after their suspicion is first raised, it automatically rises by a small amount every turn */
