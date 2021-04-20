@@ -43,6 +43,12 @@ public class Connector {
     public static final String C_SOUTH = "leveleditor/connectors/C_S_2.png";
     public static final String C_WEST = "leveleditor/connectors/C_W_2.png";
 
+    /** Constants for steps taken in the various direction a connector can go */
+    private static final Vector2 N_STEP = new Vector2(0,1);
+    private static final Vector2 E_STEP = new Vector2(1,0);
+    private static final Vector2 S_STEP = new Vector2(0,-1);
+    private static final Vector2 W_STEP = new Vector2(-1,0);
+
     /**
      * Constructor for a connector. Saves the location and the type.
      *
@@ -68,6 +74,28 @@ public class Connector {
         xcoord = (int)coords.x;
         ycoord = (int)coords.y;
         type = t;
+    }
+
+    /**
+     * Constructor for a connector. Saves the location and the type.
+     *
+     * @param coords    The coordinates of the Connector in isometric space.
+     * @param d         The direction of a single-type connector.
+     */
+    public Connector(Vector2 coords, Direction d) {
+        xcoord = (int)coords.x;
+        ycoord = (int)coords.y;
+        type = dirToString(d);
+
+    }
+
+    /**
+     * Adds a direction to the type of this connector.
+     *
+     * @param d     The direction of the connector to add to the type.
+     */
+    public void addDirToType(Direction d) {
+        type += dirToString(d);
     }
 
     /**
@@ -109,6 +137,103 @@ public class Connector {
                 return C_WEST;
             default:
                 throw new RuntimeException("Connector can only be NESW");
+        }
+    }
+
+    /**
+     * Converts a Direction to the corresponding string.
+     *
+     * @param dir   The direction of the connector to convert to a string.
+     * @return      The direction as a string.
+     */
+    public static String dirToString(Direction dir) {
+        switch(dir) {
+            case N:
+                return "N";
+            case E:
+                return "E";
+            case S:
+                return "S";
+            case W:
+                return "W";
+        }
+        // Should never get here
+        throw new RuntimeException("Direction is not a direction");
+    }
+
+    /**
+     * Converts a string to the corresponding Direction.
+     *
+     * @param dir   The string representing a direction to convert to a Direction.
+     * @return      The string as a direction.
+     */
+    public static Direction toDir(String dir) {
+        switch(dir) {
+            case "N":
+                return Direction.N;
+            case "E":
+                return Direction.E;
+            case "S":
+                return Direction.S;
+            case "W":
+                return Direction.W;
+        }
+        // Should never get here
+        throw new RuntimeException("String is not a direction");
+    }
+
+    /**
+     * Converts a char to the corresponding Direction.
+     *
+     * @param dir   The char representing a direction to convert to a Direction.
+     * @return      The char as a direction.
+     */
+    public static Direction toDir(char dir) {
+        return toDir(String.valueOf(dir));
+    }
+
+    /**
+     * Returns the direction opposite to the one that is given.
+     *
+     * @param dir   A direction
+     * @return      The opposite direction
+     */
+    public static Direction oppositeDir(Direction dir) {
+        switch(dir) {
+            case N:
+                return Direction.S;
+            case E:
+                return Direction.W;
+            case S:
+                return Direction.N;
+            case W:
+                return Direction.E;
+        }
+        // Should never get here
+        throw new RuntimeException("Direction is not a direction");
+    }
+
+
+
+    /**
+     * Returns a step in a direction based on the direction given in a connector.
+     *
+     * @param d     One of the characters in "NESW," representing a connector direction
+     * @return      The vector that steps in the direction given by the input
+     */
+    public static Vector2 getDirVec(char d) {
+        // Get directional step based on character
+        switch(d) {
+            case 'N':
+                return N_STEP;
+            case 'E':
+                return E_STEP;
+            case 'S':
+                return S_STEP;
+            case 'W':
+                return W_STEP;
+            default:
+                throw new RuntimeException("Can only take in NESW");
         }
     }
 }

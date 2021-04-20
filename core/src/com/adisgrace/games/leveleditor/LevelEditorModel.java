@@ -1,10 +1,11 @@
 package com.adisgrace.games.leveleditor;
 
 import com.adisgrace.games.util.Connector;
+import com.adisgrace.games.util.Connector.Direction;
 import com.adisgrace.games.models.FactNode;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 
 import java.awt.image.AreaAveragingScaleFilter;
 import java.io.*;
@@ -30,12 +31,6 @@ public class LevelEditorModel {
     private Array<String> discoveredNodes;
     /** Array of locations that have been visited, for use in making connections */
     private Array<Vector2> visited;
-
-    /** Constants for steps taken in the various direction a connector can go */
-    private static final Vector2 N_STEP = new Vector2(0,1);
-    private static final Vector2 E_STEP = new Vector2(1,0);
-    private static final Vector2 S_STEP = new Vector2(0,-1);
-    private static final Vector2 W_STEP = new Vector2(-1,0);
 
     /** Predefined stress levels for FactNodes */
     public enum StressRating{
@@ -195,7 +190,8 @@ public class LevelEditorModel {
         int psDmg_ = stressRating_to_int(psDmg);
 
         FactNode factNode = new FactNode(factName, "untitled fact", contents, summary, new Array<String>(),
-                (int)coords.x, (int)coords.y, locked, tsDmg_, psDmg_, new Array<int[]>(), new Array<String>());
+                (int)coords.x, (int)coords.y, locked, tsDmg_, psDmg_, new Array<Array<Vector2>>(),
+                new Array<Array<String>>());
         factnodes.put(factName, factNode);
     }
 
@@ -294,10 +290,9 @@ public class LevelEditorModel {
      * Creates a connection from a parent (target or factnode) to a child (factnode)
      * @param parentName name of the parent element
      * @param childName name of the child element
-     * @param path list of connectors the connection passes through ordered from parent to child
-     * @param b     generic bool to allow this to overload the other make_connection
+     * @param path LibGDX array of connectors the connection passes through ordered from parent to child
      */
-    public void make_connection(String parentName, String childName, Array<Connector> path, boolean b){
+    public void make_connection(String parentName, String childName, Array<Connector> path){
         if(!connections.containsKey(parentName))
             connections.put(parentName, new HashMap<String, Array<Connector>>());
         connections.get(parentName).put(childName, path);
@@ -305,17 +300,17 @@ public class LevelEditorModel {
 
     /**
      * Creates a connection from a parent (target or factnode) to a child (factnode)
-     * @param parentName name of the parent element
-     * @param childName name of the child element
-     * @param path list of locations the connection passes through ordered from parent to child
+     * @param parentName    name of the parent element
+     * @param childName     name of the child element
+     * @param path          Map of coordinates in the path and the connectors at those coordinates
      */
-    public void make_connection(String parentName, String childName, Array<Vector2> path){
-        // For each location in the path, get the connector and store in an array of connectors
+    public void make_connection(String parentName, String childName, ArrayMap<Vector2,Connector> path){
+        // Convert from arraymap to array
         Array<Connector> connArr = new Array<>();
-        for (Vector2 pos : path) {
-            connArr.add(connectorsAtCoords.get(pos));
+        for (int k = 0; k < path.size; k++) {
+            connArr.add(path.getValueAt(k));
         }
-        make_connection(parentName,childName,connArr,true);
+        make_connection(parentName, childName, connArr);
     }
 
 
@@ -357,7 +352,7 @@ public class LevelEditorModel {
         // Name of node
         String nodeName;
 
-        // Start at each target as the root of the graph
+        // Start at each target as the root of a graph
         for(Target target : targets.values()){
             // Reset array of discovered nodes
             discoveredNodes.clear();
@@ -369,17 +364,8 @@ public class LevelEditorModel {
             // Mark current location as visited
             visited.add(currLoc);
 
-            // Iterate through directions in connector
-            for (int k = 0; k < currConn.type.length(); k++) {
-                // Get the new location given by the connector direction
-                Vector2 loc = new Vector2(currLoc.x,currLoc.y);
-                loc.add(getDir(currConn.type.charAt(k)));
-                // If new location is unvisited
-                if (!visited.contains(loc,false)) {
-                    // Start traveling down the path given by this direction
-                    travelDownPath(loc, new Array<Vector2>(), target.name);
-                }
-            }
+            // Evaluate travel through this connector starting at the target, with no paths so far
+            travelThroughConnector(currConn,new ArrayMap<Vector2,Connector>(),target.name);
 
             // While there are still discovered nodes, keep searching
             while (discoveredNodes.size > 0) {
@@ -388,31 +374,90 @@ public class LevelEditorModel {
                 currLoc = new Vector2(factnodes.get(nodeName).getX(),factnodes.get(nodeName).getY());
                 currConn = connectorsAtCoords.get(currLoc);
 
-                // Iterate through directions in connector
-                for (int k = 0; k < currConn.type.length(); k++) {
-                    // Get the new location given by the connector direction
-                    Vector2 loc = new Vector2(currLoc.x,currLoc.y);
-                    loc.add(getDir(currConn.type.charAt(k)));
-                    // If new location is unvisited
-                    if (!visited.contains(loc,false)) {
-                        // Start traveling down the path given by this direction
-                        travelDownPath(loc, new Array<Vector2>(), nodeName);
-                    }
-                }
+                // Evaluate travel for each starting connector for paths from non-target nodes
+                travelThroughConnector(currConn,new ArrayMap<Vector2,Connector>(),nodeName);
             }
-
         }
+
+        System.out.println("Connections made");
 
     }
 
     /**
-     * Recursive function call to travel down a path
+     * Helper function that adds a direction to a path. If there is already a direction at that location,
+     * modifies the connector at that location to account for all directions there.
+     *
+     * @param pathSoFar     Path so far
+     * @param loc           Location at which to add a direction to the path
+     * @param dir           Direction to add to the path at the given location
      */
-    private void travelDownPath(Vector2 nextLoc, Array<Vector2> pathSoFar, String parent) {
+    private void addToPath(ArrayMap<Vector2, Connector> pathSoFar, Vector2 loc, Direction dir) {
+        // Initialize connector
+        Connector conn;
+
+        // If there is already a direction at that location
+        if (pathSoFar.containsKey(loc)) {
+            // Create new connector so as not to cause issues with other paths using the same connector
+            conn = new Connector(pathSoFar.get(loc).xcoord,pathSoFar.get(loc).ycoord,pathSoFar.get(loc).type);
+            // Update the existing connector to have an additional direction
+            conn.addDirToType(dir);
+        }
+        // Otherwise, just add new connector with that direction at that location
+        else {
+            conn = new Connector(loc,dir);
+        }
+        pathSoFar.put(loc,conn);
+    }
+
+    /**
+     * Helper function that handles traveling down all potential possible directions
+     * given by a connector.
+     *
+     * @param currConn  The connector to evaluate travel through.
+     * @param parent    The name of the parent that this connector is on a path from.
+     */
+    private void travelThroughConnector(Connector currConn, ArrayMap<Vector2, Connector> pathSoFar, String parent) {
+        // Get location of connector
+        Vector2 currLoc = new Vector2(currConn.xcoord, currConn.ycoord);
+        // Get type of connector
+        String type = currConn.type;
+        // Initialize caches
+        Vector2 newLoc;
+        char dir;
+        ArrayMap<Vector2, Connector> newPathSoFar;
+
+        // Iterate through directions of starting connector in same tile as target
+        for (int k = 0; k < type.length(); k++) {
+            // Get the new location given by the connector direction
+            dir = type.charAt(k);
+            newLoc = new Vector2(currLoc.x,currLoc.y);
+            newLoc.add(Connector.getDirVec(dir));
+            // If new location is unvisited
+            if (!visited.contains(newLoc,false)) {
+                // Create a new path containing this direction as the last step so far
+                newPathSoFar = new ArrayMap<>(pathSoFar);
+                addToPath(newPathSoFar, currLoc, Connector.toDir(dir));
+
+                // Start traveling down the path given by this direction
+                travelDownPath(newLoc,Connector.toDir(dir), newPathSoFar, parent);
+            }
+        }
+    }
+
+    /**
+     * Recursive function call to travel down a path, creating connections between nodes.
+     *
+     * @param nextLoc       Next location to travel to, in isometric coordinates
+     * @param arrivalDir    Direction from the previous location that led to this one
+     * @param pathSoFar     The path so far, in connectors and their corresponding locations
+     * @param parent        The name of the parent node that this path started at
+     */
+    private void travelDownPath(Vector2 nextLoc, Direction arrivalDir, ArrayMap<Vector2,Connector> pathSoFar, String parent) {
         // Visit next location
         visited.add(nextLoc);
-        // Add this location to the path so far
-        pathSoFar.add(nextLoc);
+        // Add next location to the path so far, arriving through the opposite of the arrivalDir
+        // Ex. leaving the last location from the North arrives in this location from the South
+        addToPath(pathSoFar, nextLoc, Connector.oppositeDir(arrivalDir));
 
         // End case: next tile has a node in it
         if (factnode_from_pos.containsKey(nextLoc)) {
@@ -423,200 +468,19 @@ public class LevelEditorModel {
             make_connection(parent,child,pathSoFar);
             // Add node to discovered nodes
             discoveredNodes.add(child);
-            System.out.println("Connection made");
             return;
         }
         // If connector is not in next tile
         if (!connectorsAtCoords.containsKey(nextLoc)) {
-            // TODO: fix why this sometimes happens
-            //throw new RuntimeException("No connector in next tile, this is impossible");
-            return;
+            throw new RuntimeException("No connector in next tile, this is impossible");
         }
 
         // Get connector in next tile
         Connector nextConn = connectorsAtCoords.get(nextLoc);
 
-        // Iterate through directions in connector
-        for (int k = 0; k < nextConn.type.length(); k++) {
-            // Get the new location given by the connector direction
-            Vector2 loc = new Vector2(nextLoc.x,nextLoc.y);
-            loc.add(getDir(nextConn.type.charAt(k)));
-            // If new location is unvisited
-            if (!visited.contains(loc,false)) {
-                // Start traveling down the path given by this direction
-                travelDownPath(loc, new Array<Vector2>(), parent);
-            }
-        }
+        // Travel through the connector in the next tile
+        travelThroughConnector(nextConn, pathSoFar, parent);
     }
-
-    /**
-     * Helper function that returns a step in a direction based on the direction
-     * given in a connector.
-     *
-     * @param d     One of the characters in "NESW," representing a connector direction
-     * @return      The vector that steps in the direction given by the input
-     */
-    private Vector2 getDir(char d) {
-        // Get directional step based on character
-        switch(d) {
-            case 'N':
-                return N_STEP;
-            case 'E':
-                return E_STEP;
-            case 'S':
-                return S_STEP;
-            case 'W':
-                return W_STEP;
-            default:
-                throw new RuntimeException("Can only take in NESW");
-        }
-    }
-
-    /**
-     * Automatically detects and creates connections from an array of Connector objects
-     * @param connections_ Array of connections on the map
-    public void make_connections(Array<Connector> connections_){
-        // Create and fill hashmap of nodes at each given position
-        Map<Vector2,FactNode> factnode_from_pos = new HashMap<>();
-        for(FactNode fn : factnodes.values()){
-            factnode_from_pos.put(new Vector2(fn.getX(), fn.getY()), fn);
-        }
-        // Create and fill hashmap of connectors at each given position
-        Map<Vector2,Connector> connector_from_pos = new HashMap<>();
-        for(Connector c : connections_) {
-            connector_from_pos.put(new Vector2(c.xcoord,c.ycoord), c);
-        }
-
-        // Initialize caches
-        Set<Vector2> seen;
-        Array<Array<Vector2>> border;
-        Array<Vector2> path;
-        Array<Vector2> path2;
-        Array<Connector> path3;
-        Vector2 vec, vec2;
-        String dirs, newdirs = "";
-
-        // For each target in the level
-        for(Map<String,Object> target : targets.values()){
-            // Initialize path from the target
-            path = new Array<>();
-            // Start at target location
-            path.add((Vector2)target.get("pos"));
-            // Initialize tracker for which tiles have been visited
-            // Used to ensure that the search doesn't backtrack
-            seen = new HashSet<>();
-            // Mark tile containing target as visited
-            seen.add((Vector2)target.get("pos"));
-            // Contains all the potentially valid paths that have been found so far
-            border = new Array<>();
-            border.add(path);
-
-            // Continue until no more valid paths remain
-            while(!border.isEmpty()){
-                // Check last valid path that remains
-                path = border.pop();
-                // Mark last tile in path as visited
-                seen.add(path.peek());
-                // If it's an actual path that leads to a FactNode
-                if(path.size > 1 && factnode_from_pos.containsKey(path.peek())){
-                    path3 = new Array<>();
-                    dirs = "";
-                    vec = path.first();
-                    Vector2 pos;
-                    for(int i = 1; i < path.size; i++){
-                        pos = path.get(i);
-                        vec2 = new Vector2(pos);
-                        vec2.sub(vec);
-                        if(vec2.y == 1) {
-                            dirs += "N";
-                            newdirs = "S";
-                        }
-                        else if(vec2.y == -1) {
-                            dirs += "S";
-                            newdirs = "N";
-                        }
-                        else if(vec2.x == 1) {
-                            dirs += "E";
-                            newdirs = "W";
-                        }
-                        else if(vec2.y == -1) {
-                            dirs += "W";
-                            newdirs = "E";
-                        }
-                        path3.add(new Connector((int)pos.x, (int)pos.y, dirs));
-                        dirs = newdirs;
-                    }
-                    make_connection(
-                            (target.get("pos").equals(path.first())
-                                    ? target.get("targetName").toString()
-                                    : factnode_from_pos.get(path.first()).getNodeName()),
-                            factnode_from_pos.get(path.peek()).getNodeName(),
-                            path3
-                    );
-                    path2 = new Array<>();
-                    path2.add(path.peek());
-                    border.add(path2);
-                }
-
-                // Check last tile of path for connectors, and if there is one, add it accordingly
-                addToPath(path, connector_from_pos, border);
-            }
-        }
-    }
-
-    /**
-     *
-     */
-
-    /**
-     * Helper function that checks if there is a connector at the end of this path,
-     * and if so, creates a new path with the connector appended to it and adds the
-     * new path to the stack of valid paths.
-     *
-     * @param path          Path to check the end of for a connector
-     * @param connectors    Map of connectors at their locations
-     * @param border        Stack of valid paths so far
-    private void addToPath(Array<Vector2> path, Map<Vector2,Connector> connectors, Array<Array<Vector2>> border) {
-        // Initialize vector cache
-        Vector2 vec;
-        // Initialize new path
-        Array<Vector2> newPath;
-
-
-        if(connectors.get(path.peek()).type.indexOf('N') >= 0){
-            vec = new Vector2(path.peek().x, path.peek().y+1);
-            if(!seen.contains(vec)){
-                newPath = new Array<>(path);
-                newPath.add(vec);
-                border.add(newPath);
-            }
-        }
-        if(connectors.get(path.peek()).type.indexOf('S') >= 0){
-            vec = new Vector2(path.peek().x, path.peek().y-1);
-            if(!seen.contains(vec)) {
-                newPath = new Array<>(path);
-                newPath.add(vec);
-                border.add(newPath);
-            }
-        }
-        if(connectors.get(path.peek()).type.indexOf('E') >= 0){
-            vec = new Vector2(path.peek().x+1, path.peek().y);
-            if(!seen.contains(vec)) {
-                newPath = new Array<>(path);
-                newPath.add(vec);
-                border.add(newPath);
-            }
-        }
-        if(connectors.get(path.peek()).type.indexOf('W') >= 0){
-            vec = new Vector2(path.peek().x-1, path.peek().y);
-            if(!seen.contains(vec)) {
-                newPath = new Array<>(path);
-                newPath.add(vec);
-                border.add(newPath);
-            }
-        }
-    }
-    */
 
     /**
      * Writes level to a json with the given filename
@@ -626,10 +490,10 @@ public class LevelEditorModel {
     public void make_level_json(String filename) throws IOException{
         System.out.println("started saving level");
         BufferedWriter out;
-        out = new BufferedWriter(new FileWriter(filename + ".json"));
+        out = new BufferedWriter(new FileWriter("levels/" + filename + ".json"));
         String targetlist = "", targetpositions = "";
         for(Target target : targets.values()) {
-            targetlist += ", \"" + target.name + "\"";
+            targetlist += ", \"" + target.name.replaceAll(" ","") + ".json" + "\"";
             targetpositions += ", [" + (int)(target.x) + ", " + (int)(target.y) + "]";
         }
         targetlist = "[" + targetlist.substring(2) + "]";
@@ -681,7 +545,7 @@ public class LevelEditorModel {
     public void make_target_json(String targetName) throws IOException{
         System.out.printf("started saving target " + targetName);
         BufferedWriter out;
-        out = new BufferedWriter(new FileWriter(targetName.replaceAll(" ","") + ".json"));
+        out = new BufferedWriter(new FileWriter("levels/targets/" + targetName.replaceAll(" ","") + ".json"));
         Array<FactNode> factnodes_ = get_target_facts(targetName);
 
         int targetx = (int)((targets.get(targetName)).x);

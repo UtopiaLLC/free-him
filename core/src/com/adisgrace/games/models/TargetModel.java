@@ -3,6 +3,7 @@ package com.adisgrace.games.models;
 import java.util.HashMap;
 import java.util.Random;
 
+import com.adisgrace.games.util.Connector;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -59,13 +60,11 @@ public class TargetModel {
 	/** Array of node names representing the nodes that are immediately visible when the target first becomes available */
 	private Array<String> firstNodes;
 
-	/** The connector coordinates for the nodes that are immediately visible when the level begins, index corresponds to
-	 * the node in firstNodes, coordinates stored in isometric coordinates */
-	private Array<int[]> firstConnectorCoords;
+	/** The paths that are first shown when the level begins. Each path corresponds to the node in firstNodes at the same index and is
+	 * in isometric coordinates. */
+	private Array<Array<Vector2>> firstConnectorPaths;
 	/** The connector types for the nodes that are immediately visible when the level begins, index corresponds to the node in firstNodes */
-	private Array<String > firstConnectorTypes;
-
-
+	private Array<Array<String>> firstConnectorTypes;
 
 	/** Array of Target combos */
 	private Array<Combo> combos;
@@ -94,11 +93,10 @@ public class TargetModel {
 	 * @param targetJson		Name of the JSON with all the target's data.
 	 */
 	public TargetModel(String targetJson) {
-		// TODO
 		// STORE ALL ARRAYS ALPHABETICALLY
 
 		// Get parser for JSON
-		JsonValue json = new JsonReader().parse(Gdx.files.internal("targets/" + targetJson));
+		JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/targets/" + targetJson));
 
 		// Get main properties of target
 		name = json.getString("targetName");
@@ -107,6 +105,7 @@ public class TargetModel {
 
 		// Initialize iterator for arrays
 		JsonValue.JsonIterator itr;
+		JsonValue.JsonIterator itr2;
 
 		// Get neighbors
 //		neighbors = new Array<String>();
@@ -117,24 +116,23 @@ public class TargetModel {
 //		// Sort alphabetically
 //		neighbors.sort();
 
+		// Get firstNodes
 		firstNodes = new Array<>();
 		JsonValue firstNodesArr = json.get("firstNodes");
 		itr = firstNodesArr.iterator();
 		while (itr.hasNext()){firstNodes.add(itr.next().asString());}
 
-		// Get firstConnectorCoords
-		firstConnectorCoords = new Array<>();
-		JsonValue firstConnectorCoordsArr = json.get("firstConnectors");
-		itr = firstConnectorCoordsArr.iterator();
-		// Iterate through the firstConnectorCoords and add to Arraylist of firstConnectorCoords
-		while (itr.hasNext()){firstConnectorCoords.add(itr.next().asIntArray());}
+
+		// Get firstConnectorPaths
+		// Get array of paths, where each path is an array of coordinates, where each coordinate is
+		// an array of exactly 2 ints representing isometric coordinates
+		firstConnectorPaths = readConnectorCoords(json.get("firstConnectors"));
 
 		// Get firstConnectorTypes
-		firstConnectorTypes = new Array<>();
-		JsonValue firstConnectorTypesArr = json.get("firstConnectorTypes");
-		itr = firstConnectorTypesArr.iterator();
-		// Iterate through the firstConnectorCoords and add to Arraylist of firstConnectorCoords
-		while (itr.hasNext()){firstConnectorTypes.add(itr.next().asString());}
+		// Get array of paths, where each path is an array of coordinates, where each coordinate is
+		// an array of exactly 2 ints representing isometric coordinates
+		firstConnectorTypes = readConnectorTypes(json.get("firstConnectorTypes"));
+
 
 //		// Get target coordinates
 //		neighborArr = json.get("loc");
@@ -156,8 +154,8 @@ public class TargetModel {
 		int nodeX;
 		int nodeY;
 		Array<String> children = new Array<String>();
-		Array<int[]> connectorCoords = new Array<>();
-		Array<String> connectorTypes = new Array<>();
+		Array<Array<Vector2>> connectorCoords = new Array<>();
+		Array<Array<String>> connectorTypes = new Array<>();
 		FactNode fn;
 		String nodeName;
 		JsonValue.JsonIterator nodeItr;
@@ -175,18 +173,10 @@ public class TargetModel {
 			nodeY = nodeItr.next().asInt();
 
 			// Get connectorCoords
-			nodeArr = node.get("connectorCoords");
-			nodeItr = nodeArr.iterator();
-
-			System.out.println(nodeName);
-			// Iterate through the firstConnectorCoords and add to Arraylist of firstConnectorCoords
-			while (nodeItr.hasNext()){connectorCoords.add(nodeItr.next().asIntArray());}
+			connectorCoords = readConnectorCoords(node.get("connectorCoords"));
 
 			// Get connectorTypes
-			nodeArr = node.get("connectorTypes");
-			nodeItr = nodeArr.iterator();
-			// Iterate through the firstConnectorCoords and add to Arraylist of firstConnectorCoords
-			while (nodeItr.hasNext()){connectorTypes.add(nodeItr.next().asString());}
+			connectorTypes = readConnectorTypes(node.get("connectorTypes"));
 
 			// Get children
 			nodeArr = node.get("children");
@@ -194,12 +184,6 @@ public class TargetModel {
 			children.clear();
 			while (nodeItr.hasNext()) {children.add(nodeItr.next().asString());}
 			children.sort();
-
-//			// If node is one of the first nodes, add it to firstNodes
-//			if (firstNodesCount > 0) {
-//				firstNodes.add(nodeName);
-//				firstNodesCount--;
-//			}
 
 			// Create FactNode
 			fn = new FactNode(nodeName, node.getString("title"), node.getString("content"),
@@ -242,6 +226,87 @@ public class TargetModel {
 		state = TargetState.UNAWARE;
 		countdown = paranoia;
 		rand = new Random();
+	}
+
+	/**
+	 * Helper function that reads a JSON value for connector coords and returns them in the correct format
+	 *
+	 * @param connectorCoordsArr	The JSON value to parse
+	 * @return						The JSON value, correctly parsed
+	 */
+	private Array<Array<Vector2>> readConnectorCoords(JsonValue connectorCoordsArr) {
+		JsonValue.JsonIterator itr;
+		JsonValue.JsonIterator itr2;
+		// Initialize JSON array of coordinates in a path
+		JsonValue pathArr;
+		// Initialize array for a single coordinate
+		int[] coordArr;
+		// Initialize actual array for coordinates in a path
+		Array<Vector2> path;
+
+		// Initialize actual array of paths
+		Array<Array<Vector2>> connectorPaths = new Array<>();
+
+		// Iterate through JSON array of paths
+		itr = connectorCoordsArr.iterator();
+		while (itr.hasNext()){
+			// Gets array of coordinates in a path
+			// Reset coords
+			path = new Array<>();
+
+			// Go through coords in path
+			pathArr = itr.next();
+			itr2 = pathArr.iterator();
+			while (itr2.hasNext()) {
+				// Get coordinate from JSON
+				coordArr = itr2.next().asIntArray();
+				// Save coordinate
+				path.add(new Vector2(coordArr[0],coordArr[1]));
+			}
+
+			// Add completed path to array of paths
+			connectorPaths.add(path);
+		}
+
+		return connectorPaths;
+	}
+
+	/**
+	 * Helper function that reads a JSON value for connector types and returns them in the correct format
+	 *
+	 * @param connectorTypesArr	The JSON value to parse
+	 * @return					The JSON value, correctly parsed
+	 */
+	private Array<Array<String>> readConnectorTypes(JsonValue connectorTypesArr) {
+		JsonValue.JsonIterator itr;
+		JsonValue.JsonIterator itr2;
+		// Initialize JSON array of coordinates in a path
+		JsonValue pathArr;
+		// Initialize actual array for connector types in a path
+		Array<String> typesPath;
+		// Initialize connectorTypes
+		Array<Array<String>> connectorTypes = new Array<>();
+
+		// Iterate through JSON array of connector types
+		itr = connectorTypesArr.iterator();
+		while (itr.hasNext()){
+			// Gets array of types in a path
+			// Reset types path
+			typesPath = new Array<>();
+
+			// Go through types in path
+			pathArr = itr.next();
+			itr2 = pathArr.iterator();
+			while (itr2.hasNext()) {
+				// Get type from JSON and store in the path
+				typesPath.add(itr2.next().asString());
+			}
+
+			// Add completed path to array of paths
+			connectorTypes.add(typesPath);
+		}
+
+		return connectorTypes;
 	}
 
 	/************************************************* TARGET METHODS *************************************************/
@@ -297,9 +362,17 @@ public class TargetModel {
 	 *
 	 * @return the target's first connector coordinates.
 	 */
-	public Array<int[]> getFirstConnectorCoords(){ return firstConnectorCoords; }
-
-
+	public Array<Vector2> getFirstConnectorCoords(){
+		// TODO: doesn't discriminate currently between which path goes to which node, which makes animations impossible
+		Array<Vector2> allCoords = new Array<>();
+		// Got through each coordinate in firstConnectorPaths and add to an array of all coordinates
+		for (Array<Vector2> path : firstConnectorPaths) {
+			for (Vector2 coord : path) {
+				allCoords.add(coord);
+			}
+		}
+		return allCoords;
+	}
 
 	/**
 	 * Returns the first connector types of the target.
@@ -308,7 +381,17 @@ public class TargetModel {
 	 *
 	 * @return the target's first connector types.
 	 */
-	public Array<String> getFirstConnectorTypes(){ return firstConnectorTypes; }
+	public Array<String> getFirstConnectorTypes(){
+		// TODO: doesn't discriminate currently between which path goes to which node, which makes animations impossible
+		Array<String> allTypes = new Array<>();
+		// Got through each coordinate in firstConnectorTypes and add to an array of all types
+		for (Array<String> path : firstConnectorTypes) {
+			for (String type : path) {
+				allTypes.add(type);
+			}
+		}
+		return allTypes;
+	}
 
 	/**
 	 * Returns coordinates of connectors coming from fact
@@ -316,7 +399,7 @@ public class TargetModel {
 	 * @param fact the name of the fact
 	 * @return a list of coordinates that represent connections out of fact
 	 */
-	public Array<int[]> getConnectorCoordsOf(String fact){
+	public Array<Vector2> getConnectorCoordsOf(String fact){
 		FactNode f = getFactNode(fact);
 		return f.getConnectorCoords();
 	}
@@ -330,6 +413,17 @@ public class TargetModel {
 	public Array<String> getConnectorTypesOf(String fact){
 		FactNode f = getFactNode(fact);
 		return f.getConnectorTypes();
+	}
+
+	/**
+	 * Returns the connectors going from a FactNode to a given child
+	 *
+	 * @param node		Name of the FactNode to find the path to a child for
+	 * @param child		Name of a child to get the path to
+	 * @return			An array of connectors from the given node to the given child
+	 */
+	public Array<Connector> getPath(String node, String child){
+		return getFactNode(node).getPathToChild(child);
 	}
 
 

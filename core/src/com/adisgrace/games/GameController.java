@@ -7,7 +7,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -22,7 +21,6 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
-import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,7 +76,7 @@ public class GameController implements Screen {
     /** nodeView is the view class that exposes all nodes in the map */
     private NodeView nodeView;
     /** imageNodes contains all ImageButtons for each fact node and target node */
-    private Map<String, ImageButton> imageNodes;
+    private Map<String, Node> imageNodes;
     /** stress is the dialog label for stress */
     private Label stress;
     /** ap is the dialog label for ap */
@@ -175,7 +173,7 @@ public class GameController implements Screen {
 
         //TODO: write function to parse folder of level jsons
         levelJsons = new Array<>();
-        levelJsons.add("level1.json");
+        levelJsons.add("sample-level-1.json");
         levelControllers = new Array<>();
 
         for(String s : levelJsons) {
@@ -210,14 +208,16 @@ public class GameController implements Screen {
 
         // Creating Nodes
         imageNodes = new HashMap<>();
+
+        NodeView.loadAnimations();
         for (TargetModel target: targets) {
             nodeView = new NodeView(stage, target, levelController);
             imageNodes.putAll(nodeView.getImageNodes());
         }
 
 
-        for(final ImageButton button : imageNodes.values()) { // Node Click Listeners
-            final ImageButton b = button;
+        for(final Node button : imageNodes.values()) { // Node Click Listeners
+            final Node b = button;
             button.addListener(new ClickListener()
             {
                 Label hoverLabel = new Label("N/A", skin);
@@ -439,8 +439,8 @@ public class GameController implements Screen {
             imageNodes.putAll(nodeView.getImageNodes());
         }
 
-        for(ImageButton button : imageNodes.values()) { // Node Click Listeners
-            final ImageButton b = button;
+        for(Node button : imageNodes.values()) { // Node Click Listeners
+            final Node b = button;
             button.addListener(new ClickListener()
             {
                 @Override
@@ -1081,7 +1081,7 @@ public class GameController implements Screen {
      * @param nodeName name of target and fact in the form "target_name,fact_id"
      * @param button the node button
      */
-    public void actOnNode(String nodeName, ImageButton button) {
+    public void actOnNode(String nodeName, Node button) {
         String[] nodeInfo = nodeName.split(",");
         boolean isTarget = false;
         if(nodeInfo.length == 1) {
@@ -1101,23 +1101,8 @@ public class GameController implements Screen {
                                 System.exit(1);
                             }
                             if(hack == 1) {
-                                Texture node = new Texture("node/N_UnscannedNode_1.png");
-                                TextureRegion[][] regions = new TextureRegion(node).split(
-                                        node.getWidth() / 10,
-                                        node.getHeight() / 6);
-                                TextureRegion tRegion = regions[0][0];
 
-                                Texture node_base = new Texture("node/N_NodeBase_1.png");
-                                TextureRegion[][] node_regions = new TextureRegion(node_base).split(
-                                        node_base.getWidth() / 6,
-                                        node_base.getHeight() / 2);
-
-                                Texture combined = GameCanvas.combineTextures(tRegion, node_regions[0][0]);
-
-                                TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
-
-                                button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
-                                        drawable, null, null));
+                                button.changeState(Node.NodeState.UNSCANNED);
 
                                 createDialogBox("You hacked the node successfully!");
 
@@ -1132,21 +1117,9 @@ public class GameController implements Screen {
                         case 2://scannable
                             boolean success = levelController.scan(nodeInfo[0], nodeInfo[1]);
                             if(success) {
-                                Texture node = new Texture("node/N_ScannedNode_2.png");
-                                TextureRegion[][] regions = new TextureRegion(node).split(
-                                        node.getWidth() / 10,
-                                        node.getHeight() / 6);
-                                TextureRegion tRegion = regions[0][0];
 
-                                Texture node_base = new Texture("node/N_NodeBase_1.png");
-                                TextureRegion[][] node_regions = new TextureRegion(node_base).split(
-                                        node_base.getWidth() / 6,
-                                        node_base.getHeight() / 2);
+                                button.changeState(Node.NodeState.SCANNED);
 
-                                Texture combined = GameCanvas.combineTextures(tRegion, node_regions[0][0]);
-                                TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
-                                button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
-                                        drawable, null, null));
                                 createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
                                 reloadDisplayedNodes();
                             } else {
@@ -1183,24 +1156,24 @@ public class GameController implements Screen {
                         activeVerb = ActiveVerb.NONE;
                     }
 
-                    if(levelController.getTargetStress(nodeInfo[0]) >=40) {
-                        Texture target_Look = new Texture("node/N_TargetMale_1.png");
-                        TextureRegion[][] regions = new TextureRegion(target_Look).split(
-                                target_Look.getWidth() / 6,
-                                target_Look.getHeight() / 2);
-                        TextureRegion tRegion = regions[3][0];
-
-                        Texture node_base = new Texture("node/N_TargetBase_1.png");
-                        TextureRegion[][] node_regions = new TextureRegion(node_base).split(
-                                node_base.getWidth() / 6,
-                                node_base.getHeight() / 2);
-
-                        Texture combined = GameCanvas.combineTextures(tRegion, node_regions[3][0]);
-
-                        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
-                        button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
-                                drawable, null, null));
-                    }
+//                    if(levelController.getTargetStress(nodeInfo[0]) >=40) {
+//                        Texture target_Look = new Texture("node/N_TargetMale_1.png");
+//                        TextureRegion[][] regions = new TextureRegion(target_Look).split(
+//                                target_Look.getWidth() / 6,
+//                                target_Look.getHeight() / 2);
+//                        TextureRegion tRegion = regions[3][0];
+//
+//                        Texture node_base = new Texture("node/N_TargetBase_1.png");
+//                        TextureRegion[][] node_regions = new TextureRegion(node_base).split(
+//                                node_base.getWidth() / 6,
+//                                node_base.getHeight() / 2);
+//
+//                        Texture combined = GameCanvas.combineTextures(tRegion, node_regions[3][0]);
+//
+//                        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
+//                        button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
+//                                drawable, null, null));
+//                    }
                 }
                 break;
             case EXPOSE:
@@ -1213,24 +1186,24 @@ public class GameController implements Screen {
                             createDialogBox("Insufficient AP to expose the target.");
                             activeVerb = ActiveVerb.NONE;
                         }
-                        if(levelController.getTargetStress(nodeInfo[0]) >=40) {
-                            Texture target_Look = new Texture("node/N_TargetMale_1.png");
-                            TextureRegion[][] regions = new TextureRegion(target_Look).split(
-                                    target_Look.getWidth() / 6,
-                                    target_Look.getHeight() / 2);
-                            TextureRegion tRegion = regions[3][0];
-
-                            Texture node_base = new Texture("node/N_TargetBase_1.png");
-                            TextureRegion[][] node_regions = new TextureRegion(node_base).split(
-                                    node_base.getWidth() / 6,
-                                    node_base.getHeight() / 2);
-
-                            Texture combined = GameCanvas.combineTextures(tRegion, node_regions[3][0]);
-
-                            TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
-                            button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
-                                    drawable, null, null));
-                        }
+//                        if(levelController.getTargetStress(nodeInfo[0]) >=40) {
+//                            Texture target_Look = new Texture("node/N_TargetMale_1.png");
+//                            TextureRegion[][] regions = new TextureRegion(target_Look).split(
+//                                    target_Look.getWidth() / 6,
+//                                    target_Look.getHeight() / 2);
+//                            TextureRegion tRegion = regions[3][0];
+//
+//                            Texture node_base = new Texture("node/N_TargetBase_1.png");
+//                            TextureRegion[][] node_regions = new TextureRegion(node_base).split(
+//                                    node_base.getWidth() / 6,
+//                                    node_base.getHeight() / 2);
+//
+//                            Texture combined = GameCanvas.combineTextures(tRegion, node_regions[3][0]);
+//
+//                            TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
+//                            button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
+//                                    drawable, null, null));
+//                        }
                     }
                 }
                 break;
