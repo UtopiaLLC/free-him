@@ -19,9 +19,9 @@ public class TraitModel {
     /** Enumeration representing the trait of a connector */
     public enum Trait{
         /** decreases the Paranoia stat of all targets in level by 1 */
-        paranoiac,
+        paranoiac, // Implementation in LevelModel constructor + targetModel.reduce_paranoia
         /** enemy decreases the stress of all targets in level over time */
-        therapist,
+        therapist, // Implementation in WorldModel.nextTurn + targetModel.therapy
         /** spreads percentage of their suspicion to all targets in level */
         gossip,
         /** interacting with them (blackmail skills) increases your stress */
@@ -40,6 +40,8 @@ public class TraitModel {
         sensitive
     }
 
+    /** How much stress the therapist heals */
+    public static final int HEALING_CONST = 3;
     /** Traits of a target, stored as an arrayList of Traits */
     private ArrayList<Trait> traits;
 

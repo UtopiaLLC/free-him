@@ -499,6 +499,14 @@ public class TargetModel {
 	}
 
 	/**
+	 * Reduce the stress of a target by a certain amount with therapy
+	 * */
+	public void therapy(){
+		stress -= TraitModel.HEALING_CONST;
+		if (stress < 0) stress = 0;
+	}
+
+	/**
 	 * Increases the target's stress by the given amount.
 	 * 
 	 * Returns true if the target is still active after adding the stress, and false otherwise,

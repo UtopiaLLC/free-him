@@ -290,6 +290,13 @@ public class WorldModel {
 	public GAMESTATE nextTurn() {
 		player.nextTurn();
 		for(TargetModel t : targets.values()){
+			// therapist trait implemented over here
+			if (t.getTraits().is_therapist()){
+				// if target is a therapist, reduce stress of all targets
+				for (TargetModel tt : targets.values()){
+					tt.therapy();
+				}
+			}
 			t.nextTurn();
 		}
 		n_days++;
