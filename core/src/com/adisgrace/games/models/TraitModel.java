@@ -2,11 +2,7 @@ package com.adisgrace.games.models;
 
 import java.util.*;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.JsonReader;
 
 /**
  * "Traits" representation.
@@ -19,25 +15,25 @@ public class TraitModel {
     /** Enumeration representing the trait of a connector */
     public enum Trait{
         /** decreases the Paranoia stat of all targets in level by 1 */
-        paranoiac, // Implementation in LevelModel constructor + targetModel.reduce_paranoia
+        PARANOIAC, // Implementation in LevelModel constructor + targetModel.reduce_paranoia
         /** enemy decreases the stress of all targets in level over time */
-        therapist, // Implementation in WorldModel.nextTurn + targetModel.therapy
+        THERAPIST, // Implementation in WorldModel.nextTurn + targetModel.therapy
         /** spreads percentage of their suspicion to all targets in level */
-        gossip,    // Implementation in WorldModel.nextTurn + targetModel.spread_gossip/receive_gossip
+        GOSSIP,    // Implementation in WorldModel.nextTurn + targetModel.spread_gossip/receive_gossip
         /** interacting with them (blackmail skills) increases your stress */
-        off_putting,
+        OFF_PUTTING,
         /** after their suspicion is first raised, it automatically rises by a small amount every turn */
-        naturally_suspicious,
+        NATURALLY_SUSPICIOUS,
         /** you get more money when performing actions that get you money on them */
-        rich,
+        RICH,
         /** hacking games are harder and/or failure has a greater penalty (cooldown) */
-        technologically_literate,
+        TECHNOLOGICALLY_LITERATE,
         /** skills used against this target cost an extra AP */
-        bad_connection,
+        BAD_CONNECTION,
         /** hacking is easier/costs less AP */
-        technologically_illiterate,
+        TECHNOLOGICALLY_ILLITERATE,
         /** blackmail options deal more stress damage */
-        sensitive
+        SENSITIVE
     }
 
     /** How much stress the therapist heals */
@@ -57,34 +53,34 @@ public class TraitModel {
         for (String s: t) {
             switch (s){
                 case "paranoiac":
-                    traits.add(Trait.paranoiac);
+                    traits.add(Trait.PARANOIAC);
                     break;
                 case "therapist":
-                    traits.add(Trait.therapist);
+                    traits.add(Trait.THERAPIST);
                     break;
                 case "gossip":
-                    traits.add(Trait.gossip);
+                    traits.add(Trait.GOSSIP);
                     break;
-                case "off_Putting":
-                    traits.add(Trait.off_putting);
+                case "off_putting":
+                    traits.add(Trait.OFF_PUTTING);
                     break;
                 case "naturally_suspicious":
-                    traits.add(Trait.naturally_suspicious);
+                    traits.add(Trait.NATURALLY_SUSPICIOUS);
                     break;
                 case "rich":
-                    traits.add(Trait.rich);
+                    traits.add(Trait.RICH);
                     break;
                 case "technologically_literate":
-                    traits.add(Trait.technologically_literate);
+                    traits.add(Trait.TECHNOLOGICALLY_LITERATE);
                     break;
                 case "bad_connection":
-                    traits.add(Trait.bad_connection);
+                    traits.add(Trait.BAD_CONNECTION);
                     break;
                 case "technologically_illiterate":
-                    traits.add(Trait.technologically_illiterate);
+                    traits.add(Trait.TECHNOLOGICALLY_ILLITERATE);
                     break;
                 case "sensitive":
-                    traits.add(Trait.sensitive);
+                    traits.add(Trait.SENSITIVE);
                     break;
             }
         }
@@ -94,69 +90,69 @@ public class TraitModel {
      * Returns whether the specific target is paranoiac.
      * */
     public boolean is_paranoiac(){
-        return traits.contains(Trait.paranoiac);
+        return traits.contains(Trait.PARANOIAC);
     }
 
     /**
      * Returns whether the specific target is therapist.
      * */
     public boolean is_therapist(){
-        return traits.contains(Trait.therapist);
+        return traits.contains(Trait.THERAPIST);
     }
 
     /**
      * Returns whether the specific target is gossip.
      * */
     public boolean is_gossip(){
-        return traits.contains(Trait.gossip);
+        return traits.contains(Trait.GOSSIP);
     }
 
     /**
      * Returns whether the specific target is off_putting.
      * */
     public boolean is_off_putting(){
-        return traits.contains(Trait.off_putting);
+        return traits.contains(Trait.OFF_PUTTING);
     }
 
     /**
      * Returns whether the specific target is naturally_suspicious.
      * */
     public boolean is_naturally_suspicious(){
-        return traits.contains(Trait.naturally_suspicious);
+        return traits.contains(Trait.NATURALLY_SUSPICIOUS);
     }
 
     /**
      * Returns whether the specific target is rich.
      * */
     public boolean is_rich(){
-        return traits.contains(Trait.rich);
+        return traits.contains(Trait.RICH);
     }
 
     /**
      * Returns whether the specific target is technologically_literate.
      * */
     public boolean is_technologically_literate(){
-        return traits.contains(Trait.technologically_literate);
+        return traits.contains(Trait.TECHNOLOGICALLY_LITERATE);
     }
 
     /**
      * Returns whether the specific target is bad_connection.
      * */
     public boolean is_bad_connection(){
-        return traits.contains(Trait.bad_connection);
+        return traits.contains(Trait.BAD_CONNECTION);
     }
 
     /**
      * Returns whether the specific target is technologically_illiterate.
      * */
     public boolean is_technologically_illiterate(){
-        return traits.contains(Trait.technologically_illiterate);
+        return traits.contains(Trait.TECHNOLOGICALLY_ILLITERATE);
     }
 
     /**
      * Returns whether the specific target is sensitive.
      * */
     public boolean is_sensitive(){
-        return traits.contains(Trait.sensitive);
+        return traits.contains(Trait.SENSITIVE);
     }
 }
