@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.JsonReader;
  *
  * A trait is the trait of a target, which have different outcomes when performing actions.
  *
- * Traits is stored as strings.
+ * Traits is stored as ArrayLists of TraitModel.Trait, and is stored as an array of all lowercase strings in the json.
  */
 public class TraitModel {
     /** Enumeration representing the trait of a connector */
@@ -40,4 +40,56 @@ public class TraitModel {
         sensitive
     }
 
+    /** Traits of a target, stored as an arrayList of Traits */
+    private ArrayList<Trait> traits;
+
+    /**
+     * Constructor for a traitModel. Saves the traits as an array.
+     *
+     * @param t     Traits of a target as an array of strings.
+     */
+    public TraitModel(Array<String> t){
+        // Initializing traits with for-each loop
+        for (String s: t) {
+            switch (s){
+                case "paranoiac":
+                    traits.add(Trait.paranoiac);
+                    break;
+                case "therapist":
+                    traits.add(Trait.therapist);
+                    break;
+                case "gossip":
+                    traits.add(Trait.gossip);
+                    break;
+                case "off_Putting":
+                    traits.add(Trait.off_Putting);
+                    break;
+                case "naturally_suspicious":
+                    traits.add(Trait.naturally_suspicious);
+                    break;
+                case "rich":
+                    traits.add(Trait.rich);
+                    break;
+                case "technologically_literate":
+                    traits.add(Trait.technologically_literate);
+                    break;
+                case "bad_connection":
+                    traits.add(Trait.bad_connection);
+                    break;
+                case "technologically_illiterate":
+                    traits.add(Trait.technologically_illiterate);
+                    break;
+                case "sensitive":
+                    traits.add(Trait.sensitive);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Returns whether the specific target is paranoiac.
+     * */
+    public boolean isParanoiac(){
+        return traits.contains(Trait.paranoiac);
+    }
 }

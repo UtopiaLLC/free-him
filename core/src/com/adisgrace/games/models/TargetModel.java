@@ -38,6 +38,8 @@ public class TargetModel {
 
 	/** The target's name */
 	private String name;
+	/** The target's traits */
+	private TraitModel traits;
 	/** The target's location in world coordinates */
 	private int locX;
 	private int locY;
@@ -471,6 +473,27 @@ public class TargetModel {
 	 */
 	public TargetState getState(){
 		return this.state;
+	}
+
+	// All additional getters and setters for traits usage will be here
+
+	/**
+	 * Returns the traits of this target.
+	 *
+	 * @return the target's traits
+	 */
+	public TraitModel getTraits(){
+		return this.traits;
+	}
+
+	/**
+	 * Reduce the paranoia of a target by a certain amount
+	 *
+	 * @param delta 		The paranoia amount to subtract from the target
+	 * */
+	public void reduce_paranoia(int delta){
+		paranoia -= delta;
+		if(paranoia < 0) paranoia = 0;
 	}
 
 	/**
