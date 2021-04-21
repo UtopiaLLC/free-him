@@ -33,6 +33,17 @@ public class NodeView {
     private static final int TILE_HEIGHT = 256;
     private static final int TILE_WIDTH = 444;
 
+    /** Array of sprites for locked nodes*/
+    public static Array<TextureRegion> lockedNodes;
+    /** Array of sprites for unscanned nodes*/
+    public static Array<Animation> unscannedNodes;
+    /** Array of sprites for scanned nodes*/
+    public static Array<Animation> scannedNodes;
+    /** Array of sprites for target nodes*/
+    public static Array<TextureRegion> targetNodes;
+    /** Array of sprites for node bases*/
+    public static Array<TextureRegion> nodeBases;
+
     private static final float ADD = 0;
     private static final float SCALE_X = 444;
     private static final float SCALE_Y = 256;
@@ -165,43 +176,11 @@ public class NodeView {
         return vec;
     }
 
-    public static Array<TextureRegion> lockedNodes;
-    public static Array<Animation> unscannedNodes;
-    public static Array<Animation> scannedNodes;
-    public static Array<TextureRegion> targetNodes;
-    public static Array<TextureRegion> nodeBases;
-
-
-    public static class AnimatedDrawable extends BaseDrawable {
-
-        private Animation<TextureRegion> animation;
-        private TextureRegion keyFrame;
-        private float stateTime = 0;
-
-        public AnimatedDrawable(Animation<TextureRegion> animation){
-
-            this.animation = animation;
-            TextureRegion key = animation.getKeyFrame(0f);
-
-            this.setLeftWidth(key.getRegionWidth()/2);
-            this.setRightWidth(key.getRegionWidth()/2);
-            this.setTopHeight(key.getRegionHeight()/2);
-            this.setBottomHeight(key.getRegionHeight()/2);
-            this.setMinWidth(key.getRegionWidth());
-            this.setMinHeight(key.getRegionHeight());
-
-        }
-
-        @Override
-        public void draw(Batch batch, float x, float y, float width, float height){
-
-            stateTime += Gdx.graphics.getDeltaTime();
-            keyFrame = animation.getKeyFrame(stateTime, true);
-
-            batch.draw(keyFrame, x,y, keyFrame.getRegionWidth(), keyFrame.getRegionHeight());
-        }
-    }
-
+    /**
+     * Loads the animation frames from the spritesheet into Animation objects.
+     * There are 12 animations each for scanned and unscanned sprites, 6 different colors corresponding
+     * to the target state, each with a highlight and lowlight version.
+     */
     public static void loadAnimations() {
 
 
@@ -254,7 +233,7 @@ public class NodeView {
 
             unscannedNodes.add(spinAnimation);
 
-
+            spinFrames = new TextureRegion[10];
             for (int i = 0; i < 10; i++) {
                 //combined = GameCanvas.combineTextures(regions[j][i], node_regions[1][j]);
                 //spinFrames[i] = new TextureRegion(combined);
@@ -263,7 +242,7 @@ public class NodeView {
 
             spinAnimation = new Animation<TextureRegion>(0.025f, spinFrames);
             unscannedNodes.add(spinAnimation);
-
+            spinFrames = new TextureRegion[10];
         }
         System.out.println("Unscanned nodes done!");
         //Scanned Nodes!
@@ -292,6 +271,7 @@ public class NodeView {
             spinAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
             scannedNodes.add(spinAnimation);
+            spinFrames = new TextureRegion[10];
 
             for (int i = 0; i < 10; i++) {
                 //combined = GameCanvas.combineTextures(regions[j][i], node_regions[1][j]);
@@ -301,7 +281,7 @@ public class NodeView {
 
             spinAnimation = new Animation<TextureRegion>(0.025f, spinFrames);
             scannedNodes.add(spinAnimation);
-
+            spinFrames = new TextureRegion[10];
         }
 
         System.out.println("Scanned nodes done!");
