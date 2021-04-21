@@ -23,6 +23,11 @@ public class Node extends Group {
     };
 
     private final int NODE_TOP_OFFSET = 10;
+    private final float OFFSET_INCREMENT = 1f;
+    private float offset;
+    private int counter;
+    private boolean up;
+
 
     private Vector2 position;
     private Animation<TextureRegion> topAnimation;
@@ -52,7 +57,9 @@ public class Node extends Group {
         setTouchable(Touchable.enabled);
 
         stateTime = 0f;
-
+        offset = 0f;
+        counter = 0;
+        up = true;
         reg = nodeBaseReg;
     }
 
@@ -61,6 +68,10 @@ public class Node extends Group {
         changeTextures(nodeState, type);
     }
 
+    /**
+     * Changes the state of this node, which also changes the color
+     * @param state the new nodestate
+     */
     public void changeState(NodeState state) {
         nodeState = state;
         changeTextures(state, nodeType);
@@ -75,10 +86,12 @@ public class Node extends Group {
             case UNSCANNED:
                 topAnimation = NodeView.getUnscannedNode(nodeType);
                 nodeBaseReg = NodeView.getNodeBase(nodeType);
+                offset = 0f;
                 break;
             case SCANNED:
                 topAnimation = NodeView.getScannedNode(nodeType);
                 nodeBaseReg = NodeView.getNodeBase(nodeType);
+                offset = 0f;
                 break;
             case TARGET:
                 //topAnimation = NodeView.getTargetNode(nodeType);
@@ -95,19 +108,14 @@ public class Node extends Group {
 
     }
 
+    /**
+     * draws the node object onto the screen
+     * @param batch libGDX batch object
+     * @param parentAlpha alpha value to draw
+     */
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
-
-//        if(Gdx.graphics.getDeltaTime() > 0.015) {
-//            colorBoi++;
-//            if(colorBoi > 11) {
-//                colorBoi = 0;
-//            }
-//            changeColor(colorBoi);
-//            System.out.println(colorBoi);
-//        }
-
         if(nodeState != NodeState.TARGET && nodeState != NodeState.LOCKED) {
             stateTime += Gdx.graphics.getDeltaTime();
             reg = topAnimation.getKeyFrame(stateTime, true);
@@ -118,12 +126,20 @@ public class Node extends Group {
         Color color = getColor();
         batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
         if(nodeState != NodeState.TARGET && nodeState != NodeState.LOCKED) {
+            if(counter%10==0){
+                offset+=(up?1:-1)*OFFSET_INCREMENT;
+            }
             batch.draw(nodeBaseReg, getX(), getY(), getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
-            batch.draw(reg, getX(), getY(), getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+            batch.draw(reg, getX(), getY() + offset, getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+            if(counter++>=100){
+                counter = 0;
+                up = !up;
+            }
         } else {
             batch.draw(reg, getX(), getY(), getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
             //batch.draw(reg, getX(), getY(), getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
         }
+
     }
 }
 

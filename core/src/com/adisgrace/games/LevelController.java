@@ -385,6 +385,13 @@ public class LevelController {
         return levelModel.getVisibleFacts(target);
     }
 
+    /**
+     * returns the current state of a target
+     * @param target name of the target
+     * @return the target state of the target
+     */
+    public TargetModel.TargetState getTargetState(String target){return levelModel.getTarget(target).getState();}
+
 
 
 }

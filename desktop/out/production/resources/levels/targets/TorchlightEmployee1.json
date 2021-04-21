@@ -1,0 +1,24 @@
+{
+  "targetName": "Torchlight Employee 1",
+  "paranoia": 3,
+  "maxStress": 100,
+  "firstNodes": ["1Node8"],
+  "firstConnectors": [[1,0], [1,1]],
+  "firstConnectorTypes": ["E", "WN"],
+  "pod": 	[
+    {
+      "nodeName": "1Node8",
+      "title": "untitled fact",
+      "coords": [1,1],
+      "locked": true,
+      "content": "You learn something entirely innocuous about your target.",
+      "summary": "Nothing!",
+      "children": [],
+      "targetStressDamage": 0,
+      "playerStressDamage": 0,
+      "connectorCoords": [],
+      "connectorTypes": []
+    }
+  ],
+  "combos": []
+}
