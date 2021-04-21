@@ -401,13 +401,14 @@ public class GameController implements Screen {
     private void addNodeListeners(Map<String,Node> imageNodes) {
         for(final Node button : imageNodes.values()) { // Node Click Listeners
             final Node b = button;
-            //Adds a listener to each node button
+            //Adds click listener to each node button
             b.addListener(ic.getButtonListener(new Runnable() {
                 @Override
                 public void run() {
                     actOnNode(b.getName(), b);
                 }
             }));
+            //Adds enter and exit listeners to each node button
             b.addListener(ic.addNodeListenerEnterExit(skin, levelController));
             button.remove();
         }
@@ -477,6 +478,18 @@ public class GameController implements Screen {
         activeVerb = ActiveVerb.NONE;
     }
 
+    private void harassOnClick() {
+
+    }
+
+    private void harassOnEnter() {
+
+    }
+
+    private void harassOnExit() {
+
+    }
+
     /**
      * This method creates a harass button with given textures for it's original status, when the cursor is hovering
      * above it and when it is clicked.
@@ -490,42 +503,46 @@ public class GameController implements Screen {
                 Gdx.files.internal("skills/harass_select.png")))));
         harass.setTransform(true);
         harass.setScale(1f);
-        harass.addListener(new ClickListener()
-        {
-            Label  harassLabel = new Label("Harass: Harass your target to slightly increase their stress for 2 AP", skin);
-
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                if (harass_checked == false){
-                    unCheck();
-                    activeVerb = ActiveVerb.HARASS;
-                    harass_checked = true;
-                    harass.setChecked(true);
-                }else{
-                    unCheck();
-                }
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-                if(activeVerb != ActiveVerb.HARASS){
-                    Vector2 zeroLoc = harass.localToStageCoordinates(new Vector2(0, harass.getHeight()));
-                    harassLabel.setX(zeroLoc.x);
-                    harassLabel.setY(zeroLoc.y);
-                    toolbarStage.addActor(harassLabel);
-                    hoverVerb = ActiveVerb.HARASS;
-                    harass.setChecked(true);
-                }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-                harassLabel.remove();
-                hoverVerb = ActiveVerb.NONE;
-                if (activeVerb!=ActiveVerb.HARASS)harass.setChecked(false);
-            }
-        });
+        final Label harassLabel = new Label("Harass: Harass your target to slightly increase their stress for 2 AP", skin);
+        harass.addListener(ic.getButtonListener(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (harass_checked == false){
+                            unCheck();
+                            activeVerb = ActiveVerb.HARASS;
+                            harass_checked = true;
+                            harass.setChecked(true);
+                        }else{
+                            unCheck();
+                        }
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        if(activeVerb != ActiveVerb.HARASS){
+                            Vector2 zeroLoc = harass.localToStageCoordinates(new Vector2(0, harass.getHeight()));
+                            harassLabel.setX(zeroLoc.x);
+                            harassLabel.setY(zeroLoc.y);
+                            toolbarStage.addActor(harassLabel);
+                            hoverVerb = ActiveVerb.HARASS;
+                            harass.setChecked(true);
+                        }
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (harass_checked == false){
+                            unCheck();
+                            activeVerb = ActiveVerb.HARASS;
+                            harass_checked = true;
+                            harass.setChecked(true);
+                        }else{
+                            unCheck();
+                        }
+                    }
+                }));
         return harass;
     }
 
