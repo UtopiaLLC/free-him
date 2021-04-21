@@ -401,12 +401,14 @@ public class GameController implements Screen {
     private void addNodeListeners(Map<String,Node> imageNodes) {
         for(final Node button : imageNodes.values()) { // Node Click Listeners
             final Node b = button;
-            ic.addNodeListener(b, skin, new Runnable() {
+            //Adds a listener to each node button
+            b.addListener(ic.getButtonListener(new Runnable() {
                 @Override
                 public void run() {
                     actOnNode(b.getName(), b);
                 }
-            }, levelController);
+            }));
+            b.addListener(ic.addNodeListenerEnterExit(skin, levelController));
             button.remove();
         }
     }

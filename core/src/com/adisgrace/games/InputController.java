@@ -282,6 +282,50 @@ public class InputController {
 	}
 
 	/**
+	 * This method inputs parameters to create a click listener for nodes.
+	 *
+	 * This method only adds the enter and exit listeners to the nodes for GameController-specific uses.
+	 *
+	 * @param skin the skin of the labels
+	 * @param levelController the levelController used in the gameplay controller
+	 * @return the ClickListener for nodes
+	 */
+	public ClickListener addNodeListenerEnterExit(final Skin skin, final LevelController levelController) {
+		return new ClickListener() {
+			Label hoverLabel = new Label("N/A", skin);
+
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+
+				Actor cbutton = (Actor) event.getListenerActor();
+				String name = cbutton.getName();
+				String[] nodeInfo = name.split(",");
+
+				if (nodeInfo.length == 1) {
+					String hoverText = "Target Name: " + name + "\n" +
+							"Target Stress: " + levelController.getTargetStress(name) + "\n" +
+							"Target Suspicion: " + levelController.getTargetSuspicion(name) + "\n";
+					hoverLabel.setText(hoverText);
+					hoverLabel.setFontScale(2);
+					Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .85f);
+					hoverLabel.setX(zeroLoc.x);
+					hoverLabel.setY(zeroLoc.y);
+
+					GameController.toolbarStage.addActor(hoverLabel);
+
+				}
+
+			}
+
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+				super.exit(event, x, y, pointer, toActor);
+				hoverLabel.remove();
+			}
+		};
+	}
+
+	/**
 	 * Returns a ClickListener that can be used for any purpose
 	 * @param onClick Method to call on click
 	 * @param onEnter Method to call on enter
