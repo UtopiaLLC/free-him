@@ -164,6 +164,13 @@ public class InputController {
 	public InputController() {
 	}
 
+	/**
+	 * TODO
+	 * @param n
+	 * @param skin
+	 * @param actOnNode
+	 * @param levelController
+	 */
 	public void addNodeListener(Node n, final Skin skin, final Runnable actOnNode,
 								final LevelController levelController) {
 		n.addListener(new ClickListener()
