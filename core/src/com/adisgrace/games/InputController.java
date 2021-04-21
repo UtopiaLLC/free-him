@@ -273,4 +273,44 @@ public class InputController {
 		// Undo button (Z)
 		zPressed = Gdx.input.isKeyJustPressed(Input.Keys.Z);
 	}
+
+	/**
+	 * Returns a ClickListener that can be used for any purpose
+	 * @param onClick Method to call on click
+	 * @param onEnter Method to call on enter
+	 * @param onExit Method to call on exit
+	 * @return ClickListener using associated functions
+	 */
+	public ClickListener getButtonListener(final Runnable onClick, final Runnable onEnter, final Runnable onExit){
+		return new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y){
+				onClick.run();
+			}
+
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+				onEnter.run();
+			}
+
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+				onExit.run();
+			}
+		};
+	}
+
+	/**
+	 * Returns a ClickListener that can be used for any purpose
+	 * @param onClick Method to call on click
+	 * @return ClickListener using associated functions
+	 */
+	public ClickListener getButtonListener(final Runnable onClick){
+		return new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y){
+				onClick.run();
+			}
+		};
+	}
 }

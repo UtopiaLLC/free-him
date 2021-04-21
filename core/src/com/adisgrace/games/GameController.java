@@ -43,6 +43,30 @@ public class GameController implements Screen {
         /** Linked to no action being selected */
         NONE
     };
+    public static String getHoverText(ActiveVerb activeVerb){
+        switch (activeVerb){
+            case HARASS: return "Harass: Harass your target to slightly increase their stress for 2 AP";
+            case THREATEN: return "Threaten: Threaten your target with a \n fact to blackmail to increase their stress " +
+                    "for 2 AP";
+            case EXPOSE: return "Expose: Expose your target's fact to the public\n for large stress damage" +
+                    " for 3 AP";
+            case OVERWORK: return "Overwork: Gains 2 AP, but Increases Stress";
+            case OTHER_JOBS: return "Other Jobs: Make Money with 3 AP";
+            case RELAX: return "Relax: Decreases Stress with 1 AP";
+            default: throw new RuntimeException("Invalid ActiveVerb passed " + activeVerb.toString());
+        }
+    };
+    public static String getName(ActiveVerb activeVerb){
+        switch (activeVerb){
+            case HARASS: return "Harass";
+            case THREATEN: return "Threaten";
+            case EXPOSE: return "Expose";
+            case OVERWORK: return "Overwork";
+            case OTHER_JOBS: return "Other Jobs";
+            case RELAX: return "Relax";
+            default: return "None";
+        }
+    }
 
     private Array<String> levelJsons;
     private Array<LevelController> levelControllers;
