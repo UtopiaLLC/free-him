@@ -15,26 +15,42 @@ public class TraitModel {
     /** Enumeration representing the trait of a connector */
     public enum Trait{
         /** decreases the Paranoia stat of all targets in level by 1 */
-        PARANOIAC, // Implementation in LevelModel constructor + targetModel.reduce_paranoia
+        PARANOIAC,
+        // Implementation in LevelModel constructor + targetModel.reduce_paranoia
+
         /** enemy decreases the stress of all targets in level over time */
-        THERAPIST, // Implementation in WorldModel.nextTurn + targetModel.therapy
+        THERAPIST,
+        // Implementation in WorldModel.nextTurn + targetModel.therapy
+
         /** spreads percentage of their suspicion to all targets in level */
-        GOSSIP,    // Implementation in WorldModel.nextTurn + targetModel.spread_gossip/receive_gossip
+        GOSSIP,
+        // Implementation in WorldModel.nextTurn + targetModel.spread_gossip/receive_gossip
+
         /** interacting with them (blackmail skills) increases your stress */
         OFF_PUTTING,
+
         /** after their suspicion is first raised, it automatically rises by a small amount every turn */
         NATURALLY_SUSPICIOUS,
+
         /** you get more money when performing actions that get you money on them */
         RICH,
+
         /** hacking games are harder and/or failure has a greater penalty (cooldown) */
-        TECHNOLOGICALLY_LITERATE,  // cannot be implemented at the moment
-        /** skills used against this target cost an extra AP */
+        TECHNOLOGICALLY_LITERATE,
+
+        // cannot be implemented at the moment
+
+        /** blackmail skills used against this target cost an extra AP */
         BAD_CONNECTION,
         // stuff changed includes LevelController.harass, WorldModel.harass, PlayerModel.harass\canHarass
         // PlayerModel.threaten/canThreaten, LevelController.threaten, Worldmodel.threaten
         // WorldModel.expose, LevelController.expose, PlayerModel.coerce/canCoerce
-        /** hacking is easier/costs less AP */
+
+        /** hacking is easier/costs 1 less AP */
         TECHNOLOGICALLY_ILLITERATE,
+        // stuff changed includes PlayerModel.hack/canHack/scan/canScan  LevelController.hack/scan
+        // WorldModel.hack/scan
+
         /** blackmail options deal more stress damage */
         SENSITIVE
     }

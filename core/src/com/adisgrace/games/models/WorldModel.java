@@ -377,9 +377,9 @@ public class WorldModel {
 		if(!to_display.get(targetname).contains(fact, false)
 				|| hackednodes.get(targetname).contains(fact, false))
 			throw new RuntimeException("Node is undiscovered, or has already been hacked");
-		if(!player.canHack())
+		if(!player.canHack(targets.get(targetname)))  // pass target to playerModel since traits affect AP cost
 			throw new RuntimeException("Insufficient AP to hack");
-		player.hack();
+		player.hack(targets.get(targetname));  // pass target to playerModel since traits affect AP cost
 		if(rng.nextDouble() < 0.2){
 			System.out.println("Suspicion before " + targets.get(targetname).getSuspicion());
 			targets.get(targetname).addSuspicion(25);
@@ -404,9 +404,9 @@ public class WorldModel {
 				|| !hackednodes.get(targetname).contains(fact, false)
 				|| summaries.get(targetname).containsKey(fact))
 			throw new RuntimeException("Node is undiscovered or unhacked, or has already been scanned");
-		if(!player.canScan())
+		if(!player.canScan(targets.get(targetname)))  // pass target to playerModel since traits affect AP cost
 			throw new RuntimeException("Insufficient AP to scan");
-		player.scan(0f); // Stress cost for scanning is unimplemented
+		player.scan(0f, targets.get(targetname)); // Stress cost for scanning is unimplemented  // pass target to playerModel since traits affect AP cost
 		summaries.get(targetname).put(fact, targets.get(targetname).getSummary(fact));
 		contents.get(targetname).put(fact, targets.get(targetname).getContent(fact));
 		// combo checking

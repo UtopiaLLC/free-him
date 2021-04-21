@@ -240,33 +240,60 @@ public class PlayerModel {
 
 	/**
 	 * Hack function, does not change actual fact state
+	 *
+	 * @param t			Target which the player wants to hack
 	 */
-	public void hack() {
-		this.decrementAP(HACK_AP_COST);
+	public void hack(TargetModel t) {
+		if (t.getTraits().is_technologically_illiterate()){
+			// costs 1 less AP if is_technologically_illiterate
+			this.decrementAP(HACK_AP_COST - 1);
+		}else{
+			this.decrementAP(HACK_AP_COST);
+		}
 	}
 
 	/**
 	 * @return can the player hack
+	 *
+	 * @param t			Target which the player wants to hack
 	 */
-	public boolean canHack() {
-		return this.action_points >= HACK_AP_COST;
+	public boolean canHack(TargetModel t) {
+		if (t.getTraits().is_technologically_illiterate()){
+			// costs 1 less AP if is_technologically_illiterate
+			return this.action_points >= (HACK_AP_COST - 1);
+		}else {
+			return this.action_points >= HACK_AP_COST;
+		}
 	}
 
 	/**
 	 * Scan function, doesn't not change actual fact state
 	 * @param san_cost stress damage caused by scanning
+	 * @param t			Target which the player wants to scan
 	 * @return is the player still alive
 	 */
-	public boolean scan(float san_cost){
-		this.decrementAP(SCAN_AP_COST);
+	public boolean scan(float san_cost, TargetModel t){
+		if (t.getTraits().is_technologically_illiterate()){
+			// costs 1 less AP if is_technologically_illiterate
+			this.decrementAP(SCAN_AP_COST - 1);
+		}else {
+			this.decrementAP(SCAN_AP_COST);
+		}
 		return this.incrementStress(san_cost);
 	}
 
 	/**
+	 * @param t			Target which the player wants to scan
+	 *
 	 * @return can the player scan
 	 */
-	public boolean canScan() {
-		return this.action_points >= SCAN_AP_COST;
+	public boolean canScan(TargetModel t) {
+		if (t.getTraits().is_technologically_illiterate()){
+			// costs 1 less AP if is_technologically_illiterate
+			return this.action_points >= (SCAN_AP_COST - 1);
+		}else {
+			return this.action_points >= SCAN_AP_COST;
+		}
 	}
 
 	/**
