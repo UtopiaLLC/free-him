@@ -55,6 +55,8 @@ public class TargetModel {
 	private int paranoia;
 	/** Number of turns remaining before next Paranoia check */
 	private int countdown;
+	/** Whether this target has had their suspicion raised before*/
+	private static boolean naturallySuspiciousCheck;
 	/** Current state of target */
 	private TargetState state;
 	/** Dictionary representing the nodes that are in the same pod as the target, where a node can be accessed with its name */
@@ -73,6 +75,7 @@ public class TargetModel {
 
 	/** Constant for inverse Paranoia check, made every (INV_PARANOIA_CONSTANT - paranoia) turns */
 	private static final int INV_PARANOIA_CONSTANT = 5;
+
 	/** Constants for low/medium/high suspicion */
 	private static final int SUSPICION_LOW = 5;
 	private static final int SUSPICION_MED = 10;
@@ -225,6 +228,7 @@ public class TargetModel {
 		// Initialize other values
 		stress = 0;
 		suspicion = 0;
+		naturallySuspiciousCheck = false;
 		state = TargetState.UNAWARE;
 		countdown = paranoia;
 		rand = new Random();
@@ -533,7 +537,8 @@ public class TargetModel {
 	 * @return		Whether target is still active and undefeated after adding stress
 	 */
 	public boolean addStress(int s) {
-		stress += s;
+		//multiplies stress if target is sensitive
+		stress += (this.traits.is_sensitive()?TraitModel.SENSITIVE_MULTIPLIER:1)*s;
 		// If target's stress reaches or passes their maxStress, they're defeated
 		if (stress >= maxStress) {
 			state = TargetState.DEFEATED;
@@ -571,6 +576,12 @@ public class TargetModel {
 		countdown--;
 		// If not time for next Paranoia check, return
 		if (countdown != 0) {return state;}
+
+		//if target is naturally suspicious and has raised suspicion before, increase suspicion
+		if(this.getTraits().is_naturally_suspicious() && naturallySuspiciousCheck){
+			suspicion+=TraitModel.NATURALLY_SUSPICIOUS_CONST;
+		}
+
 		// Otherwise, handle Paranoia check depending on state
 		switch(state) {
 			case UNAWARE:
@@ -758,6 +769,7 @@ public class TargetModel {
 	public int harass() {
 		// Increase target's suspicion by a low amount
 		suspicion += randInRange(SUSPICION_LOW, 50);
+		naturallySuspiciousCheck = true;
 		// Return low amount of stress damage to deal to target
 		return randInRange(5, 50);
 	}
@@ -779,10 +791,11 @@ public class TargetModel {
 		int stressDmg = getFactNode(fact).getTargetStressDmg();
 		// Increase target's suspicion by a low amount
 		suspicion += randInRange(SUSPICION_LOW, 25);
+		naturallySuspiciousCheck = true;
 		// If fact deals threaten damage above a critical threshold
 		if (stressDmg > 5) {
 			// Deal stress damage to target
-			stress += stressDmg;
+			addStress(stressDmg);
 			// Move target to threatened
 			state = TargetState.THREATENED;
 			// Reset countdown to next Paranoia check
@@ -809,10 +822,11 @@ public class TargetModel {
 		int stressDmg = factNode.getTargetStressDmg();
 		// Increase target's suspicion by a medium amount
 		suspicion += randInRange(SUSPICION_MED, 25);
+		naturallySuspiciousCheck = true;
 		// If exposing deals nonzero damage
 		if (stressDmg != 0) {
 			// Deal damage to target
-			stress += stressDmg;
+			addStress(stressDmg);
 			// Move target to Paranoid
 			state = TargetState.PARANOID;
 			// Reset countdown to next Paranoia check

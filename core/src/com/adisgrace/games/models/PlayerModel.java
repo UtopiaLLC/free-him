@@ -336,6 +336,11 @@ public class PlayerModel {
 		}else{
 			this.decrementAP(HARASS_AP_COST);
 		}
+
+		//If off-putting, increase player stress by a random amount
+		if(t.getTraits().is_off_putting()){
+			this.incrementStress(TraitModel.OFF_PUTTING_CONST);
+		}
 	}
 
 	/**
