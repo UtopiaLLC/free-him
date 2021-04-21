@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -143,6 +144,8 @@ public class GameController implements Screen {
     /** controller for input operations*/
     private InputController ic;
 
+    private Music music;
+
     /** The smallest width the game window can take */
     private static final float MINWORLDWIDTH = 1280;
     /** The smallest height the game window can take */
@@ -175,7 +178,7 @@ public class GameController implements Screen {
 
         //TODO: write function to parse folder of level jsons
         levelJsons = new Array<>();
-        levelJsons.add("level1.json");
+        levelJsons.add("sample-level-1.json");
         levelControllers = new Array<>();
 
         for(String s : levelJsons) {
@@ -264,6 +267,12 @@ public class GameController implements Screen {
         cameraController = new CameraController(ic, canvas);
         createToolbar();
         shapeRenderer = new ShapeRenderer();
+
+        music = Gdx.audio.newMusic(Gdx.files.internal("music/Moonlit_Skyline.mp3"));
+        music.setVolume(0.5f);
+        music.setLooping(true);
+        music.play();
+
     }
 
     @Override
