@@ -478,16 +478,33 @@ public class GameController implements Screen {
         activeVerb = ActiveVerb.NONE;
     }
 
-    private void harassOnClick() {
-
+    private void toolbarOnClick(ImageButton button, boolean buttonChecked, GameController.ActiveVerb av) {
+        if (harass_checked == false){
+            unCheck();
+            activeVerb = av;
+            buttonChecked = true;
+            button.setChecked(true);
+        }else{
+            unCheck();
+        }
     }
 
-    private void harassOnEnter() {
-
+    private void toolbarOnEnter(ImageButton button, Label buttonLabel,GameController.ActiveVerb av) {
+        if(activeVerb != av){
+            Vector2 zeroLoc = button.localToStageCoordinates(new Vector2(0, button.getHeight()));
+            buttonLabel.setX(zeroLoc.x);
+            buttonLabel.setY(zeroLoc.y);
+            toolbarStage.addActor(buttonLabel);
+            hoverVerb = av;
+            button.setChecked(true);
+        }
     }
 
-    private void harassOnExit() {
-
+    private void toolbarOnExit(ImageButton button, Label buttonLabel,
+                               GameController.ActiveVerb av, GameController.ActiveVerb none) {
+        buttonLabel.remove();
+        hoverVerb = none;
+        if (activeVerb!=av)button.setChecked(false);
     }
 
     /**
@@ -496,55 +513,34 @@ public class GameController implements Screen {
      *
      * @return      ImageButton for harass.
      */
-    private ImageButton createHarass(){
-        harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/harass_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/harass_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/harass_select.png")))));
-        harass.setTransform(true);
-        harass.setScale(1f);
-        final Label harassLabel = new Label("Harass: Harass your target to slightly increase their stress for 2 AP", skin);
-        harass.addListener(ic.getButtonListener(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        if (harass_checked == false){
-                            unCheck();
-                            activeVerb = ActiveVerb.HARASS;
-                            harass_checked = true;
-                            harass.setChecked(true);
-                        }else{
-                            unCheck();
-                        }
-                    }
-                }, new Runnable() {
-                    @Override
-                    public void run() {
-                        if(activeVerb != ActiveVerb.HARASS){
-                            Vector2 zeroLoc = harass.localToStageCoordinates(new Vector2(0, harass.getHeight()));
-                            harassLabel.setX(zeroLoc.x);
-                            harassLabel.setY(zeroLoc.y);
-                            toolbarStage.addActor(harassLabel);
-                            hoverVerb = ActiveVerb.HARASS;
-                            harass.setChecked(true);
-                        }
-                    }
-                },
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        if (harass_checked == false){
-                            unCheck();
-                            activeVerb = ActiveVerb.HARASS;
-                            harass_checked = true;
-                            harass.setChecked(true);
-                        }else{
-                            unCheck();
-                        }
-                    }
-                }));
-        return harass;
-    }
+//    private ImageButton createHarass(){
+//        harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+//                Gdx.files.internal("skills/harass_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+//                Gdx.files.internal("skills/harass_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+//                Gdx.files.internal("skills/harass_select.png")))));
+//        harass.setTransform(true);
+//        harass.setScale(1f);
+//        final Label harassLabel = new Label("Harass: Harass your target to slightly increase their stress for 2 AP", skin);
+//        harass.addListener(ic.getButtonListener(
+//                new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        toolbarOnClick(harass, harass_checked, ActiveVerb.HARASS);
+//                    }
+//                }, new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        toolbarOnEnter(harass, harassLabel,ActiveVerb.HARASS);
+//                    }
+//                },
+//                new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        toolbarOnExit(harass, harass_checked, harassLabel, ActiveVerb.HARASS);
+//                    }
+//                }));
+//        return harass;
+//    }
 
     /**
      * This method creates a threaten button with given textures for it's original status, when the cursor is hovering
@@ -559,44 +555,61 @@ public class GameController implements Screen {
                 Gdx.files.internal("skills/threaten_select.png")))));
         threaten.setTransform(true);
         threaten.setScale(1f);
-        threaten.addListener(new ClickListener()
-        {
+        final Label  threatenLabel = new Label("Threaten: Threaten your target with a \n fact to blackmail to increase their stress " +
+                "for 2 AP", skin);
+        threaten.addListener(ic.getButtonListener(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnClick(threaten, threaten_checked, ActiveVerb.THREATEN);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnEnter(threaten, threatenLabel,ActiveVerb.THREATEN);
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnExit(threaten, threatenLabel, ActiveVerb.THREATEN, ActiveVerb.NONE);
+                    }
+                }));
 
-            Label  threatenLabel = new Label("Threaten: Threaten your target with a \n fact to blackmail to increase their stress " +
-                    "for 2 AP", skin);
-
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                if (threaten_checked == false){
-                    unCheck();
-                    activeVerb = ActiveVerb.THREATEN;
-                    threaten_checked = true;
-                    threaten.setChecked(true);
-                }else{
-                    unCheck();
-                }
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-                if(activeVerb != ActiveVerb.THREATEN){
-                    Vector2 zeroLoc = threaten.localToStageCoordinates(new Vector2(0, threaten.getHeight()));
-                    threatenLabel.setX(zeroLoc.x);
-                    threatenLabel.setY(zeroLoc.y);
-                    toolbarStage.addActor(threatenLabel);
-                    hoverVerb = ActiveVerb.THREATEN;
-                    threaten.setChecked(true);
-                }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-                threatenLabel.remove();
-                hoverVerb = ActiveVerb.NONE;
-                if (activeVerb!=ActiveVerb.THREATEN)threaten.setChecked(false);
-            }
-        });
+//        threaten.addListener(new ClickListener()
+//        {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y)
+//            {
+//                if (threaten_checked == false){
+//                    unCheck();
+//                    activeVerb = ActiveVerb.THREATEN;
+//                    threaten_checked = true;
+//                    threaten.setChecked(true);
+//                }else{
+//                    unCheck();
+//                }
+//            }
+//
+//            @Override
+//            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+//                if(activeVerb != ActiveVerb.THREATEN){
+//                    Vector2 zeroLoc = threaten.localToStageCoordinates(new Vector2(0, threaten.getHeight()));
+//                    threatenLabel.setX(zeroLoc.x);
+//                    threatenLabel.setY(zeroLoc.y);
+//                    toolbarStage.addActor(threatenLabel);
+//                    hoverVerb = ActiveVerb.THREATEN;
+//                    threaten.setChecked(true);
+//                }
+//            }
+//
+//            @Override
+//            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+//                threatenLabel.remove();
+//                hoverVerb = ActiveVerb.NONE;
+//                if (activeVerb!=ActiveVerb.THREATEN)threaten.setChecked(false);
+//            }
+//        });
         return threaten;
     }
 
@@ -886,7 +899,6 @@ public class GameController implements Screen {
         stressBar = new ProgressBar(0f, 100f, 1f, true, skin, "synthwave");
         stressBar.setValue(levelController.getPlayerStress());
 
-        createHarass();
         createExpose();
         createRelax();
         createOtherJobs();
