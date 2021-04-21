@@ -1,5 +1,6 @@
 package com.adisgrace.games.models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -126,6 +127,13 @@ public class TargetModel {
 		JsonValue firstNodesArr = json.get("firstNodes");
 		itr = firstNodesArr.iterator();
 		while (itr.hasNext()){firstNodes.add(itr.next().asString());}
+
+//		// Get traits, UNCOMMENT when traits finished in json
+//		Array<String> temp = new Array<String>();
+//		JsonValue traitsArr = json.get("traits");
+//		itr = traitsArr.iterator();
+//		while (itr.hasNext()){temp.add(itr.next().asString());}
+//		traits = new TraitModel(temp);
 
 
 		// Get firstConnectorPaths
