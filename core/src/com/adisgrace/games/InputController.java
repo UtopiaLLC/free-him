@@ -165,6 +165,67 @@ public class InputController {
 	}
 
 	/**
+	 * TODO
+	 * @param n
+	 * @param skin
+	 * @param actOnNode
+	 * @param levelController
+	 */
+	public void addNodeListener(Node n, final Skin skin, final Runnable actOnNode,
+								final LevelController levelController) {
+		n.addListener(new ClickListener()
+		{
+			Label hoverLabel = new Label("N/A", skin);
+
+			@Override
+			public void clicked(InputEvent event, float x, float y)
+			{
+				Actor cbutton = (Actor)event.getListenerActor();
+				//System.out.println(cbutton.getName());
+				actOnNode.run();
+			}
+
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+
+				Actor cbutton = (Actor)event.getListenerActor();
+				String name = cbutton.getName();
+				String [] nodeInfo = name.split(",");
+
+				if(nodeInfo.length==1) {
+//                        tState = new Label("Target State: " + target.getState(), skin);
+//                        tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
+//                      tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));
+
+
+					String hoverText = "Target Name: " + name + "\n" +
+							"Target Stress: " + levelController.getTargetStress(name) + "\n" +
+							"Target Suspicion: " + levelController.getTargetSuspicion(name) + "\n";
+
+
+					hoverLabel.setText(hoverText);
+					hoverLabel.setFontScale(2);
+
+					//Vector2 zeroLoc = b.localToStageCoordinates(new Vector2(0, b.getHeight()));
+					Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth()*.05f, Gdx.graphics.getHeight()*.85f);
+					hoverLabel.setX(zeroLoc.x);
+					hoverLabel.setY(zeroLoc.y);
+
+					GameController.toolbarStage.addActor(hoverLabel);
+
+				}
+
+			}
+
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+				super.exit(event, x, y, pointer, toActor);
+				hoverLabel.remove();
+			}
+		});
+	}
+
+	/**
 	 * Reads the input for the player and converts the result into game logic.
 	 *
 	 * The method provides both the input bounds and the drawing scale.  It needs
