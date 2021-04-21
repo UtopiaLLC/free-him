@@ -28,9 +28,11 @@ public class TraitModel {
 
         /** interacting with them (blackmail skills) increases your stress */
         OFF_PUTTING,
+        // Implemented by Tony Zhang
 
         /** after their suspicion is first raised, it automatically rises by a small amount every turn */
         NATURALLY_SUSPICIOUS,
+        // Implemented by Tony Zhang
 
         /** you get more money when performing actions that get you money on them */
         RICH,
@@ -53,6 +55,7 @@ public class TraitModel {
 
         /** blackmail options deal more stress damage */
         SENSITIVE
+        // Implemented by Tony Zhang
     }
 
     /** How much stress the therapist heals */
