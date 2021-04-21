@@ -39,7 +39,7 @@ public class TargetModel {
 	/** The target's name */
 	private String name;
 	/** The target's traits */
-	private TraitModel traits;
+	private TraitModel traits = new TraitModel();
 	/** The target's location in world coordinates */
 	private int locX;
 	private int locY;

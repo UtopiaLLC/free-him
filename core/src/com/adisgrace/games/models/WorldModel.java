@@ -360,7 +360,7 @@ public class WorldModel {
 		// Get harass damage and inflict on target
 		int stressDmg = targets.get(targetname).harass();
 		targets.get(targetname).addStress(stressDmg);
-		player.harass();
+		player.harass(targets.get(targetname));
 		return this.getGameState();
 	}
 
@@ -502,11 +502,11 @@ public class WorldModel {
 			throw new RuntimeException("Invalid target");
 		if(!contents.get(targetname).containsKey(fact))
 			throw new RuntimeException("Node has not been scanned");
-		if(!player.canThreaten())
+		if(!player.canThreaten(targets.get(targetname)))  // pass target to playerModel since traits affect AP cost
 			throw new RuntimeException("Insufficient AP to threaten");
 		if(!exposablenodes.get(targetname).contains(fact, false))
 			throw new RuntimeException("This fact has already been exposed");
-		player.threaten();
+		player.threaten(targets.get(targetname));  // pass target to playerModel since traits affect AP cost
 		int stressDamage = targets.get(targetname).threaten(fact);
 		targets.get(targetname).addStress(stressDamage);
 		return stressDamage;
@@ -523,11 +523,11 @@ public class WorldModel {
 			throw new RuntimeException("Invalid target");
 		if(!contents.get(targetname).containsKey(fact))
 			throw new RuntimeException("Node has not been scanned");
-		if(!player.canExpose())
+		if(!player.canExpose(targets.get(targetname)))  // pass target to playerModel since traits affect AP cost
 			throw new RuntimeException("Insufficient AP to expose");
 		if(!exposablenodes.get(targetname).contains(fact, false))
 			throw new RuntimeException("This fact has already been exposed");
-		player.expose();
+		player.expose(targets.get(targetname));  // pass target to playerModel since traits affect AP cost
 		exposablenodes.get(targetname).removeValue(fact, false);
 		int stressDamage = targets.get(targetname).expose(fact);
 		targets.get(targetname).addStress(stressDamage);

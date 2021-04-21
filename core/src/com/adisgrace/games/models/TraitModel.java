@@ -27,9 +27,12 @@ public class TraitModel {
         /** you get more money when performing actions that get you money on them */
         RICH,
         /** hacking games are harder and/or failure has a greater penalty (cooldown) */
-        TECHNOLOGICALLY_LITERATE,
+        TECHNOLOGICALLY_LITERATE,  // cannot be implemented at the moment
         /** skills used against this target cost an extra AP */
         BAD_CONNECTION,
+        // stuff changed includes LevelController.harass, WorldModel.harass, PlayerModel.harass\canHarass
+        // PlayerModel.threaten/canThreaten, LevelController.threaten, Worldmodel.threaten
+        // WorldModel.expose, LevelController.expose, PlayerModel.coerce/canCoerce
         /** hacking is easier/costs less AP */
         TECHNOLOGICALLY_ILLITERATE,
         /** blackmail options deal more stress damage */
@@ -50,6 +53,7 @@ public class TraitModel {
      */
     public TraitModel(Array<String> t){
         // Initializing traits with for-each loop
+        traits = new ArrayList<>();
         for (String s: t) {
             switch (s){
                 case "paranoiac":
@@ -84,6 +88,13 @@ public class TraitModel {
                     break;
             }
         }
+    }
+
+    /**
+     * Empty constructor
+     * */
+    public TraitModel(){
+        traits = new ArrayList<>();
     }
 
     /**

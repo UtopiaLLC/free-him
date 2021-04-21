@@ -271,58 +271,114 @@ public class PlayerModel {
 
 	/**
 	 * Coerce function, only manages playerside attrs, ie AP
+	 *
+	 * @param t			Target which the player wants to coerce
 	 */
-	public void coerce() {
-		this.decrementAP(COERCE_AP_COST);
+	public void coerce(TargetModel t) {
+		if (t.getTraits().is_bad_connection()){
+			// Costs 1 more AP if target is bad_connection
+			this.decrementAP(COERCE_AP_COST + 1);
+		}else{
+			this.decrementAP(COERCE_AP_COST);
+		}
 	}
 
 	/**
 	 * @return can the player coerce
+	 *
+	 * param t			Target which the player wants to coerce
 	 */
-	public boolean canCoerce() {
-		return this.action_points >= COERCE_AP_COST;
+	public boolean canCoerce(TargetModel t) {
+		if (t.getTraits().is_bad_connection()){
+			// Costs 1 more AP if target is bad_connection
+			return this.action_points >= (COERCE_AP_COST + 1);
+		}else{
+			return this.action_points >= COERCE_AP_COST;
+		}
 	}
 
 	/**
 	 * Harass function, only manages playerside attrs, ie AP
+	 *
+	 * @param t			Target which the player wants to harass
 	 */
-	public void harass() {
-		this.decrementAP(HARASS_AP_COST);
+	public void harass(TargetModel t) {
+		if (t.getTraits().is_bad_connection()){
+			// Costs 1 more AP if target is bad_connection
+			this.decrementAP(HARASS_AP_COST + 1);
+		}else{
+			this.decrementAP(HARASS_AP_COST);
+		}
 	}
 
 	/**
 	 * @return can the player harass
+	 *
+	 * @param t			Target which the player wants to harass
 	 */
-	public boolean canHarass() {
-		return this.action_points >= HARASS_AP_COST;
+	public boolean canHarass(TargetModel t) {
+		if (t.getTraits().is_bad_connection()){
+			return this.action_points >= (HARASS_AP_COST + 1);
+			// Costs 1 more AP if target is bad_connection
+		}else{
+			return this.action_points >= HARASS_AP_COST;
+		}
 	}
 
 	/**
 	 * Threaten function, only manages playerside attrs, ie AP
+	 *
+	 * @param t			Target which the player wants to threaten
 	 */
-	public void threaten() {
-		this.decrementAP(THREATEN_AP_COST);
+	public void threaten(TargetModel t) {
+		if (t.getTraits().is_bad_connection()){
+			// Costs 1 more AP if target is bad_connection
+			this.decrementAP(THREATEN_AP_COST + 1);
+		}else{
+			this.decrementAP(THREATEN_AP_COST);
+		}
 	}
 
 	/**
 	 * @return can the player threaten
+	 *
+	 * @param t			Target which the player wants to threaten
 	 */
-	public boolean canThreaten() {
-		return this.action_points >= THREATEN_AP_COST;
+	public boolean canThreaten(TargetModel t) {
+		if (t.getTraits().is_bad_connection()){
+			// Costs 1 more AP if target is bad_connection
+			return this.action_points >= (THREATEN_AP_COST + 1);
+		}else{
+			return this.action_points >= THREATEN_AP_COST;
+		}
 	}
 
 	/**
 	 * Expose function, only manages playerside attrs, ie AP
+	 *
+	 * @param t			Target which the player wants to expose
 	 */
-	public void expose() {
-		this.decrementAP(EXPOSE_AP_COST);
+	public void expose(TargetModel t) {
+		if (t.getTraits().is_bad_connection()){
+			// Costs 1 more AP if target is bad_connection
+			this.decrementAP(EXPOSE_AP_COST + 1);
+		}else {
+			this.decrementAP(EXPOSE_AP_COST);
+		}
 	}
 
 	/**
 	 * @return can the player expose
+	 *
+	 * @param t			Target which the player wants to expose
 	 */
-	public boolean canExpose() {
-		return this.action_points >= EXPOSE_AP_COST;
+	public boolean canExpose(TargetModel t) {
+		if (t.getTraits().is_bad_connection()){
+			// Costs 1 more AP if target is bad_connection
+			return this.action_points >= (EXPOSE_AP_COST + 1);
+		}else {
+			return this.action_points >= EXPOSE_AP_COST;
+		}
 	}
 }
 
