@@ -1,5 +1,6 @@
 package com.adisgrace.games.models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -38,6 +39,8 @@ public class TargetModel {
 
 	/** The target's name */
 	private String name;
+	/** The target's traits */
+	private TraitModel traits = new TraitModel();
 	/** The target's location in world coordinates */
 	private int locX;
 	private int locY;
@@ -53,6 +56,8 @@ public class TargetModel {
 	private int paranoia;
 	/** Number of turns remaining before next Paranoia check */
 	private int countdown;
+	/** Whether this target has had their suspicion raised before*/
+	private static boolean naturallySuspiciousCheck;
 	/** Current state of target */
 	private TargetState state;
 	/** Dictionary representing the nodes that are in the same pod as the target, where a node can be accessed with its name */
@@ -71,6 +76,7 @@ public class TargetModel {
 
 	/** Constant for inverse Paranoia check, made every (INV_PARANOIA_CONSTANT - paranoia) turns */
 	private static final int INV_PARANOIA_CONSTANT = 5;
+
 	/** Constants for low/medium/high suspicion */
 	private static final int SUSPICION_LOW = 5;
 	private static final int SUSPICION_MED = 10;
@@ -121,6 +127,13 @@ public class TargetModel {
 		JsonValue firstNodesArr = json.get("firstNodes");
 		itr = firstNodesArr.iterator();
 		while (itr.hasNext()){firstNodes.add(itr.next().asString());}
+
+//		// Get traits, UNCOMMENT when traits finished in json
+//		Array<String> temp = new Array<String>();
+//		JsonValue traitsArr = json.get("traits");
+//		itr = traitsArr.iterator();
+//		while (itr.hasNext()){temp.add(itr.next().asString());}
+//		traits = new TraitModel(temp);
 
 
 		// Get firstConnectorPaths
@@ -223,6 +236,7 @@ public class TargetModel {
 		// Initialize other values
 		stress = 0;
 		suspicion = 0;
+		naturallySuspiciousCheck = false;
 		state = TargetState.UNAWARE;
 		countdown = paranoia;
 		rand = new Random();
@@ -473,6 +487,53 @@ public class TargetModel {
 		return this.state;
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// All additional getters and setters for traits usage will be here
+
+	/**
+	 * Returns the traits of this target.
+	 *
+	 * @return the target's traits
+	 */
+	public TraitModel getTraits(){
+		return this.traits;
+	}
+
+	/**
+	 * Reduce the paranoia of a target by a certain amount
+	 *
+	 * @param delta 		The paranoia amount to subtract from the target
+	 * */
+	public void reduce_paranoia(int delta){
+		paranoia -= delta;
+		if(paranoia < 0) paranoia = 0;
+	}
+
+	/**
+	 * Reduce the stress of a target by a certain amount with therapy
+	 * */
+	public void therapy(){
+		stress -= TraitModel.HEALING_CONST;
+		if (stress < 0) stress = 0;
+	}
+
+	/**
+	 * The amount of suspicion give to other targets from this target, at least 1
+	 * */
+	public int spread_gossip(){
+		return Math.max((int)(suspicion*TraitModel.GOSSIP_CONST), 1);
+	}
+
+	/**
+	 * The amount of suspicion received from other targets from this target
+	 *
+	 * @param r			The amount of suspicion received from gossip
+	 * */
+	public void receive_gossip(int r){
+		suspicion += r;
+	}
+
 	/**
 	 * Increases the target's stress by the given amount.
 	 * 
@@ -484,7 +545,8 @@ public class TargetModel {
 	 * @return		Whether target is still active and undefeated after adding stress
 	 */
 	public boolean addStress(int s) {
-		stress += s;
+		//multiplies stress if target is sensitive
+		stress += (this.traits.is_sensitive()?TraitModel.SENSITIVE_MULTIPLIER:1)*s;
 		// If target's stress reaches or passes their maxStress, they're defeated
 		if (stress >= maxStress) {
 			state = TargetState.DEFEATED;
@@ -522,6 +584,12 @@ public class TargetModel {
 		countdown--;
 		// If not time for next Paranoia check, return
 		if (countdown != 0) {return state;}
+
+		//if target is naturally suspicious and has raised suspicion before, increase suspicion
+		if(this.getTraits().is_naturally_suspicious() && naturallySuspiciousCheck){
+			suspicion+=TraitModel.NATURALLY_SUSPICIOUS_CONST;
+		}
+
 		// Otherwise, handle Paranoia check depending on state
 		switch(state) {
 			case UNAWARE:
@@ -709,6 +777,7 @@ public class TargetModel {
 	public int harass() {
 		// Increase target's suspicion by a low amount
 		suspicion += randInRange(SUSPICION_LOW, 50);
+		naturallySuspiciousCheck = true;
 		// Return low amount of stress damage to deal to target
 		return randInRange(5, 50);
 	}
@@ -730,10 +799,11 @@ public class TargetModel {
 		int stressDmg = getFactNode(fact).getTargetStressDmg();
 		// Increase target's suspicion by a low amount
 		suspicion += randInRange(SUSPICION_LOW, 25);
+		naturallySuspiciousCheck = true;
 		// If fact deals threaten damage above a critical threshold
 		if (stressDmg > 5) {
 			// Deal stress damage to target
-			stress += stressDmg;
+			addStress(stressDmg);
 			// Move target to threatened
 			state = TargetState.THREATENED;
 			// Reset countdown to next Paranoia check
@@ -760,10 +830,11 @@ public class TargetModel {
 		int stressDmg = factNode.getTargetStressDmg();
 		// Increase target's suspicion by a medium amount
 		suspicion += randInRange(SUSPICION_MED, 25);
+		naturallySuspiciousCheck = true;
 		// If exposing deals nonzero damage
 		if (stressDmg != 0) {
 			// Deal damage to target
-			stress += stressDmg;
+			addStress(stressDmg);
 			// Move target to Paranoid
 			state = TargetState.PARANOID;
 			// Reset countdown to next Paranoia check
