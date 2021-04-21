@@ -923,7 +923,7 @@ public class LevelEditorController implements Screen {
         nodeStage.act(delta);
         toolstage.act(delta);
 
-        canvas.drawIsometricGrid(nodeStage, 10, 10);
+        canvas.drawIsometricGrid(nodeStage, 15, 15);
 
         nodeStage.draw();
         toolstage.draw();

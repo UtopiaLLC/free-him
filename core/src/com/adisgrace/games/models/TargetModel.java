@@ -7,6 +7,7 @@ import com.adisgrace.games.util.Connector;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonReader;
 
@@ -57,14 +58,8 @@ public class TargetModel {
 	private TargetState state;
 	/** Dictionary representing the nodes that are in the same pod as the target, where a node can be accessed with its name */
 	private HashMap<String, FactNode> podDict;
-	/** Array of node names representing the nodes that are immediately visible when the target first becomes available */
-	private Array<String> firstNodes;
-
-	/** The paths that are first shown when the level begins. Each path corresponds to the node in firstNodes at the same index and is
-	 * in isometric coordinates. */
-	private Array<Array<Vector2>> firstConnectorPaths;
-	/** The connector types for the nodes that are immediately visible when the level begins, index corresponds to the node in firstNodes */
-	private Array<Array<String>> firstConnectorTypes;
+	/** Hashmap of nodes that are first shown when the level begins, mapped to the corresponding paths that lead to them. */
+	private ArrayMap<String, Array<Connector>> firstNodes;
 
 	/** Array of Target combos */
 	private Array<Combo> combos;
@@ -93,8 +88,6 @@ public class TargetModel {
 	 * @param targetJson		Name of the JSON with all the target's data.
 	 */
 	public TargetModel(String targetJson) {
-		// STORE ALL ARRAYS ALPHABETICALLY
-
 		// Get parser for JSON
 		JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/targets/" + targetJson));
 
@@ -105,63 +98,37 @@ public class TargetModel {
 
 		// Initialize iterator for arrays
 		JsonValue.JsonIterator itr;
-		JsonValue.JsonIterator itr2;
-
-		// Get neighbors
-//		neighbors = new Array<String>();
-//		JsonValue neighborArr = json.get("neighbors");
-//		itr = neighborArr.iterator();
-//		// Iterate through neighbors and add to ArrayList of neighbors
-//		while (itr.hasNext()) {neighbors.add(itr.next().asString());}
-//		// Sort alphabetically
-//		neighbors.sort();
 
 		// Get firstNodes
-		firstNodes = new Array<>();
-		JsonValue firstNodesArr = json.get("firstNodes");
-		itr = firstNodesArr.iterator();
-		while (itr.hasNext()){firstNodes.add(itr.next().asString());}
-
-
-		// Get firstConnectorPaths
-		// Get array of paths, where each path is an array of coordinates, where each coordinate is
-		// an array of exactly 2 ints representing isometric coordinates
-		firstConnectorPaths = readConnectorCoords(json.get("firstConnectors"));
-
-		// Get firstConnectorTypes
-		// Get array of paths, where each path is an array of coordinates, where each coordinate is
-		// an array of exactly 2 ints representing isometric coordinates
-		firstConnectorTypes = readConnectorTypes(json.get("firstConnectorTypes"));
-
-
-//		// Get target coordinates
-//		neighborArr = json.get("loc");
-//		itr = neighborArr.iterator();
-//		locX = itr.next().asInt();
-//		locY = itr.next().asInt();
+		firstNodes = mapChildrenToPaths(json.get("firstNodes"), json.get("firstConnectors"),
+				json.get("firstConnectorTypes"));
 
 		// Get nodes
 		JsonValue nodesArr = json.get("pod");
 		itr = nodesArr.iterator();
-		// Get number of firstNodes
-		//int firstNodesCount = json.getInt("firstNodesCount");
 
-		// Initializations
-		podDict = new HashMap<String, FactNode>();
-		//firstNodes = new Array<String>();
+		// Initializations for parsing of each node
+		// Dictionary of node names mapped to the relevant FactNode object
+		podDict = new HashMap<>();
+		// Array cache to be used in node parsing
 		JsonValue nodeArr;
+		// The node itself as a JSON object
 		JsonValue node;
+		// Coordinates of node
 		int nodeX;
 		int nodeY;
-		Array<String> children = new Array<String>();
-		Array<Array<Vector2>> connectorCoords = new Array<>();
-		Array<Array<String>> connectorTypes = new Array<>();
+		// Children of node, mapped to the paths to them
+		ArrayMap<String, Array<Connector>> children = new ArrayMap<>();
+		// Node converted to a FactNode
 		FactNode fn;
+		// Name of node
 		String nodeName;
+		// Iterator used to iterate through lists within a node
 		JsonValue.JsonIterator nodeItr;
 
 		// Iterate through nodes in pod and map them to their names in podDict
 		while (itr.hasNext()) {
+			// Get next node
 			node = itr.next();
 
 			// Get name
@@ -172,29 +139,17 @@ public class TargetModel {
 			nodeX = nodeItr.next().asInt();
 			nodeY = nodeItr.next().asInt();
 
-			// Get connectorCoords
-			connectorCoords = readConnectorCoords(node.get("connectorCoords"));
-
-			// Get connectorTypes
-			connectorTypes = readConnectorTypes(node.get("connectorTypes"));
-
-			// Get children
-			nodeArr = node.get("children");
-			nodeItr = nodeArr.iterator();
-			children.clear();
-			while (nodeItr.hasNext()) {children.add(nodeItr.next().asString());}
-			children.sort();
+			// Construct children with children names and paths to those children
+			children = mapChildrenToPaths(node.get("children"), node.get("connectorCoords"), node.get("connectorTypes"));
 
 			// Create FactNode
 			fn = new FactNode(nodeName, node.getString("title"), node.getString("content"),
-					node.getString("summary"), new Array<String>(children), nodeX, nodeY,
-					node.getBoolean("locked"), node.getInt("targetStressDamage"),
-					node.getInt("playerStressDamage"), connectorCoords, connectorTypes);
+					node.getString("summary"), children, nodeX, nodeY, node.getBoolean("locked"),
+					node.getInt("targetStressDamage"), node.getInt("playerStressDamage"));
 
 			// Store FactNode in podDict, mapped to name
 			podDict.put(nodeName, fn);
 		}
-		firstNodes.sort();
 
 		// Get combos
 		// Initializations
@@ -202,6 +157,7 @@ public class TargetModel {
 		JsonValue combosArr = json.get("combos");
 		itr = combosArr.iterator();
 		Combo combo;
+		Array<String> relatedFacts = new Array<>();
 
 		// Iterate through combos, create each as a Combo, then add to array of combos
 		while (itr.hasNext()) {
@@ -210,12 +166,12 @@ public class TargetModel {
 			// Get related facts
 			nodeArr = node.get("relatedFacts");
 			nodeItr = nodeArr.iterator();
-			children.clear();
-			while (nodeItr.hasNext()) {children.add(nodeItr.next().asString());}
-			children.sort();
+			relatedFacts.clear();
+			while (nodeItr.hasNext()) {relatedFacts.add(nodeItr.next().asString());}
+			relatedFacts.sort();
 
 			// Construct and store combo
-			combo = new Combo(new Array<String>(children), node.getString("overwrite"),
+			combo = new Combo(new Array<>(relatedFacts), node.getString("overwrite"),
 					node.getString("comboSummary"), node.getInt("comboStressDamage"));
 			combos.add(combo);
 		}
@@ -229,84 +185,78 @@ public class TargetModel {
 	}
 
 	/**
+	 * Helper function that constructs a hashmap of child names mapped to the path to that child.
+	 *
+	 * @param childNames		Names of the child nodes
+	 * @param childPathCoords	Coordinates of the connectors in the paths to each child
+	 * @param childPathTypes	Types of the connectors in the paths to each child
+	 * @return					Hashmap of child names mapped to the path to them
+	 */
+	private ArrayMap<String, Array<Connector>> mapChildrenToPaths(JsonValue childNames, JsonValue childPathCoords,
+																  JsonValue childPathTypes) {
+		// First, get names of child nodes
+		JsonValue.JsonIterator itr = childNames.iterator();
+		// Now get paths that lead to those child nodes
+		Array<Array<Connector>> paths = readPaths(childPathCoords, childPathTypes);
+		// Construct and store hashmap of child nodes mapped to the paths to them
+		int k=0;
+		ArrayMap<String, Array<Connector>> childrenToPaths = new ArrayMap<>();
+		while (itr.hasNext()){
+			childrenToPaths.put(itr.next().asString(), paths.get(k));
+			k++;
+		}
+
+		return childrenToPaths;
+	}
+
+	/**
 	 * Helper function that reads a JSON value for connector coords and returns them in the correct format
 	 *
 	 * @param connectorCoordsArr	The JSON value to parse
 	 * @return						The JSON value, correctly parsed
 	 */
-	private Array<Array<Vector2>> readConnectorCoords(JsonValue connectorCoordsArr) {
-		JsonValue.JsonIterator itr;
-		JsonValue.JsonIterator itr2;
+	private Array<Array<Connector>> readPaths(JsonValue connectorCoordsArr, JsonValue connectorTypesArr) {
+		// Initialize iterators for connector coordinates
+		JsonValue.JsonIterator coordPathItr = connectorCoordsArr.iterator();
+		JsonValue.JsonIterator coordConnItr;
 		// Initialize JSON array of coordinates in a path
-		JsonValue pathArr;
+		JsonValue coordPathArr;
 		// Initialize array for a single coordinate
 		int[] coordArr;
-		// Initialize actual array for coordinates in a path
-		Array<Vector2> path;
 
-		// Initialize actual array of paths
-		Array<Array<Vector2>> connectorPaths = new Array<>();
+		// Initialize iterators for connector types
+		JsonValue.JsonIterator typePathItr = connectorTypesArr.iterator();
+		JsonValue.JsonIterator typeConnItr;
+		// Initialize JSON array of connector types in a path
+		JsonValue typePathArr;
+
+		// Initialize array of connectors representing a path
+		Array<Connector> path;
+		// Initialize array of all paths that are read
+		Array<Array<Connector>> allPaths = new Array<>();
 
 		// Iterate through JSON array of paths
-		itr = connectorCoordsArr.iterator();
-		while (itr.hasNext()){
-			// Gets array of coordinates in a path
-			// Reset coords
+		while (coordPathItr.hasNext()){
+			// Create new path
 			path = new Array<>();
 
-			// Go through coords in path
-			pathArr = itr.next();
-			itr2 = pathArr.iterator();
-			while (itr2.hasNext()) {
+			// Go through connectors in in path
+			coordPathArr = coordPathItr.next();
+			coordConnItr = coordPathArr.iterator();
+			typePathArr = typePathItr.next();
+			typeConnItr = typePathArr.iterator();
+			while (coordConnItr.hasNext()) {
 				// Get coordinate from JSON
-				coordArr = itr2.next().asIntArray();
-				// Save coordinate
-				path.add(new Vector2(coordArr[0],coordArr[1]));
+				coordArr = coordConnItr.next().asIntArray();
+				// Construct connector and store in path
+				path.add(new Connector(coordArr[0],coordArr[1],typeConnItr.next().asString()));
 			}
 
 			// Add completed path to array of paths
-			connectorPaths.add(path);
+			allPaths.add(path);
 		}
 
-		return connectorPaths;
-	}
-
-	/**
-	 * Helper function that reads a JSON value for connector types and returns them in the correct format
-	 *
-	 * @param connectorTypesArr	The JSON value to parse
-	 * @return					The JSON value, correctly parsed
-	 */
-	private Array<Array<String>> readConnectorTypes(JsonValue connectorTypesArr) {
-		JsonValue.JsonIterator itr;
-		JsonValue.JsonIterator itr2;
-		// Initialize JSON array of coordinates in a path
-		JsonValue pathArr;
-		// Initialize actual array for connector types in a path
-		Array<String> typesPath;
-		// Initialize connectorTypes
-		Array<Array<String>> connectorTypes = new Array<>();
-
-		// Iterate through JSON array of connector types
-		itr = connectorTypesArr.iterator();
-		while (itr.hasNext()){
-			// Gets array of types in a path
-			// Reset types path
-			typesPath = new Array<>();
-
-			// Go through types in path
-			pathArr = itr.next();
-			itr2 = pathArr.iterator();
-			while (itr2.hasNext()) {
-				// Get type from JSON and store in the path
-				typesPath.add(itr2.next().asString());
-			}
-
-			// Add completed path to array of paths
-			connectorTypes.add(typesPath);
-		}
-
-		return connectorTypes;
+		return allPaths;
 	}
 
 	/************************************************* TARGET METHODS *************************************************/
@@ -353,91 +303,6 @@ public class TargetModel {
 	 */
 	public int getY() {
 		return locY;
-	}
-
-	/**
-	 * Returns the first connector coordinates of the target.
-	 *
-	 * Array of locations of first connections in isometric coordinates.
-	 *
-	 * @return the target's first connector coordinates.
-	 */
-	public Array<Vector2> getFirstConnectorCoords(){
-		// TODO: doesn't discriminate currently between which path goes to which node, which makes animations impossible
-		Array<Vector2> allCoords = new Array<>();
-		// Got through each coordinate in firstConnectorPaths and add to an array of all coordinates
-		for (Array<Vector2> path : firstConnectorPaths) {
-			for (Vector2 coord : path) {
-				allCoords.add(coord);
-			}
-		}
-		return allCoords;
-	}
-
-	/**
-	 * Returns the first connector types of the target.
-	 *
-	 * Array of types of first connections.
-	 *
-	 * @return the target's first connector types.
-	 */
-	public Array<String> getFirstConnectorTypes(){
-		// TODO: doesn't discriminate currently between which path goes to which node, which makes animations impossible
-		Array<String> allTypes = new Array<>();
-		// Got through each coordinate in firstConnectorTypes and add to an array of all types
-		for (Array<String> path : firstConnectorTypes) {
-			for (String type : path) {
-				allTypes.add(type);
-			}
-		}
-		return allTypes;
-	}
-
-	/**
-	 * Returns coordinates of connectors coming from fact
-	 *
-	 * @param fact the name of the fact
-	 * @return a list of coordinates that represent connections out of fact
-	 */
-	public Array<Vector2> getConnectorCoordsOf(String fact){
-		FactNode f = getFactNode(fact);
-		return f.getConnectorCoords();
-	}
-
-	/**
-	 * Returns the orientations of the connectors coming from fact
-	 *
-	 * @param fact the name of the fact
-	 * @return	a list of types that represent connections out of fact, in the same order as getConnectorCoordsOf(FactNode fact)
-	 */
-	public Array<String> getConnectorTypesOf(String fact){
-		FactNode f = getFactNode(fact);
-		return f.getConnectorTypes();
-	}
-
-	/**
-	 * Returns the connectors going from a FactNode to a given child
-	 *
-	 * @param node		Name of the FactNode to find the path to a child for
-	 * @param child		Name of a child to get the path to
-	 * @return			An array of connectors from the given node to the given child
-	 */
-	public Array<Connector> getPath(String node, String child){
-		return getFactNode(node).getPathToChild(child);
-	}
-
-
-	/**
-	 * Returns the names of this target's neighbors.
-	 * 
-	 * The neighbors of a target are the other targets that are connected to this one.
-	 * Suspicion is contagious and can spread between adjacent targets. Names are formatted
-	 * as first then last name, with a space in between.
-	 *
-	 * @return array of neighboring targets' names.
-	 */
-	public Array<String> getNeighbors() {
-		return neighbors;
 	}
 
 	/**
@@ -569,7 +434,7 @@ public class TargetModel {
 	}
 
 	/**
-	 * Returns the list of names of the first nodes in this target's pod.
+	 * Returns a hashmap of the first nodes for this target, mapped to the paths to them.
 	 * 
 	 * The first nodes are the ones that are visible immediately after the target is spawned in. This DOES NOT
 	 * return the names of all the nodes in the pod.
@@ -578,9 +443,12 @@ public class TargetModel {
 	 * the target upon scanning. A node's name is an internal keyword used to identify a node, which can be
 	 * passed into other TargetModel methods to achieve different things.
 	 *
-	 * @return		Array of names of the first nodes in this target's pod.
+	 * For each node name as key, the value is an array of connectors forming the path to the key node. These
+	 * connectors are in order from the parent to the child.
+	 *
+	 * @return	Hashmap of names of the first nodes in the target's pod, mapped to the paths that lead to them
 	 */
-	public Array<String> getFirstNodes() {
+	public ArrayMap<String, Array<Connector>> getFirstNodes() {
 		return firstNodes;
 	}
 
@@ -631,18 +499,6 @@ public class TargetModel {
 		return nodeVec;
 	}
 
-//	/**
-//	 * Returns the filepath to the location of the map assets for the node.
-//	 *
-//	 * The filepath leads to a folder where all the frames for a node are stored.
-//	 *
-//	 * @param name   	Name of the fact whose node's assets we want
-//	 * @return 			Filepath to folder of node assets
-//	 */
-//	public String getNodeAssetPath(String name) {
-//		return getFactNode(name).getAssetPath();
-//	}
-
 	/**
 	 * Returns the content stored in the node with the given name.
 	 * 
@@ -670,14 +526,18 @@ public class TargetModel {
 	}
 
 	/**
-	 * Returns list of names of child nodes for the given node.
-	 * 
+	 * Returns hashmap of names of child nodes for the given node, mapped to the paths from the given
+	 * node to them.
+	 *
 	 * A given node's children are the nodes that are made visible when the given node is scanned.
-	 * 
-	 * @param name   	Name of the node whose children we want
-	 * @return 			List of the names of children of the given node
+	 *
+	 * As there is no situation where you would want the names of the children but not also the paths leading to them,
+	 * this function is what should be called whenever a node is scanned and the children are needed.
+	 *
+	 * @param name  Name of the node whose children we want
+	 * @return		Hashmap of names of child nodes for the given node, mapped to the paths from the given node to them
 	 */
-	public Array<String> getChildren(String name) {
+	public ArrayMap<String, Array<Connector>> getChildren(String name) {
 		return getFactNode(name).getChildren();
 	}
 
