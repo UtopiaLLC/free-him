@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 public class UIController {
     private Skin skin;
@@ -21,9 +20,9 @@ public class UIController {
      * Displays a dialog box where the user can confirm whether or not they want
      * to proceed with a particular action
      * @param s
-     * @param function
+     * @param confirmFunction
      */
-    public void confirmDialog(String s, final String function, Skin skin, final Runnable confirmFunction) {
+    public void confirmDialog(String s, final Runnable confirmFunction) {
         Dialog dialog = new Dialog("", skin) {
             public void result(Object obj) {
                 if((boolean)obj) {
