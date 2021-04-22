@@ -348,12 +348,12 @@ public class GameController implements Screen {
         updateStats();
 
         if(levelController.getLevelState() == LevelModel.LevelState.LOSE && !ended) {
-            createDialogBox("YOU LOSE!");
+            uiController.createDialogBox("YOU LOSE!");
             ended = true;
             //switchLevel(0);
 
         } else if (levelController.getLevelState() == LevelModel.LevelState.WIN && !ended) {
-            createDialogBox("You Win!");
+            uiController.createDialogBox("You Win!");
             ended = true;
             //switchLevel(currentLevel+1);
         }
@@ -742,7 +742,7 @@ public class GameController implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-                createDialogBox("You end the day after a long battle of psychological warfare.");
+                uiController.createDialogBox("You end the day after a long battle of psychological warfare.");
                 levelController.endDay();
             }
         });
@@ -765,7 +765,7 @@ public class GameController implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-                createDialogBox("You clicked something that hasn't been implemented yet.");
+                uiController.createDialogBox("You clicked something that hasn't been implemented yet.");
             }
         });
         return settings;
@@ -1033,14 +1033,14 @@ public class GameController implements Screen {
 
                                 button.changeState(Node.NodeState.UNSCANNED);
 
-                                createDialogBox("You hacked the node successfully!");
+                                uiController.createDialogBox("You hacked the node successfully!");
 
 
                                 reloadDisplayedNodes();
                             } else if(hack == -3) {
-                                createDialogBox("Insufficient AP to hack this node.");
+                                uiController.createDialogBox("Insufficient AP to hack this node.");
                             } else if(hack == -4) {
-                                createDialogBox("You failed to hack the node!");
+                                uiController.createDialogBox("You failed to hack the node!");
                             }
                             break;
                         case 2://scannable
@@ -1049,14 +1049,14 @@ public class GameController implements Screen {
 
                                 button.changeState(Node.NodeState.SCANNED);
 
-                                createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
+                                uiController.createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
                                 reloadDisplayedNodes();
                             } else {
-                                createDialogBox("Insufficient AP to scan this node.");
+                                uiController.createDialogBox("Insufficient AP to scan this node.");
                             }
                             break;
                         case 1://viewable
-                            createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
+                            uiController.createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
                             break;
                     }
 
@@ -1071,7 +1071,7 @@ public class GameController implements Screen {
                         getBlackmailFact("Select a fact to threaten the target with.", nodeInfo[0]);
                     }
                     else {
-                        createDialogBox("Insufficient AP to threaten the target.");
+                        uiController.createDialogBox("Insufficient AP to threaten the target.");
                         activeVerb = ActiveVerb.NONE;
                     }
 
@@ -1102,7 +1102,7 @@ public class GameController implements Screen {
                             getBlackmailFact("Select a fact to expose the target with.", nodeInfo[0]);
                         }
                         else {
-                            createDialogBox("Insufficient AP to expose the target.");
+                            uiController.createDialogBox("Insufficient AP to expose the target.");
                             activeVerb = ActiveVerb.NONE;
                         }
 //                        if(levelController.getTargetStress(nodeInfo[0]) >=40) {
@@ -1133,34 +1133,34 @@ public class GameController implements Screen {
     }
 
 
-    /**
-     * Creates a dialog box with [s] at a reasonably-sized height and width
-     * @param s the string displayed
-     */
-    public void createDialogBox(String s) {
-        Dialog dialog = new Dialog("", skin) {
-            public void result(Object obj) {
-                nodeFreeze = false;
-            }
-        };
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
-        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
-        dialog.setBackground(drawable);
-        dialog.getBackground().setMinWidth(500);
-        dialog.getBackground().setMinHeight(500);
-        Label l = new Label( s, skin );
-        if(s.length() > 50) {
-            l.setFontScale(1.5f);
-        }else {
-            l.setFontScale(2f);
-        }
-        l.setWrap( true );
-        dialog.getContentTable().add( l ).prefWidth( 350 );
-        dialog.button("Ok", true); //sends "true" as the result
-        dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
-        dialog.show(toolbarStage);
-        nodeFreeze = true;
-    }
+//    /**
+//     * Creates a dialog box with [s] at a reasonably-sized height and width
+//     * @param s the string displayed
+//     */
+//    public void createDialogBox(String s) {
+//        Dialog dialog = new Dialog("", skin) {
+//            public void result(Object obj) {
+//                nodeFreeze = false;
+//            }
+//        };
+//        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+//        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+//        dialog.setBackground(drawable);
+//        dialog.getBackground().setMinWidth(500);
+//        dialog.getBackground().setMinHeight(500);
+//        Label l = new Label( s, skin );
+//        if(s.length() > 50) {
+//            l.setFontScale(1.5f);
+//        }else {
+//            l.setFontScale(2f);
+//        }
+//        l.setWrap( true );
+//        dialog.getContentTable().add( l ).prefWidth( 350 );
+//        dialog.button("Ok", true); //sends "true" as the result
+//        dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
+//        dialog.show(toolbarStage);
+//        nodeFreeze = true;
+//    }
 
     /**
      * Creates a dialog box for the notebook with [s] at a reasonably-sized height and width
@@ -1350,7 +1350,7 @@ public class GameController implements Screen {
                             //Threaten the target
                             levelController.threaten(info[0], info[1]);
                             activeVerb = ActiveVerb.NONE;
-                            createDialogBox("You threatened the target!");
+                            uiController.createDialogBox("You threatened the target!");
                             //Add this fact to the list of facts used to threaten
                             threatenedFacts.add(scannedFacts.get(temp_i));
                             break;
@@ -1358,7 +1358,7 @@ public class GameController implements Screen {
                             //Expose the target
                             levelController.expose(info[0], info[1]);
                             activeVerb = ActiveVerb.NONE;
-                            createDialogBox("You exposed the target!");
+                            uiController.createDialogBox("You exposed the target!");
                             //Add this fact to the list of facts used to expose
                             exposedFacts.add(scannedFacts.get(temp_i));
                             //Add this fact to the list of facts used to threaten
@@ -1435,18 +1435,18 @@ public class GameController implements Screen {
             case "overwork":
                 success = levelController.overwork();
                 if(success) {
-                    createDialogBox("You overworked yourself and gained 2 AP at the cost of your sanity...");
+                    uiController.createDialogBox("You overworked yourself and gained 2 AP at the cost of your sanity...");
                 } else {
-                    createDialogBox("You cannot overwork anymore today!");
+                    uiController.createDialogBox("You cannot overwork anymore today!");
                 }
                 break;
             case "relax":
                 success = levelController.relax();
 
                 if(success) {
-                    createDialogBox("You relaxed for 1 AP and decreased your stress!");
+                    uiController.createDialogBox("You relaxed for 1 AP and decreased your stress!");
                 } else {
-                    createDialogBox("Insufficient AP to relax.");
+                    uiController.createDialogBox("Insufficient AP to relax.");
                 }
                 break;
             case "other jobs":
@@ -1454,9 +1454,9 @@ public class GameController implements Screen {
                 float money = levelController.otherJobs();
                 if(money != -1f) {
 
-                    createDialogBox("You did some other jobs and earned some " + Float.toString(money) +  " bitecoin for yourself!");
+                    uiController.createDialogBox("You did some other jobs and earned some " + Float.toString(money) +  " bitecoin for yourself!");
                 } else {
-                    createDialogBox("Insufficient AP to do other jobs");
+                    uiController.createDialogBox("Insufficient AP to do other jobs");
                 }
                 break;
             case "notebook":
