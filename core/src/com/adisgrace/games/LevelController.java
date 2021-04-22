@@ -8,9 +8,10 @@ import com.adisgrace.games.models.TargetModel;
 import com.adisgrace.games.util.Connector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 
 import java.util.*;
-
+import java.util.logging.Level;
 
 
 public class LevelController {
@@ -106,7 +107,7 @@ public class LevelController {
             }
         }
         levelModel.getExposableFacts().get(target).add(fact);
-        levelModel.getVisibleFacts().get(target).addAll(levelModel.getTargets().get(target).getChildren(fact));
+        levelModel.getVisibleFacts().get(target).addAll(levelModel.getTargets().get(target).getChildren(fact).keys);
         return true;
     }
 
@@ -306,48 +307,21 @@ public class LevelController {
 
     /**
      *
-     * @return returns all connectors from visible nodes
+     * @param target name of the target
+     * @return all facts directly connected to targets and their corresponding paths
      */
-    public Array<Connector> getAllVisibleConnectors(){
-        Array<Connector> connections = new Array<>();
-        Set<String> targets = levelModel.getTargets().keySet();
-        for(String target: targets){
-            //add connectors originating from target
-            Array<Vector2> coordinates = levelModel.getTarget(target).getFirstConnectorCoords();
-            Array<String> types = levelModel.getTarget(target).getFirstConnectorTypes();
-            for(int i = 0; i < coordinates.size; i++){
-                Vector2 coordinate = coordinates.get(i);
-                connections.add(new Connector((int)coordinate.x, (int)coordinate.y, types.get(i)));
-            }
-
-            for(String fact: levelModel.getVisibleFacts(target)){
-                //add connectors origination from all visible nodes
-                connections.addAll(getConnectorsOf(target, fact));
-            }
-        }
-
-        return connections;
-
+    public ArrayMap<String, Array<Connector>> getConnectorsOf(String target){
+        return levelModel.getTarget(target).getFirstNodes();
     }
 
     /**
-     * Helper function returning connectors origination from fact
      *
      * @param target name of the target
-     * @param fact name of the fact
-     * @return all connectors originating from the fact
+     * @param fact name of the fact belonging to the target
+     * @return all nodes that directly stem from fact as well as their paths from fact
      */
-    public Array<Connector> getConnectorsOf(String target, String fact){
-        Array<Connector> connections = new Array<>();
-        Array<Vector2> coordinates = levelModel.getTarget(target).getConnectorCoordsOf(fact);
-        Array<String> types = levelModel.getTarget(target).getConnectorTypesOf(fact);
-
-        for(int i = 0; i < coordinates.size; i++){
-            Vector2 coordinate = coordinates.get(i);
-            connections.add(new Connector((int)coordinate.x, (int)coordinate.y, types.get(i)));
-        }
-
-        return connections;
+    public ArrayMap<String, Array<Connector>> getConnectorsOf(String target, String fact){
+        return levelModel.getTarget(target).getChildren(fact);
     }
 
     /**

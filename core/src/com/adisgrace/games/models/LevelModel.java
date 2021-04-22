@@ -288,7 +288,7 @@ public class LevelModel {
         hackedFacts.put(t, new Array<String>());
         exposableFacts.put(t, new Array<String>());
         visibleFacts.put(t, new Array<String>());
-        for(String fact: target.getFirstNodes()){
+        for(String fact: target.getFirstNodes().keys){
             visibleFacts.get(t).add(fact);
         }
         return target;
@@ -363,7 +363,7 @@ public class LevelModel {
      */
     public Array<String> getConnections(String targetName, String fact){
         TargetModel target = targets.get(targetName);
-        return target.getChildren(fact);
+        return new Array(target.getChildren(fact).keys);
     }
 
     /**
