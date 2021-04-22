@@ -6,33 +6,31 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 
 public class UIController {
     private Skin skin;
 
     /** The ImageButton for threaten, to be initialized with given texture */
-    public static ImageButton threaten;
+    private ImageButton threaten;
     /** Whether the threaten button has been checked */
     private boolean threaten_checked = false;
     /** The ImageButton for expose, to be initialized with given texture */
-    public static ImageButton expose;
+    private ImageButton expose;
     /** Whether the expose button has been checked */
     private boolean expose_checked = false;
     /** The ImageButton for overwork, to be initialized with given texture */
-    public static ImageButton overwork;
+    private ImageButton overwork;
     /** Whether the overwork button has been checked */
     private boolean overwork_checked = false;
     /** The ImageButton for otherJobs, to be initialized with given texture */
-    public static ImageButton otherJobs;
+    private ImageButton otherJobs;
     /** Whether the otherJobs button has been checked */
     private boolean otherJobs_checked = false;
     /** The ImageButton for relax, to be initialized with given texture */
-    public static ImageButton relax;
+    private ImageButton relax;
     /** Whether the relax button has been checked */
     private boolean relax_checked = false;
 
@@ -221,6 +219,25 @@ public class UIController {
                     }
                 }));
         return relax;
+    }
+
+    /**
+     * This method creates a skill bar using threaten, expose, overwork, otherJobs, relac
+     * @param toolbar table that will encapsulate all other tables
+     * @return the skillBar table
+     */
+    public Table createSkillBarTable(Table toolbar) {
+        Table skillBar = new Table();
+        skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
+        int numSkills = 6+1;
+        float pad = skillBar.getWidth() / 60f;
+        //TODO: add this segment to UIController
+        skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(overwork).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(relax).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        return skillBar;
     }
 
     /**

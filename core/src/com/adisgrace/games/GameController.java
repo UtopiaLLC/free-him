@@ -121,23 +121,6 @@ public class GameController implements Screen {
     private Array<String> exposedFacts;
     /** list of facts used to threaten the target*/
     private Array<String> threatenedFacts;
-
-//    /** The ImageButton for expose, to be initialized with given texture */
-//    public static ImageButton expose;
-//    /** Whether the expose button has been checked */
-//    public static boolean expose_checked = false;
-//    /** The ImageButton for overwork, to be initialized with given texture */
-//    public static ImageButton overwork;
-//    /** Whether the overwork button has been checked */
-//    public static boolean overwork_checked = false;
-//    /** The ImageButton for otherJobs, to be initialized with given texture */
-//    public static ImageButton otherJobs;
-//    /** Whether the otherJobs button has been checked */
-//    public static boolean otherJobs_checked = false;
-//    /** The ImageButton for relax, to be initialized with given texture */
-//    public static ImageButton relax;
-//    /** Whether the relax button has been checked */
-//    public static boolean relax_checked = false;
     /** model for player stats and actions */
     //private PlayerModel player;
     /** flag for when game ended*/
@@ -458,219 +441,6 @@ public class GameController implements Screen {
 
     }
 
-
-
-
-
-
-//    /**
-//     * This method creates a threaten button with given textures for it's original status, when the cursor is hovering
-//     * above it and when it is clicked.
-//     *
-//     * @return      ImageButton for threaten.
-//     */
-//    private ImageButton createThreaten(){
-//        threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/threaten_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/threaten_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/threaten_select.png")))));
-//        threaten.setTransform(true);
-//        threaten.setScale(1f);
-//        final Label  threatenLabel = new Label("Threaten: Threaten your target with a \n fact to blackmail to increase their stress " +
-//                "for 2 AP", skin);
-//        final String s = "threaten";
-//        threaten.addListener(ic.getButtonListener(
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnClick(threaten, threaten_checked, s,ActiveVerb.THREATEN, new Runnable(){
-//                            @Override
-//                            public void run() {
-//                                callConfirmFunction(s);
-//                            }
-//                        });
-//                    }
-//                }, new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnEnter(threaten, threatenLabel,ActiveVerb.THREATEN);
-//                    }
-//                },
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnExit(threaten, threatenLabel, ActiveVerb.THREATEN);
-//                    }
-//                }));
-//        return threaten;
-//    }
-
-//    /**
-//     * This method creates a expose button with given textures for it's original status, when the cursor is hovering
-//     * above it and when it is clicked.
-//     *
-//     * @return      ImageButton for expose.
-//     */
-//    private ImageButton createExpose(){
-//        expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/expose_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/expose_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/expose_select.png")))));
-//        expose.setTransform(true);
-//        expose.setScale(1f);
-//        final Label exposeLabel = new Label("Expose: Expose your target's fact to the public\n for large stress damage" +
-//                " for 3 AP", skin);
-//        final String s = "expose";
-//        expose.addListener(ic.getButtonListener(
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnClick(expose, expose_checked,s, ActiveVerb.EXPOSE,  new Runnable(){
-//                            @Override
-//                            public void run() {
-//                                callConfirmFunction(s);
-//                            }
-//                        });
-//                    }
-//                }, new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnEnter(expose, exposeLabel,ActiveVerb.EXPOSE);
-//                    }
-//                },
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnExit(expose, exposeLabel, ActiveVerb.EXPOSE);
-//                    }
-//                }));
-//        return expose;
-//    }
-//
-//    /**
-//     * This method creates a overwork button with given textures for it's original status, when the cursor is hovering
-//     * above it and when it is clicked.
-//     *
-//     * @return      ImageButton for overwork.
-//     */
-//    private ImageButton createOverwork(){
-//        overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/overwork_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/overwork_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/overwork_select.png")))));
-//        overwork.setTransform(true);
-//        overwork.setScale(1f);
-//        final Label overworkLabel = new Label("Overwork: Gains 2 AP, but Increases Stress", skin);
-//        final String s = "overwork";
-//        overwork.addListener(ic.getButtonListener(
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnClick(overwork, expose_checked,"overwork", ActiveVerb.OVERWORK,new Runnable(){
-//                            @Override
-//                            public void run() {
-//                                callConfirmFunction(s);
-//                            }
-//                        });
-//                    }
-//                }, new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnEnter(overwork, overworkLabel,ActiveVerb.OVERWORK);
-//                    }
-//                },
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnExit(overwork, overworkLabel, ActiveVerb.OVERWORK);
-//                    }
-//                }));
-//        return overwork;
-//    }
-//
-//    /**
-//     * This method creates a otherjobs button with given textures for it's original status, when the cursor is hovering
-//     * above it and when it is clicked.
-//     *
-//     * @return      ImageButton for otherjobs.
-//     */
-//    private ImageButton createOtherJobs(){
-//        otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/otherjobs_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/otherjobs_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/otherjobs_select.png")))));
-//        otherJobs.setTransform(true);
-//        otherJobs.setScale(1f);
-//        final Label otherJobLabel = new Label("Other Jobs: Make Money with 3 AP", skin);
-//        final String s = "other jobs";
-//        otherJobs.addListener(ic.getButtonListener(
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnClick(otherJobs, otherJobs_checked,s, ActiveVerb.OTHER_JOBS,
-//                                new Runnable(){
-//                            @Override
-//                            public void run() {
-//                                callConfirmFunction(s);
-//                            }
-//                        });
-//                    }
-//                }, new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnEnter(otherJobs, otherJobLabel, ActiveVerb.OTHER_JOBS);
-//                    }
-//                },
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnExit(otherJobs, otherJobLabel, ActiveVerb.OTHER_JOBS);
-//                    }
-//                }));
-//        return otherJobs;
-//    }
-//
-//    /**
-//     * This method creates a relax button with given textures for it's original status, when the cursor is hovering
-//     * above it and when it is clicked.
-//     *
-//     * @return      ImageButton for relax.
-//     */
-//    private ImageButton createRelax(){
-//        relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/relax_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/relax_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/relax_select.png")))));
-//        relax.setTransform(true);
-//        relax.setScale(1f);
-//        final Label  relaxLabel = new Label("Relax: Decreases Stress with 1 AP", skin);
-//        final String s = "relax";
-//        relax.addListener(ic.getButtonListener(
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnClick(relax, relax_checked,"relax", ActiveVerb.RELAX, new Runnable(){
-//                            @Override
-//                            public void run() {
-//                                callConfirmFunction(s);
-//                            }
-//                        });
-//                    }
-//                }, new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnEnter(relax, relaxLabel, ActiveVerb.RELAX);
-//                    }
-//                },
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        uiController.toolbarOnExit(relax, relaxLabel, ActiveVerb.RELAX);
-//                    }
-//                }));
-//        return relax;
-//    }
-
     /**
      * This method creates a EndDay button with given textures for it's original status, when the cursor is hovering
      * above it and when it is clicked.
@@ -805,32 +575,13 @@ public class GameController implements Screen {
         toolbar.setSize(width, .25f*height);
 
         Table leftSide = createLeftsideTable(toolbar);
-        Table skillBar = createSkillBarTable(toolbar);
+        Table skillBar = uiController.createSkillBarTable(toolbar);
         Table rightSide = createRightsideTable(toolbar, end, notebook, settings);
 
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
         toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
         toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
         return toolbar;
-    }
-
-    /**
-     * This method creates a skill bar using threaten, expose, overwork, otherJobs, relac
-     * @param toolbar table that will encapsulate all other tables
-     * @return the skillBar table
-     */
-    private Table createSkillBarTable(Table toolbar) {
-        Table skillBar = new Table();
-        skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
-        int numSkills = 6+1;
-        float pad = skillBar.getWidth() / 60f;
-        //TODO: add this segment to UIController
-        skillBar.add(UIController.threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(UIController.expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(UIController.overwork).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(UIController.otherJobs).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(UIController.relax).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        return skillBar;
     }
 
     /**
