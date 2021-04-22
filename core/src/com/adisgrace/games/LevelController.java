@@ -287,9 +287,10 @@ public class LevelController {
     public HashMap<String, Vector2> getFactLocations(String target){
         HashMap<String, Vector2> factLocations = new HashMap<>();
         TargetModel t = levelModel.getTarget(target);
+        Vector2 targetCoords = new Vector2(t.getX(), t.getY());
 
         for(String f: levelModel.getVisibleFacts(target)){
-            factLocations.put(f, t.getNodeCoords(f));
+            factLocations.put(f, t.getNodeCoords(f).add(targetCoords));
         }
 
         return factLocations;
