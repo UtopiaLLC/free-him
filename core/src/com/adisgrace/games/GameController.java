@@ -121,11 +121,6 @@ public class GameController implements Screen {
     private Array<String> exposedFacts;
     /** list of facts used to threaten the target*/
     private Array<String> threatenedFacts;
-
-    /** The ImageButton for harass, to be initialized with given texture */
-    private ImageButton harass;
-    /** Whether the harass button has been checked */
-    private boolean harass_checked = false;
     /** The ImageButton for threaten, to be initialized with given texture */
     private ImageButton threaten;
     /** Whether the threaten button has been checked */
@@ -463,13 +458,11 @@ public class GameController implements Screen {
      * This helper method sets all buttons in toolbar to their unchecked/original states
      */
     private void unCheck(){
-        harass_checked = false;
         threaten_checked = false;
         expose_checked = false;
         otherJobs_checked = false;
         overwork_checked = false;
         relax_checked = false;
-        harass.setChecked(false);
         threaten.setChecked(false);
         expose.setChecked(false);
         otherJobs.setChecked(false);
@@ -478,69 +471,68 @@ public class GameController implements Screen {
         activeVerb = ActiveVerb.NONE;
     }
 
-    private void toolbarOnClick(ImageButton button, boolean buttonChecked, GameController.ActiveVerb av) {
-        if (harass_checked == false){
-            unCheck();
-            activeVerb = av;
-            buttonChecked = true;
-            button.setChecked(true);
-        }else{
-            unCheck();
+    /**
+     * This method is to be run when a toolbar button gets clicked. This method
+     * changes the active verb based on the button that was clicked and changes the UI
+     * of the button to reflect the fact that it has been selected.
+     * @param button the button that was clicked
+     * @param buttonChecked the flag for whether or not the button has been selected
+     * @param s the name of the skill that was clicked
+     * @param av the active verb of the skill that was clicked
+     */
+    private void toolbarOnClick(ImageButton button, boolean buttonChecked, final String s,
+                                GameController.ActiveVerb av) {
+        switch(av) {
+            case THREATEN:
+            case EXPOSE:
+                if (buttonChecked == false){
+                    unCheck();
+                    activeVerb = av;
+                    buttonChecked = true;
+                    button.setChecked(true);
+                }else{
+                    unCheck();
+                }
+                break;
+            case OVERWORK:
+            case OTHER_JOBS:
+            case RELAX:
+                unCheck();
+                confirmDialog("Are you sure you want to "+s+"?", s);
+            default:
+                break;
         }
-    }
 
-    private void toolbarOnEnter(ImageButton button, Label buttonLabel,GameController.ActiveVerb av) {
-        if(activeVerb != av){
-            Vector2 zeroLoc = button.localToStageCoordinates(new Vector2(0, button.getHeight()));
-            buttonLabel.setX(zeroLoc.x);
-            buttonLabel.setY(zeroLoc.y);
-            toolbarStage.addActor(buttonLabel);
-            hoverVerb = av;
-            button.setChecked(true);
-        }
-    }
-
-    private void toolbarOnExit(ImageButton button, Label buttonLabel,
-                               GameController.ActiveVerb av, GameController.ActiveVerb none) {
-        buttonLabel.remove();
-        hoverVerb = none;
-        if (activeVerb!=av)button.setChecked(false);
     }
 
     /**
-     * This method creates a harass button with given textures for it's original status, when the cursor is hovering
-     * above it and when it is clicked.
-     *
-     * @return      ImageButton for harass.
+     * This method adds a label whenever the user hovers over the skill bar.
+     * @param button the toolbar button that was hovered over
+     * @param buttonLabel the label that needs to be displayed
+     * @param av the active verb corresponding to the skill bar
      */
-//    private ImageButton createHarass(){
-//        harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/harass_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/harass_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/harass_select.png")))));
-//        harass.setTransform(true);
-//        harass.setScale(1f);
-//        final Label harassLabel = new Label("Harass: Harass your target to slightly increase their stress for 2 AP", skin);
-//        harass.addListener(ic.getButtonListener(
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        toolbarOnClick(harass, harass_checked, ActiveVerb.HARASS);
-//                    }
-//                }, new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        toolbarOnEnter(harass, harassLabel,ActiveVerb.HARASS);
-//                    }
-//                },
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        toolbarOnExit(harass, harass_checked, harassLabel, ActiveVerb.HARASS);
-//                    }
-//                }));
-//        return harass;
-//    }
+    private void toolbarOnEnter(ImageButton button, Label buttonLabel,GameController.ActiveVerb av) {
+        if(activeVerb != av){
+            Vector2 zeroLoc = button.localToStageCoordinates(new Vector2(0, button.getHeight()));
+            System.out.println(buttonLabel.toString());
+            buttonLabel.setX(zeroLoc.x);
+            buttonLabel.setY(zeroLoc.y);
+            toolbarStage.addActor(buttonLabel);
+            button.setChecked(true);
+        }
+    }
+
+    /**
+     * This method removes a label whenever the user moves away from the skill bar.
+     * @param button the toolbar button that was hovered over
+     * @param buttonLabel the label that needs to be removed from being displayed
+     * @param av the active verb corresponding to the skill bar
+     */
+    private void toolbarOnExit(ImageButton button, Label buttonLabel, GameController.ActiveVerb av) {
+        buttonLabel.remove();
+        if (activeVerb!=av)button.setChecked(false);
+    }
+
 
     /**
      * This method creates a threaten button with given textures for it's original status, when the cursor is hovering
@@ -561,7 +553,7 @@ public class GameController implements Screen {
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(threaten, threaten_checked, ActiveVerb.THREATEN);
+                        toolbarOnClick(threaten, threaten_checked, "threaten",ActiveVerb.THREATEN);
                     }
                 }, new Runnable() {
                     @Override
@@ -572,44 +564,9 @@ public class GameController implements Screen {
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnExit(threaten, threatenLabel, ActiveVerb.THREATEN, ActiveVerb.NONE);
+                        toolbarOnExit(threaten, threatenLabel, ActiveVerb.THREATEN);
                     }
                 }));
-
-//        threaten.addListener(new ClickListener()
-//        {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y)
-//            {
-//                if (threaten_checked == false){
-//                    unCheck();
-//                    activeVerb = ActiveVerb.THREATEN;
-//                    threaten_checked = true;
-//                    threaten.setChecked(true);
-//                }else{
-//                    unCheck();
-//                }
-//            }
-//
-//            @Override
-//            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-//                if(activeVerb != ActiveVerb.THREATEN){
-//                    Vector2 zeroLoc = threaten.localToStageCoordinates(new Vector2(0, threaten.getHeight()));
-//                    threatenLabel.setX(zeroLoc.x);
-//                    threatenLabel.setY(zeroLoc.y);
-//                    toolbarStage.addActor(threatenLabel);
-//                    hoverVerb = ActiveVerb.THREATEN;
-//                    threaten.setChecked(true);
-//                }
-//            }
-//
-//            @Override
-//            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-//                threatenLabel.remove();
-//                hoverVerb = ActiveVerb.NONE;
-//                if (activeVerb!=ActiveVerb.THREATEN)threaten.setChecked(false);
-//            }
-//        });
         return threaten;
     }
 
@@ -626,44 +583,27 @@ public class GameController implements Screen {
                 Gdx.files.internal("skills/expose_select.png")))));
         expose.setTransform(true);
         expose.setScale(1f);
-        expose.addListener(new ClickListener()
-        {
+        final Label exposeLabel = new Label("Expose: Expose your target's fact to the public\n for large stress damage" +
+                " for 3 AP", skin);
 
-            Label  exposeLabel = new Label("Expose: Expose your target's fact to the public\n for large stress damage" +
-                    " for 3 AP", skin);
-
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                if (expose_checked == false){
-                    unCheck();
-                    activeVerb = ActiveVerb.EXPOSE;
-                    expose_checked = true;
-                    expose.setChecked(true);
-                }else{
-                    unCheck();
-                }
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-                if(activeVerb != ActiveVerb.EXPOSE){
-                    Vector2 zeroLoc = expose.localToStageCoordinates(new Vector2(0, expose.getHeight()));
-                    exposeLabel.setX(zeroLoc.x);
-                    exposeLabel.setY(zeroLoc.y);
-                    toolbarStage.addActor(exposeLabel);
-                    hoverVerb = ActiveVerb.EXPOSE;
-                    expose.setChecked(true);
-                }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-                exposeLabel.remove();
-                hoverVerb = ActiveVerb.NONE;
-                if (activeVerb!=ActiveVerb.EXPOSE)expose.setChecked(false);
-            }
-        });
+        expose.addListener(ic.getButtonListener(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnClick(expose, expose_checked,"expose", ActiveVerb.EXPOSE);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnEnter(expose, exposeLabel,ActiveVerb.EXPOSE);
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnExit(expose, exposeLabel, ActiveVerb.EXPOSE);
+                    }
+                }));
         return expose;
     }
 
@@ -680,38 +620,26 @@ public class GameController implements Screen {
                 Gdx.files.internal("skills/overwork_select.png")))));
         overwork.setTransform(true);
         overwork.setScale(1f);
-        overwork.addListener(new ClickListener()
-        {
-            Label  overworkLabel = new Label("Overwork: Gains 2 AP, but Increases Stress", skin);
+        final Label overworkLabel = new Label("Overwork: Gains 2 AP, but Increases Stress", skin);
 
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                unCheck();
-                final String s = "overwork";
-                confirmDialog("Are you sure you want to overwork?", s);
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-
-                if(activeVerb != ActiveVerb.OVERWORK){
-                    Vector2 zeroLoc = overwork.localToStageCoordinates(new Vector2(0, overwork.getHeight()));
-                    overworkLabel.setX(zeroLoc.x);
-                    overworkLabel.setY(zeroLoc.y);
-                    toolbarStage.addActor(overworkLabel);
-                    hoverVerb = ActiveVerb.OVERWORK;
-                    overwork.setChecked(true);
-                }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-                overworkLabel.remove();
-                hoverVerb = ActiveVerb.NONE;
-                if (activeVerb!=ActiveVerb.OVERWORK)overwork.setChecked(false);
-            }
-        });
+        overwork.addListener(ic.getButtonListener(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnClick(overwork, expose_checked,"overwork", ActiveVerb.OVERWORK);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnEnter(overwork, overworkLabel,ActiveVerb.OVERWORK);
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnExit(overwork, overworkLabel, ActiveVerb.OVERWORK);
+                    }
+                }));
         return overwork;
     }
 
@@ -728,38 +656,26 @@ public class GameController implements Screen {
                 Gdx.files.internal("skills/otherjobs_select.png")))));
         otherJobs.setTransform(true);
         otherJobs.setScale(1f);
-        otherJobs.addListener(new ClickListener()
-        {
+        final Label otherJobLabel = new Label("Other Jobs: Make Money with 3 AP", skin);
 
-            Label  otherJobLabel = new Label("Other Jobs: Make Money with 3 AP", skin);
-
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                unCheck();
-                final String s = "otherJobs";
-                confirmDialog("Are you sure you want to do other jobs?", s);
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-                if(activeVerb != ActiveVerb.OTHER_JOBS){
-                    Vector2 zeroLoc = otherJobs.localToStageCoordinates(new Vector2(0, otherJobs.getHeight()));
-                    otherJobLabel.setX(zeroLoc.x);
-                    otherJobLabel.setY(zeroLoc.y);
-                    toolbarStage.addActor(otherJobLabel);
-                    hoverVerb = ActiveVerb.OTHER_JOBS;
-                    otherJobs.setChecked(true);
-                }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-                otherJobLabel.remove();
-                hoverVerb = ActiveVerb.NONE;
-                if (activeVerb!=ActiveVerb.OTHER_JOBS)otherJobs.setChecked(false);
-            }
-        });
+        otherJobs.addListener(ic.getButtonListener(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnClick(otherJobs, otherJobs_checked,"other jobs", ActiveVerb.OTHER_JOBS);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnEnter(otherJobs, otherJobLabel, ActiveVerb.OTHER_JOBS);
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnExit(otherJobs, otherJobLabel, ActiveVerb.OTHER_JOBS);
+                    }
+                }));
         return otherJobs;
     }
 
@@ -776,37 +692,25 @@ public class GameController implements Screen {
                 Gdx.files.internal("skills/relax_select.png")))));
         relax.setTransform(true);
         relax.setScale(1f);
-        relax.addListener(new ClickListener()
-        {
-            Label  relaxLabel = new Label("Relax: Decreases Stress with 1 AP", skin);
-
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                unCheck();
-                final String s = "relax";
-                confirmDialog("Are you sure you want to relax?", s);
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-                if(activeVerb != ActiveVerb.RELAX){
-                    Vector2 zeroLoc = relax.localToStageCoordinates(new Vector2(0, relax.getHeight()));
-                    relaxLabel.setX(zeroLoc.x);
-                    relaxLabel.setY(zeroLoc.y);;
-                    toolbarStage.addActor(relaxLabel);
-                    hoverVerb = ActiveVerb.RELAX;
-                    relax.setChecked(true);
-                }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-                relaxLabel.remove();
-                hoverVerb = ActiveVerb.NONE;
-                if (activeVerb!=ActiveVerb.RELAX)relax.setChecked(false);
-            }
-        });
+        final Label  relaxLabel = new Label("Relax: Decreases Stress with 1 AP", skin);
+        relax.addListener(ic.getButtonListener(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnClick(relax, relax_checked,"relax", ActiveVerb.RELAX);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnEnter(relax, relaxLabel, ActiveVerb.RELAX);
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnExit(relax, relaxLabel, ActiveVerb.RELAX);
+                    }
+                }));
         return relax;
     }
 
@@ -949,7 +853,6 @@ public class GameController implements Screen {
         skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
         int numSkills = 6+1;
         float pad = skillBar.getWidth() / 60f;
-        //skillBar.add(harass).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
         skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
         skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
         skillBar.add(overwork).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
@@ -1156,17 +1059,7 @@ public class GameController implements Screen {
                 }
                 break;
             case HARASS:
-//                if(isTarget) {
-//                    if(world.getPlayer().canHarass()) {
-//                        world.harass(target.getName());
-//                        createDialogBox("You harassed the target! They seem incredibly disturbed and got a bit stressed.");
-//                        activeVerb = ActiveVerb.NONE;
-//                    }
-//                    else {
-//                        createDialogBox("Insufficient AP to harass the target.");
-//                        activeVerb = ActiveVerb.NONE;
-//                    }
-//                }
+
                 break;
             case THREATEN:
                 if(isTarget) {
@@ -1552,6 +1445,7 @@ public class GameController implements Screen {
                     createDialogBox("Insufficient AP to relax.");
                 }
                 break;
+            case "other jobs":
             case "otherJobs":
                 float money = levelController.otherJobs();
                 if(money != -1f) {
