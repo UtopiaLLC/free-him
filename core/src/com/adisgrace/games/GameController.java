@@ -269,7 +269,7 @@ public class GameController implements Screen {
         shapeRenderer = new ShapeRenderer();
 
         music = Gdx.audio.newMusic(Gdx.files.internal("music/Moonlit_Skyline.mp3"));
-        music.setVolume(0.5f);
+        music.setVolume(0.1f);
         music.setLooping(true);
         music.play();
 
@@ -1391,42 +1391,44 @@ public class GameController implements Screen {
                     k = new Label(scannedFacts.get(i), skin);
                 }
             }
-            k.setWrap(true);
-            //Add a listener that can be reachable via the name format "target_name,fact_id"
-            k.setName(targetName + "," + summaryToFacts.get(scannedFacts.get(i)));
-            k.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    Actor cbutton = (Actor)event.getListenerActor();
-                    String[] info = cbutton.getName().split(",");
-                    getRidOfBlackmail = true;
-                    switch (activeVerb) {
-                        case HARASS:
+            if(factSummaries.keySet().size() != 0) {
+                k.setWrap(true);
+                //Add a listener that can be reachable via the name format "target_name,fact_id"
+                k.setName(targetName + "," + summaryToFacts.get(scannedFacts.get(i)));
+                k.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        Actor cbutton = (Actor) event.getListenerActor();
+                        String[] info = cbutton.getName().split(",");
+                        getRidOfBlackmail = true;
+                        switch (activeVerb) {
+                            case HARASS:
 
-                        case THREATEN:
-                            //Threaten the target
-                            levelController.threaten(info[0], info[1]);
-                            activeVerb = ActiveVerb.NONE;
-                            createDialogBox("You threatened the target!");
-                            //Add this fact to the list of facts used to threaten
-                            threatenedFacts.add(scannedFacts.get(temp_i));
-                            break;
-                        case EXPOSE:
-                            //Expose the target
-                            levelController.expose(info[0], info[1]);
-                            activeVerb = ActiveVerb.NONE;
-                            createDialogBox("You exposed the target!");
-                            //Add this fact to the list of facts used to expose
-                            exposedFacts.add(scannedFacts.get(temp_i));
-                            //Add this fact to the list of facts used to threaten
-                            threatenedFacts.add(scannedFacts.get(temp_i));
-                            break;
-                        default:
-                            System.out.println("This shouldn't be happening.");
+                            case THREATEN:
+                                //Threaten the target
+                                levelController.threaten(info[0], info[1]);
+                                activeVerb = ActiveVerb.NONE;
+                                createDialogBox("You threatened the target!");
+                                //Add this fact to the list of facts used to threaten
+                                threatenedFacts.add(scannedFacts.get(temp_i));
+                                break;
+                            case EXPOSE:
+                                //Expose the target
+                                levelController.expose(info[0], info[1]);
+                                activeVerb = ActiveVerb.NONE;
+                                createDialogBox("You exposed the target!");
+                                //Add this fact to the list of facts used to expose
+                                exposedFacts.add(scannedFacts.get(temp_i));
+                                //Add this fact to the list of facts used to threaten
+                                threatenedFacts.add(scannedFacts.get(temp_i));
+                                break;
+                            default:
+                                System.out.println("This shouldn't be happening.");
+                        }
                     }
-                }
-            });
-            //Add the displayed fact to the middle of the blackmail dialog
+                });
+                //Add the displayed fact to the middle of the blackmail dialog
+            }
             table.add(k).prefWidth(350);
             table.row();
         }
