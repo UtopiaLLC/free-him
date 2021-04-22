@@ -121,10 +121,10 @@ public class GameController implements Screen {
     private Array<String> exposedFacts;
     /** list of facts used to threaten the target*/
     private Array<String> threatenedFacts;
-    /** The ImageButton for threaten, to be initialized with given texture */
-    public static ImageButton threaten;
-    /** Whether the threaten button has been checked */
-    public static boolean threaten_checked = false;
+//    /** The ImageButton for threaten, to be initialized with given texture */
+//    public static ImageButton threaten;
+//    /** Whether the threaten button has been checked */
+//    public static boolean threaten_checked = false;
     /** The ImageButton for expose, to be initialized with given texture */
     public static ImageButton expose;
     /** Whether the expose button has been checked */
@@ -466,47 +466,47 @@ public class GameController implements Screen {
 
 
 
-    /**
-     * This method creates a threaten button with given textures for it's original status, when the cursor is hovering
-     * above it and when it is clicked.
-     *
-     * @return      ImageButton for threaten.
-     */
-    private ImageButton createThreaten(){
-        threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/threaten_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/threaten_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/threaten_select.png")))));
-        threaten.setTransform(true);
-        threaten.setScale(1f);
-        final Label  threatenLabel = new Label("Threaten: Threaten your target with a \n fact to blackmail to increase their stress " +
-                "for 2 AP", skin);
-        final String s = "threaten";
-        threaten.addListener(ic.getButtonListener(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        uiController.toolbarOnClick(threaten, threaten_checked, s,ActiveVerb.THREATEN, new Runnable(){
-                            @Override
-                            public void run() {
-                                callConfirmFunction(s);
-                            }
-                        });
-                    }
-                }, new Runnable() {
-                    @Override
-                    public void run() {
-                        uiController.toolbarOnEnter(threaten, threatenLabel,ActiveVerb.THREATEN);
-                    }
-                },
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        uiController.toolbarOnExit(threaten, threatenLabel, ActiveVerb.THREATEN);
-                    }
-                }));
-        return threaten;
-    }
+//    /**
+//     * This method creates a threaten button with given textures for it's original status, when the cursor is hovering
+//     * above it and when it is clicked.
+//     *
+//     * @return      ImageButton for threaten.
+//     */
+//    private ImageButton createThreaten(){
+//        threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+//                Gdx.files.internal("skills/threaten_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+//                Gdx.files.internal("skills/threaten_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+//                Gdx.files.internal("skills/threaten_select.png")))));
+//        threaten.setTransform(true);
+//        threaten.setScale(1f);
+//        final Label  threatenLabel = new Label("Threaten: Threaten your target with a \n fact to blackmail to increase their stress " +
+//                "for 2 AP", skin);
+//        final String s = "threaten";
+//        threaten.addListener(ic.getButtonListener(
+//                new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        uiController.toolbarOnClick(threaten, threaten_checked, s,ActiveVerb.THREATEN, new Runnable(){
+//                            @Override
+//                            public void run() {
+//                                callConfirmFunction(s);
+//                            }
+//                        });
+//                    }
+//                }, new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        uiController.toolbarOnEnter(threaten, threatenLabel,ActiveVerb.THREATEN);
+//                    }
+//                },
+//                new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        uiController.toolbarOnExit(threaten, threatenLabel, ActiveVerb.THREATEN);
+//                    }
+//                }));
+//        return threaten;
+//    }
 
     /**
      * This method creates a expose button with given textures for it's original status, when the cursor is hovering
@@ -747,6 +747,15 @@ public class GameController implements Screen {
         return notebook;
     }
 
+    private Runnable createConfirmRunnable(final String s) {
+        return new Runnable(){
+            @Override
+            public void run() {
+                callConfirmFunction(s);
+            }
+        };
+    }
+
     /**
      * CreateToolbar creates a fixed toolbar with buttons linked to each of the player skills.
      *
@@ -772,7 +781,7 @@ public class GameController implements Screen {
         createRelax();
         createOtherJobs();
         createOverwork();
-        createThreaten();
+        uiController.createThreaten(ic, createConfirmRunnable("threaten"));
         ImageButton end = createEndDay();
         ImageButton settings = createSettings();
         ImageButton notebook = createNotebook();
@@ -818,7 +827,8 @@ public class GameController implements Screen {
         skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
         int numSkills = 6+1;
         float pad = skillBar.getWidth() / 60f;
-        skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        //TODO: add this segment to UIController
+        skillBar.add(UIController.threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
         skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
         skillBar.add(overwork).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
         skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);

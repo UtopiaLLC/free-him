@@ -15,20 +15,62 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 public class UIController {
     private Skin skin;
 
+    /** The ImageButton for threaten, to be initialized with given texture */
+    public static ImageButton threaten;
+    /** Whether the threaten button has been checked */
+    private boolean threaten_checked = false;
+
     public UIController(Skin skin) {
         this.skin = skin;
+    }
+
+    /**
+     * This method creates a threaten button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for threaten.
+     */
+    public ImageButton createThreaten(InputController ic, final Runnable confirmFunction){
+        threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/threaten_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/threaten_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/threaten_select.png")))));
+        threaten.setTransform(true);
+        threaten.setScale(1f);
+        final Label  threatenLabel = new Label("Threaten: Threaten your target with a \n fact to blackmail to increase their stress " +
+                "for 2 AP", skin);
+        final String s = "threaten";
+        threaten.addListener(ic.getButtonListener(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnClick(threaten, threaten_checked, s, GameController.ActiveVerb.THREATEN, confirmFunction);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnEnter(threaten, threatenLabel, GameController.ActiveVerb.THREATEN);
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnExit(threaten, threatenLabel, GameController.ActiveVerb.THREATEN);
+                    }
+                }));
+        return threaten;
     }
 
     /**
      * This helper method sets all buttons in toolbar to their unchecked/original states
      */
     public void unCheck(){
-        GameController.threaten_checked = false;
+        threaten_checked = false;
         GameController.expose_checked = false;
         GameController.otherJobs_checked = false;
         GameController.overwork_checked = false;
         GameController.relax_checked = false;
-        GameController.threaten.setChecked(false);
+        threaten.setChecked(false);
         GameController.expose.setChecked(false);
         GameController.otherJobs.setChecked(false);
         GameController.overwork.setChecked(false);
@@ -64,12 +106,6 @@ public class UIController {
             case RELAX:
                 unCheck();
                 confirmDialog("Are you sure you want to "+s+"?", confirmFunction);
-//                new Runnable(){
-//                    @Override
-//                    public void run() {
-//                        callConfirmFunction(s);
-//                    }
-//                });
             default:
                 break;
         }
