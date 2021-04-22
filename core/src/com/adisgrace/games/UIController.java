@@ -1,10 +1,13 @@
 package com.adisgrace.games;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -14,6 +17,91 @@ public class UIController {
 
     public UIController(Skin skin) {
         this.skin = skin;
+    }
+
+    /**
+     * This helper method sets all buttons in toolbar to their unchecked/original states
+     */
+    public void unCheck(){
+        GameController.threaten_checked = false;
+        GameController.expose_checked = false;
+        GameController.otherJobs_checked = false;
+        GameController.overwork_checked = false;
+        GameController.relax_checked = false;
+        GameController.threaten.setChecked(false);
+        GameController.expose.setChecked(false);
+        GameController.otherJobs.setChecked(false);
+        GameController.overwork.setChecked(false);
+        GameController.relax.setChecked(false);
+        GameController.activeVerb = GameController.ActiveVerb.NONE;
+    }
+
+    /**
+     * This method is to be run when a toolbar button gets clicked. This method
+     * changes the active verb based on the button that was clicked and changes the UI
+     * of the button to reflect the fact that it has been selected.
+     * @param button the button that was clicked
+     * @param buttonChecked the flag for whether or not the button has been selected
+     * @param s the name of the skill that was clicked
+     * @param av the active verb of the skill that was clicked
+     */
+    public void toolbarOnClick(ImageButton button, boolean buttonChecked, final String s,
+                                GameController.ActiveVerb av, Runnable confirmFunction) {
+        switch(av) {
+            case THREATEN:
+            case EXPOSE:
+                if (buttonChecked == false){
+                    unCheck();
+                    GameController.activeVerb = av;
+                    buttonChecked = true;
+                    button.setChecked(true);
+                }else{
+                    unCheck();
+                }
+                break;
+            case OVERWORK:
+            case OTHER_JOBS:
+            case RELAX:
+                unCheck();
+                confirmDialog("Are you sure you want to "+s+"?", confirmFunction);
+//                new Runnable(){
+//                    @Override
+//                    public void run() {
+//                        callConfirmFunction(s);
+//                    }
+//                });
+            default:
+                break;
+        }
+
+    }
+
+    /**
+     * This method adds a label whenever the user hovers over the skill bar.
+     * @param button the toolbar button that was hovered over
+     * @param buttonLabel the label that needs to be displayed
+     * @param av the active verb corresponding to the skill bar
+     */
+    public void toolbarOnEnter(ImageButton button, Label buttonLabel,GameController.ActiveVerb av) {
+        if(GameController.activeVerb != av){
+            Vector2 zeroLoc = button.localToStageCoordinates(new Vector2(0, button.getHeight()));
+            System.out.println(buttonLabel.toString());
+            buttonLabel.setX(zeroLoc.x);
+            buttonLabel.setY(zeroLoc.y);
+            GameController.toolbarStage.addActor(buttonLabel);
+            button.setChecked(true);
+        }
+    }
+
+    /**
+     * This method removes a label whenever the user moves away from the skill bar.
+     * @param button the toolbar button that was hovered over
+     * @param buttonLabel the label that needs to be removed from being displayed
+     * @param av the active verb corresponding to the skill bar
+     */
+    public void toolbarOnExit(ImageButton button, Label buttonLabel, GameController.ActiveVerb av) {
+        buttonLabel.remove();
+        if (GameController.activeVerb!=av)button.setChecked(false);
     }
 
     /**
@@ -27,7 +115,6 @@ public class UIController {
             public void result(Object obj) {
                 if((boolean)obj) {
                     confirmFunction.run();
-//                    callConfirmFunction(function);
                 }
             }
         };

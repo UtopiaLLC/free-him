@@ -94,7 +94,7 @@ public class GameController implements Screen {
     //private WorldModel world;
     LevelController levelController;
     /** activeVerb is the state of the toolbar buttons i.e. which button clicked or not clicked */
-    private ActiveVerb activeVerb;
+    public static ActiveVerb activeVerb;
     /** hoverVerb is the verb that is currently being hovered over by the cursor */
     private ActiveVerb hoverVerb;
     /** nodeView is the view class that exposes all nodes in the map */
@@ -122,25 +122,25 @@ public class GameController implements Screen {
     /** list of facts used to threaten the target*/
     private Array<String> threatenedFacts;
     /** The ImageButton for threaten, to be initialized with given texture */
-    private ImageButton threaten;
+    public static ImageButton threaten;
     /** Whether the threaten button has been checked */
-    private boolean threaten_checked = false;
+    public static boolean threaten_checked = false;
     /** The ImageButton for expose, to be initialized with given texture */
-    private ImageButton expose;
+    public static ImageButton expose;
     /** Whether the expose button has been checked */
-    private boolean expose_checked = false;
+    public static boolean expose_checked = false;
     /** The ImageButton for overwork, to be initialized with given texture */
-    private ImageButton overwork;
+    public static ImageButton overwork;
     /** Whether the overwork button has been checked */
-    private boolean overwork_checked = false;
+    public static boolean overwork_checked = false;
     /** The ImageButton for otherJobs, to be initialized with given texture */
-    private ImageButton otherJobs;
+    public static ImageButton otherJobs;
     /** Whether the otherJobs button has been checked */
-    private boolean otherJobs_checked = false;
+    public static boolean otherJobs_checked = false;
     /** The ImageButton for relax, to be initialized with given texture */
-    private ImageButton relax;
+    public static ImageButton relax;
     /** Whether the relax button has been checked */
-    private boolean relax_checked = false;
+    public static boolean relax_checked = false;
     /** model for player stats and actions */
     //private PlayerModel player;
     /** flag for when game ended*/
@@ -330,7 +330,7 @@ public class GameController implements Screen {
 
         // If no action is currently selected, and the cursor is not hovering above any button, then remove any effects
         if (activeVerb == ActiveVerb.NONE && hoverVerb == ActiveVerb.NONE){
-            unCheck();
+            uiController.unCheck();
         }
 
         if(!ended) {
@@ -461,89 +461,9 @@ public class GameController implements Screen {
 
     }
 
-    /**
-     * This helper method sets all buttons in toolbar to their unchecked/original states
-     */
-    private void unCheck(){
-        threaten_checked = false;
-        expose_checked = false;
-        otherJobs_checked = false;
-        overwork_checked = false;
-        relax_checked = false;
-        threaten.setChecked(false);
-        expose.setChecked(false);
-        otherJobs.setChecked(false);
-        overwork.setChecked(false);
-        relax.setChecked(false);
-        activeVerb = ActiveVerb.NONE;
-    }
 
-    /**
-     * This method is to be run when a toolbar button gets clicked. This method
-     * changes the active verb based on the button that was clicked and changes the UI
-     * of the button to reflect the fact that it has been selected.
-     * @param button the button that was clicked
-     * @param buttonChecked the flag for whether or not the button has been selected
-     * @param s the name of the skill that was clicked
-     * @param av the active verb of the skill that was clicked
-     */
-    private void toolbarOnClick(ImageButton button, boolean buttonChecked, final String s,
-                                GameController.ActiveVerb av) {
-        switch(av) {
-            case THREATEN:
-            case EXPOSE:
-                if (buttonChecked == false){
-                    unCheck();
-                    activeVerb = av;
-                    buttonChecked = true;
-                    button.setChecked(true);
-                }else{
-                    unCheck();
-                }
-                break;
-            case OVERWORK:
-            case OTHER_JOBS:
-            case RELAX:
-                unCheck();
-                uiController.confirmDialog("Are you sure you want to "+s+"?", new Runnable(){
-                    @Override
-                    public void run() {
-                        callConfirmFunction(s);
-                    }
-                });
-            default:
-                break;
-        }
 
-    }
 
-    /**
-     * This method adds a label whenever the user hovers over the skill bar.
-     * @param button the toolbar button that was hovered over
-     * @param buttonLabel the label that needs to be displayed
-     * @param av the active verb corresponding to the skill bar
-     */
-    private void toolbarOnEnter(ImageButton button, Label buttonLabel,GameController.ActiveVerb av) {
-        if(activeVerb != av){
-            Vector2 zeroLoc = button.localToStageCoordinates(new Vector2(0, button.getHeight()));
-            System.out.println(buttonLabel.toString());
-            buttonLabel.setX(zeroLoc.x);
-            buttonLabel.setY(zeroLoc.y);
-            toolbarStage.addActor(buttonLabel);
-            button.setChecked(true);
-        }
-    }
-
-    /**
-     * This method removes a label whenever the user moves away from the skill bar.
-     * @param button the toolbar button that was hovered over
-     * @param buttonLabel the label that needs to be removed from being displayed
-     * @param av the active verb corresponding to the skill bar
-     */
-    private void toolbarOnExit(ImageButton button, Label buttonLabel, GameController.ActiveVerb av) {
-        buttonLabel.remove();
-        if (activeVerb!=av)button.setChecked(false);
-    }
 
 
     /**
@@ -561,22 +481,28 @@ public class GameController implements Screen {
         threaten.setScale(1f);
         final Label  threatenLabel = new Label("Threaten: Threaten your target with a \n fact to blackmail to increase their stress " +
                 "for 2 AP", skin);
+        final String s = "threaten";
         threaten.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(threaten, threaten_checked, "threaten",ActiveVerb.THREATEN);
+                        uiController.toolbarOnClick(threaten, threaten_checked, s,ActiveVerb.THREATEN, new Runnable(){
+                            @Override
+                            public void run() {
+                                callConfirmFunction(s);
+                            }
+                        });
                     }
                 }, new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnEnter(threaten, threatenLabel,ActiveVerb.THREATEN);
+                        uiController.toolbarOnEnter(threaten, threatenLabel,ActiveVerb.THREATEN);
                     }
                 },
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnExit(threaten, threatenLabel, ActiveVerb.THREATEN);
+                        uiController.toolbarOnExit(threaten, threatenLabel, ActiveVerb.THREATEN);
                     }
                 }));
         return threaten;
@@ -597,23 +523,28 @@ public class GameController implements Screen {
         expose.setScale(1f);
         final Label exposeLabel = new Label("Expose: Expose your target's fact to the public\n for large stress damage" +
                 " for 3 AP", skin);
-
+        final String s = "expose";
         expose.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(expose, expose_checked,"expose", ActiveVerb.EXPOSE);
+                        uiController.toolbarOnClick(expose, expose_checked,s, ActiveVerb.EXPOSE,  new Runnable(){
+                            @Override
+                            public void run() {
+                                callConfirmFunction(s);
+                            }
+                        });
                     }
                 }, new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnEnter(expose, exposeLabel,ActiveVerb.EXPOSE);
+                        uiController.toolbarOnEnter(expose, exposeLabel,ActiveVerb.EXPOSE);
                     }
                 },
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnExit(expose, exposeLabel, ActiveVerb.EXPOSE);
+                        uiController.toolbarOnExit(expose, exposeLabel, ActiveVerb.EXPOSE);
                     }
                 }));
         return expose;
@@ -633,23 +564,28 @@ public class GameController implements Screen {
         overwork.setTransform(true);
         overwork.setScale(1f);
         final Label overworkLabel = new Label("Overwork: Gains 2 AP, but Increases Stress", skin);
-
+        final String s = "overwork";
         overwork.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(overwork, expose_checked,"overwork", ActiveVerb.OVERWORK);
+                        uiController.toolbarOnClick(overwork, expose_checked,"overwork", ActiveVerb.OVERWORK,new Runnable(){
+                            @Override
+                            public void run() {
+                                callConfirmFunction(s);
+                            }
+                        });
                     }
                 }, new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnEnter(overwork, overworkLabel,ActiveVerb.OVERWORK);
+                        uiController.toolbarOnEnter(overwork, overworkLabel,ActiveVerb.OVERWORK);
                     }
                 },
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnExit(overwork, overworkLabel, ActiveVerb.OVERWORK);
+                        uiController.toolbarOnExit(overwork, overworkLabel, ActiveVerb.OVERWORK);
                     }
                 }));
         return overwork;
@@ -669,23 +605,29 @@ public class GameController implements Screen {
         otherJobs.setTransform(true);
         otherJobs.setScale(1f);
         final Label otherJobLabel = new Label("Other Jobs: Make Money with 3 AP", skin);
-
+        final String s = "other jobs";
         otherJobs.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(otherJobs, otherJobs_checked,"other jobs", ActiveVerb.OTHER_JOBS);
+                        uiController.toolbarOnClick(otherJobs, otherJobs_checked,s, ActiveVerb.OTHER_JOBS,
+                                new Runnable(){
+                            @Override
+                            public void run() {
+                                callConfirmFunction(s);
+                            }
+                        });
                     }
                 }, new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnEnter(otherJobs, otherJobLabel, ActiveVerb.OTHER_JOBS);
+                        uiController.toolbarOnEnter(otherJobs, otherJobLabel, ActiveVerb.OTHER_JOBS);
                     }
                 },
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnExit(otherJobs, otherJobLabel, ActiveVerb.OTHER_JOBS);
+                        uiController.toolbarOnExit(otherJobs, otherJobLabel, ActiveVerb.OTHER_JOBS);
                     }
                 }));
         return otherJobs;
@@ -705,22 +647,28 @@ public class GameController implements Screen {
         relax.setTransform(true);
         relax.setScale(1f);
         final Label  relaxLabel = new Label("Relax: Decreases Stress with 1 AP", skin);
+        final String s = "relax";
         relax.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(relax, relax_checked,"relax", ActiveVerb.RELAX);
+                        uiController.toolbarOnClick(relax, relax_checked,"relax", ActiveVerb.RELAX, new Runnable(){
+                            @Override
+                            public void run() {
+                                callConfirmFunction(s);
+                            }
+                        });
                     }
                 }, new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnEnter(relax, relaxLabel, ActiveVerb.RELAX);
+                        uiController.toolbarOnEnter(relax, relaxLabel, ActiveVerb.RELAX);
                     }
                 },
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnExit(relax, relaxLabel, ActiveVerb.RELAX);
+                        uiController.toolbarOnExit(relax, relaxLabel, ActiveVerb.RELAX);
                     }
                 }));
         return relax;
