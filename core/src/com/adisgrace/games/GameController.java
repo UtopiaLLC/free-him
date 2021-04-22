@@ -146,7 +146,7 @@ public class GameController implements Screen {
     /** flag for when game ended*/
     private boolean ended = false;
     /** flag for when all nodes need to not be clicked anymore*/
-    private boolean nodeFreeze = false;
+    public static boolean nodeFreeze = false;
     /** dialog box for blackmail commands*/
     private Dialog blackmailDialog;
     /** flag for when blackmail operations are complete*/
@@ -159,6 +159,8 @@ public class GameController implements Screen {
     private ShapeRenderer shapeRenderer;
     /** controller for camera operations*/
     private CameraController cameraController;
+
+    private UIController uiController;
     /** controller for input operations*/
     private InputController ic;
 
@@ -226,6 +228,7 @@ public class GameController implements Screen {
         canvas.endDebug();
 
         skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
+        uiController = new UIController(skin);
 
         // Creating Nodes
         imageNodes = new HashMap<>();
@@ -502,7 +505,12 @@ public class GameController implements Screen {
             case OTHER_JOBS:
             case RELAX:
                 unCheck();
-                confirmDialog("Are you sure you want to "+s+"?", s);
+                uiController.confirmDialog("Are you sure you want to "+s+"?", s, skin, new Runnable(){
+                    @Override
+                    public void run() {
+                        callConfirmFunction(s);
+                    }
+                });
             default:
                 break;
         }
@@ -780,7 +788,12 @@ public class GameController implements Screen {
             public void clicked(InputEvent event, float x, float y)
             {
                 final String s = "notebook";
-                confirmDialog("Are you sure you want to open notebook?", s);
+                uiController.confirmDialog("Are you sure you want to open notebook?", s, skin, new Runnable(){
+                    @Override
+                    public void run() {
+                        callConfirmFunction(s);
+                    }
+                });
             }
         });
         return notebook;
@@ -983,23 +996,10 @@ public class GameController implements Screen {
         stress.setFontScale(2);
         ap = new Label("AP: " + Integer.toString(levelController.getAP()), skin);
         ap.setFontScale(2);
-//        tStress = new Label("Target Stress: " + Integer.toString(target.getStress()), skin);
-//        tStress.setFontScale(2);
-//        tSusp = new Label("Target Suspicion: " + Integer.toString(target.getSuspicion()), skin);
-//        tSusp.setFontScale(2);
-//        money = new Label ("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()), skin);
-//        money.setFontScale(2);
-//        tState = new Label("Target State: " + target.getState(), skin);
-//        tState.setFontScale(2);
 
         stats.top();
         stats.setFillParent(true);
 
-        //stats.add(stress).expandX().padTop(20);
-//        stats.add(tState).expandX().padTop(20);
-        //stats.add(money).expandX().padTop(20);
-//        stats.add(tStress).expandX().padTop(20);
-//        stats.add(tSusp).expandX().padTop(20);
         stats.add(ap).expandX().padTop(10);
         return stats;
     }
@@ -1381,36 +1381,36 @@ public class GameController implements Screen {
         nodeFreeze = true;
     }
 
-    /**
-     * Displays a dialog box where the user can confirm whether or not they want
-     * to proceed with a particular action
-     * @param s
-     * @param function
-     */
-    public void confirmDialog(String s, final String function) {
-        Dialog dialog = new Dialog("", skin) {
-            public void result(Object obj) {
-                if((boolean)obj) {
-                    callConfirmFunction(function);
-                } else {
-
-                }
-            }
-        };
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
-        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
-        dialog.setBackground(drawable);
-        dialog.getBackground().setMinWidth(300);
-        dialog.getBackground().setMinHeight(300);
-        Label l = new Label( s, skin );
-        l.setFontScale(2);
-        l.setWrap( true );
-        dialog.getContentTable().add( l ).prefWidth( 250 );
-        dialog.button("Yes", true); //sends "true" as the result
-        dialog.button("No", false);  //sends "false" as the result
-        dialog.show(toolbarStage);
-
-    }
+//    /**
+//     * Displays a dialog box where the user can confirm whether or not they want
+//     * to proceed with a particular action
+//     * @param s
+//     * @param function
+//     */
+//    public void confirmDialog(String s, final String function, Skin skin) {
+//        Dialog dialog = new Dialog("", skin) {
+//            public void result(Object obj) {
+//                if((boolean)obj) {
+//                    callConfirmFunction(function);
+//                } else {
+//
+//                }
+//            }
+//        };
+//        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+//        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+//        dialog.setBackground(drawable);
+//        dialog.getBackground().setMinWidth(300);
+//        dialog.getBackground().setMinHeight(300);
+//        Label l = new Label( s, skin );
+//        l.setFontScale(2);
+//        l.setWrap( true );
+//        dialog.getContentTable().add( l ).prefWidth( 250 );
+//        dialog.button("Yes", true); //sends "true" as the result
+//        dialog.button("No", false);  //sends "false" as the result
+//        dialog.show(toolbarStage);
+//
+//    }
 
     /**
      * Display all fact nodes of a target node that is visible
