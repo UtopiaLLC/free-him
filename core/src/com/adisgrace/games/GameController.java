@@ -232,7 +232,9 @@ public class GameController implements Screen {
 
         NodeView.loadAnimations();
         for (TargetModel target: targets) {
-            nodeView = new NodeView(stage, target, levelController);
+            Vector2 targetCoords = levelController.getTargetPos(target.getName());
+            Array<String> targetNodes = target.getNodes();
+            nodeView = new NodeView(stage, target, targetNodes, targetCoords);
             imageNodes.putAll(nodeView.getImageNodes());
         }
 
@@ -424,7 +426,9 @@ public class GameController implements Screen {
         // Creating Nodes
         imageNodes = new HashMap<>();
         for (TargetModel target: targets) {
-            nodeView = new NodeView(stage, target, levelController);
+            Vector2 targetCoords = levelController.getTargetPos(target.getName());
+            Array<String> targetNodes = target.getNodes();
+            nodeView = new NodeView(stage, target, targetNodes, targetCoords);
             imageNodes.putAll(nodeView.getImageNodes());
         }
 
