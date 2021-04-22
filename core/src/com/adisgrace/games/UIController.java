@@ -19,6 +19,22 @@ public class UIController {
     public static ImageButton threaten;
     /** Whether the threaten button has been checked */
     private boolean threaten_checked = false;
+    /** The ImageButton for expose, to be initialized with given texture */
+    public static ImageButton expose;
+    /** Whether the expose button has been checked */
+    private boolean expose_checked = false;
+    /** The ImageButton for overwork, to be initialized with given texture */
+    public static ImageButton overwork;
+    /** Whether the overwork button has been checked */
+    private boolean overwork_checked = false;
+    /** The ImageButton for otherJobs, to be initialized with given texture */
+    public static ImageButton otherJobs;
+    /** Whether the otherJobs button has been checked */
+    private boolean otherJobs_checked = false;
+    /** The ImageButton for relax, to be initialized with given texture */
+    public static ImageButton relax;
+    /** Whether the relax button has been checked */
+    private boolean relax_checked = false;
 
     public UIController(Skin skin) {
         this.skin = skin;
@@ -62,19 +78,165 @@ public class UIController {
     }
 
     /**
+     * This method creates a expose button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for expose.
+     */
+    public ImageButton createExpose(InputController ic, final Runnable confirmFunction){
+        expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/expose_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/expose_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/expose_select.png")))));
+        expose.setTransform(true);
+        expose.setScale(1f);
+        final Label exposeLabel = new Label("Expose: Expose your target's fact to the public\n for large stress damage" +
+                " for 3 AP", skin);
+        final String s = "expose";
+        expose.addListener(ic.getButtonListener(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnClick(expose, expose_checked,s, GameController.ActiveVerb.EXPOSE,  confirmFunction);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnEnter(expose, exposeLabel, GameController.ActiveVerb.EXPOSE);
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnExit(expose, exposeLabel, GameController.ActiveVerb.EXPOSE);
+                    }
+                }));
+        return expose;
+    }
+
+    /**
+     * This method creates a overwork button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for overwork.
+     */
+    public ImageButton createOverwork(InputController ic, final Runnable confirmFunction){
+        overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/overwork_select.png")))));
+        overwork.setTransform(true);
+        overwork.setScale(1f);
+        final Label overworkLabel = new Label("Overwork: Gains 2 AP, but Increases Stress", skin);
+        final String s = "overwork";
+        overwork.addListener(ic.getButtonListener(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnClick(overwork, expose_checked,"overwork",
+                                GameController.ActiveVerb.OVERWORK, confirmFunction);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnEnter(overwork, overworkLabel, GameController.ActiveVerb.OVERWORK);
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnExit(overwork, overworkLabel, GameController.ActiveVerb.OVERWORK);
+                    }
+                }));
+        return overwork;
+    }
+
+    /**
+     * This method creates a otherjobs button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for otherjobs.
+     */
+    public ImageButton createOtherJobs(InputController ic, final Runnable confirmFunction){
+        otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/otherjobs_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/otherjobs_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/otherjobs_select.png")))));
+        otherJobs.setTransform(true);
+        otherJobs.setScale(1f);
+        final Label otherJobLabel = new Label("Other Jobs: Make Money with 3 AP", skin);
+        final String s = "other jobs";
+        otherJobs.addListener(ic.getButtonListener(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnClick(otherJobs, otherJobs_checked,s, GameController.ActiveVerb.OTHER_JOBS, confirmFunction);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnEnter(otherJobs, otherJobLabel, GameController.ActiveVerb.OTHER_JOBS);
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnExit(otherJobs, otherJobLabel, GameController.ActiveVerb.OTHER_JOBS);
+                    }
+                }));
+        return otherJobs;
+    }
+
+    /**
+     * This method creates a relax button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for relax.
+     */
+    public ImageButton createRelax(InputController ic, final Runnable confirmFunction){
+        relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/relax_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/relax_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
+                Gdx.files.internal("skills/relax_select.png")))));
+        relax.setTransform(true);
+        relax.setScale(1f);
+        final Label  relaxLabel = new Label("Relax: Decreases Stress with 1 AP", skin);
+        final String s = "relax";
+        relax.addListener(ic.getButtonListener(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnClick(relax, relax_checked,"relax", GameController.ActiveVerb.RELAX, confirmFunction);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnEnter(relax, relaxLabel, GameController.ActiveVerb.RELAX);
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnExit(relax, relaxLabel, GameController.ActiveVerb.RELAX);
+                    }
+                }));
+        return relax;
+    }
+
+    /**
      * This helper method sets all buttons in toolbar to their unchecked/original states
      */
     public void unCheck(){
         threaten_checked = false;
-        GameController.expose_checked = false;
-        GameController.otherJobs_checked = false;
-        GameController.overwork_checked = false;
-        GameController.relax_checked = false;
+        expose_checked = false;
+        otherJobs_checked = false;
+        overwork_checked = false;
+        relax_checked = false;
         threaten.setChecked(false);
-        GameController.expose.setChecked(false);
-        GameController.otherJobs.setChecked(false);
-        GameController.overwork.setChecked(false);
-        GameController.relax.setChecked(false);
+        expose.setChecked(false);
+        otherJobs.setChecked(false);
+        overwork.setChecked(false);
+        relax.setChecked(false);
         GameController.activeVerb = GameController.ActiveVerb.NONE;
     }
 
