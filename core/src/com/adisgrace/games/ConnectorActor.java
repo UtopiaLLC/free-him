@@ -24,10 +24,8 @@ public class ConnectorActor extends Actor {
         this.animation = animation;
         this.position = position;
 
-
-        setBounds(position.x, position.y,
-                animation.getKeyFrame(0).getRegionWidth(),
-                animation.getKeyFrame(0).getRegionHeight());
+        setWidth(animation.getKeyFrame(0).getRegionWidth());
+        setHeight(animation.getKeyFrame(0).getRegionHeight());
 
         stateTime = 0;
     }
@@ -47,9 +45,12 @@ public class ConnectorActor extends Actor {
 
         stateTime += Gdx.graphics.getDeltaTime();
         reg = animation.getKeyFrame(stateTime, true);
-        setBounds(position.x, position.y,
-                reg.getRegionWidth(),
-                reg.getRegionHeight());
+//        setBounds(position.x, position.y,
+//                reg.getRegionWidth(),
+//                reg.getRegionHeight());
+
+        setWidth(reg.getRegionWidth());
+        setHeight(reg.getRegionHeight());
 
         int x_offset = TILE_WIDTH - (int)getWidth();
         int y_offset = TILE_HEIGHT - (int)getHeight();

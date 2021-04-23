@@ -1020,20 +1020,24 @@ public class GameController implements Screen {
                 if(connector.type.contains("E")) {
                     System.out.println("East");
                     ConnectorActor east = new ConnectorActor(EastConnectorAnimation, connectorCoords);
+                    east.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(east);
                 }if(connector.type.contains("W")) {
                     System.out.println("West");
                     ConnectorActor west = new ConnectorActor(WestConnectorAnimation, connectorCoords);
+                    west.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(west);
                 }
                 if(connector.type.contains("N")) {
                     System.out.println("North");
                     ConnectorActor north = new ConnectorActor(NorthConnectorAnimation, connectorCoords);
+                    north.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(north);
                 }
                 if(connector.type.contains("S")) {
                     System.out.println("South");
                     ConnectorActor south = new ConnectorActor(SouthConnectorAnimation, connectorCoords);
+                    south.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(south);
                 }
 
