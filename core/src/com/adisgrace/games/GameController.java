@@ -311,9 +311,9 @@ public class GameController implements Screen {
         EastConnectorAnimation = connectorAnimation(EastConnector);
         WestConnectorAnimation = connectorAnimation(WestConnector);
 
-//        ConnectorActor connector = new ConnectorActor(SouthConnectorAnimation,
-//                isometricToWorld(new Vector2(5f, 5f)));
-//        stage.addActor(connector);
+        ConnectorActor connector = new ConnectorActor(SouthConnectorAnimation,
+                isometricToWorld(new Vector2(5f, 5f)));
+        stage.addActor(connector);
 
     }
 
@@ -329,7 +329,6 @@ public class GameController implements Screen {
     public void render(float delta) {
 
         canvas.clear();
-        canvas.drawIsometricGrid(stage,nodeWorldWidth,nodeWorldHeight);
 
         // If no action is currently selected, and the cursor is not hovering above any button, then remove any effects
         if (activeVerb == ActiveVerb.NONE && hoverVerb == ActiveVerb.NONE){
@@ -344,6 +343,7 @@ public class GameController implements Screen {
             }
         }
 
+        canvas.drawIsometricGrid(stage,nodeWorldWidth,nodeWorldHeight);
         stage.getViewport().apply();
         stage.draw();
         toolbarStage.getViewport().apply();
@@ -1015,8 +1015,6 @@ public class GameController implements Screen {
             //draw each individual connector on the path
             for(Connector connector : firstConnectors) {
                 connectorCoords.set(connector.xcoord, connector.ycoord).add(targetCoords);
-                System.out.println(connectorCoords);
-                System.out.println(connector.type);
 
                 connectorCoords = isometricToWorld(connectorCoords);
                 if(connector.type.contains("E")) {

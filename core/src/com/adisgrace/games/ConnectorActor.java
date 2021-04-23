@@ -46,7 +46,7 @@ public class ConnectorActor extends Actor {
         super.draw(batch, parentAlpha);
 
         stateTime += Gdx.graphics.getDeltaTime();
-        reg = animation.getKeyFrame(stateTime, false);
+        reg = animation.getKeyFrame(stateTime, true);
         setBounds(position.x, position.y,
                 reg.getRegionWidth(),
                 reg.getRegionHeight());
