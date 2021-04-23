@@ -19,10 +19,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 public class GameController implements Screen {
 
@@ -158,12 +160,14 @@ public class GameController implements Screen {
     private int currentLevel;
 
     private Array<Connector> visibleConnectors;
-    private Vector2 connectorCoords;
 
     private Texture NorthConnector;
     private Texture SouthConnector;
     private Texture EastConnector;
     private Texture WestConnector;
+
+    private Image north, east, south, west;
+
 
     public GameController() {
         canvas = new GameCanvas();
@@ -220,46 +224,56 @@ public class GameController implements Screen {
         ic = new InputController();
         addNodeListeners(imageNodes);
 
-        // Adding all visible nodes
-        for (TargetModel target: targets) {
-            Array<String> displayedNodes= levelController.getVisibleNodes(target.getName());
-            for(String str : displayedNodes) {
-                stage.addActor(imageNodes.get(target.getName()+","+str));
-            }
-            stage.addActor(imageNodes.get(target.getName()));
-        }
+
 
         NorthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("N")));
         SouthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("S")));
         WestConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("W")));
         EastConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("E")));
 
-        visibleConnectors = levelController.getAllVisibleConnectors();
-        connectorCoords = new Vector2();
-        canvas.begin();
-        for(Connector connector : visibleConnectors) {
-            connectorCoords.set(connector.xcoord, connector.ycoord);
-            connectorCoords = isometricToWorld(connectorCoords);
-            if(connector.type.contains("E")) {
-                canvas.draw(EastConnector,
-                        connectorCoords.x, connectorCoords.y);
-            }if(connector.type.contains("W")) {
-                canvas.draw(WestConnector,
-                        connectorCoords.x, connectorCoords.y);
+        north = new Image(NorthConnector);
+        south = new Image(SouthConnector);
+        west = new Image(WestConnector);
+        east = new Image(EastConnector);
+
+
+        //visibleConnectors = levelController.getAllVisibleConnectors();
+
+        //This draws all the primary connections that are visible at the beginning of the game
+        Vector2 connectorCoords = new Vector2();
+        for(TargetModel target: targets){
+            Vector2 targetCoords = levelController.getTargetPos(target.getName());
+            ArrayMap<String, Array<Connector>> firstConnections = levelController.getConnectorsOf(target.getName());
+
+            //for each target, extract the path from target to each individual node
+            for(int i = 0; i < firstConnections.size; i++){
+                Array<Connector> firstConnectors = firstConnections.getValueAt(i);
+                //draw each individual connector on the path
+                for(Connector connector : firstConnectors) {
+                    connectorCoords.set(connector.xcoord, connector.ycoord).add(targetCoords);
+                    connectorCoords = isometricToWorld(connectorCoords);
+                    if(connector.type.contains("E")) {
+                        east.setPosition(connectorCoords.x, connectorCoords.y);
+                        stage.addActor(east);
+                    }if(connector.type.contains("W")) {
+                        west.setPosition(connectorCoords.x, connectorCoords.y);
+                        stage.addActor(west);
+                    }
+                    if(connector.type.contains("N")) {
+                        north.setPosition(connectorCoords.x, connectorCoords.y);
+                        stage.addActor(north);
+                    }
+                    if(connector.type.contains("S")) {
+                        south.setPosition(connectorCoords.x, connectorCoords.y);
+                        stage.addActor(south);
+                    }
+                }
+
+                String fact = firstConnections.getKeyAt(i);
+                stage.addActor(imageNodes.get(target.getName()+","+fact));
             }
-            if(connector.type.contains("N")) {
-                canvas.draw(NorthConnector,
-                        connectorCoords.x, connectorCoords.y);
-            }
-            if(connector.type.contains("S")) {
-                canvas.draw(SouthConnector,
-                        connectorCoords.x, connectorCoords.y);
-            }
+            stage.addActor(imageNodes.get(target.getName()));
         }
-
-        canvas.end();
-
-
 
         cameraController = new CameraController(ic, canvas);
         createToolbar();
@@ -279,30 +293,6 @@ public class GameController implements Screen {
 
         canvas.clear();
         canvas.drawIsometricGrid(stage,nodeWorldWidth,nodeWorldHeight);
-
-        visibleConnectors = levelController.getAllVisibleConnectors();
-        canvas.begin();
-        for(Connector connector : visibleConnectors) {
-            connectorCoords.set(connector.xcoord, connector.ycoord);
-            connectorCoords = isometricToWorld(connectorCoords);
-            if(connector.type.contains("E")) {
-                canvas.draw(EastConnector,
-                        connectorCoords.x, connectorCoords.y);
-            }if(connector.type.contains("W")) {
-                canvas.draw(WestConnector,
-                        connectorCoords.x, connectorCoords.y);
-            }
-            if(connector.type.contains("N")) {
-                canvas.draw(NorthConnector,
-                        connectorCoords.x, connectorCoords.y);
-            }
-            if(connector.type.contains("S")) {
-                canvas.draw(SouthConnector,
-                        connectorCoords.x, connectorCoords.y);
-            }
-        }
-
-        canvas.end();
 
         // If no action is currently selected, and the cursor is not hovering above any button, then remove any effects
         if (activeVerb == ActiveVerb.NONE && hoverVerb == ActiveVerb.NONE){
@@ -422,13 +412,13 @@ public class GameController implements Screen {
         }
 
         // Adding all visible nodes
-        for (TargetModel target: targets) {
-            Array<String> displayedNodes= levelController.getVisibleNodes(target.getName());
-            for(String str : displayedNodes) {
-                stage.addActor(imageNodes.get(target.getName()+","+str));
-            }
-            stage.addActor(imageNodes.get(target.getName()));
-        }
+//        for (TargetModel target: targets) {
+//            Array<String> displayedNodes= levelController.getVisibleNodes(target.getName());
+//            for(String str : displayedNodes) {
+//                stage.addActor(imageNodes.get(target.getName()+","+str));
+//            }
+//            stage.addActor(imageNodes.get(target.getName()));
+//        }
 
     }
 
@@ -1074,7 +1064,6 @@ public class GameController implements Screen {
                                 createDialogBox("You hacked the node successfully!");
 
 
-                                reloadDisplayedNodes();
                             } else if(hack == -3) {
                                 createDialogBox("Insufficient AP to hack this node.");
                             } else if(hack == -4) {
@@ -1088,7 +1077,8 @@ public class GameController implements Screen {
                                 button.changeState(Node.NodeState.SCANNED);
 
                                 createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
-                                reloadDisplayedNodes();
+
+                                addConnections(nodeInfo[0], nodeInfo[1]);
                             } else {
                                 createDialogBox("Insufficient AP to scan this node.");
                             }
@@ -1460,17 +1450,49 @@ public class GameController implements Screen {
 
     }
 
-    /**
-     * Display all fact nodes of a target node that is visible
-     */
-    public void reloadDisplayedNodes() {
-        for(TargetModel target : targets) {
-            Array<String> displayedNodes= levelController.getVisibleNodes(target.getName());
-            for(String str : displayedNodes) {
-                stage.addActor(imageNodes.get(target.getName()+","+str));
-            }
-        }
+//    /**
+//     * Display all fact nodes of a target node that is visible
+//     */
+//    public void reloadDisplayedNodes() {
+//        for(TargetModel target : targets) {
+//            Array<String> displayedNodes= levelController.getVisibleNodes(target.getName());
+//            for(String str : displayedNodes) {
+//                stage.addActor(imageNodes.get(target.getName()+","+str));
+//            }
+//        }
+//
+//    }
 
+    public void addConnections(String target, String fact){
+        ArrayMap<String, Array<Connector>> connectors = levelController.getConnectorsOf(target, fact);
+        Vector2 connectorCoords = new Vector2();
+        Vector2 targetCoords = levelController.getTargetPos(target);
+        for(int i = 0; i < connectors.size; i++){
+            Array<Connector> firstConnectors = connectors.getValueAt(i);
+            //draw each individual connector on the path
+            for(Connector connector : firstConnectors) {
+                connectorCoords.set(connector.xcoord, connector.ycoord).add(targetCoords);
+                connectorCoords = isometricToWorld(connectorCoords);
+                if(connector.type.contains("E")) {
+                    east.setPosition(connectorCoords.x, connectorCoords.y);
+                    stage.addActor(east);
+                }if(connector.type.contains("W")) {
+                    west.setPosition(connectorCoords.x, connectorCoords.y);
+                    stage.addActor(west);
+                }
+                if(connector.type.contains("N")) {
+                    north.setPosition(connectorCoords.x, connectorCoords.y);
+                    stage.addActor(north);
+                }
+                if(connector.type.contains("S")) {
+                    south.setPosition(connectorCoords.x, connectorCoords.y);
+                    stage.addActor(south);
+                }
+            }
+
+            String newFact = connectors.getKeyAt(i);
+            stage.addActor(imageNodes.get(target+","+newFact));
+        }
     }
 
     /**

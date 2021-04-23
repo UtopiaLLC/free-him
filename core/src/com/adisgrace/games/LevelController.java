@@ -59,9 +59,6 @@ public class LevelController {
 
         if(!levelModel.getTargets().containsKey(target))
             return -1;
-        if(!levelModel.getVisibleFacts().get(target).contains(fact, false)
-                || levelModel.getHackedFacts().get(target).contains(fact, false))
-            return -2;
         if(!player.canHack())
             return -3;
         player.hack();
@@ -83,10 +80,6 @@ public class LevelController {
     public boolean scan(String target, String fact){
         if(!levelModel.getTargets().containsKey(target))
             return false;
-        if(!levelModel.getVisibleFacts().get(target).contains(fact, false)
-                || !levelModel.getHackedFacts().get(target).contains(fact, false)
-                || levelModel.getSummaries().get(target).containsKey(fact))
-            return false;
         if(!player.canScan())
             return false;
         player.scan(0f); // Stress cost for scanning is unimplemented
@@ -107,7 +100,6 @@ public class LevelController {
             }
         }
         levelModel.getExposableFacts().get(target).add(fact);
-        levelModel.getVisibleFacts().get(target).addAll(levelModel.getTargets().get(target).getChildren(fact).keys);
         return true;
     }
 
@@ -279,22 +271,6 @@ public class LevelController {
         return new Vector2(targetLoc[0], targetLoc[1]);
     }
 
-    /**
-     * Returns the names and locations of all visible facts pertaining to target
-     *
-     * @param target the name of the target
-     * @return A hashmap of facts connected to their isometric coordinates
-     */
-    public HashMap<String, Vector2> getFactLocations(String target){
-        HashMap<String, Vector2> factLocations = new HashMap<>();
-        TargetModel t = levelModel.getTarget(target);
-
-        for(String f: levelModel.getVisibleFacts(target)){
-            factLocations.put(f, t.getNodeCoords(f));
-        }
-
-        return factLocations;
-    }
 
     /**
      * returns target models
@@ -350,14 +326,6 @@ public class LevelController {
         return levelModel.getContents().get(target).get(fact);
     }
 
-    /**
-     *
-     * @param target name of the target
-     * @return visible nodes of target
-     */
-    public Array<String> getVisibleNodes(String target){
-        return levelModel.getVisibleFacts(target);
-    }
 
 
 

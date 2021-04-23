@@ -287,10 +287,6 @@ public class LevelModel {
         contents.put(t, new HashMap<String, String>());
         hackedFacts.put(t, new Array<String>());
         exposableFacts.put(t, new Array<String>());
-        visibleFacts.put(t, new Array<String>());
-        for(String fact: target.getFirstNodes().keys){
-            visibleFacts.get(t).add(fact);
-        }
         return target;
     }
 
