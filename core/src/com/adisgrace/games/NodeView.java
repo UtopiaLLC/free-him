@@ -38,13 +38,11 @@ public class NodeView {
     private static final float SCALE_Y = 256;
     private static final float LOCKED_OFFSET = 114.8725f;
 
-    public NodeView(Stage stage, TargetModel target, LevelController levelController) {
+    public NodeView(Stage stage, TargetModel target, Array<String> targetNodes,Vector2 targetCoords) {
         this.stage = stage;
         nodeCoords = new Array<>();
-        Vector2 targetCoords = levelController.getTargetPos(target.getName());
 
-        System.out.println(levelController.getTargetPos(target.getName()));
-        Array<String> targetNodes = target.getNodes();
+        System.out.println(targetCoords);
         for (String nodeName: targetNodes ){
             Vector2 node = target.getNodeCoords(nodeName);
             node.x = node.x + targetCoords.x;
@@ -54,7 +52,7 @@ public class NodeView {
         //targetCoords = scaleNodeCoordinates(targetCoords, ADD, SCALE_X, SCALE_Y);
 
         imageNodes = new HashMap<>();
-        createImageNodes(target, targetNodes, targetCoords);
+        createImageNodes(target.getName(), targetNodes, targetCoords);
     }
 
     /**
@@ -91,11 +89,11 @@ public class NodeView {
 
     /**
      * Adds information about ImageButtons to the imageNodes Map
-     * @param target
+     * @param targetName
      * @param targetNodes
      * @param targetCoords
      */
-    private void createImageNodes(TargetModel target, Array<String> targetNodes, Vector2 targetCoords) {
+    private void createImageNodes(String targetName, Array<String> targetNodes, Vector2 targetCoords) {
 
         for (int i = 0; i < targetNodes.size; i++) {
             assert(targetNodes.size == nodeCoords.size);
@@ -106,8 +104,8 @@ public class NodeView {
             pos.x -= (NodeView.getLockedNode(0).getRegionWidth() - TILE_WIDTH) / 2;
             pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
 
-            Node node = new Node(pos.x, pos.y, target.getName()+","+targetNodes.get(i), 0, Node.NodeState.LOCKED);
-            imageNodes.put(target.getName()+","+targetNodes.get(i), node);
+            Node node = new Node(pos.x, pos.y, targetName+","+targetNodes.get(i), 0, Node.NodeState.LOCKED);
+            imageNodes.put(targetName+","+targetNodes.get(i), node);
             stage.addActor(node);
         }
 
@@ -116,8 +114,8 @@ public class NodeView {
         pos.x -= (NodeView.getTargetNode(0).getTexture().getWidth() - TILE_WIDTH) / 2;
         pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
 
-        Node targetNode = new Node(pos.x, pos.y, target.getName(), 0, Node.NodeState.TARGET);
-        imageNodes.put(target.getName(), targetNode);
+        Node targetNode = new Node(pos.x, pos.y, targetName, 0, Node.NodeState.TARGET);
+        imageNodes.put(targetName, targetNode);
         stage.addActor(targetNode);
 
 
