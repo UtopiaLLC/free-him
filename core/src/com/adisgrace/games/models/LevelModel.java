@@ -132,6 +132,19 @@ public class LevelModel {
 
         n_days = 0;
         rng = new Random();
+
+        // Implements target trait : paranoiac
+        // iterate over all targets to see if any is paranoiac
+        for (TargetModel t : targets.values()){
+            if (t.getTraits().is_paranoiac()){
+                //If a target is paranoiac and is alive, reduce paranoia of all targets in level by 1
+                if (t.getState() != TargetModel.TargetState.DEFEATED){
+                    for (TargetModel tt : targets.values()){
+                        tt.reduce_paranoia(1);
+                    }
+                }
+            }
+        }
     }
 
     public Map<String, TargetModel> getTargets() {

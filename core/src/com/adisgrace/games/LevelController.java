@@ -127,7 +127,7 @@ public class LevelController {
         // Get harass damage and inflict on target
         int stressDmg = levelModel.getTargets().get(target).harass();
         levelModel.getTargets().get(target).addStress(stressDmg);
-        player.harass();
+        player.harass(levelModel.getTargets().get(target));
         return levelModel.getLevelState();
     }
 
@@ -142,11 +142,11 @@ public class LevelController {
             throw new RuntimeException("Invalid target");
         if(!levelModel.getContents().get(target).containsKey(fact))
             throw new RuntimeException("Node has not been scanned");
-        if(!player.canExpose())
+        if(!player.canExpose(levelModel.getTargets().get(target)))  // pass target to playerModel since traits affect AP cost
             throw new RuntimeException("Insufficient AP to expose");
         if(!levelModel.getExposableFacts().get(target).contains(fact, false))
             throw new RuntimeException("This fact has already been exposed");
-        player.expose();
+        player.expose(levelModel.getTargets().get(target));  // pass target to playerModel since traits affect AP cost
         levelModel.getExposableFacts().get(target).removeValue(fact, false);
         int stressDamage = levelModel.getTargets().get(target).expose(fact);
         levelModel.getTargets().get(target).addStress(stressDamage);
@@ -164,11 +164,11 @@ public class LevelController {
             throw new RuntimeException("Invalid target");
         if(!levelModel.getContents().get(target).containsKey(fact))
             throw new RuntimeException("Node has not been scanned");
-        if(!player.canThreaten())
+        if(!player.canThreaten(levelModel.getTargets().get(target)))  // pass target to playerModel since traits affect AP cost
             throw new RuntimeException("Insufficient AP to threaten");
         if(!levelModel.getExposableFacts().get(target).contains(fact, false))
             throw new RuntimeException("This fact has already been exposed");
-        player.threaten();
+        player.threaten(levelModel.getTargets().get(target)); // pass target to playerModel since traits affect AP cost
         int stressDamage = levelModel.getTargets().get(target).threaten(fact);
         levelModel.getTargets().get(target).addStress(stressDamage);
         return levelModel.getLevelState();
