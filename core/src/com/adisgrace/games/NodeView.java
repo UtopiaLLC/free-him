@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import javax.swing.plaf.TextUI;
 import java.util.HashMap;
@@ -38,25 +39,26 @@ public class NodeView {
     private static final float SCALE_Y = 256;
     private static final float LOCKED_OFFSET = 114.8725f;
 
-    public NodeView(Stage stage, TargetModel target, Array<String> targetNodes,Vector2 targetCoords) {
+    public NodeView(Stage stage, TargetModel target, Array<String> targetNodes, Vector2 targetCoords,
+                    Array<Boolean> locked) {
         this.stage = stage;
         nodeCoords = new Array<>();
 
-        Array<String> targetNodes = target.getNodes();
-        Array<Boolean> lockedNodes = new Array<>();
+        //Array<String> targetNodes = target.getNodes();
+        //Array<Boolean> lockedNodes = new Array<>();
 
         for (String nodeName: targetNodes ){
             Vector2 node = target.getNodeCoords(nodeName);
             node.x = node.x + targetCoords.x;
             node.y = node.y + targetCoords.y;
             nodeCoords.add(node);
-            lockedNodes.add(levelController.getLocked(target.getName(), nodeName));
+            //lockedNodes.add(levelController.getLocked(target.getName(), nodeName));
         }
         //targetCoords = scaleNodeCoordinates(targetCoords, ADD, SCALE_X, SCALE_Y);
 
         imageNodes = new HashMap<>();
       
-        createImageNodes(target, targetNodes, targetCoords, lockedNodes);
+        createImageNodes(target, targetNodes, targetCoords, locked);
     }
 
     /**
@@ -127,8 +129,8 @@ public class NodeView {
         pos.x -= (NodeView.getTargetNode(0).getTexture().getWidth() - TILE_WIDTH) / 2;
         pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
 
-        Node targetNode = new Node(pos.x, pos.y, targetName, 0, Node.NodeState.TARGET);
-        imageNodes.put(targetName, targetNode);
+        Node targetNode = new Node(pos.x, pos.y, target.getName(), 0, Node.NodeState.TARGET);
+        imageNodes.put(target.getName(), targetNode);
         stage.addActor(targetNode);
 
 

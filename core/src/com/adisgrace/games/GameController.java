@@ -221,7 +221,11 @@ public class GameController implements Screen {
         for (TargetModel target: targets) {
             Vector2 targetCoords = levelController.getTargetPos(target.getName());
             Array<String> targetNodes = target.getNodes();
-            nodeView = new NodeView(stage, target, targetNodes, targetCoords);
+            Array<Boolean> lockedNodes = new Array<>();
+            for (String nodeName: targetNodes ){
+                lockedNodes.add(levelController.getLocked(target.getName(), nodeName));
+            }
+            nodeView = new NodeView(stage, target, targetNodes, targetCoords, lockedNodes);
             imageNodes.putAll(nodeView.getImageNodes());
         }
 
@@ -410,7 +414,11 @@ public class GameController implements Screen {
         for (TargetModel target: targets) {
             Vector2 targetCoords = levelController.getTargetPos(target.getName());
             Array<String> targetNodes = target.getNodes();
-            nodeView = new NodeView(stage, target, targetNodes, targetCoords);
+            Array<Boolean> lockedNodes = new Array<>();
+            for (String nodeName: targetNodes ){
+                lockedNodes.add(levelController.getLocked(target.getName(), nodeName));
+            }
+            nodeView = new NodeView(stage, target, targetNodes, targetCoords, lockedNodes);
             imageNodes.putAll(nodeView.getImageNodes());
         }
 

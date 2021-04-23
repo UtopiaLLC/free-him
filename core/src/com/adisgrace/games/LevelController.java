@@ -59,9 +59,9 @@ public class LevelController {
 
         if(!levelModel.getTargets().containsKey(target))
             return -1;
-        if(!player.canHack())
+        if(!player.canHack(levelModel.getTargets().get(target))) // pass target to playerModel since traits affect AP cost
             return -3;
-        player.hack();
+        player.hack(levelModel.getTargets().get(target)); // pass target to playerModel since traits affect AP cost
         if(rng.nextDouble() < 0.2){
             levelModel.getTargets().get(target).addSuspicion(25);
             return -4;
@@ -80,9 +80,10 @@ public class LevelController {
     public boolean scan(String target, String fact){
         if(!levelModel.getTargets().containsKey(target))
             return false;
-        if(!player.canScan())
+        if(!player.canScan(levelModel.getTargets().get(target))) // pass target to playerModel since traits affect AP cost
             return false;
-        player.scan(0f); // Stress cost for scanning is unimplemented
+        player.scan(0f, levelModel.getTargets().get(target)); // Stress cost for scanning is unimplemented
+        // pass target to playerModel since traits affect AP cost
         levelModel.getSummaries().get(target).put(fact, levelModel.getTargets().get(target).getSummary(fact));
         levelModel.getContents().get(target).put(fact, levelModel.getTargets().get(target).getContent(fact));
         // combo checking
