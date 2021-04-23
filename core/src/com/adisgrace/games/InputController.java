@@ -46,6 +46,9 @@ public class InputController {
 		return theController;
 	}
 
+	/** Whether or not to ignore input */
+	private boolean ignoreInput = false;
+
 	// Fields to manage specific button presses
 	/** Whether each of the WASD buttons (for camera movement) have been pressed */
 	private boolean wPressed;
@@ -70,6 +73,16 @@ public class InputController {
 	/** Mouse coordinates */
 	private float mouseX;
 	private float mouseY;
+
+	/**
+	 * Sets whether input should be ignored. Used to disable other
+	 * inputs when a text field is being written to in the LevelEditor.
+	 *
+	 * @param ignoreInput	Whether input should be ignored
+	 */
+	public void shouldIgnoreInput (boolean ignoreInput) {
+		this.ignoreInput = ignoreInput;
+	}
 
 	/**
 	 * Returns true if the W key was pressed.
@@ -258,19 +271,19 @@ public class InputController {
 	 */
 	private void readKeyboard() {
 		// Camera movement (WASD) controls
-		wPressed = Gdx.input.isKeyPressed(Input.Keys.W);
-		aPressed = Gdx.input.isKeyPressed(Input.Keys.A);
-		sPressed = Gdx.input.isKeyPressed(Input.Keys.S);
-		dPressed = Gdx.input.isKeyPressed(Input.Keys.D);
+		wPressed = Gdx.input.isKeyPressed(Input.Keys.W) && !ignoreInput;
+		aPressed = Gdx.input.isKeyPressed(Input.Keys.A) && !ignoreInput;
+		sPressed = Gdx.input.isKeyPressed(Input.Keys.S) && !ignoreInput;
+		dPressed = Gdx.input.isKeyPressed(Input.Keys.D) && !ignoreInput;
 
 		// Camera zoom (EQ) controls
-		ePressed = Gdx.input.isKeyPressed(Input.Keys.E);
-		qPressed = Gdx.input.isKeyPressed(Input.Keys.Q);
+		ePressed = Gdx.input.isKeyPressed(Input.Keys.E) && !ignoreInput;
+		qPressed = Gdx.input.isKeyPressed(Input.Keys.Q) && !ignoreInput;
 
 		// Clear button (C)
-		cPressed = Gdx.input.isKeyJustPressed(Input.Keys.C);
+		cPressed = Gdx.input.isKeyJustPressed(Input.Keys.C) && !ignoreInput;
 
 		// Undo button (Z)
-		zPressed = Gdx.input.isKeyJustPressed(Input.Keys.Z);
+		zPressed = Gdx.input.isKeyJustPressed(Input.Keys.Z) && !ignoreInput;
 	}
 }
