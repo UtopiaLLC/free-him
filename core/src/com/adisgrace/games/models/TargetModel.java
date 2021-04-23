@@ -500,6 +500,16 @@ public class TargetModel {
 	}
 
 	/**
+	 * Returns the locked status of a given node.
+	 *
+	 * @param fact	Name of the fact whose locked information we want
+	 * @return	boolean of whether node is locked or not
+	 */
+	public boolean getLocked(String fact) {
+		return podDict.get(fact).getLocked();
+	}
+
+	/**
 	 * Returns the content stored in the node with the given name.
 	 * 
 	 * The content of the node is what is shown to the player when the node is scanned, representing the information

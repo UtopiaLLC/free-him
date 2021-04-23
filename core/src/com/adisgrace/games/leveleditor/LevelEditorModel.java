@@ -525,4 +525,3 @@ public class LevelEditorModel {
         System.out.println("finished saving target " + targetName);
     }
 }
->>>>>>> 2bf66d4b3e702acdc4f2a5071a2cd38226d4702f

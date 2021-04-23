@@ -166,7 +166,7 @@ public class GameController implements Screen {
     private Texture EastConnector;
     private Texture WestConnector;
 
-    private Image north, east, south, west;
+    //private Image north, east, south, west;
 
 
     public GameController() {
@@ -231,10 +231,10 @@ public class GameController implements Screen {
         WestConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("W")));
         EastConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("E")));
 
-        north = new Image(NorthConnector);
-        south = new Image(SouthConnector);
-        west = new Image(WestConnector);
-        east = new Image(EastConnector);
+//        north = new Image(NorthConnector);
+//        south = new Image(SouthConnector);
+//        west = new Image(WestConnector);
+//        east = new Image(EastConnector);
 
 
         //visibleConnectors = levelController.getAllVisibleConnectors();
@@ -250,20 +250,25 @@ public class GameController implements Screen {
                 Array<Connector> firstConnectors = firstConnections.getValueAt(i);
                 //draw each individual connector on the path
                 for(Connector connector : firstConnectors) {
-                    connectorCoords.set(connector.xcoord, connector.ycoord).add(targetCoords);
+                    connectorCoords.set(connector.xcoord, connector.ycoord);
+                    connectorCoords.add(targetCoords);
                     connectorCoords = isometricToWorld(connectorCoords);
                     if(connector.type.contains("E")) {
+                        Image east = new Image(EastConnector);
                         east.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(east);
                     }if(connector.type.contains("W")) {
+                        Image west = new Image(WestConnector);
                         west.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(west);
                     }
                     if(connector.type.contains("N")) {
+                        Image north = new Image(NorthConnector);
                         north.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(north);
                     }
                     if(connector.type.contains("S")) {
+                        Image south = new Image(SouthConnector);
                         south.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(south);
                     }
@@ -1474,17 +1479,21 @@ public class GameController implements Screen {
                 connectorCoords.set(connector.xcoord, connector.ycoord).add(targetCoords);
                 connectorCoords = isometricToWorld(connectorCoords);
                 if(connector.type.contains("E")) {
+                    Image east = new Image(EastConnector);
                     east.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(east);
                 }if(connector.type.contains("W")) {
+                    Image west = new Image(WestConnector);
                     west.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(west);
                 }
                 if(connector.type.contains("N")) {
+                    Image north = new Image(NorthConnector);
                     north.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(north);
                 }
                 if(connector.type.contains("S")) {
+                    Image south = new Image(SouthConnector);
                     south.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(south);
                 }

@@ -43,18 +43,19 @@ public class NodeView {
         nodeCoords = new Array<>();
         Vector2 targetCoords = levelController.getTargetPos(target.getName());
 
-        System.out.println(levelController.getTargetPos(target.getName()));
         Array<String> targetNodes = target.getNodes();
+        Array<Boolean> lockedNodes = new Array<>();
         for (String nodeName: targetNodes ){
             Vector2 node = target.getNodeCoords(nodeName);
             node.x = node.x + targetCoords.x;
             node.y = node.y + targetCoords.y;
             nodeCoords.add(node);
+            lockedNodes.add(levelController.getLocked(target.getName(), nodeName));
         }
         //targetCoords = scaleNodeCoordinates(targetCoords, ADD, SCALE_X, SCALE_Y);
 
         imageNodes = new HashMap<>();
-        createImageNodes(target, targetNodes, targetCoords);
+        createImageNodes(target, targetNodes, targetCoords, lockedNodes);
     }
 
     /**
@@ -91,11 +92,13 @@ public class NodeView {
 
     /**
      * Adds information about ImageButtons to the imageNodes Map
-     * @param target
-     * @param targetNodes
-     * @param targetCoords
+     * @param target Target we are making nodes for
+     * @param targetNodes The Array of facts for the target
+     * @param targetCoords The location of the Target
+     * @param lockedNodes A Boolean array of whether nodes are locked or not
      */
-    private void createImageNodes(TargetModel target, Array<String> targetNodes, Vector2 targetCoords) {
+    private void createImageNodes(TargetModel target, Array<String> targetNodes, Vector2 targetCoords,
+                                  Array<Boolean> lockedNodes) {
 
         for (int i = 0; i < targetNodes.size; i++) {
             assert(targetNodes.size == nodeCoords.size);
@@ -106,7 +109,13 @@ public class NodeView {
             pos.x -= (NodeView.getLockedNode(0).getRegionWidth() - TILE_WIDTH) / 2;
             pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
 
-            Node node = new Node(pos.x, pos.y, target.getName()+","+targetNodes.get(i), 0, Node.NodeState.LOCKED);
+            Node.NodeState state;
+            if(lockedNodes.get(i)) {
+                state = Node.NodeState.LOCKED;
+            } else {
+                state = Node.NodeState.UNSCANNED;
+            }
+            Node node = new Node(pos.x, pos.y, target.getName()+","+targetNodes.get(i), 0, state);
             imageNodes.put(target.getName()+","+targetNodes.get(i), node);
             stage.addActor(node);
         }

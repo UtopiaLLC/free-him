@@ -122,6 +122,11 @@ public class LevelModel {
 //            targets.put(t.getName(), t);
             TargetModel t = addTarget(targetJson);
             targetLocs.put(t.getName(), itr.next().asIntArray());
+            for(String fact: t.getNodes()) {
+                if(!t.getLocked(fact)) {
+                    hackedFacts.get(t.getName()).add(fact);
+                }
+            }
 
         }
 
@@ -277,11 +282,11 @@ public class LevelModel {
     /**
      * Adds target to model.
      * New target world coords are 0,0, but does not change existing coordinates.
-     * @param t name of json file containing target data
+     * @param targetJson name of json file containing target data
      */
-    private TargetModel addTarget(String t){
-        TargetModel target = new TargetModel(t);
-        t = target.getName();
+    private TargetModel addTarget(String targetJson){
+        TargetModel target = new TargetModel(targetJson);
+        String t = target.getName();
         targets.put(t, target);
         summaries.put(t, new HashMap<String, String>());
         contents.put(t, new HashMap<String, String>());

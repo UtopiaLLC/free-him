@@ -263,8 +263,8 @@ public class LevelController {
      * @return  position of the target in isometric coordinates
      */
     public Vector2 getTargetPos(String target){
-        System.out.println(target);
-        System.out.println(levelModel.getTarget(target));
+//        System.out.println(target);
+//        System.out.println(levelModel.getTarget(target));
        //return new Vector2(levelModel.getTarget(target).getX(),levelModel.getTarget(target).getY());
         int [] targetLoc = levelModel.getTargetLoc(target);
 
@@ -320,10 +320,20 @@ public class LevelController {
      *
      * @param target name of the target
      * @param fact identifier of the fact
-     * @return the
+     * @return the fact
      */
     public String viewFact(String target, String fact){
         return levelModel.getContents().get(target).get(fact);
+    }
+
+    /**
+     *
+     * @param target name of the target
+     * @param fact identifier of the fact
+     * @return the locked status of a node
+     */
+    public boolean getLocked(String target, String fact) {
+        return levelModel.getTarget(target).getLocked(fact);
     }
 
 
