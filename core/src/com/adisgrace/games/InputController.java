@@ -284,7 +284,7 @@ public class InputController {
 	/**
 	 * This method inputs parameters to create a click listener for nodes.
 	 *
-	 * This method only adds the enter and exit listeners to the nodes for GameController-specific uses.
+	 * This method only adds the enter and exit listeners to the nodes for **GameController-specific** uses.
 	 *
 	 * @param skin the skin of the labels
 	 * @param levelController the levelController used in the gameplay controller
@@ -326,7 +326,9 @@ public class InputController {
 	}
 
 	/**
-	 * Returns a ClickListener that can be used for any purpose
+	 * Returns a ClickListener that can take in any function to be run. Returns a listener with clicked, enter, exit
+	 * implemented.
+	 *
 	 * @param onClick Method to call on click
 	 * @param onEnter Method to call on enter
 	 * @param onExit Method to call on exit
@@ -352,7 +354,7 @@ public class InputController {
 	}
 
 	/**
-	 * Returns a ClickListener that can be used for any purpose
+	 * Returns a ClickListener that can take in any function to be run. Used for when user clicks a button
 	 * @param onClick Method to call on click
 	 * @return ClickListener using associated functions
 	 */
@@ -361,6 +363,34 @@ public class InputController {
 			@Override
 			public void clicked(InputEvent event, float x, float y){
 				onClick.run();
+			}
+		};
+	}
+
+	/**
+	 * Returns a ClickListener that can take in any function to be run. Used for when user hovers over a button
+	 * @param onEnter Method to call on enter
+	 * @return ClickListener using associated functions
+	 */
+	public ClickListener getButtonListenerEnter(final Runnable onEnter){
+		return new ClickListener(){
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+				onEnter.run();
+			}
+		};
+	}
+
+	/**
+	 * Returns a ClickListener that can take in any function to be run. Used for when user stops hovering over a button
+	 * @param onExit Method to call on exit
+	 * @return ClickListener using associated functions
+	 */
+	public ClickListener getButtonListenerExit(final Runnable onExit){
+		return new ClickListener(){
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor){
+				onExit.run();
 			}
 		};
 	}

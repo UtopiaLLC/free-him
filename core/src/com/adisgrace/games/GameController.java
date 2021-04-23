@@ -394,6 +394,10 @@ public class GameController implements Screen {
         }
     }
 
+    /**
+     * This method switches the level based on the number inputted
+     * @param newLevel the level that the game needs to be switched to
+     */
     public void switchLevel(int newLevel) {
         levelController = levelControllers.get(newLevel);
         activeVerb = ActiveVerb.NONE;
@@ -514,6 +518,11 @@ public class GameController implements Screen {
         return notebook;
     }
 
+    /**
+     * Creates a runnable that runs the callConfirmFunction method
+     * @param s
+     * @return the runnable associated with callConfirmFunction
+     */
     private Runnable createConfirmRunnable(final String s) {
         return new Runnable(){
             @Override
