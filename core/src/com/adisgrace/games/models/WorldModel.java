@@ -184,7 +184,7 @@ public class WorldModel {
 		hackednodes.put(t, new Array<String>());
 		exposablenodes.put(t, new Array<String>());
 		to_display.put(t, new Array<String>());
-		for(String fact: target.getFirstNodes()){
+		for(String fact: target.getFirstNodes().keys){
 			to_display.get(t).add(fact);
 		}
 	}
@@ -203,7 +203,7 @@ public class WorldModel {
 		hackednodes.put(t, new Array<String>());
 		exposablenodes.put(t, new Array<String>());
 		to_display.put(t, new Array<String>());
-		for(String fact: target.getFirstNodes()){
+		for(String fact: target.getFirstNodes().keys){
 			to_display.get(t).add(fact);
 		}
 	}
@@ -290,6 +290,27 @@ public class WorldModel {
 	public GAMESTATE nextTurn() {
 		player.nextTurn();
 		for(TargetModel t : targets.values()){
+			// therapist trait implemented over here
+			if (t.getTraits().is_therapist()){
+				// if target is a therapist and is alive, reduce stress of all targets
+				if (t.getState() != TargetModel.TargetState.DEFEATED){
+					for (TargetModel tt : targets.values()){
+						tt.therapy();
+					}
+				}
+			}
+			// gossip trait implemented over here
+			if (t.getTraits().is_gossip()){
+				// if target is gossip and is alive, spread suspicion to all other targets
+				if (t.getState() != TargetModel.TargetState.DEFEATED){
+					for (TargetModel tt : targets.values()){
+						// target does not spread suspicion to itself
+						if (tt != t){
+							tt.receive_gossip(t.spread_gossip());
+						}
+					}
+				}
+			}
 			t.nextTurn();
 		}
 		n_days++;
@@ -339,7 +360,7 @@ public class WorldModel {
 		// Get harass damage and inflict on target
 		int stressDmg = targets.get(targetname).harass();
 		targets.get(targetname).addStress(stressDmg);
-		player.harass();
+		player.harass(targets.get(targetname));
 		return this.getGameState();
 	}
 
@@ -356,9 +377,9 @@ public class WorldModel {
 		if(!to_display.get(targetname).contains(fact, false)
 				|| hackednodes.get(targetname).contains(fact, false))
 			throw new RuntimeException("Node is undiscovered, or has already been hacked");
-		if(!player.canHack())
+		if(!player.canHack(targets.get(targetname)))  // pass target to playerModel since traits affect AP cost
 			throw new RuntimeException("Insufficient AP to hack");
-		player.hack();
+		player.hack(targets.get(targetname));  // pass target to playerModel since traits affect AP cost
 		if(rng.nextDouble() < 0.2){
 			System.out.println("Suspicion before " + targets.get(targetname).getSuspicion());
 			targets.get(targetname).addSuspicion(25);
@@ -383,9 +404,9 @@ public class WorldModel {
 				|| !hackednodes.get(targetname).contains(fact, false)
 				|| summaries.get(targetname).containsKey(fact))
 			throw new RuntimeException("Node is undiscovered or unhacked, or has already been scanned");
-		if(!player.canScan())
+		if(!player.canScan(targets.get(targetname)))  // pass target to playerModel since traits affect AP cost
 			throw new RuntimeException("Insufficient AP to scan");
-		player.scan(0f); // Stress cost for scanning is unimplemented
+		player.scan(0f, targets.get(targetname)); // Stress cost for scanning is unimplemented  // pass target to playerModel since traits affect AP cost
 		summaries.get(targetname).put(fact, targets.get(targetname).getSummary(fact));
 		contents.get(targetname).put(fact, targets.get(targetname).getContent(fact));
 		// combo checking
@@ -403,19 +424,8 @@ public class WorldModel {
 			}
 		}
 		exposablenodes.get(targetname).add(fact);
-        to_display.get(targetname).addAll(targets.get(targetname).getChildren(fact));
+        to_display.get(targetname).addAll(targets.get(targetname).getChildren(fact).keys);
 		return targets.get(targetname).getContent(fact);
-	}
-
-	/**
-	 * Returns all facts connected to a given fact
-	 * @param targetName name of target who "owns" fact to be viewed
-	 * @param fact fact identifier
-	 * @return an Array of facts connected to fact
-	 */
-	public Array<String> getConnections(String targetName, String fact){
-		TargetModel target = targets.get(targetName);
-		return target.getChildren(fact);
 	}
 
 	/**
@@ -481,11 +491,11 @@ public class WorldModel {
 			throw new RuntimeException("Invalid target");
 		if(!contents.get(targetname).containsKey(fact))
 			throw new RuntimeException("Node has not been scanned");
-		if(!player.canThreaten())
+		if(!player.canThreaten(targets.get(targetname)))  // pass target to playerModel since traits affect AP cost
 			throw new RuntimeException("Insufficient AP to threaten");
 		if(!exposablenodes.get(targetname).contains(fact, false))
 			throw new RuntimeException("This fact has already been exposed");
-		player.threaten();
+		player.threaten(targets.get(targetname));  // pass target to playerModel since traits affect AP cost
 		int stressDamage = targets.get(targetname).threaten(fact);
 		targets.get(targetname).addStress(stressDamage);
 		return stressDamage;
@@ -502,11 +512,11 @@ public class WorldModel {
 			throw new RuntimeException("Invalid target");
 		if(!contents.get(targetname).containsKey(fact))
 			throw new RuntimeException("Node has not been scanned");
-		if(!player.canExpose())
+		if(!player.canExpose(targets.get(targetname)))  // pass target to playerModel since traits affect AP cost
 			throw new RuntimeException("Insufficient AP to expose");
 		if(!exposablenodes.get(targetname).contains(fact, false))
 			throw new RuntimeException("This fact has already been exposed");
-		player.expose();
+		player.expose(targets.get(targetname));  // pass target to playerModel since traits affect AP cost
 		exposablenodes.get(targetname).removeValue(fact, false);
 		int stressDamage = targets.get(targetname).expose(fact);
 		targets.get(targetname).addStress(stressDamage);

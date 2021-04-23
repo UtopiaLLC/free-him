@@ -9,6 +9,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -20,10 +21,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 public class GameController implements Screen {
 
@@ -44,6 +47,30 @@ public class GameController implements Screen {
         /** Linked to no action being selected */
         NONE
     };
+    public static String getHoverText(ActiveVerb activeVerb){
+        switch (activeVerb){
+            case HARASS: return "Harass: Harass your target to slightly increase their stress for 2 AP";
+            case THREATEN: return "Threaten: Threaten your target with a \n fact to blackmail to increase their stress " +
+                    "for 2 AP";
+            case EXPOSE: return "Expose: Expose your target's fact to the public\n for large stress damage" +
+                    " for 3 AP";
+            case OVERWORK: return "Overwork: Gains 2 AP, but Increases Stress";
+            case OTHER_JOBS: return "Other Jobs: Make Money with 3 AP";
+            case RELAX: return "Relax: Decreases Stress with 1 AP";
+            default: throw new RuntimeException("Invalid ActiveVerb passed " + activeVerb.toString());
+        }
+    };
+    public static String getName(ActiveVerb activeVerb){
+        switch (activeVerb){
+            case HARASS: return "Harass";
+            case THREATEN: return "Threaten";
+            case EXPOSE: return "Expose";
+            case OVERWORK: return "Overwork";
+            case OTHER_JOBS: return "Other Jobs";
+            case RELAX: return "Relax";
+            default: return "None";
+        }
+    }
 
     private Array<String> levelJsons;
     private Array<LevelController> levelControllers;
@@ -71,7 +98,7 @@ public class GameController implements Screen {
     //private WorldModel world;
     LevelController levelController;
     /** activeVerb is the state of the toolbar buttons i.e. which button clicked or not clicked */
-    private ActiveVerb activeVerb;
+    public static ActiveVerb activeVerb;
     /** hoverVerb is the verb that is currently being hovered over by the cursor */
     private ActiveVerb hoverVerb;
     /** nodeView is the view class that exposes all nodes in the map */
@@ -98,37 +125,12 @@ public class GameController implements Screen {
     private Array<String> exposedFacts;
     /** list of facts used to threaten the target*/
     private Array<String> threatenedFacts;
-
-    /** The ImageButton for harass, to be initialized with given texture */
-    private ImageButton harass;
-    /** Whether the harass button has been checked */
-    private boolean harass_checked = false;
-    /** The ImageButton for threaten, to be initialized with given texture */
-    private ImageButton threaten;
-    /** Whether the threaten button has been checked */
-    private boolean threaten_checked = false;
-    /** The ImageButton for expose, to be initialized with given texture */
-    private ImageButton expose;
-    /** Whether the expose button has been checked */
-    private boolean expose_checked = false;
-    /** The ImageButton for overwork, to be initialized with given texture */
-    private ImageButton overwork;
-    /** Whether the overwork button has been checked */
-    private boolean overwork_checked = false;
-    /** The ImageButton for otherJobs, to be initialized with given texture */
-    private ImageButton otherJobs;
-    /** Whether the otherJobs button has been checked */
-    private boolean otherJobs_checked = false;
-    /** The ImageButton for relax, to be initialized with given texture */
-    private ImageButton relax;
-    /** Whether the relax button has been checked */
-    private boolean relax_checked = false;
     /** model for player stats and actions */
     //private PlayerModel player;
     /** flag for when game ended*/
     private boolean ended = false;
     /** flag for when all nodes need to not be clicked anymore*/
-    private boolean nodeFreeze = false;
+    public static boolean nodeFreeze = false;
     /** dialog box for blackmail commands*/
     private Dialog blackmailDialog;
     /** flag for when blackmail operations are complete*/
@@ -141,6 +143,8 @@ public class GameController implements Screen {
     private ShapeRenderer shapeRenderer;
     /** controller for camera operations*/
     private CameraController cameraController;
+
+    private UIController uiController;
     /** controller for input operations*/
     private InputController ic;
 
@@ -161,12 +165,19 @@ public class GameController implements Screen {
     private int currentLevel;
 
     private Array<Connector> visibleConnectors;
-    private Vector2 connectorCoords;
 
     private Texture NorthConnector;
     private Texture SouthConnector;
     private Texture EastConnector;
     private Texture WestConnector;
+
+    private Animation<TextureRegion> NorthConnectorAnimation;
+    private Animation<TextureRegion> SouthConnectorAnimation;
+    private Animation<TextureRegion> EastConnectorAnimation;
+    private Animation<TextureRegion> WestConnectorAnimation;
+
+    //private Image north, east, south, west;
+
 
     public GameController() {
         canvas = new GameCanvas();
@@ -210,59 +221,81 @@ public class GameController implements Screen {
         canvas.endDebug();
 
         skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
+        uiController = new UIController(skin);
 
         // Creating Nodes
         imageNodes = new HashMap<>();
 
         NodeView.loadAnimations();
         for (TargetModel target: targets) {
-            nodeView = new NodeView(stage, target, levelController);
+            Vector2 targetCoords = levelController.getTargetPos(target.getName());
+            Array<String> targetNodes = target.getNodes();
+            Array<Boolean> lockedNodes = new Array<>();
+            for (String nodeName: targetNodes ){
+                lockedNodes.add(levelController.getLocked(target.getName(), nodeName));
+            }
+            nodeView = new NodeView(stage, target, targetNodes, targetCoords, lockedNodes);
             imageNodes.putAll(nodeView.getImageNodes());
         }
 
         ic = new InputController();
         addNodeListeners(imageNodes);
 
-        // Adding all visible nodes
-        for (TargetModel target: targets) {
-            Array<String> displayedNodes= levelController.getVisibleNodes(target.getName());
-            for(String str : displayedNodes) {
-                stage.addActor(imageNodes.get(target.getName()+","+str));
-            }
-            stage.addActor(imageNodes.get(target.getName()));
-        }
+
 
         NorthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("N")));
         SouthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("S")));
         WestConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("W")));
         EastConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("E")));
 
-        visibleConnectors = levelController.getAllVisibleConnectors();
-        connectorCoords = new Vector2();
-        canvas.begin();
-        for(Connector connector : visibleConnectors) {
-            connectorCoords.set(connector.xcoord, connector.ycoord);
-            connectorCoords = isometricToWorld(connectorCoords);
-            if(connector.type.contains("E")) {
-                canvas.draw(EastConnector,
-                        connectorCoords.x, connectorCoords.y);
-            }if(connector.type.contains("W")) {
-                canvas.draw(WestConnector,
-                        connectorCoords.x, connectorCoords.y);
+//        north = new Image(NorthConnector);
+//        south = new Image(SouthConnector);
+//        west = new Image(WestConnector);
+//        east = new Image(EastConnector);
+
+
+        //visibleConnectors = levelController.getAllVisibleConnectors();
+
+        //This draws all the primary connections that are visible at the beginning of the game
+        Vector2 connectorCoords = new Vector2();
+        for(TargetModel target: targets){
+            Vector2 targetCoords = levelController.getTargetPos(target.getName());
+            ArrayMap<String, Array<Connector>> firstConnections = levelController.getConnectorsOf(target.getName());
+
+            //for each target, extract the path from target to each individual node
+            for(int i = 0; i < firstConnections.size; i++){
+                Array<Connector> firstConnectors = firstConnections.getValueAt(i);
+                //draw each individual connector on the path
+                for(Connector connector : firstConnectors) {
+                    connectorCoords.set(connector.xcoord, connector.ycoord);
+                    connectorCoords.add(targetCoords);
+                    connectorCoords = isometricToWorld(connectorCoords);
+                    if(connector.type.contains("E")) {
+                        Image east = new Image(EastConnector);
+                        east.setPosition(connectorCoords.x, connectorCoords.y);
+                        stage.addActor(east);
+                    }if(connector.type.contains("W")) {
+                        Image west = new Image(WestConnector);
+                        west.setPosition(connectorCoords.x, connectorCoords.y);
+                        stage.addActor(west);
+                    }
+                    if(connector.type.contains("N")) {
+                        Image north = new Image(NorthConnector);
+                        north.setPosition(connectorCoords.x, connectorCoords.y);
+                        stage.addActor(north);
+                    }
+                    if(connector.type.contains("S")) {
+                        Image south = new Image(SouthConnector);
+                        south.setPosition(connectorCoords.x, connectorCoords.y);
+                        stage.addActor(south);
+                    }
+                }
+
+                String fact = firstConnections.getKeyAt(i);
+                stage.addActor(imageNodes.get(target.getName()+","+fact));
             }
-            if(connector.type.contains("N")) {
-                canvas.draw(NorthConnector,
-                        connectorCoords.x, connectorCoords.y);
-            }
-            if(connector.type.contains("S")) {
-                canvas.draw(SouthConnector,
-                        connectorCoords.x, connectorCoords.y);
-            }
+            stage.addActor(imageNodes.get(target.getName()));
         }
-
-        canvas.end();
-
-
 
         cameraController = new CameraController(ic, canvas);
         createToolbar();
@@ -272,6 +305,15 @@ public class GameController implements Screen {
         music.setVolume(0.1f);
         music.setLooping(true);
         music.play();
+
+        NorthConnectorAnimation = connectorAnimation(NorthConnector);
+        SouthConnectorAnimation = connectorAnimation(SouthConnector);
+        EastConnectorAnimation = connectorAnimation(EastConnector);
+        WestConnectorAnimation = connectorAnimation(WestConnector);
+
+//        ConnectorActor connector = new ConnectorActor(SouthConnectorAnimation,
+//                isometricToWorld(new Vector2(5f, 5f)));
+//        stage.addActor(connector);
 
     }
 
@@ -289,33 +331,9 @@ public class GameController implements Screen {
         canvas.clear();
         canvas.drawIsometricGrid(stage,nodeWorldWidth,nodeWorldHeight);
 
-        visibleConnectors = levelController.getAllVisibleConnectors();
-        canvas.begin();
-        for(Connector connector : visibleConnectors) {
-            connectorCoords.set(connector.xcoord, connector.ycoord);
-            connectorCoords = isometricToWorld(connectorCoords);
-            if(connector.type.contains("E")) {
-                canvas.draw(EastConnector,
-                        connectorCoords.x, connectorCoords.y);
-            }if(connector.type.contains("W")) {
-                canvas.draw(WestConnector,
-                        connectorCoords.x, connectorCoords.y);
-            }
-            if(connector.type.contains("N")) {
-                canvas.draw(NorthConnector,
-                        connectorCoords.x, connectorCoords.y);
-            }
-            if(connector.type.contains("S")) {
-                canvas.draw(SouthConnector,
-                        connectorCoords.x, connectorCoords.y);
-            }
-        }
-
-        canvas.end();
-
         // If no action is currently selected, and the cursor is not hovering above any button, then remove any effects
         if (activeVerb == ActiveVerb.NONE && hoverVerb == ActiveVerb.NONE){
-            unCheck();
+            uiController.unCheck();
         }
 
         if(!ended) {
@@ -330,15 +348,14 @@ public class GameController implements Screen {
         stage.draw();
         toolbarStage.getViewport().apply();
         toolbarStage.draw();
-        updateStats();
 
         if(levelController.getLevelState() == LevelModel.LevelState.LOSE && !ended) {
-            createDialogBox("YOU LOSE!");
+            uiController.createDialogBox("YOU LOSE!");
             ended = true;
             //switchLevel(0);
 
         } else if (levelController.getLevelState() == LevelModel.LevelState.WIN && !ended) {
-            createDialogBox("You Win!");
+            uiController.createDialogBox("You Win!");
             ended = true;
             //switchLevel(currentLevel+1);
         }
@@ -386,16 +403,23 @@ public class GameController implements Screen {
     private void addNodeListeners(Map<String,Node> imageNodes) {
         for(final Node button : imageNodes.values()) { // Node Click Listeners
             final Node b = button;
-            ic.addNodeListener(b, skin, new Runnable() {
+            //Adds click listener to each node button
+            b.addListener(ic.getButtonListener(new Runnable() {
                 @Override
                 public void run() {
                     actOnNode(b.getName(), b);
                 }
-            }, levelController);
+            }));
+            //Adds enter and exit listeners to each node button
+            b.addListener(ic.addNodeListenerEnterExit(skin, levelController));
             button.remove();
         }
     }
 
+    /**
+     * This method switches the level based on the number inputted
+     * @param newLevel the level that the game needs to be switched to
+     */
     public void switchLevel(int newLevel) {
         levelController = levelControllers.get(newLevel);
         activeVerb = ActiveVerb.NONE;
@@ -411,7 +435,13 @@ public class GameController implements Screen {
         // Creating Nodes
         imageNodes = new HashMap<>();
         for (TargetModel target: targets) {
-            nodeView = new NodeView(stage, target, levelController);
+            Vector2 targetCoords = levelController.getTargetPos(target.getName());
+            Array<String> targetNodes = target.getNodes();
+            Array<Boolean> lockedNodes = new Array<>();
+            for (String nodeName: targetNodes ){
+                lockedNodes.add(levelController.getLocked(target.getName(), nodeName));
+            }
+            nodeView = new NodeView(stage, target, targetNodes, targetCoords, lockedNodes);
             imageNodes.putAll(nodeView.getImageNodes());
         }
 
@@ -431,336 +461,14 @@ public class GameController implements Screen {
         }
 
         // Adding all visible nodes
-        for (TargetModel target: targets) {
-            Array<String> displayedNodes= levelController.getVisibleNodes(target.getName());
-            for(String str : displayedNodes) {
-                stage.addActor(imageNodes.get(target.getName()+","+str));
-            }
-            stage.addActor(imageNodes.get(target.getName()));
-        }
+//        for (TargetModel target: targets) {
+//            Array<String> displayedNodes= levelController.getVisibleNodes(target.getName());
+//            for(String str : displayedNodes) {
+//                stage.addActor(imageNodes.get(target.getName()+","+str));
+//            }
+//            stage.addActor(imageNodes.get(target.getName()));
+//        }
 
-    }
-
-    /**
-     * This helper method sets all buttons in toolbar to their unchecked/original states
-     */
-    private void unCheck(){
-        harass_checked = false;
-        threaten_checked = false;
-        expose_checked = false;
-        otherJobs_checked = false;
-        overwork_checked = false;
-        relax_checked = false;
-        harass.setChecked(false);
-        threaten.setChecked(false);
-        expose.setChecked(false);
-        otherJobs.setChecked(false);
-        overwork.setChecked(false);
-        relax.setChecked(false);
-        activeVerb = ActiveVerb.NONE;
-    }
-
-    /**
-     * This method creates a harass button with given textures for it's original status, when the cursor is hovering
-     * above it and when it is clicked.
-     *
-     * @return      ImageButton for harass.
-     */
-    private ImageButton createHarass(){
-        harass = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/harass_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/harass_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/harass_select.png")))));
-        harass.setTransform(true);
-        harass.setScale(1f);
-        harass.addListener(new ClickListener()
-        {
-            Label  harassLabel = new Label("Harass: Harass your target to slightly increase their stress for 2 AP", skin);
-
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                if (harass_checked == false){
-                    unCheck();
-                    activeVerb = ActiveVerb.HARASS;
-                    harass_checked = true;
-                    harass.setChecked(true);
-                }else{
-                    unCheck();
-                }
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-                if(activeVerb != ActiveVerb.HARASS){
-                    Vector2 zeroLoc = harass.localToStageCoordinates(new Vector2(0, harass.getHeight()));
-                    harassLabel.setX(zeroLoc.x);
-                    harassLabel.setY(zeroLoc.y);
-                    toolbarStage.addActor(harassLabel);
-                    hoverVerb = ActiveVerb.HARASS;
-                    harass.setChecked(true);
-                }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-                harassLabel.remove();
-                hoverVerb = ActiveVerb.NONE;
-                if (activeVerb!=ActiveVerb.HARASS)harass.setChecked(false);
-            }
-        });
-        return harass;
-    }
-
-    /**
-     * This method creates a threaten button with given textures for it's original status, when the cursor is hovering
-     * above it and when it is clicked.
-     *
-     * @return      ImageButton for threaten.
-     */
-    private ImageButton createThreaten(){
-        threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/threaten_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/threaten_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/threaten_select.png")))));
-        threaten.setTransform(true);
-        threaten.setScale(1f);
-        threaten.addListener(new ClickListener()
-        {
-
-            Label  threatenLabel = new Label("Threaten: Threaten your target with a \n fact to blackmail to increase their stress " +
-                    "for 2 AP", skin);
-
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                if (threaten_checked == false){
-                    unCheck();
-                    activeVerb = ActiveVerb.THREATEN;
-                    threaten_checked = true;
-                    threaten.setChecked(true);
-                }else{
-                    unCheck();
-                }
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-                if(activeVerb != ActiveVerb.THREATEN){
-                    Vector2 zeroLoc = threaten.localToStageCoordinates(new Vector2(0, threaten.getHeight()));
-                    threatenLabel.setX(zeroLoc.x);
-                    threatenLabel.setY(zeroLoc.y);
-                    toolbarStage.addActor(threatenLabel);
-                    hoverVerb = ActiveVerb.THREATEN;
-                    threaten.setChecked(true);
-                }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-                threatenLabel.remove();
-                hoverVerb = ActiveVerb.NONE;
-                if (activeVerb!=ActiveVerb.THREATEN)threaten.setChecked(false);
-            }
-        });
-        return threaten;
-    }
-
-    /**
-     * This method creates a expose button with given textures for it's original status, when the cursor is hovering
-     * above it and when it is clicked.
-     *
-     * @return      ImageButton for expose.
-     */
-    private ImageButton createExpose(){
-        expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/expose_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/expose_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/expose_select.png")))));
-        expose.setTransform(true);
-        expose.setScale(1f);
-        expose.addListener(new ClickListener()
-        {
-
-            Label  exposeLabel = new Label("Expose: Expose your target's fact to the public\n for large stress damage" +
-                    " for 3 AP", skin);
-
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                if (expose_checked == false){
-                    unCheck();
-                    activeVerb = ActiveVerb.EXPOSE;
-                    expose_checked = true;
-                    expose.setChecked(true);
-                }else{
-                    unCheck();
-                }
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-                if(activeVerb != ActiveVerb.EXPOSE){
-                    Vector2 zeroLoc = expose.localToStageCoordinates(new Vector2(0, expose.getHeight()));
-                    exposeLabel.setX(zeroLoc.x);
-                    exposeLabel.setY(zeroLoc.y);
-                    toolbarStage.addActor(exposeLabel);
-                    hoverVerb = ActiveVerb.EXPOSE;
-                    expose.setChecked(true);
-                }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-                exposeLabel.remove();
-                hoverVerb = ActiveVerb.NONE;
-                if (activeVerb!=ActiveVerb.EXPOSE)expose.setChecked(false);
-            }
-        });
-        return expose;
-    }
-
-    /**
-     * This method creates a overwork button with given textures for it's original status, when the cursor is hovering
-     * above it and when it is clicked.
-     *
-     * @return      ImageButton for overwork.
-     */
-    private ImageButton createOverwork(){
-        overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork_select.png")))));
-        overwork.setTransform(true);
-        overwork.setScale(1f);
-        overwork.addListener(new ClickListener()
-        {
-            Label  overworkLabel = new Label("Overwork: Gains 2 AP, but Increases Stress", skin);
-
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                unCheck();
-                final String s = "overwork";
-                confirmDialog("Are you sure you want to overwork?", s);
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-
-                if(activeVerb != ActiveVerb.OVERWORK){
-                    Vector2 zeroLoc = overwork.localToStageCoordinates(new Vector2(0, overwork.getHeight()));
-                    overworkLabel.setX(zeroLoc.x);
-                    overworkLabel.setY(zeroLoc.y);
-                    toolbarStage.addActor(overworkLabel);
-                    hoverVerb = ActiveVerb.OVERWORK;
-                    overwork.setChecked(true);
-                }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-                overworkLabel.remove();
-                hoverVerb = ActiveVerb.NONE;
-                if (activeVerb!=ActiveVerb.OVERWORK)overwork.setChecked(false);
-            }
-        });
-        return overwork;
-    }
-
-    /**
-     * This method creates a otherjobs button with given textures for it's original status, when the cursor is hovering
-     * above it and when it is clicked.
-     *
-     * @return      ImageButton for otherjobs.
-     */
-    private ImageButton createOtherJobs(){
-        otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/otherjobs_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/otherjobs_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/otherjobs_select.png")))));
-        otherJobs.setTransform(true);
-        otherJobs.setScale(1f);
-        otherJobs.addListener(new ClickListener()
-        {
-
-            Label  otherJobLabel = new Label("Other Jobs: Make Money with 3 AP", skin);
-
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                unCheck();
-                final String s = "otherJobs";
-                confirmDialog("Are you sure you want to do other jobs?", s);
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-                if(activeVerb != ActiveVerb.OTHER_JOBS){
-                    Vector2 zeroLoc = otherJobs.localToStageCoordinates(new Vector2(0, otherJobs.getHeight()));
-                    otherJobLabel.setX(zeroLoc.x);
-                    otherJobLabel.setY(zeroLoc.y);
-                    toolbarStage.addActor(otherJobLabel);
-                    hoverVerb = ActiveVerb.OTHER_JOBS;
-                    otherJobs.setChecked(true);
-                }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-                otherJobLabel.remove();
-                hoverVerb = ActiveVerb.NONE;
-                if (activeVerb!=ActiveVerb.OTHER_JOBS)otherJobs.setChecked(false);
-            }
-        });
-        return otherJobs;
-    }
-
-    /**
-     * This method creates a relax button with given textures for it's original status, when the cursor is hovering
-     * above it and when it is clicked.
-     *
-     * @return      ImageButton for relax.
-     */
-    private ImageButton createRelax(){
-        relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/relax_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/relax_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/relax_select.png")))));
-        relax.setTransform(true);
-        relax.setScale(1f);
-        relax.addListener(new ClickListener()
-        {
-            Label  relaxLabel = new Label("Relax: Decreases Stress with 1 AP", skin);
-
-            @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
-                unCheck();
-                final String s = "relax";
-                confirmDialog("Are you sure you want to relax?", s);
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-                if(activeVerb != ActiveVerb.RELAX){
-                    Vector2 zeroLoc = relax.localToStageCoordinates(new Vector2(0, relax.getHeight()));
-                    relaxLabel.setX(zeroLoc.x);
-                    relaxLabel.setY(zeroLoc.y);;
-                    toolbarStage.addActor(relaxLabel);
-                    hoverVerb = ActiveVerb.RELAX;
-                    relax.setChecked(true);
-                }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-                relaxLabel.remove();
-                hoverVerb = ActiveVerb.NONE;
-                if (activeVerb!=ActiveVerb.RELAX)relax.setChecked(false);
-            }
-        });
-        return relax;
     }
 
     /**
@@ -779,7 +487,7 @@ public class GameController implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-                createDialogBox("You end the day after a long battle of psychological warfare.");
+                uiController.createDialogBox("You end the day after a long battle of psychological warfare.");
                 levelController.endDay();
             }
         });
@@ -802,7 +510,7 @@ public class GameController implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-                createDialogBox("You clicked something that hasn't been implemented yet.");
+                uiController.createDialogBox("You clicked something that hasn't been implemented yet.");
             }
         });
         return settings;
@@ -825,10 +533,29 @@ public class GameController implements Screen {
             public void clicked(InputEvent event, float x, float y)
             {
                 final String s = "notebook";
-                confirmDialog("Are you sure you want to open notebook?", s);
+                uiController.confirmDialog("Are you sure you want to open notebook?", new Runnable(){
+                    @Override
+                    public void run() {
+                        callConfirmFunction(s);
+                    }
+                });
             }
         });
         return notebook;
+    }
+
+    /**
+     * Creates a runnable that runs the callConfirmFunction method
+     * @param s
+     * @return the runnable associated with callConfirmFunction
+     */
+    private Runnable createConfirmRunnable(final String s) {
+        return new Runnable(){
+            @Override
+            public void run() {
+                callConfirmFunction(s);
+            }
+        };
     }
 
     /**
@@ -852,12 +579,11 @@ public class GameController implements Screen {
         stressBar = new ProgressBar(0f, 100f, 1f, true, skin, "synthwave");
         stressBar.setValue(levelController.getPlayerStress());
 
-        createHarass();
-        createExpose();
-        createRelax();
-        createOtherJobs();
-        createOverwork();
-        createThreaten();
+        uiController.createExpose(ic, createConfirmRunnable("expose"));
+        uiController.createRelax(ic, createConfirmRunnable("relax"));
+        uiController.createOtherJobs(ic, createConfirmRunnable("other jobs"));
+        uiController.createOverwork(ic, createConfirmRunnable("overwork"));
+        uiController.createThreaten(ic, createConfirmRunnable("threaten"));
         ImageButton end = createEndDay();
         ImageButton settings = createSettings();
         ImageButton notebook = createNotebook();
@@ -884,32 +610,13 @@ public class GameController implements Screen {
         toolbar.setSize(width, .25f*height);
 
         Table leftSide = createLeftsideTable(toolbar);
-        Table skillBar = createSkillBarTable(toolbar);
+        Table skillBar = uiController.createSkillBarTable(toolbar);
         Table rightSide = createRightsideTable(toolbar, end, notebook, settings);
 
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
         toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
         toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
         return toolbar;
-    }
-
-    /**
-     * This method creates a skill bar using threaten, expose, overwork, otherJobs, relac
-     * @param toolbar table that will encapsulate all other tables
-     * @return the skillBar table
-     */
-    private Table createSkillBarTable(Table toolbar) {
-        Table skillBar = new Table();
-        skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
-        int numSkills = 6+1;
-        float pad = skillBar.getWidth() / 60f;
-        //skillBar.add(harass).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(overwork).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        skillBar.add(relax).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
-        return skillBar;
     }
 
     /**
@@ -1030,23 +737,10 @@ public class GameController implements Screen {
         stress.setFontScale(2);
         ap = new Label("AP: " + Integer.toString(levelController.getAP()), skin);
         ap.setFontScale(2);
-//        tStress = new Label("Target Stress: " + Integer.toString(target.getStress()), skin);
-//        tStress.setFontScale(2);
-//        tSusp = new Label("Target Suspicion: " + Integer.toString(target.getSuspicion()), skin);
-//        tSusp.setFontScale(2);
-//        money = new Label ("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()), skin);
-//        money.setFontScale(2);
-//        tState = new Label("Target State: " + target.getState(), skin);
-//        tState.setFontScale(2);
 
         stats.top();
         stats.setFillParent(true);
 
-        //stats.add(stress).expandX().padTop(20);
-//        stats.add(tState).expandX().padTop(20);
-        //stats.add(money).expandX().padTop(20);
-//        stats.add(tStress).expandX().padTop(20);
-//        stats.add(tSusp).expandX().padTop(20);
         stats.add(ap).expandX().padTop(10);
         return stats;
     }
@@ -1080,14 +774,13 @@ public class GameController implements Screen {
 
                                 button.changeState(Node.NodeState.UNSCANNED);
 
-                                createDialogBox("You hacked the node successfully!");
+                                uiController.createDialogBox("You hacked the node successfully!");
 
 
-                                reloadDisplayedNodes();
                             } else if(hack == -3) {
-                                createDialogBox("Insufficient AP to hack this node.");
+                                uiController.createDialogBox("Insufficient AP to hack this node.");
                             } else if(hack == -4) {
-                                createDialogBox("You failed to hack the node!");
+                                uiController.createDialogBox("You failed to hack the node!");
                             }
                             break;
                         case 2://scannable
@@ -1096,31 +789,23 @@ public class GameController implements Screen {
 
                                 button.changeState(Node.NodeState.SCANNED);
 
-                                createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
-                                reloadDisplayedNodes();
+
+                                addConnections(nodeInfo[0], nodeInfo[1]);
+                                uiController.createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
+
                             } else {
-                                createDialogBox("Insufficient AP to scan this node.");
+                                uiController.createDialogBox("Insufficient AP to scan this node.");
                             }
                             break;
                         case 1://viewable
-                            createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
+                            uiController.createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
                             break;
                     }
 
                 }
                 break;
             case HARASS:
-//                if(isTarget) {
-//                    if(world.getPlayer().canHarass()) {
-//                        world.harass(target.getName());
-//                        createDialogBox("You harassed the target! They seem incredibly disturbed and got a bit stressed.");
-//                        activeVerb = ActiveVerb.NONE;
-//                    }
-//                    else {
-//                        createDialogBox("Insufficient AP to harass the target.");
-//                        activeVerb = ActiveVerb.NONE;
-//                    }
-//                }
+
                 break;
             case THREATEN:
                 if(isTarget) {
@@ -1128,7 +813,7 @@ public class GameController implements Screen {
                         getBlackmailFact("Select a fact to threaten the target with.", nodeInfo[0]);
                     }
                     else {
-                        createDialogBox("Insufficient AP to threaten the target.");
+                        uiController.createDialogBox("Insufficient AP to threaten the target.");
                         activeVerb = ActiveVerb.NONE;
                     }
 
@@ -1159,7 +844,7 @@ public class GameController implements Screen {
                             getBlackmailFact("Select a fact to expose the target with.", nodeInfo[0]);
                         }
                         else {
-                            createDialogBox("Insufficient AP to expose the target.");
+                            uiController.createDialogBox("Insufficient AP to expose the target.");
                             activeVerb = ActiveVerb.NONE;
                         }
 //                        if(levelController.getTargetStress(nodeInfo[0]) >=40) {
@@ -1187,126 +872,6 @@ public class GameController implements Screen {
                 System.out.println("You shall not pass");
                 break;
         }
-    }
-
-
-    /**
-     * Creates a dialog box with [s] at a reasonably-sized height and width
-     * @param s the string displayed
-     */
-    public void createDialogBox(String s) {
-        Dialog dialog = new Dialog("", skin) {
-            public void result(Object obj) {
-                nodeFreeze = false;
-            }
-        };
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
-        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
-        dialog.setBackground(drawable);
-        dialog.getBackground().setMinWidth(500);
-        dialog.getBackground().setMinHeight(500);
-        Label l = new Label( s, skin );
-        if(s.length() > 50) {
-            l.setFontScale(1.5f);
-        }else {
-            l.setFontScale(2f);
-        }
-        l.setWrap( true );
-        dialog.getContentTable().add( l ).prefWidth( 350 );
-        dialog.button("Ok", true); //sends "true" as the result
-        dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
-        dialog.show(toolbarStage);
-        nodeFreeze = true;
-    }
-
-    /**
-     * Creates a dialog box for the notebook with [s] at a reasonably-sized height and width
-     * @param s the string displayed
-     */
-    public void createNotebook(String s, String targetName) {
-        Dialog dialog = new Dialog("Notebook", skin) {
-            public void result(Object obj) {
-                nodeFreeze = false;
-            }
-        };
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
-        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
-        dialog.setBackground(drawable);
-        dialog.getBackground().setMinWidth(500);
-        dialog.getBackground().setMinHeight(500);
-        Label l = new Label( s, skin );
-        if(s.length() > 50) {
-            l.setFontScale(1.5f);
-        }else {
-            l.setFontScale(2f);
-        }
-        l.setWrap( true );
-        dialog.getContentTable().add( l ).prefWidth( 350 );
-        dialog.setMovable(true);
-
-        //Get all fact summaries that can potentially be displayed
-        Map<String, String> factSummaries = levelController.getNotes(targetName);
-        //This will store the fact ids of all the scanned facts
-        Array<String> scannedFacts = new Array<>();
-
-        Table table = dialog.getContentTable();
-        if (factSummaries.keySet().size() == 0) {
-            scannedFacts.add("No facts scanned yet!");
-        }
-        for (String fact_ : factSummaries.keySet()) {
-            if (factSummaries.containsKey(fact_))
-                scannedFacts.add(factSummaries.get(fact_));
-        }
-        table.setFillParent(false);
-
-        table.row();
-        for (int i = 0; i < scannedFacts.size; i++) {
-            Label k = new Label(scannedFacts.get(i), skin);
-            k.setFontScale(1.3f);
-            k.setWrap(true);
-            table.add(k).prefWidth(350);
-            table.row();
-        }
-
-        dialog.button("Ok", true); //sends "true" as the result
-        dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
-        dialog.show(toolbarStage);
-        nodeFreeze = true;
-    }
-
-    public void createNotebookTargetSelector(String s) {
-        Dialog dialog = new Dialog("Notebook", skin) {
-            public void result(Object obj) {
-                nodeFreeze = false;
-
-                if(obj.getClass() == Boolean.class) {
-                    return;
-                }
-
-                createNotebook("Notebook:", targets.get((int)obj).getName());
-            }
-        };
-
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
-        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
-        dialog.setBackground(drawable);
-        dialog.getBackground().setMinWidth(500);
-        dialog.getBackground().setMinHeight(500);
-        Label l = new Label( s, skin );
-        if(s.length() > 50) {
-            l.setFontScale(1.5f);
-        }else {
-            l.setFontScale(2f);
-        }
-        l.setWrap( true );
-        dialog.getContentTable().add( l ).prefWidth( 350 );
-        dialog.setMovable(true);
-
-        for(int i = 0; i < targets.size; i++) {
-            dialog.button(targets.get(i).getName(), i);
-        }
-        dialog.button("Cancel", true); //sends "true" as the result
-        dialog.show(toolbarStage);
     }
 
     /**
@@ -1408,7 +973,7 @@ public class GameController implements Screen {
                                 //Threaten the target
                                 levelController.threaten(info[0], info[1]);
                                 activeVerb = ActiveVerb.NONE;
-                                createDialogBox("You threatened the target!");
+                                uiController.createDialogBox("You threatened the target!");
                                 //Add this fact to the list of facts used to threaten
                                 threatenedFacts.add(scannedFacts.get(temp_i));
                                 break;
@@ -1416,7 +981,7 @@ public class GameController implements Screen {
                                 //Expose the target
                                 levelController.expose(info[0], info[1]);
                                 activeVerb = ActiveVerb.NONE;
-                                createDialogBox("You exposed the target!");
+                                uiController.createDialogBox("You exposed the target!");
                                 //Add this fact to the list of facts used to expose
                                 exposedFacts.add(scannedFacts.get(temp_i));
                                 //Add this fact to the list of facts used to threaten
@@ -1427,8 +992,9 @@ public class GameController implements Screen {
                         }
                     }
                 });
-                //Add the displayed fact to the middle of the blackmail dialog
+                    //Add the displayed fact to the middle of the blackmail dialog
             }
+
             table.add(k).prefWidth(350);
             table.row();
         }
@@ -1440,48 +1006,70 @@ public class GameController implements Screen {
         nodeFreeze = true;
     }
 
-    /**
-     * Displays a dialog box where the user can confirm whether or not they want
-     * to proceed with a particular action
-     * @param s
-     * @param function
-     */
-    public void confirmDialog(String s, final String function) {
-        Dialog dialog = new Dialog("", skin) {
-            public void result(Object obj) {
-                if((boolean)obj) {
-                    callConfirmFunction(function);
-                } else {
+    public void addConnections(String target, String fact){
+        ArrayMap<String, Array<Connector>> connectors = levelController.getConnectorsOf(target, fact);
+        Vector2 connectorCoords = new Vector2();
+        Vector2 targetCoords = levelController.getTargetPos(target);
+        for(int i = 0; i < connectors.size; i++){
+            Array<Connector> firstConnectors = connectors.getValueAt(i);
+            //draw each individual connector on the path
+            for(Connector connector : firstConnectors) {
+                connectorCoords.set(connector.xcoord, connector.ycoord).add(targetCoords);
+                System.out.println(connectorCoords);
+                System.out.println(connector.type);
 
+                connectorCoords = isometricToWorld(connectorCoords);
+                if(connector.type.contains("E")) {
+                    System.out.println("East");
+                    ConnectorActor east = new ConnectorActor(EastConnectorAnimation, connectorCoords);
+                    stage.addActor(east);
+                }if(connector.type.contains("W")) {
+                    System.out.println("West");
+                    ConnectorActor west = new ConnectorActor(WestConnectorAnimation, connectorCoords);
+                    stage.addActor(west);
                 }
-            }
-        };
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
-        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
-        dialog.setBackground(drawable);
-        dialog.getBackground().setMinWidth(300);
-        dialog.getBackground().setMinHeight(300);
-        Label l = new Label( s, skin );
-        l.setFontScale(2);
-        l.setWrap( true );
-        dialog.getContentTable().add( l ).prefWidth( 250 );
-        dialog.button("Yes", true); //sends "true" as the result
-        dialog.button("No", false);  //sends "false" as the result
-        dialog.show(toolbarStage);
+                if(connector.type.contains("N")) {
+                    System.out.println("North");
+                    ConnectorActor north = new ConnectorActor(NorthConnectorAnimation, connectorCoords);
+                    stage.addActor(north);
+                }
+                if(connector.type.contains("S")) {
+                    System.out.println("South");
+                    ConnectorActor south = new ConnectorActor(SouthConnectorAnimation, connectorCoords);
+                    stage.addActor(south);
+                }
 
+                System.out.println("-------------");
+
+            }
+
+            String newFact = connectors.getKeyAt(i);
+            stage.addActor(imageNodes.get(target+","+newFact));
+        }
     }
 
-    /**
-     * Display all fact nodes of a target node that is visible
-     */
-    public void reloadDisplayedNodes() {
-        for(TargetModel target : targets) {
-            Array<String> displayedNodes= levelController.getVisibleNodes(target.getName());
-            for(String str : displayedNodes) {
-                stage.addActor(imageNodes.get(target.getName()+","+str));
-            }
+    public Animation<TextureRegion> connectorAnimation(Texture tex) {
+
+        TextureRegion[] connectorFrames = new TextureRegion[50];
+        int counter = 0;
+
+        for(int i = 2; i <= 100; i+=2) {
+
+            float percentile = i/100f;
+            float coordScaler = (1 - percentile) / 2;
+
+            connectorFrames[counter] = new TextureRegion(tex,
+                    (int)(tex.getWidth() * coordScaler),
+                    (int)(tex.getHeight() * coordScaler),
+                    (int)(tex.getWidth() * percentile),
+                    (int)(tex.getHeight() * percentile));
+
+            counter++;
         }
 
+        Animation<TextureRegion> edgeAnimation = new Animation<TextureRegion>(0.025f, connectorFrames);
+        edgeAnimation.setPlayMode(Animation.PlayMode.NORMAL);
+        return edgeAnimation;
     }
 
     /**
@@ -1494,32 +1082,33 @@ public class GameController implements Screen {
             case "overwork":
                 success = levelController.overwork();
                 if(success) {
-                    createDialogBox("You overworked yourself and gained 2 AP at the cost of your sanity...");
+                    uiController.createDialogBox("You overworked yourself and gained 2 AP at the cost of your sanity...");
                 } else {
-                    createDialogBox("You cannot overwork anymore today!");
+                    uiController.createDialogBox("You cannot overwork anymore today!");
                 }
                 break;
             case "relax":
                 success = levelController.relax();
 
                 if(success) {
-                    createDialogBox("You relaxed for 1 AP and decreased your stress!");
+                    uiController.createDialogBox("You relaxed for 1 AP and decreased your stress!");
                 } else {
-                    createDialogBox("Insufficient AP to relax.");
+                    uiController.createDialogBox("Insufficient AP to relax.");
                 }
                 break;
+            case "other jobs":
             case "otherJobs":
                 float money = levelController.otherJobs();
                 if(money != -1f) {
 
-                    createDialogBox("You did some other jobs and earned some " + Float.toString(money) +  " bitecoin for yourself!");
+                    uiController.createDialogBox("You did some other jobs and earned some " + Float.toString(money) +  " bitecoin for yourself!");
                 } else {
-                    createDialogBox("Insufficient AP to do other jobs");
+                    uiController.createDialogBox("Insufficient AP to do other jobs");
                 }
                 break;
             case "notebook":
                 //createNotebook("Notebook:");
-                createNotebookTargetSelector("Select a target to view facts for.");
+                uiController.createNotebookTargetSelector("Select a target to view facts for.", targets, levelController);
                 break;
             default:
                 System.out.println("You shall not pass");

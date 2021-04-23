@@ -133,26 +133,6 @@ public class LevelEditorModel {
     }
 
     /**
-     * Deletes a target.
-     * @param targetName name of target to be deleted
-     */
-    public void delete_target(String targetName){
-        if(!targets.containsKey(targetName))
-            throw new RuntimeException("Invalid target passed " + targetName);
-        targets.remove(targetName);
-    }
-
-    /**
-     * Gets a map containing a target's attributes.
-     * This returns a live version of the target and any changes will be reflected in the model.
-     * @param targetName    Name of target
-     * @return              Target object
-     */
-    private Target getTarget(String targetName){
-        return targets.get(targetName);
-    }
-
-    /**
      * Creates a factnode with the specified attributes
      * @param factName must be unique within
      * @param tsDmg
@@ -189,101 +169,9 @@ public class LevelEditorModel {
         // converts StressRating psDmg to integer value psDmg
         int psDmg_ = stressRating_to_int(psDmg);
 
-        FactNode factNode = new FactNode(factName, "untitled fact", contents, summary, new Array<String>(),
-                (int)coords.x, (int)coords.y, locked, tsDmg_, psDmg_, new Array<Array<Vector2>>(),
-                new Array<Array<String>>());
+        FactNode factNode = new FactNode(factName, "untitled fact", contents, summary,
+                new ArrayMap<String, Array<Connector>>(), (int)coords.x, (int)coords.y, locked, tsDmg_, psDmg_);
         factnodes.put(factName, factNode);
-    }
-
-    /**
-     * Edits a particular attribute of a factnode.
-     * This does not check whether or not newFieldValue is a valid value of fieldToEdit.
-     * Accepts fields "title" (str), "content" (str), "summary" (str), "posX" (int), "posY" (int),
-     * pos (Vector2), "locked" (bool), "tsDmg" (StressRating), and "psDmg" (StressRating).
-     * @param factName name of factnode to edit
-     * @param fieldToEdit name of the attribute to be changed
-     * @param newFieldValue new value of attribute
-     */
-    public void edit_factnode(String factName, String fieldToEdit, Object newFieldValue){
-        if(!factnodes.containsKey(factName))
-            throw new RuntimeException("Invalid factnode passed " + factName);
-        FactNode fn = factnodes.get(factName);
-        switch(fieldToEdit){
-            case "title":
-                fn.setTitle(newFieldValue.toString());
-                break;
-            case "content":
-                fn.setContent(newFieldValue.toString());
-                break;
-            case "summary":
-                fn.setSummary(newFieldValue.toString());
-                break;
-            case "posX":
-                fn.setX((Integer)newFieldValue);
-                break;
-            case "posY":
-                fn.setY((Integer)newFieldValue);
-                break;
-            case "pos":
-                fn.setX((int)((Vector2)newFieldValue).x);
-                fn.setY((int)((Vector2)newFieldValue).y);
-                break;
-            case "locked":
-                fn.setLocked((Boolean)newFieldValue);
-                break;
-            case "tsDmg":
-                fn.setTargetStressDmg(stressRating_to_int((StressRating)newFieldValue));
-                String contents, summary;
-                switch((StressRating)newFieldValue){
-                    case NONE:
-                        contents = "You learn something entirely innocuous about your target.";
-                        summary = "Nothing!";
-                        break;
-                    case LOW:
-                        contents = "You crawl their web presence and find a few very embarrassing photos.";
-                        summary = "Photos";
-                        break;
-                    case MED:
-                        contents = "You dig through their history and discover a few citations or arrests some 10+ years ago.";
-                        summary = "History";
-                        break;
-                    case HIGH:
-                        contents = "You discover their involvement in some quite recent felonies that if exposed, would be prosecuted.";
-                        summary = "Criminality";
-                        break;
-                    default:
-                        throw new RuntimeException("Invalid tsDmg passed");
-                }
-                fn.setContent(contents);
-                fn.setSummary(summary);
-                break;
-            case "psDmg":
-                fn.setPlayerStressDmg(stressRating_to_int((StressRating)newFieldValue));
-                break;
-            default:
-                throw new RuntimeException("Invalid field passed " + fieldToEdit);
-        }
-    }
-
-    /**
-     * Remove a factnode.
-     * @param factName name of the factnode to be removed
-     */
-    public void delete_factnode(String factName){
-        if(!factnodes.containsKey(factName))
-            throw new RuntimeException("Invalid factnode passed " + factName);
-        factnodes.remove(factName);
-    }
-
-    /**
-     * Access a factnode's contents.
-     * @param factName name of the factnode
-     * @return pointer to factnode
-     */
-    public FactNode getFactNode(String factName){
-        if(!factnodes.containsKey(factName))
-            throw new RuntimeException("Invalid factnode passed " + factName);
-        return factnodes.get(factName);
     }
 
     /**
@@ -311,18 +199,6 @@ public class LevelEditorModel {
             connArr.add(path.getValueAt(k));
         }
         make_connection(parentName, childName, connArr);
-    }
-
-
-    /**
-     * Remove a connection between a parent and a child
-     * @param parentName
-     * @param childName
-     */
-    public void delete_connection(String parentName, String childName){
-        if(!connections.containsKey(parentName) || !connections.get(parentName).containsKey(childName))
-            throw new RuntimeException("No such connection between " + parentName + " and " + childName);
-        connections.get(parentName).remove(childName);
     }
 
     /**

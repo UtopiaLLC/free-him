@@ -8,9 +8,10 @@ import com.adisgrace.games.models.TargetModel;
 import com.adisgrace.games.util.Connector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 
 import java.util.*;
-
+import java.util.logging.Level;
 
 
 public class LevelController {
@@ -58,12 +59,9 @@ public class LevelController {
 
         if(!levelModel.getTargets().containsKey(target))
             return -1;
-        if(!levelModel.getVisibleFacts().get(target).contains(fact, false)
-                || levelModel.getHackedFacts().get(target).contains(fact, false))
-            return -2;
-        if(!player.canHack())
+        if(!player.canHack(levelModel.getTargets().get(target))) // pass target to playerModel since traits affect AP cost
             return -3;
-        player.hack();
+        player.hack(levelModel.getTargets().get(target)); // pass target to playerModel since traits affect AP cost
         if(rng.nextDouble() < 0.2){
             levelModel.getTargets().get(target).addSuspicion(25);
             return -4;
@@ -82,13 +80,10 @@ public class LevelController {
     public boolean scan(String target, String fact){
         if(!levelModel.getTargets().containsKey(target))
             return false;
-        if(!levelModel.getVisibleFacts().get(target).contains(fact, false)
-                || !levelModel.getHackedFacts().get(target).contains(fact, false)
-                || levelModel.getSummaries().get(target).containsKey(fact))
+        if(!player.canScan(levelModel.getTargets().get(target))) // pass target to playerModel since traits affect AP cost
             return false;
-        if(!player.canScan())
-            return false;
-        player.scan(0f); // Stress cost for scanning is unimplemented
+        player.scan(0f, levelModel.getTargets().get(target)); // Stress cost for scanning is unimplemented
+        // pass target to playerModel since traits affect AP cost
         levelModel.getSummaries().get(target).put(fact, levelModel.getTargets().get(target).getSummary(fact));
         levelModel.getContents().get(target).put(fact, levelModel.getTargets().get(target).getContent(fact));
         // combo checking
@@ -106,7 +101,6 @@ public class LevelController {
             }
         }
         levelModel.getExposableFacts().get(target).add(fact);
-        levelModel.getVisibleFacts().get(target).addAll(levelModel.getTargets().get(target).getChildren(fact));
         return true;
     }
 
@@ -134,7 +128,7 @@ public class LevelController {
         // Get harass damage and inflict on target
         int stressDmg = levelModel.getTargets().get(target).harass();
         levelModel.getTargets().get(target).addStress(stressDmg);
-        player.harass();
+        player.harass(levelModel.getTargets().get(target));
         return levelModel.getLevelState();
     }
 
@@ -149,11 +143,11 @@ public class LevelController {
             throw new RuntimeException("Invalid target");
         if(!levelModel.getContents().get(target).containsKey(fact))
             throw new RuntimeException("Node has not been scanned");
-        if(!player.canExpose())
+        if(!player.canExpose(levelModel.getTargets().get(target)))  // pass target to playerModel since traits affect AP cost
             throw new RuntimeException("Insufficient AP to expose");
         if(!levelModel.getExposableFacts().get(target).contains(fact, false))
             throw new RuntimeException("This fact has already been exposed");
-        player.expose();
+        player.expose(levelModel.getTargets().get(target));  // pass target to playerModel since traits affect AP cost
         levelModel.getExposableFacts().get(target).removeValue(fact, false);
         int stressDamage = levelModel.getTargets().get(target).expose(fact);
         levelModel.getTargets().get(target).addStress(stressDamage);
@@ -171,11 +165,11 @@ public class LevelController {
             throw new RuntimeException("Invalid target");
         if(!levelModel.getContents().get(target).containsKey(fact))
             throw new RuntimeException("Node has not been scanned");
-        if(!player.canThreaten())
+        if(!player.canThreaten(levelModel.getTargets().get(target)))  // pass target to playerModel since traits affect AP cost
             throw new RuntimeException("Insufficient AP to threaten");
         if(!levelModel.getExposableFacts().get(target).contains(fact, false))
             throw new RuntimeException("This fact has already been exposed");
-        player.threaten();
+        player.threaten(levelModel.getTargets().get(target)); // pass target to playerModel since traits affect AP cost
         int stressDamage = levelModel.getTargets().get(target).threaten(fact);
         levelModel.getTargets().get(target).addStress(stressDamage);
         return levelModel.getLevelState();
@@ -270,30 +264,12 @@ public class LevelController {
      * @return  position of the target in isometric coordinates
      */
     public Vector2 getTargetPos(String target){
-        System.out.println(target);
-        System.out.println(levelModel.getTarget(target));
+//        System.out.println(target);
+//        System.out.println(levelModel.getTarget(target));
        //return new Vector2(levelModel.getTarget(target).getX(),levelModel.getTarget(target).getY());
         int [] targetLoc = levelModel.getTargetLoc(target);
 
         return new Vector2(targetLoc[0], targetLoc[1]);
-    }
-
-    /**
-     * Returns the names and locations of all visible facts pertaining to target
-     *
-     * @param target the name of the target
-     * @return A hashmap of facts connected to their isometric coordinates
-     */
-    public HashMap<String, Vector2> getFactLocations(String target){
-        HashMap<String, Vector2> factLocations = new HashMap<>();
-        TargetModel t = levelModel.getTarget(target);
-        Vector2 targetCoords = new Vector2(t.getX(), t.getY());
-
-        for(String f: levelModel.getVisibleFacts(target)){
-            factLocations.put(f, t.getNodeCoords(f).add(targetCoords));
-        }
-
-        return factLocations;
     }
 
     /**
@@ -307,48 +283,21 @@ public class LevelController {
 
     /**
      *
-     * @return returns all connectors from visible nodes
+     * @param target name of the target
+     * @return all facts directly connected to targets and their corresponding paths
      */
-    public Array<Connector> getAllVisibleConnectors(){
-        Array<Connector> connections = new Array<>();
-        Set<String> targets = levelModel.getTargets().keySet();
-        for(String target: targets){
-            //add connectors originating from target
-            Array<Vector2> coordinates = levelModel.getTarget(target).getFirstConnectorCoords();
-            Array<String> types = levelModel.getTarget(target).getFirstConnectorTypes();
-            for(int i = 0; i < coordinates.size; i++){
-                Vector2 coordinate = coordinates.get(i);
-                connections.add(new Connector((int)coordinate.x, (int)coordinate.y, types.get(i)));
-            }
-
-            for(String fact: levelModel.getVisibleFacts(target)){
-                //add connectors origination from all visible nodes
-                connections.addAll(getConnectorsOf(target, fact));
-            }
-        }
-
-        return connections;
-
+    public ArrayMap<String, Array<Connector>> getConnectorsOf(String target){
+        return levelModel.getTarget(target).getFirstNodes();
     }
 
     /**
-     * Helper function returning connectors origination from fact
      *
      * @param target name of the target
-     * @param fact name of the fact
-     * @return all connectors originating from the fact
+     * @param fact name of the fact belonging to the target
+     * @return all nodes that directly stem from fact as well as their paths from fact
      */
-    public Array<Connector> getConnectorsOf(String target, String fact){
-        Array<Connector> connections = new Array<>();
-        Array<Vector2> coordinates = levelModel.getTarget(target).getConnectorCoordsOf(fact);
-        Array<String> types = levelModel.getTarget(target).getConnectorTypesOf(fact);
-
-        for(int i = 0; i < coordinates.size; i++){
-            Vector2 coordinate = coordinates.get(i);
-            connections.add(new Connector((int)coordinate.x, (int)coordinate.y, types.get(i)));
-        }
-
-        return connections;
+    public ArrayMap<String, Array<Connector>> getConnectorsOf(String target, String fact){
+        return levelModel.getTarget(target).getChildren(fact);
     }
 
     /**
@@ -371,7 +320,7 @@ public class LevelController {
      *
      * @param target name of the target
      * @param fact identifier of the fact
-     * @return the
+     * @return the fact
      */
     public String viewFact(String target, String fact){
         return levelModel.getContents().get(target).get(fact);
@@ -380,10 +329,11 @@ public class LevelController {
     /**
      *
      * @param target name of the target
-     * @return visible nodes of target
+     * @param fact identifier of the fact
+     * @return the locked status of a node
      */
-    public Array<String> getVisibleNodes(String target){
-        return levelModel.getVisibleFacts(target);
+    public boolean getLocked(String target, String fact) {
+        return levelModel.getTarget(target).getLocked(fact);
     }
 
     /**
@@ -392,6 +342,7 @@ public class LevelController {
      * @return the target state of the target
      */
     public TargetModel.TargetState getTargetState(String target){return levelModel.getTarget(target).getState();}
+
 
 
 
