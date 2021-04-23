@@ -7,11 +7,15 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class UIController {
@@ -478,6 +482,139 @@ public class UIController {
                     }
                 }));
         return relax;
+    }
+
+    /**
+     * This method allows you to select a fact to threaten or expose someone.
+     *
+     * Very similar to a notebook, except every fact has a listener that allows you to click and choose a fact
+     *
+     * If a fact has been used to threaten, it will not appear in the display for threaten
+     *
+     * If a fact has been used to expose, it will not appear in the display for threaten and expose
+     *
+     *
+     * @param s the text that is displayed above the facts to select
+     */
+    public void getBlackmailFact(String s, String targetName, Array<String> exposedFacts, Array<String> threatenedFacts,
+                                 LevelController levelController) {
+        GameController.blackmailDialog = new Dialog("Notebook", skin) {
+            public void result(Object obj) {
+                //to activate the node clicking once more
+                GameController.nodeFreeze = false;
+                GameController.activeVerb = GameController.ActiveVerb.NONE;
+            }
+        };
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+
+        GameController.blackmailDialog.setBackground(drawable);
+        GameController.blackmailDialog.getBackground().setMinWidth(500);
+        GameController.blackmailDialog.getBackground().setMinHeight(500);
+        Label l = new Label( s, skin );
+        //scale sizing based on the amount of text
+        if(s.length() > 50) {
+            l.setFontScale(1.5f);
+        }else {
+            l.setFontScale(2f);
+        }
+        l.setWrap( true );
+        GameController.blackmailDialog.setMovable(true);
+        //Add the text to the center of the dialog box
+        GameController.blackmailDialog.getContentTable().add( l ).prefWidth( 350 );
+        //Get all fact summaries that can potentially be displayed
+        Map<String, String> factSummaries = levelController.getNotes(targetName);
+
+        //This will store all mappings from summaries to a fact name
+        Map<String, String> summaryToFacts = new HashMap<>();
+        //This will store the fact ids of all the scanned facts
+
+        final Array<String> scannedFacts = new Array<>();
+
+        Table table = GameController.blackmailDialog.getContentTable();
+        if (factSummaries.keySet().size() == 0) {
+            scannedFacts.add("No facts scanned yet!");
+        }
+        for (String fact_ : factSummaries.keySet()) {
+            //Should not add empty fact summaries
+            if (factSummaries.containsKey(fact_))
+                scannedFacts.add(factSummaries.get(fact_));
+            //Add to both scannedFacts and summaryToFacts
+            summaryToFacts.put(factSummaries.get(fact_), fact_);
+        }
+        table.setFillParent(false);
+
+        table.row();
+        //Now, parse through all scannedFacts to see which are eligible for display
+        for (int i = 0; i < scannedFacts.size; i++) {
+            final int temp_i = i;
+            //this should ALWAYS be overwritten in the code underneath
+            Label k = new Label("No facts", skin);
+            if(GameController.activeVerb == GameController.ActiveVerb.EXPOSE ){
+                //If a scanned fact has already been exposed, we can't expose it again
+                if (exposedFacts.contains(scannedFacts.get(temp_i), false) ) {
+                    continue;
+                } else {
+                    //Else we can display it
+                    k = new Label(scannedFacts.get(i), skin);
+                }
+            } else if(GameController.activeVerb == GameController.ActiveVerb.THREATEN){
+                //If a scanned fact has already been used to threaten, we can't use it to threaten again
+                if (threatenedFacts.contains(scannedFacts.get(temp_i), false) ) {
+                    continue;
+                } else {
+                    //Else we can display it
+                    k = new Label(scannedFacts.get(i), skin);
+                }
+            }
+            k.setWrap(true);
+            //Add a listener that can be reachable via the name format "target_name,fact_id"
+            k.setName(targetName + "," + summaryToFacts.get(scannedFacts.get(i)));
+            k.addListener(getBlackmailFactListener(levelController, scannedFacts, temp_i));
+            table.add(k).prefWidth(350);
+            table.row();
+        }
+
+        GameController.blackmailDialog.button("Cancel", true); //sends "true" as the result
+        GameController.blackmailDialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
+        GameController.blackmailDialog.show(GameController.toolbarStage);
+        //Make sure nothing else is able to be clicked while blackmail dialog is shown
+        GameController.nodeFreeze = true;
+    }
+
+    private ClickListener getBlackmailFactListener(final LevelController levelController,
+                                                   final Array<String> scannedFacts, final int temp_i){
+        return new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Actor cbutton = (Actor)event.getListenerActor();
+                String[] info = cbutton.getName().split(",");
+                switch (GameController.activeVerb) {
+                    case HARASS:
+                    case THREATEN:
+                        //Threaten the target
+                        levelController.threaten(info[0], info[1]);
+                        GameController.activeVerb = GameController.ActiveVerb.NONE;
+                        createDialogBox("You threatened the target!");
+                        //Add this fact to the list of facts used to threaten
+                        GameController.threatenedFacts.add(scannedFacts.get(temp_i));
+                        break;
+                    case EXPOSE:
+                        //Expose the target
+                        levelController.expose(info[0], info[1]);
+                        GameController.activeVerb = GameController.ActiveVerb.NONE;
+                        createDialogBox("You exposed the target!");
+                        //Add this fact to the list of facts used to expose
+                        GameController.exposedFacts.add(scannedFacts.get(temp_i));
+                        //Add this fact to the list of facts used to threaten
+                        GameController.threatenedFacts.add(scannedFacts.get(temp_i));
+                        break;
+                    default:
+                        System.out.println("This shouldn't be happening.");
+                }
+                GameController.blackmailDialog.hide();
+            }
+        };
     }
 
 }
