@@ -1,4 +1,4 @@
-package com.adisgrace.games;
+package com.adisgrace.games.util;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
