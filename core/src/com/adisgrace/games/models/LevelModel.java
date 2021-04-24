@@ -138,23 +138,6 @@ public class LevelModel {
 
         n_days = 0;
         rng = new Random();
-
-        // TODO
-        //  the below implementation of paranoiac doesn't work
-        //  this is only called on level init and every target is alive at level init
-
-        // Implements target trait : paranoiac
-        // iterate over all targets to see if any is paranoiac
-        for (TargetModel t : targets.values()){
-            if (t.getTraits().is_paranoiac()){
-                //If a target is paranoiac and is alive, reduce paranoia of all targets in level by 1
-                if (t.getState() != TargetModel.TargetState.DEFEATED){
-                    for (TargetModel tt : targets.values()){
-                        tt.reduce_paranoia(1);
-                    }
-                }
-            }
-        }
     }
 
     public Map<String, TargetModel> getTargets() {
@@ -269,7 +252,28 @@ public class LevelModel {
 
     public void nextDay(){
         n_days++;
-
+        // Implements target trait : paranoiac
+        // iterate over all targets to see if any is paranoiac
+        for (TargetModel t : targets.values()){
+            if (t.getTraits().is_paranoiac()){
+                //If a target is paranoiac and is alive and paranoiac_used is false, reduce paranoia of all targets in level by 1
+                if (t.getState() != TargetModel.TargetState.DEFEATED && t.get_paranoiac_used() == false){
+                    for (TargetModel tt : targets.values()){
+                        tt.reduce_paranoia(1);
+                    }
+                    // set paranoiac_used to true after target ability used
+                    t.set_paranoiac_used(true);
+                }
+                //If a target is paranoiac and is dead and paranoiac_used is true, buff paranoia of all targets in level by 1
+                if (t.getState() == TargetModel.TargetState.DEFEATED && t.get_paranoiac_used() == true){
+                    for (TargetModel tt : targets.values()){
+                        tt.reduce_paranoia(-1);
+                    }
+                    // set paranoiac_used to true after target ability used
+                    t.set_paranoiac_used(false);
+                }
+            }
+        }
     }
 
 

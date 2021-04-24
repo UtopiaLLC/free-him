@@ -55,6 +55,8 @@ public class TargetModel {
 	private int suspicion;
 	/** Turns before the target makes a Paranoia check. Possible values are from 0 to INV_PARANOIA_CONSTANT. */
 	private int paranoia;
+	/** Boolean which is true if paranoia deducted from other targets */
+	private boolean paranoiac_used = false;
 	/** Number of turns remaining before next Paranoia check */
 	private int countdown;
 	/** Whether this target has had their suspicion raised before*/
@@ -395,6 +397,22 @@ public class TargetModel {
 	public void reduce_paranoia(int delta){
 		paranoia -= delta;
 		if(paranoia < 0) paranoia = 0;
+	}
+
+	/**
+	 * Sets the paranoiac_used variable to desired value
+	 *
+	 * @param delta 		The paranoiac_used attribute to set to
+	 * */
+	public void set_paranoiac_used(boolean delta){
+		paranoiac_used = delta;
+	}
+
+	/**
+	 * Gets the paranoiac_used variable
+	 * */
+	public boolean get_paranoiac_used(){
+		return paranoiac_used;
 	}
 
 	/**
