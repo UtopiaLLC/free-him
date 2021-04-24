@@ -184,7 +184,7 @@ public class WorldModel {
 		hackednodes.put(t, new Array<String>());
 		exposablenodes.put(t, new Array<String>());
 		to_display.put(t, new Array<String>());
-		for(String fact: target.getFirstNodes()){
+		for(String fact: target.getFirstNodes().keys){
 			to_display.get(t).add(fact);
 		}
 	}
@@ -203,7 +203,7 @@ public class WorldModel {
 		hackednodes.put(t, new Array<String>());
 		exposablenodes.put(t, new Array<String>());
 		to_display.put(t, new Array<String>());
-		for(String fact: target.getFirstNodes()){
+		for(String fact: target.getFirstNodes().keys){
 			to_display.get(t).add(fact);
 		}
 	}
@@ -424,19 +424,8 @@ public class WorldModel {
 			}
 		}
 		exposablenodes.get(targetname).add(fact);
-        to_display.get(targetname).addAll(targets.get(targetname).getChildren(fact));
+        to_display.get(targetname).addAll(targets.get(targetname).getChildren(fact).keys);
 		return targets.get(targetname).getContent(fact);
-	}
-
-	/**
-	 * Returns all facts connected to a given fact
-	 * @param targetName name of target who "owns" fact to be viewed
-	 * @param fact fact identifier
-	 * @return an Array of facts connected to fact
-	 */
-	public Array<String> getConnections(String targetName, String fact){
-		TargetModel target = targets.get(targetName);
-		return target.getChildren(fact);
 	}
 
 	/**

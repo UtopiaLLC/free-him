@@ -60,13 +60,15 @@ public class LevelEditorController implements Screen {
     /** Stage where buttons are drawn on */
     Stage toolStage;
 
-    /** Create Table for target edit form */
+    /** Table for target edit form */
     Table targetForm = new Table();
+    /** Table for node edit form */
+    Table nodeForm = new Table();
 
     /** Image representing the current node that is being clicked on */
     Image selectedNode;
-    /** Image representing stress rating of current node being clicked on */
-    Image nodeStressRating;
+    /** If a prior selected node was deselected in favor of selecting a new node, this is the new node */
+    Image newSelectedNode;
 
     /** Current mode of the level editor, initialized as Move mode */
     private Mode editorMode = Mode.MOVE;
@@ -152,6 +154,28 @@ public class LevelEditorController implements Screen {
     }
 
     /**
+     * Helper function that compares equality between two "nodes," represented
+     * as named images.
+     *
+     * If the names are the same, then they are equal. If they are both null,
+     * then they are equal. Otherwise, they are not equal.
+     *
+     * @param im1   First node to compare equality of
+     * @param im2   Second node to compare equality of
+     * @return      Whether or not the two nodes are equal
+     */
+    private boolean nodeEquals(Image im1, Image im2) {
+        // If both are null, then they're equal
+        if (im1 == null && im2 == null) {return true;}
+        // If only one is null, then they're not equal
+        if (im1 == null || im2 == null) {return false;}
+        // If both share the same name, then they're equal
+        if (im1.getName().equals(im2.getName())) {return true;}
+        // Otherwise, they are not equal
+        return false;
+    }
+
+    /**
      * Helper function that returns the index to the next value in the array.
      *
      * When called with an array of connector types as input, it returns the character representing
@@ -181,20 +205,8 @@ public class LevelEditorController implements Screen {
      * @param mode      Mode to change the editor to
      */
     private void changeEditorMode(Mode mode) {
-        // Deselect any selected nodes
-        if (selectedNode != null) {
-            // First digit of node name gives the node type, so set node image to be low version of itself
-            selectedNode.setDrawable(NODE_TRDS[Character.getNumericValue(selectedNode.getName().charAt(0))]);
-        }
-        selectedNode = null;
-
-        // Revert stress rating button to blank
-        nodeStressRating.setDrawable(SR_TRD_BLANK);
-
-        // If changing to edit mode, show the editing form. Otherwise, hide the editing form.
-        if (mode == Mode.EDIT) {
-
-        }
+        // Deselect any currently-selected nodes
+        if (selectedNode != null) {deselectNode();}
 
         // Change mode
         editorMode = mode;
@@ -223,9 +235,22 @@ public class LevelEditorController implements Screen {
 
         // Create stage for grid and tile with isometric grid
         nodeStage = new Stage(viewport);
+        // Ensure that if something that isn't a node is clicked, lose focus
+        nodeStage.getRoot().addCaptureListener(new InputListener() {
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                if (!(event.getTarget() instanceof Image)) {
+                    newSelectedNode = null;
+                }
+                return false;
+            }
+        });
 
         // Create tool stage for buttons
         createToolStage();
+
+        // Preemptively add node and target forms to the stage
+        toolStage.addActor(targetForm);
+        toolStage.addActor(nodeForm);
     }
 
     /************************************************** TOOLBAR **************************************************/
@@ -254,13 +279,23 @@ public class LevelEditorController implements Screen {
         toolbar.right();
         toolbar.setSize(.25f*canvas.getWidth(),canvas.getHeight());
 
+        // Add toolbar to stage
+        toolStage.addActor(toolbar);
+
         // Add all buttons to toolbar
         createNodeButtons(toolbar);
         createModeButtons(toolbar);
-        createNodeSRButton(toolbar);
 
-        // Add filled toolbar to stage
-        toolStage.addActor(toolbar);
+        // Set stage to lose focus when clicking on someplace not in a form
+        toolStage.getRoot().addCaptureListener(new InputListener() {
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                // If not a TextField or SelectBox, lose focus
+                if (!(event.getTarget() instanceof TextField) && !(event.getTarget() instanceof SelectBox)
+                && !(event.getTarget() instanceof TextArea))
+                    toolStage.setKeyboardFocus(null);
+                return false;
+            }
+        });
     }
 
     /**
@@ -307,8 +342,6 @@ public class LevelEditorController implements Screen {
                 }
             });
 
-            // Add button to stage
-            toolStage.addActor(button);
             // Arrange buttons in order using a Table
             toolbar.addActor(button);
             // Increment height
@@ -371,103 +404,11 @@ public class LevelEditorController implements Screen {
                 });
             }
 
-            // Add button to stage
-            toolStage.addActor(button);
             // Arrange buttons in order using a Table
             toolbar.addActor(button);
             // Increment height
             height -= BUTTON_GAP;
         }
-    }
-
-    /**
-     * Function that creates the button that can be used to set the target stress damage of a node
-     * and places it in the stage and toolbar.
-     *
-     * This is just one button that cycles between the options.
-     *
-     * @param toolbar       The toolbar that the buttons are stored in.
-     */
-    private void createNodeSRButton(Table toolbar) {
-        // Initialize other variables for button creation
-        Drawable drawable;
-
-        // Create and place button, initialized at Blank
-        drawable = SR_TRD_BLANK;
-        nodeStressRating = new Image(drawable);
-        nodeStressRating.setScale(BUTTON_SCALE);
-        nodeStressRating.setPosition(canvas.getWidth() / 2f - 50, 10);
-
-        // Set name to current status of button
-        nodeStressRating.setName("None");
-
-        // Add listeners to button, changing depending on which node the button creates
-        nodeStressRating.addListener((new ClickListener() {
-            public void clicked(InputEvent event, float x, float y) {
-                // Only do something if clicked while in Edit Mode and a node is selected
-                if (editorMode == Mode.EDIT && selectedNode != null) {
-                    // Set the appearance and name to be the next button
-                    int next = nextEntry(nodeStressRating.getName(), SR_NAME_ORDER);
-                    nodeStressRating.setName(SR_NAME_ORDER[next]);
-                    nodeStressRating.setDrawable(SR_TRD_ORDER[next]);
-
-                    // Change the stress rating of the selected node accordingly
-                    model.updateLevelTile(selectedNode.getName(),SR_ORDER[next]);
-                }
-            }
-        }));
-
-        // Add button to stage
-        toolStage.addActor(nodeStressRating);
-        // Put button in toolbar Table
-        toolbar.addActor(nodeStressRating);
-    }
-
-    /**
-     * Creates the forms for writing target/node information and places them in the toolStage.
-     *
-     * These include, for targets specifically:
-     * - A TextField to enter the target name.
-     * - A TextField to enter the target's paranoia stat.
-     * - A SelectBox dropdown menu to select target traits.
-     * - A TextField to enter the target's maximum stress.
-     *
-     * For nodes specifically:
-     * - A TextField to enter the node title.
-     * - A TextArea to write the node content (what's seen when scanned).
-     * - A TextArea to write the node summary (what goes into the notebook).
-     * - A SelectBox dropdown menu to select the node's target stress rating.
-     * - A SelectBox dropdown menu to select the node's player stress rating.
-     */
-    private void createEditForms() {
-        // TODO: currently Target only
-        targetForm.left();
-        targetForm.bottom();
-        targetForm.setSize(.25f*canvas.getWidth(),canvas.getHeight());
-
-        // Text fields
-        TextField targetName = new TextField("", skin);
-        targetName.setMessageText("Target Name");
-        targetName.setPosition(100,100);
-
-        // Lose focus when clicking on not a text box
-        toolStage.getRoot().addCaptureListener(new InputListener() {
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                if (!(event.getTarget() instanceof TextField)) toolStage.setKeyboardFocus(null);
-                return false;
-            }
-        });
-        // Ignores keyboard input for camera control when typing in a text box
-        targetName.addListener(new FocusListener() {
-            public void keyboardFocusChanged(FocusListener.FocusEvent event, Actor actor, boolean focused) {
-                input.shouldIgnoreInput(focused);
-            }
-        });
-
-        // Add to stage
-        toolStage.addActor(targetName);
-        // Arrange using a Table
-        targetForm.addActor(targetName);
     }
 
     /*********************************************** NODES ***********************************************/
@@ -495,8 +436,8 @@ public class LevelEditorController implements Screen {
         im.setName(name);
         imgCount++;
 
-        // Add to level, initialized with a stress rating of None
-        model.addToLevel(im,0,0,StressRating.NONE);
+        // Add to level (stress rating will automatically initialize to None)
+        model.addToLevel(im,0,0);
 
         // Get relevant low and high textures for this node
         final TextureRegionDrawable nodeLow = NODE_TRDS[nodeType];
@@ -537,7 +478,7 @@ public class LevelEditorController implements Screen {
                     newY = vec.y;
 
                     // Update LevelTile with new isometric location
-                    model.updateLevelTile(im.getName(), newX, newY);
+                    model.updateLevelTileLocation(im.getName(), newX, newY);
 
                     // Convert to world space
                     vec.set(newX,newY);
@@ -563,22 +504,14 @@ public class LevelEditorController implements Screen {
             public void clicked(InputEvent event, float x, float y) {
             // Different behavior on clicked depending on editor mode
             switch (editorMode) {
-                // In Edit Mode, allow node stress rating to be set
+                // In Edit Mode, select the node
                 case EDIT:
-                    // If a node was previously selected, revert it to deselected
-                    if (selectedNode != null) {
-                        // First digit of node name gives the node type, so set node image to be low version of itself
-                        selectedNode.setDrawable(NODE_TRDS[Character.getNumericValue(selectedNode.getName().charAt(0))]);
+                    // If a different node was previously selected
+                    if (!nodeEquals(selectedNode, im)) {
+                        newSelectedNode = im;
                     }
-                    // Change clicked node to the node that was just clicked
-                    selectedNode = im;
                     // Change to high version of asset to indicate it's been selected
                     im.setDrawable(new TextureRegionDrawable(nodeHigh));
-
-                    // Change the appearance and name of the stress rating button to reflect the SR of this node
-                    int ind = find(model.getLevelTile(im.getName()).getStressRating(),SR_ORDER);
-                    nodeStressRating.setDrawable(SR_TRD_ORDER[ind]);
-                    nodeStressRating.setName(SR_NAME_ORDER[ind]);
 
                     break;
                 // In Delete Mode, delete the node
@@ -649,7 +582,7 @@ public class LevelEditorController implements Screen {
                     // Set the appearance and name to be the next connector
                     int nextConn = nextEntry(String.valueOf(im.getName().charAt(0)), CONN_NAME_ORDER);
                     String name = CONN_NAME_ORDER[nextConn] + im.getName().substring(1);
-                    model.updateLevelTile(im.getName(),name);
+                    model.updateLevelTileName(im.getName(),name);
                     im.setName(name);
                     im.setDrawable(new TextureRegionDrawable(
                             new Texture(Gdx.files.internal(
@@ -669,8 +602,108 @@ public class LevelEditorController implements Screen {
         }));
     }
 
-    /*********************************************** SCREEN METHODS ***********************************************/
+    /*********************************************** EDIT MODE FORMS ***********************************************/
 
+    /**
+     * Helper function that returns a new FocusListener that disables keyboard input when a text field
+     * is being used.
+     *
+     * @return new FocusListener that disables keyboard input when a text field is being used.
+     */
+    FocusListener newIgnoreInputFocusListener() {
+        return new FocusListener() {
+            public void keyboardFocusChanged(FocusListener.FocusEvent event, Actor actor, boolean focused) {
+                // Ignores keyboard input for camera control when typing in a text box
+                input.shouldIgnoreInput(focused);
+            }
+        };
+    }
+
+    /**
+     * Creates the form for writing target information for the given target and places it in the toolStage.
+     *
+     * This function takes in a target, which would be the selected node if the selected node is a target.
+     *
+     * The entries include, for targets specifically:
+     * [0] A TextField to enter the target name.
+     * [1] A TextField to enter the target's paranoia stat.
+     * [2] A SelectBox dropdown menu to select target traits (multiple options can be selected).
+     * [3] A TextField to enter the target's maximum stress.
+     *
+     * @param target    The target that this form handles the information for
+     */
+    private void createTargetForm(Image target) {
+        // Place table to contain target form entries
+        targetForm.left();
+        targetForm.bottom();
+        targetForm.setSize(.25f*canvas.getWidth(),canvas.getHeight());
+
+        // Target Name
+        TextField targetName = new TextField("", skin);
+        targetName.setMessageText("Target Name");
+        targetName.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 3 * FORM_GAP);
+        // Initialize with target name
+        targetName.setText(target.getName().substring(1));
+        // Add listener to disable keyboard input when the field is selected
+        targetName.addListener(newIgnoreInputFocusListener());
+        // Arrange in table
+        targetForm.addActor(targetName);
+
+        // Target Paranoia
+        TextField targetParanoia = new TextField("", skin);
+        targetParanoia.setMessageText("Target Paranoia");
+        targetParanoia.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 2 * FORM_GAP);
+        // Initialize with target paranoia
+        targetParanoia.setText(String.valueOf(model.getTargetTile(target.getName()).paranoia));
+        // Add listener to disable keyboard input when the field is selected
+        targetParanoia.addListener(newIgnoreInputFocusListener());
+        // Arrange in table
+        targetForm.addActor(targetParanoia);
+
+        // Target Traits
+        SelectBox targetTraits = new SelectBox(skin);
+        targetTraits.setItems(TRAIT_OPTIONS);
+        targetTraits.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + FORM_GAP);
+        // Add listener to disable keyboard input when the field is selected
+        targetTraits.addListener(newIgnoreInputFocusListener());
+        // Arrange in table
+        targetForm.addActor(targetTraits);
+    }
+
+    /**
+     * Creates the forms for writing target/node information and places them in the toolStage.
+     *
+     * These include, for nodes specifically:
+     * - A TextField to enter the node title.
+     * - A TextArea to write the node content (what's seen when scanned).
+     * - A TextArea to write the node summary (what goes into the notebook).
+     * - A SelectBox dropdown menu to select the node's target stress rating (only one option can be selected).
+     * - A SelectBox dropdown menu to select the node's player stress rating (only two options can be selected).
+     * */
+    private void createNodeForm(Image target) {
+
+    }
+
+    /**
+     * Saves the information in the given form as that of the given target/node.
+     *
+     * This should be done by editing the properties of the LevelTile with
+     * the name im.getName() (cast to TargetTile/NodeTile as needed, you can
+     * determine which to cast to with the first digit of im.getName() - 0 for
+     * target, 1 or 2 for node).
+     *
+     * To access all the form entries, you can do getCells() for the Table, then
+     * iterate through the cells and do getActor for each, which should give
+     * you the textField/textArea/selectBox in the order you added them to the Table.
+     *
+     * @param form      The Table containing all the target/node information.
+     * @param im        The Image of the target/node.
+     */
+    private void saveForm(Table form, Image im) {
+
+    }
+
+    /*********************************************** SCREEN METHODS ***********************************************/
     @Override
     public void show() {
     }
@@ -684,6 +717,66 @@ public class LevelEditorController implements Screen {
         model.clear();
         // Reset image count
         imgCount = 0;
+    }
+
+    /**
+     * Helper function that deselects the currently-selected node.
+     */
+    private void deselectNode() {
+        // If no node is currently selected, do nothing
+        if (selectedNode == null) return;
+        // First digit of node name gives the node type, so set node image to be low version of itself
+        selectedNode.setDrawable(NODE_TRDS[Character.getNumericValue(selectedNode.getName().charAt(0))]);
+        // Actually deselect node
+        selectedNode = null;
+    }
+
+    /**
+     * Handles displaying of forms depending on the node that's selected, as well
+     * as saves the information of a node that was deselected.
+     */
+    private void displayEditForms() {
+        // If the currently selected and to-be-selected nodes are different
+        if (!nodeEquals(selectedNode, newSelectedNode)) {
+            // Initialize variable for node type
+            int nodeType;
+
+            // If a node was actually previously selected, save the form data for it
+            if (selectedNode != null) {
+                // Determine if previously selected node was a target or a node
+                nodeType = Character.getNumericValue(selectedNode.getName().charAt(0));
+                // If was a target, save contents of targetForm for that target and clear form
+                if (nodeType == 0) {
+                    saveForm(targetForm, selectedNode);
+                    targetForm.clear();
+                }
+                // If was a node, save contents of nodeForm for that node and clear form
+                else {
+                    saveForm(nodeForm, selectedNode);
+                    nodeForm.clear();
+                }
+            }
+
+            // If a node is actually going to be selected next, create a form for it
+            if (newSelectedNode != null) {
+                // Determine if next selected node will be a target or a node
+                nodeType = Character.getNumericValue(newSelectedNode.getName().charAt(0));
+                // If it's a target, create a target form
+                if (nodeType == 0) {
+                    createTargetForm(newSelectedNode);
+                }
+                // If it's a node, create a node form
+                else {
+                    createNodeForm(newSelectedNode);
+                }
+            }
+
+            // Deselect the currently selected node
+            deselectNode();
+        }
+
+        // Regardless, set the new selected node as the new currently selected node
+        selectedNode = newSelectedNode;
     }
 
     @Override
@@ -705,6 +798,11 @@ public class LevelEditorController implements Screen {
         // Move camera
         canvas.clear();
         camera.moveCamera();
+
+        // If in Edit Mode, determine if edit forms need to be handled
+        if (editorMode == Mode.EDIT) {
+            displayEditForms();
+        }
 
         // UPDATE
 

@@ -193,9 +193,8 @@ public class LevelEditorParser {
         // converts StressRating psDmg to integer value psDmg
         int psDmg_ = stressRating_to_int(psDmg);
 
-        FactNode factNode = new FactNode(factName, "untitled fact", contents, summary, new Array<String>(),
-                (int)coords.x, (int)coords.y, locked, tsDmg_, psDmg_, new Array<Array<Vector2>>(),
-                new Array<Array<String>>());
+        FactNode factNode = new FactNode(factName, "untitled fact", contents, summary,
+                new ArrayMap<String, Array<Connector>>(), (int)coords.x, (int)coords.y, locked, tsDmg_, psDmg_);
         factnodes.put(factName, factNode);
     }
 
@@ -207,7 +206,7 @@ public class LevelEditorParser {
      * @param factName name of factnode to edit
      * @param fieldToEdit name of the attribute to be changed
      * @param newFieldValue new value of attribute
-     */
+
     public void edit_factnode(String factName, String fieldToEdit, Object newFieldValue){
         if(!factnodes.containsKey(factName))
             throw new RuntimeException("Invalid factnode passed " + factName);
@@ -268,6 +267,7 @@ public class LevelEditorParser {
                 throw new RuntimeException("Invalid field passed " + fieldToEdit);
         }
     }
+    */
 
     /**
      * Remove a factnode.

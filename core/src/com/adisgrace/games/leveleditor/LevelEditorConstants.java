@@ -5,6 +5,7 @@ import com.adisgrace.games.util.Connector;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * Static file of constants, including assets, for the level editor, stored separately for convenience.
@@ -81,4 +82,16 @@ public final class LevelEditorConstants {
     public static final int TOOLBAR_X_OFFSET = 10;
     /** How far down the toolbar should be offset from the top edge of the screen, in pixels */
     public static final int TOOLBAR_Y_OFFSET = 60;
+
+    /** How far the form entries should be from the left side of the screen */
+    public static final int FORM_X_OFFSET = 50;
+    /** How far the bottommost form entry should be from the bottom edge of the screen */
+    public static final int FORM_Y_OFFSET = 75;
+    /** How far the form entries should be spaced apart vertically */
+    public static final int FORM_GAP = 30;
+
+    /** Array of target traits available as options */
+    public static final String[] TRAIT_OPTIONS = {"paranoiac", "therapist", "gossip", "off_putting",
+            "naturally_suspicious", "rich", "technologically_literate", "bad_connection", "technologically_illiterate",
+            "sensitive"};
 }

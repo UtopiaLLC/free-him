@@ -1,7 +1,9 @@
 package com.adisgrace.games.leveleditor;
 
 import com.adisgrace.games.util.Connector;
+import com.adisgrace.games.util.Connector.Direction;
 import com.adisgrace.games.leveleditor.LevelEditorConstants.StressRating;
+import com.adisgrace.games.models.TraitModel.Trait;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -18,7 +20,7 @@ import java.util.Scanner;
  * JSON and construct the corresponding level.
  */
 public class LevelEditorModel {
-    /** Hashmap of node names to their LevelTiles */
+    /** Hashmap of target/node names to their LevelTiles */
     private ArrayMap<String, LevelTile> levelTiles;
     /** Hashmap of coordinates and the names of the objects at that location */
     private ArrayMap<Vector2, Array<String>> levelMap;
@@ -26,35 +28,111 @@ public class LevelEditorModel {
     /** Vector cache to avoid initializing vectors every time */
     private Vector2 vec = new Vector2();
 
-    /** Inner class representing a level tile at an isometric coordinate */
+    /*********************************************** INNER CLASSES ***********************************************/
+
+    /** Inner class representing a level tile at an isometric location */
     public class LevelTile {
         /** Isometric coordinates representing tile's location */
-        float x;
-        float y;
-        /** Stress rating of the tile, if any */
-        StressRating sr;
+        protected float x;
+        protected float y;
         /** The image itself stored at the tile */
-        Image im;
+        protected Image im;
+    }
+
+    /** Inner class representing a target as the level tile at an isometric location */
+    public class TargetTile extends LevelTile {
+        /** Name of the target */
+        String name;
+        /** Paranoia stat of target */
+        int paranoia;
+        /** Maximum stress of target */
+        int maxStress;
+        /** Traits of the target */
+        Array<Trait> traits;
 
         /**
-         * Constructor for a LevelTile.
+         * Constructor for a Target with the specified attributes.
+         *
+         * @param x             x-coordinate of target in isometric space
+         * @param y             y-coordinate of target in isometric space
+         * @param im            target image
          */
-        public LevelTile(float x, float y, Image im, StressRating sr) {
+        TargetTile(float x, float y, Image im) {
             this.x = x;
             this.y = y;
             this.im = im;
-            this.sr = sr;
+        }
+    }
+
+    /** Inner class representing a node as the level tile at an isometric location */
+    public class NodeTile extends LevelTile {
+        /** Title of the node */
+        String title;
+        /** Whether or not node is locked */
+        boolean locked;
+        /** Content of the node */
+        String content;
+        /** Summary of the node */
+        String summary;
+        /** Target stress rating of the node, representing target stress damage */
+        StressRating targetSR = StressRating.NONE;
+        /** Player stress rating of the node, representing player stress damage */
+        StressRating playerSR = StressRating.NONE;
+
+        /**
+         * Constructor for a NodeTile with the specified attributes.
+         *
+         * @param x             x-coordinate of node in isometric space
+         * @param y             y-coordinate of node in isometric space
+         * @param im            Node image
+         * @param locked        Whether or not this node is locked
+         */
+        NodeTile(float x, float y, Image im, boolean locked) {
+            this.x = x;
+            this.y = y;
+            this.im = im;
+            this.locked = locked;
+        }
+    }
+
+    /** Inner class representing a connector as the level tile at an isometric location */
+    private class ConnectorTile extends LevelTile {
+        /** Direction of the connector */
+        Direction dir;
+
+        /**
+         * Constructor for a ConnectorTile with the specified attributes.
+         *
+         * @param x             x-coordinate of connector in isometric space
+         * @param y             y-coordinate of connector in isometric space
+         * @param im            Connector image
+         * @param dir           Direction of connector as a Direction
+         */
+        ConnectorTile(float x, float y, Image im, Direction dir) {
+            this.x = x;
+            this.y = y;
+            this.im = im;
+            this.dir = dir;
         }
 
         /**
-         * Returns the stress rating of the node at this LevelTile.
+         * Constructor for a ConnectorTile with the specified attributes.
          *
-         * @return  Stress rating of the node at this LevelTile.
+         * @param x             x-coordinate of connector in isometric space
+         * @param y             y-coordinate of connector in isometric space
+         * @param im            Connector image
+         * @param dir           Direction of connector as a string
          */
-        public StressRating getStressRating() {
-            return sr;
+        ConnectorTile(float x, float y, Image im, String dir) {
+            this.x = x;
+            this.y = y;
+            this.im = im;
+            this.dir = Connector.toDir(dir);
         }
     }
+
+
+    /*********************************************** CONSTRUCTOR ***********************************************/
 
     /**
      * Constructor for a LevelEditorModel.
@@ -66,18 +144,23 @@ public class LevelEditorModel {
         levelMap = new ArrayMap<>();
     }
 
+    /*********************************************** GETTERS ***********************************************/
     /**
-     * Returns the level tile with the given name.
+     * Returns the TargetTile with the given name.
      *
-     * @return  Level tile with the given name.
+     * The given name must be that of a target, as we cast to TargetTile.
+     * @param name      Name of target
+     * @return          TargetTile of the target with the given name
      */
-    public LevelTile getLevelTile(String name) {
-        return levelTiles.get(name);
+    public TargetTile getTargetTile(String name) {
+        return (TargetTile) levelTiles.get(name);
     }
 
+    /*********************************************** ADD/REMOVE TO LEVEL ***********************************************/
+
     /**
-     * Helper function that adds the tile with the given name to the given location
-     * in the level map. Given location is in isometric space.
+     * Adds the tile with the given name to the given location in the level map.
+     * Given location is in isometric space.
      *
      * This function does not deal with levelTiles at all.
      *
@@ -85,7 +168,7 @@ public class LevelEditorModel {
      * @param x     x-coordinate of location to add tile at.
      * @param y     y-coordinate of location to add tile at.
      */
-    public void addToMap(String name, float x, float y) {
+    private void addToMap(String name, float x, float y) {
         vec.set(x,y);
         // If coordinate already exists, add to existing array there
         if (levelMap.containsKey(vec)) {
@@ -93,7 +176,7 @@ public class LevelEditorModel {
         }
         // Otherwise, make a new one
         else {
-            Array<String> arr = new Array<String>();
+            Array<String> arr = new Array<>();
             arr.add(name);
             Vector2 newVec = new Vector2(vec.x,vec.y);
             levelMap.put(newVec,arr);
@@ -109,11 +192,32 @@ public class LevelEditorModel {
      * @param im    Image representing the tile's appearance.
      * @param x     x-coordinate of location to add tile at.
      * @param y     y-coordinate of location to add tile at.
-     * @param sr    Stress rating of the tile.
      */
-    public void addToLevel(Image im, float x, float y, StressRating sr) {
-        // Create corresponding LevelTile
-        LevelTile lt = new LevelTile(x,y,im,sr);
+    public void addToLevel(Image im, float x, float y) {
+        // Initialize level tile
+        LevelTile lt;
+        // Get identifier that can be used to identify type of tile
+        String tilename = im.getName();
+        String c = String.valueOf(tilename.charAt(0));
+        // Create corresponding level tile depending on type
+        switch (c) {
+            case "0": // TARGET
+                // Make target accordingly
+                lt = new TargetTile(x,y,im);
+                break;
+            case "1": // UNLOCKED NODE
+                // Make unlocked node accordingly
+                lt = new NodeTile(x,y,im,false);
+                break;
+            case "2": // LOCKED NODE
+                // Make locked node accordingly
+                lt = new NodeTile(x,y,im,true);
+                break;
+            default: // CONNECTOR
+                // Make connector accordingly (first character is direction)
+                lt = new ConnectorTile(x,y,im,c);
+                break;
+        }
         // Add to levelTiles
         levelTiles.put(im.getName(),lt);
         // Map to location in level map
@@ -121,21 +225,7 @@ public class LevelEditorModel {
     }
 
     /**
-     * Adds the tile with the given properties to the given location in the level.
-     * Given location is in isometric space.
-     *
-     * This adds the node to levelTiles and levelMap.
-     *
-     * @param im    Image representing the tile's appearance.
-     * @param x     x-coordinate of location to add tile at.
-     * @param y     y-coordinate of location to add tile at.
-     */
-    public void addToLevel(Image im, float x, float y) {
-        addToLevel(im, x, y, StressRating.NONE);
-    }
-
-    /**
-     * Helper function that removes the tile with the given name from the level map.
+     * Removes the tile with the given name from the level map.
      *
      * This function does not deal with levelTiles at all.
      *
@@ -153,7 +243,7 @@ public class LevelEditorModel {
     }
 
     /**
-     * Helper function that removes the tile with the given name from the level.
+     * Removes the tile with the given name from the level.
      *
      * This removes the node from levelTiles and levelMap.
      *
@@ -164,9 +254,10 @@ public class LevelEditorModel {
         levelTiles.removeKey(name);
     }
 
+    /*********************************************** MODIFY LEVEL ***********************************************/
+
     /**
-     * Helper function that updates the levelTile with the given name so that
-     * it contains the given value.
+     * Updates the levelTile with the given name so that it is moved to the given location.
      *
      * Given coordinates must be in isometric space.
      *
@@ -174,7 +265,7 @@ public class LevelEditorModel {
      * @param x         x-coordinate to change the LevelTile to.
      * @param y         y-coordinate to change the LevelTile to.
      */
-    public void updateLevelTile(String name, float x, float y) {
+    public void updateLevelTileLocation(String name, float x, float y) {
         // Update the map itself as well to account for the change in location
         removeFromMap(name);
         addToMap(name,x,y);
@@ -187,26 +278,40 @@ public class LevelEditorModel {
     }
 
     /**
-     * Helper function that updates the levelTile with the given name so that
-     * it contains the given value.
+     * Updates the target stress rating of the node with the given name.
+     *
+     * Must be a valid node name.
      *
      * @param name      Name of LevelTile to modify.
-     * @param stress    StressRating to change the level tile's stress rating to.
+     * @param targetSR  StressRating to change the node's target stress rating to.
      */
-    public void updateLevelTile(String name, StressRating stress) {
-        LevelTile lt = levelTiles.get(name);
-        lt.sr = stress;
+    public void updateNodeTargetStressRating(String name, StressRating targetSR) {
+        NodeTile lt = (NodeTile) levelTiles.get(name);
+        lt.targetSR = targetSR;
         levelTiles.put(name,lt);
     }
 
     /**
-     * Helper function that updates the LevelTile with the given name to have
-     * a new name.
+     * Updates the player stress rating of the node with the given name.
+     *
+     * Must be a valid node name.
+     *
+     * @param name      Name of LevelTile to modify.
+     * @param playerSR  StressRating to change the node's player stress rating to.
+     */
+    public void updateNodePlayerStressRating(String name, StressRating playerSR) {
+        NodeTile lt = (NodeTile) levelTiles.get(name);
+        lt.playerSR = playerSR;
+        levelTiles.put(name,lt);
+    }
+
+    /**
+     * Updates the LevelTile with the given name to have a new name.
      *
      * @param name      Name of LevelTile to modify.
      * @param newName   Name to change the LevelTile's name to.
      */
-    public void updateLevelTile(String name, String newName) {
+    public void updateLevelTileName(String name, String newName) {
         // Rename tile in levelMap
         removeFromMap(name);
         addToMap(newName,levelTiles.get(name).x,levelTiles.get(name).y);
@@ -214,6 +319,8 @@ public class LevelEditorModel {
         // Rename tile in levelTiles
         levelTiles.setKey(levelTiles.indexOfKey(name), newName);
     }
+
+    /*********************************************** CLEAR AND UNDO ***********************************************/
 
     /**
      * Clears everything in the level.
@@ -265,7 +372,7 @@ public class LevelEditorModel {
         // TODO: get user input not from terminal
         Scanner scan = new Scanner(System.in);
         System.out.println("Enter desired level name: ");
-        String fname =  scan.nextLine();
+        String fname = scan.nextLine();
 
         // Instantiate count of targets in level
         int targetCount = 1;
@@ -283,21 +390,34 @@ public class LevelEditorModel {
                 c = String.valueOf(tilename.charAt(0));
                 // Get the actual LevelTile
                 lt = levelTiles.get(tilename);
+
+                // Initialize subclasses to potentially cast to
+                NodeTile nt;
+                TargetTile tt;
+                ConnectorTile ct;
                 switch (c) {
-                    case "0": // TARGET NODE
+                    case "0": // TARGET
+                        // Cast to TargetTile
+                        tt = (TargetTile) lt;
                         // Make target accordingly
                         parser.make_target(fname+ " " + TARGET_NAME + " " + targetCount, TARGET_PARANOIA, 100, pos);
                         targetCount++;
                         break;
                     case "1": // UNLOCKED NODE
+                        // Cast to NodeTile
+                        nt = (NodeTile) lt;
                         // Make unlocked node accordingly
-                        parser.make_factnode(lt.im.getName(), lt.sr, PS_DMG, false, pos);
+                        parser.make_factnode(nt.im.getName(), nt.targetSR, PS_DMG, false, pos);
                         break;
                     case "2": // LOCKED NODE
+                        // Cast to NodeTile
+                        nt = (NodeTile) lt;
                         // Make locked node accordingly
-                        parser.make_factnode(lt.im.getName(), lt.sr, PS_DMG, true, pos);
+                        parser.make_factnode(nt.im.getName(), nt.targetSR, PS_DMG, true, pos);
                         break;
                     default: // CONNECTOR
+                        // Cast to ConnectorTile
+                        ct = (ConnectorTile) lt;
                         // Add the direction to the connector string
                         connector += c;
                         break;
