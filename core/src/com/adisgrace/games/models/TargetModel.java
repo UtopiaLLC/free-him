@@ -53,6 +53,8 @@ public class TargetModel {
 	private int maxStress;
 	/** Target's current suspicion (maxes out at 100) */
 	private int suspicion;
+	/** Amount of suspicion reduced on a successful gaslight attempt */
+	private int gaslight_reduction;
 	/** Turns before the target makes a Paranoia check. Possible values are from 0 to INV_PARANOIA_CONSTANT. */
 	private int paranoia;
 	/** Boolean which is true if paranoia deducted from other targets */
@@ -103,6 +105,8 @@ public class TargetModel {
 		name = json.getString("targetName");
 		paranoia = json.getInt("paranoia");
 		maxStress = json.getInt("maxStress");
+
+		gaslight_reduction = json.getInt("gaslightReduction", 8);
 
 		// Initialize iterator for arrays
 		JsonValue.JsonIterator itr;
@@ -462,7 +466,7 @@ public class TargetModel {
 
 	/**
 	 * Increases the target's suspicion by the given amount.
-	 * 
+	 *
 	 * Suspicion is always within the range 0-100.
 	 *
 	 * @param sus		Amount by which to increase target's suspicion
@@ -472,6 +476,14 @@ public class TargetModel {
 		// Clamp suspicion to the range 0-100
 		if (suspicion < 0) {suspicion = 0;}
 		else if (suspicion > 100) {suspicion = 100;}
+	}
+
+	/**
+	 * Decreases the target's suspicion using gaslight.
+	 * Only call this method on a successful attempt.
+	 */
+	public void gaslight() {
+		addSuspicion(-gaslight_reduction);
 	}
 
 	/**

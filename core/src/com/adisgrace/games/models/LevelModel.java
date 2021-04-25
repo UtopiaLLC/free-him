@@ -107,7 +107,6 @@ public class LevelModel {
 
         JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/" + levelJson));
         String[] targetJsons = json.get("targets").asStringArray();
-
         name = json.get("name").asString();
 
         int[] dims = json.get("dims").asIntArray();
@@ -461,10 +460,6 @@ public class LevelModel {
             out.put(fact_, summaries.get(targetname).get(fact_));
         return out;
     }
-
-
-
-
 
     /**
      * Coerce function, <b>unimplemented</b>
