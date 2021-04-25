@@ -332,6 +332,16 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 		font: BitcoinNumbersfont
 		fontColor: Neon_purple
 	}
+	win-95: {
+		font: font
+		fontColor: Black
+		background: Label_1
+	}
+	win-95-2: {
+		font: font
+		fontColor: Black
+		background: Label_2
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
 	default: {
