@@ -668,6 +668,17 @@ public class LevelEditorController implements Screen {
         targetTraits.addListener(newIgnoreInputFocusListener());
         // Arrange in table
         targetForm.addActor(targetTraits);
+
+        // Target Max Stress
+        TextField targetMaxStress = new TextField("", skin);
+        targetMaxStress.setMessageText("Target Max Stress");
+        targetMaxStress.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET - 1 * FORM_GAP);
+        // Initialize with target max stress
+        targetMaxStress.setText(String.valueOf(model.getTargetTile(target.getName()).maxStress));
+        // Add listener to disable keyboard input when the field is selected
+        targetMaxStress.addListener(newIgnoreInputFocusListener());
+        // Arrange in table
+        targetForm.addActor(targetMaxStress);
     }
 
     /**
@@ -680,8 +691,85 @@ public class LevelEditorController implements Screen {
      * - A SelectBox dropdown menu to select the node's target stress rating (only one option can be selected).
      * - A SelectBox dropdown menu to select the node's player stress rating (only two options can be selected).
      * */
-    private void createNodeForm(Image target) {
+    private void createNodeForm(Image node) {
+        // Place table to contain node form entries
+        nodeForm.left();
+        nodeForm.bottom();
+        nodeForm.setSize(.25f*canvas.getWidth(),canvas.getHeight());
 
+        // Node Title
+        TextField nodeTitle = new TextField("", skin);
+        nodeTitle.setMessageText("Node Title");
+        nodeTitle.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 5 * FORM_GAP);
+        // Initialize with node title
+        nodeTitle.setText(String.valueOf(model.getNodeTile(node.getName()).title));
+        // Add listener to disable keyboard input when the field is selected
+        nodeTitle.addListener(newIgnoreInputFocusListener());
+        // Arrange in table
+        nodeForm.addActor(nodeTitle);
+
+        // Node Content
+        TextField nodeContent = new TextField("", skin);
+        nodeContent.setMessageText("Node Content");
+        nodeContent.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 4 * FORM_GAP);
+        // Initialize with node content
+        nodeTitle.setText(String.valueOf(model.getNodeTile(node.getName()).content));
+        // Add listener to disable keyboard input when the field is selected
+        nodeContent.addListener(newIgnoreInputFocusListener());
+        // Arrange in table
+        nodeForm.addActor(nodeContent);
+
+        // Node Summary
+        TextField nodeSummary = new TextField("", skin);
+        nodeSummary.setMessageText("Node Summary");
+        nodeSummary.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 3 * FORM_GAP);
+        // Initialize with node summary
+        nodeTitle.setText(String.valueOf(model.getNodeTile(node.getName()).summary));
+        // Add listener to disable keyboard input when the field is selected
+        nodeSummary.addListener(newIgnoreInputFocusListener());
+        // Arrange in table
+        nodeForm.addActor(nodeSummary);
+
+        // Target Stress Damage
+        TextField targetStressDamage = new TextField("", skin);
+        targetStressDamage.setMessageText("Target Stress Damage");
+        targetStressDamage.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 2 * FORM_GAP);
+        // Initialize with target stress damage
+        nodeTitle.setText(String.valueOf(model.getNodeTile(node.getName()).targetSR));
+        // Add listener to disable keyboard input when the field is selected
+        targetStressDamage.addListener(newIgnoreInputFocusListener());
+        // Arrange in table
+        nodeForm.addActor(targetStressDamage);
+
+        // Player Stress Damage
+        TextField playerStressDamage = new TextField("", skin);
+        playerStressDamage.setMessageText("Player Stress Damage");
+        playerStressDamage.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 1 * FORM_GAP);
+        // Initialize with player stress damage
+        nodeTitle.setText(String.valueOf(model.getNodeTile(node.getName()).playerSR));
+        // Add listener to disable keyboard input when the field is selected
+        playerStressDamage.addListener(newIgnoreInputFocusListener());
+        // Arrange in table
+        nodeForm.addActor(playerStressDamage);
+
+        // TODO: Replace text box entry with dropdown menu
+//        // Target Stress Rating
+//        SelectBox targetStressRating = new SelectBox(skin);
+//        targetStressRating.setItems();
+//        targetStressRating.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 2 * FORM_GAP);
+//        // Add listener to disable keyboard input when the field is selected
+//        targetStressRating.addListener(newIgnoreInputFocusListener());
+//        // Arrange in table
+//        nodeForm.addActor(targetStressRating);
+//
+//        // Player Stress Rating
+//        SelectBox playerStressRating = new SelectBox(skin);
+//        playerStressRating.setItems();
+//        playerStressRating.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 1 * FORM_GAP);
+//        // Add listener to disable keyboard input when the field is selected
+//        playerStressRating.addListener(newIgnoreInputFocusListener());
+//        // Arrange in table
+//        nodeForm.addActor(playerStressRating);
     }
 
     /**

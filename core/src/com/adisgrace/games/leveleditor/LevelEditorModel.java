@@ -156,6 +156,17 @@ public class LevelEditorModel {
         return (TargetTile) levelTiles.get(name);
     }
 
+    /**
+     * Returns the NodeTile with the given name.
+     *
+     * The given name must be that of a target, as we cast to TargetTile.
+     * @param name      Name of target
+     * @return          TargetTile of the target with the given name
+     */
+    public NodeTile getNodeTile(String name) {
+        return (NodeTile) levelTiles.get(name);
+    }
+
     /*********************************************** ADD/REMOVE TO LEVEL ***********************************************/
 
     /**
