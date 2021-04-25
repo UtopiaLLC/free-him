@@ -310,11 +310,7 @@ public class GameController implements Screen {
         SouthConnectorAnimation = connectorAnimation(SouthConnector);
         EastConnectorAnimation = connectorAnimation(EastConnector);
         WestConnectorAnimation = connectorAnimation(WestConnector);
-
-        ConnectorActor connector = new ConnectorActor(SouthConnectorAnimation,
-                isometricToWorld(new Vector2(5f, 5f)));
-        stage.addActor(connector);
-
+        
     }
 
     @Override
@@ -1008,12 +1004,13 @@ public class GameController implements Screen {
 
     public void addConnections(String target, String fact){
         ArrayMap<String, Array<Connector>> connectors = levelController.getConnectorsOf(target, fact);
-        Vector2 connectorCoords = new Vector2();
+        //Vector2 connectorCoords = new Vector2();
         Vector2 targetCoords = levelController.getTargetPos(target);
         for(int i = 0; i < connectors.size; i++){
             Array<Connector> firstConnectors = connectors.getValueAt(i);
             //draw each individual connector on the path
             for(Connector connector : firstConnectors) {
+                Vector2 connectorCoords = new Vector2();
                 connectorCoords.set(connector.xcoord, connector.ycoord).add(targetCoords);
 
                 connectorCoords = isometricToWorld(connectorCoords);
