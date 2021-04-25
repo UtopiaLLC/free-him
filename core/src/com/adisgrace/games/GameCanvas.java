@@ -21,6 +21,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -96,6 +97,7 @@ public class GameCanvas {
 	private TextureRegion holder;
 
 	private Texture tile;
+	private Texture gradient;
 
 	/**
 	 * Creates a new GameCanvas determined by the application configuration.
@@ -122,6 +124,7 @@ public class GameCanvas {
 		vertex = new Vector2();
 
 		tile = new Texture(Gdx.files.internal("background/B_MapTileBG_2.png"));
+		gradient = new Texture(Gdx.files.internal("background/B_Gradient_1.png"));
 	}
 		
     /**
@@ -1177,7 +1180,12 @@ public class GameCanvas {
 	public void drawIsometricGrid(Stage stage, int width, int height){
 		int twidth = 444;
 		int theight = 256;
+
+		spriteBatch.enableBlending();
 		begin();
+		Gdx.gl.glEnable(Gdx.gl20.GL_BLEND);
+
+
 		//assuming grid tiles are (444, 256) in size
 		//drawing a 100 x 100 tile grid centered around the origin, offset so that (0, 0) is the center of the tile sprite
 		for(int col = -width / 2; col <= width / 2; col+=1){
@@ -1186,7 +1194,12 @@ public class GameCanvas {
 			}
 		}
 
+//		spriteBatch.setBlendFunction(GL20.GL_ZERO, GL20.GL_SRC_COLOR);
+//		//spriteBatch.setBlendFunction(GL20.GL_DST_COLOR, GL20.GL_ONE);
+//		draw(gradient, Color.WHITE, 0, 0, 0, 0, 1920, 1080);
+
 		end();
+		//setBlendState(blend);
 
 	}
 
