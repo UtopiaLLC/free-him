@@ -54,8 +54,11 @@ public class UIController {
      */
     public Table createSkillBarTable(Table toolbar) {
         Table skillBar = new Table();
-        skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight());
-        int numSkills = 6+1;
+        skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight()*.3f);
+        skillBar.setBackground(new TextureRegionDrawable(new TextureRegion(
+                new Texture(Gdx.files.internal("UI/SkillBar_2.png")))));
+        // numSkills is equal to the number of skill buttons + 1
+        int numSkills = 5+1;
         float pad = skillBar.getWidth() / 60f;
         skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
         skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
