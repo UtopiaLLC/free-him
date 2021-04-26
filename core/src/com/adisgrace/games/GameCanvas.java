@@ -1184,7 +1184,8 @@ public class GameCanvas {
 		spriteBatch.enableBlending();
 		begin();
 		Gdx.gl.glEnable(Gdx.gl20.GL_BLEND);
-
+		setBlendState(BlendState.ALPHA_BLEND);
+		draw(gradient, Color.WHITE, 0, 0, 0, 0, 1920, 1080);
 
 		//assuming grid tiles are (444, 256) in size
 		//drawing a 100 x 100 tile grid centered around the origin, offset so that (0, 0) is the center of the tile sprite
@@ -1196,10 +1197,10 @@ public class GameCanvas {
 
 //		spriteBatch.setBlendFunction(GL20.GL_ZERO, GL20.GL_SRC_COLOR);
 //		//spriteBatch.setBlendFunction(GL20.GL_DST_COLOR, GL20.GL_ONE);
-//		draw(gradient, Color.WHITE, 0, 0, 0, 0, 1920, 1080);
+
 
 		end();
-		//setBlendState(blend);
+		setBlendState(BlendState.ADDITIVE);
 
 	}
 
