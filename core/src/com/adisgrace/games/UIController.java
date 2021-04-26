@@ -304,17 +304,11 @@ public class UIController {
      * @return      ImageButton for threaten.
      */
     public ImageButton createThreaten(InputController ic, final Runnable confirmFunction){
-//        threaten = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/threaten_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/threaten_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/threaten_select.png")))));
-//        threaten.setTransform(true);
-//        threaten.setScale(1f);
         threaten = ButtonFactory.makeImageButton(
                 "skills/threaten_up.png",
                 "skills/threaten_down.png",
                 "skills/threaten_select.png");
-        final Label  threatenLabel = new Label(GameController.getHoverText(GameController.ActiveVerb.THREATEN), skin);
+        final Label  threatenLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.THREATEN));
         final String s = "threaten";
         threaten.addListener(ic.getButtonListener(
                 new Runnable() {
@@ -348,7 +342,7 @@ public class UIController {
                 "skills/expose_up.png",
                 "skills/expose_down.png",
                 "skills/expose_select.png");
-        final Label exposeLabel = new Label(GameController.getHoverText(GameController.ActiveVerb.EXPOSE), skin);
+        final Label exposeLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.EXPOSE));
         final String s = "expose";
         expose.addListener(ic.getButtonListener(
                 new Runnable() {
@@ -382,7 +376,7 @@ public class UIController {
                 "skills/expose_up.png",
                 "skills/expose_down.png",
                 "skills/expose_select.png");
-        final Label exposeLabel = new Label(GameController.getHoverText(GameController.ActiveVerb.DISTRACT), skin);
+        final Label exposeLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.DISTRACT));
         final String s = "expose";
         expose.addListener(ic.getButtonListener(
                 new Runnable() {
@@ -446,17 +440,11 @@ public class UIController {
      * @return      ImageButton for overwork.
      */
     public ImageButton createOverwork(InputController ic, final Runnable confirmFunction){
-//        overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/overwork_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/overwork_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/overwork_select.png")))));
-//        overwork.setTransform(true);
-//        overwork.setScale(1f);
         overwork = ButtonFactory.makeImageButton(
                 "skills/overwork_up.png",
                 "skills/overwork_down.png",
                 "skills/overwork_select.png");
-        final Label overworkLabel = new Label(GameController.getHoverText(GameController.ActiveVerb.OVERWORK), skin);
+        final Label overworkLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.OVERWORK));
         final String s = "overwork";
         overwork.addListener(ic.getButtonListener(
                 new Runnable() {
@@ -491,7 +479,7 @@ public class UIController {
                 "skills/otherjobs_up.png",
                 "skills/otherjobs_down.png",
                 "skills/otherjobs_select.png");
-        final Label otherJobLabel = new Label(GameController.getHoverText(GameController.ActiveVerb.OTHER_JOBS), skin);
+        final Label otherJobLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.OTHER_JOBS));
         final String s = "other jobs";
         otherJobs.addListener(ic.getButtonListener(
                 new Runnable() {
@@ -514,6 +502,21 @@ public class UIController {
         return otherJobs;
     }
 
+    private Label createHoverLabel(String s) {
+//        Dialog dialog = new Dialog("", skin );
+//        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
+//        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+//
+//        dialog.setHeight(400);
+//        dialog.setBackground(drawable);
+
+        Label l = new Label(s, skin, "win-95");
+        l.setWrap(true);
+        l.setHeight(100);
+
+        return l;
+    }
+
     /**
      * This method creates a relax button with given textures for it's original status, when the cursor is hovering
      * above it and when it is clicked.
@@ -525,7 +528,7 @@ public class UIController {
                 "skills/relax_up.png",
                 "skills/relax_down.png",
                 "skills/relax_select.png");
-        final Label  relaxLabel = new Label(GameController.getHoverText(GameController.ActiveVerb.RELAX), skin);
+        final Label  relaxLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.RELAX));
         final String s = "relax";
         relax.addListener(ic.getButtonListener(
                 new Runnable() {
@@ -575,7 +578,8 @@ public class UIController {
         GameController.blackmailDialog.setBackground(drawable);
         GameController.blackmailDialog.getBackground().setMinWidth(500);
         GameController.blackmailDialog.getBackground().setMinHeight(500);
-        Label l = new Label( s, skin );
+//        Label l = new Label( s, skin );
+        Label l = new Label(s, skin, "win-95");
         //scale sizing based on the amount of text
         if(s.length() > 50) {
             l.setFontScale(1.5f);
