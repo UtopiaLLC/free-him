@@ -1,0 +1,6 @@
+{
+	"name": "test1",
+	"dims": [0, 0],
+	"targets": ["test1TorchlightEmployee1.json"],
+	"targetLocs": [[0, 1]]
+}

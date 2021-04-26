@@ -1,0 +1,338 @@
+{
+  "targetName": "Patrick Westfield",
+  "paranoia": 3,
+  "maxStress": 40,
+  "firstNodes": ["job", "websearch", "publicsearch"],
+  "firstConnectors": [[0,0],[1,0],[2,0],[2,1],[2,2],[0,-1],[0,-2],[-1,0],[-2,0], [5, -1], [6, -1]],
+  "firstConnectorTypes": [ "ESW","EW", "WN", "NS", "S",  "NS",  "N",   "EW",  "E", "E", "W"],
+  "pod": [
+    {
+      "nodeName": "job",
+      "title": "Torchlight Intranet",
+      "coords": [2,2],
+      "locked": "true",
+      "content": "The company website tells you that Patrick has worked as a programmer at Torchlight's Seattle branch for two years, but you need to hack in to take a closer look at what he does here.\nIt takes some time, but you get into Torchlight's internal network.",
+      "summary": "Patrick has been a programmer at Torchlight's Seattle branch for two years.",
+      "children": ["team","email","complaint"],
+      "connectorCoords": [
+        [2,2],[2,3],[2,4],[1,4],[0,4],[-1,4],[-1,3], [2,2],[2,3],[2,4],[1,4],[0,4],[0,5], [2,2],[2,3],[2,4],[2,5],[2,6],[3,6]
+      ],
+      "connectorTypes" : [
+        "N",  "NS", "WS", "EW", "EW", "ES",  "N",    "N",  "NS", "SW", "EW", "EN", "S",   "N",  "NS", "NS", "NS", "ES", "W"
+      ],
+      "targetStressDamage": 1,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "websearch",
+      "title": "Search the Web",
+      "coords": [0,-2],
+      "locked": "true",
+      "content": "You scour the web and find Patrick's very active social media account, through which you manage to get his IP address. You can use that to try to get into his personal computer, and there's all of his social media history to dig through.",
+      "summary": "",
+      "children": ["parrot","lament","red","chicken","personal"],
+      "connectorCoords": [
+        [0,-2],[0,-3],[0,-4],[1,-4],[2,-4],[3,-4],[4,-4], [0,-2],[0,-3],[0,-4],[0,-5],[-1,-5], [0,-2],[0,-3],[0,-4],[0,-5],[0,-6],[1,-6],[1,-7],[1,-8], [0,-2],[0,-3],[0,-4],[0,-5],[0,-6],[1,-6],[2,-6],[3,-6], [0,-2],[0,-3],[0,-4],[1,-4],[2,-4],[3,-4],[3,-3],[3,-2],[3,-1]
+      ],
+      "connectorTypes": [
+        "S",   "NS",  "NE",  "EW",  "EW",  "EW",  "W",    "S",   "NS",  "NS",  "NW",  "E",     "S",   "NS",  "NS",  "NS",  "NE",  "WS",  "NS",  "N",    "S",   "NS",  "NS",  "NS",  "NE",  "EW",  "EW",  "W",    "S",   "NS",  "NE",  "EW",  "EW",  "NW",  "NS",  "NS",  "S"
+      ],
+      "targetStressDamage": 1,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "publicsearch",
+      "title": "Search Public Records",
+      "coords": [-2,0],
+      "locked": "true",
+      "content": "Patrick Westfield is 24 year-old male resident of the King County area, just outside of Seattle, Washington. He has no criminal history, but you note that apparently he made a court filing with King County. You also find where he went to high school and college.",
+      "summary": "Patrick is 24, male, lives in King County, Washington, and has no criminal history.",
+      "children": ["divorce","college","highschool"],
+      "connectorCoords": [
+        [-2,0],[-3,0],[-4,0],[-5,0], [-2,0],[-3,0],[-3,1],[-3,2],[-4,2], [-2,0],[-2,-1],[-2,-2]
+      ],
+      "connectorTypes": [
+        "W",   "EW",  "EW",  "E",    "W",   "NE",  "NS",  "SW",  "E",    "S",   "NS",   "N"
+      ],
+      "targetStressDamage": 1,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "divorce",
+      "title": "King County Court Records",
+      "coords": [-5,0],
+      "locked": "true",
+      "content": "According to court records, as of three months ago, he is divorced. His ex-husband’s name is Carl Westfield. The reason listed on the court filing is an irretrievable breakdown in the relationship.",
+      "summary": "Three months ago, Patrick divorced a man named Carl Westfield.",
+      "children": [],
+      "connectorCoords": [],
+      "connectorTypes": [],
+      "targetStressDamage": 5,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "highschool",
+      "title": "Alumni Records: Patrick's High School",
+      "coords": [-2,-2],
+      "locked": "true",
+      "content": "In high school Patrick's only extracurriculars were math team and theater. He did stage tech, not performing. In his senior yearbook he was voted “Most Likely to Become a Mormon.” That year’s musical was *The Book of Mormon*.",
+      "summary": "Patrick was a boring high school student who was voted 'Most Likely to Become a Mormon.'",
+      "children": [],
+      "connectorCoords": [],
+      "connectorTypes": [],
+      "targetStressDamage": 1,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "college",
+      "title": "Alumni Records: Patrick's College",
+      "coords": [-4,2],
+      "locked": "true",
+      "content": "Patrick majored in computer science at the University of XXXXXXX. He graduated cum laude two years ago and joined Torchlight right out of college.",
+      "summary": "Patrick graduated cum laude two years ago with a degree in computer science and joined Torchlight right out of college.",
+      "children": [],
+      "connectorCoords": [],
+      "connectorTypes": [],
+      "targetStressDamage": 1,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "team",
+      "title": "Torchlight Personnel File",
+      "coords": [-1,3],
+      "locked": "true",
+      "content": "Currently, Patrick works in a team where his direct superior’s name is Maria Gonzalez. Maria supervises Patrick and three other programmers, who all work together. His teammates are named Andrea Wu, Harold Sinclair, and Jeff Gallegos.",
+      "summary": "Patrick works with a team with Maria Gonzalez, Andrea Wu, Harold Sinclair, and Jeff Gallegos.",
+      "children": [],
+      "connectorCoords": [],
+      "connectorTypes": [],
+      "targetStressDamage": 1,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "email",
+      "title": "Patrick's Work Computer",
+      "coords": [0,5],
+      "locked": "true",
+      "content": "His inbox contains 124 unread emails. One of them is from Torchlight’s HR department, asking if he can schedule a time to discuss a recent complaint. It mentions that this is his first violation, and so he doesn’t need to be that worried, but a discussion is still required.",
+      "summary": "There is an unread email from HR sitting in Patrick's inbox, asking about scheduling a meeting to discuss a recent complaint.",
+      "children": [],
+      "connectorCoords": [],
+      "connectorTypes": [],
+      "targetStressDamage": 7,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "complaint",
+      "title": "Torchlight HR Reports",
+      "coords": [3,6],
+      "locked": "true",
+      "content": "A month ago, an individual with the initials H.S. reported Patrick to HR for “erratic, unprofessional behavior.” The complaint detailed how Patrick had begun to come into work inebriated, and was being unproductive. A note indicates that the matter has been looked into and declared resolved.",
+      "summary": "Last month, someone with the initials H.S. filed a complaint against Patrick. The complaint is marked as resolved.",
+      "children": [],
+      "connectorCoords": [],
+      "connectorTypes": [],
+      "targetStressDamage": 5,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "parrot",
+      "title": "Social Media: 1 Week Ago",
+      "coords": [4,-4],
+      "locked": "true",
+      "content": "A week ago, a man named Rick Kline posted a photo of a parrot. The caption talks about how he’s bought the parrot as a gift for Carl, and mentions how Carl's last pet bird passed away six months ago so he wanted to surprise him. Patrick left a comment, but deleted it immediately after, before it could be archived. He did this three more times.",
+      "summary": "A man named Carl's pet bird passed away six months ago, and his boyfriend replaced it. This seemed to bother Patrick.",
+      "children": [],
+      "connectorCoords": [],
+      "connectorTypes": [],
+      "targetStressDamage": 5,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "lament",
+      "title": "Social Media: Two Months Ago",
+      "coords": [-1,-5],
+      "locked": "true",
+      "content": "You dig deeper into Patrick's post history. Two months ago he posted a messy, grammatically lacking diatribe about how much he “misses chicken.” He laments that “he took chicken away.” At the end he writes, “i hate u c.” He deleted the post two hours later.",
+      "summary": "Patrick seems to harbor some grief over chicken and some hatred for a 'C', whatever that means.",
+      "children": [],
+      "connectorCoords": [],
+      "connectorTypes": [],
+      "targetStressDamage": 5,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "red",
+      "title": "Social Media: Eighteen Months Ago",
+      "coords": [1,-8],
+      "locked": "true",
+      "content": "You dig deeper into Patrick's post history. A year and a half ago, Patrick posted a picture of a silver sports car. The caption says that his husband got it for him as an anniversary gift and that his favorite color is technically red, but he doesn't care how it looks on the outside as long as he gets to see the love of his life on the inside. He loves his 'hubby' so much.\nEw.",
+      "summary": "On their anniversary a year and a half ago, Patrick's husband got him a silver sports car, and Patrick loved it even though his favorite color is red.",
+      "children": [],
+      "connectorCoords": [],
+      "connectorTypes": [],
+      "targetStressDamage": 1,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "chicken",
+      "title": "Social Media: Three Years Ago",
+      "coords": [3,-6],
+      "locked": "true",
+      "content": "You dig even deeper into Patrick's post history. Three years ago he got a cockatoo named Chicken, whom he posted about on social media constantly. The posts stopped six months ago.",
+      "summary": "Patrick had a cockatoo named Chicken, but something might have happened to it six months ago.",
+      "children": [],
+      "connectorCoords": [],
+      "connectorTypes": [],
+      "targetStressDamage": 5,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "personal",
+      "title": "Patrick's Personal Computer",
+      "coords": [3,-1],
+      "locked": "true",
+      "content": "You take some time to hack into Patrick's personal computer.",
+      "summary": "",
+      "children": ["birdhouse","music","karate"],
+      "connectorCoords": [
+        [3,-1],[4,-1],[4,0],[4,1],[5,1], [3,-1],[4,-1],[5,-1], [3,-1],[4,-1],[5,-1],[5,-2],[5,-3],[6,-3]
+      ],
+      "connectorTypes": [
+        "E",   "NW",  "NS", "SE", "W",   "E",   "EW",  "W",    "E",   "EW",  "SW",  "NS",  "NE",  "W"
+      ],
+      "targetStressDamage": 1,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "music",
+      "title": "Music Streaming Service",
+      "coords": [6,-1],
+      "locked": "true",
+      "content": "Patrick's account on a music streaming service shows that he likes heavy metal. A month ago he switched over to listening to folk rock. His new top band is Mumford and Sons.\nUgh. Mumford and Sons.",
+      "summary": "Last month, Patrick switched from listening to heavy metal to listening to folk rock.",
+      "children": [],
+      "connectorCoords": [],
+      "connectorTypes": [],
+      "targetStressDamage": 1,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "karate",
+      "title": "Patrick's Calendar",
+      "coords": [6,-3],
+      "locked": "true",
+      "content": "You look through Patrick's calendar and see that two months ago he signed up for karate lessons at a local dojo. Since then he has attended lessons weekly without fail.",
+      "summary": "Patrick has regularly attended weekly karate lessons for the past two months.",
+      "children": [],
+      "connectorCoords": [],
+      "connectorTypes": [],
+      "targetStressDamage": 1,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "birdhouse",
+      "title": "Browser History",
+      "coords": [5,1],
+      "locked": "true",
+      "content": "You go through Patrick's browser history and find that he loves birds. He regularly visits The Bird House, a birdwatching forum, and posts on it under the username AngryCardinal. On the forum he is a moderator, and usually helps de-escalate arguments between warring bird lovers.\nYou also find a dating website in his browser history, which could be interesting.",
+      "summary": "Patrick frequents a birdwatching website called the Bird House under the username AngryCardinal.",
+      "children": ["dating"],
+      "connectorCoords": [
+        [5,1],[5,2],[5,3]
+      ],
+      "connectorTypes": [
+        "N",  "NS",  "S"
+      ],
+      "targetStressDamage": 1,
+      "playerStressDamage": 0
+    },
+    {
+      "nodeName": "dating",
+      "title": "Dating Website",
+      "coords": [5,3],
+      "locked": "true",
+      "content": "A month ago he created an account on a dating website, but didn’t complete his profile. The only question he answered was about his favorite color. He wrote yellow.",
+      "summary": "Patrick created an account on a dating website but never finished. He only answered that his favorite color is yellow.",
+      "children": [],
+      "connectorCoords": [],
+      "connectorTypes": [],
+      "targetStressDamage": 5,
+      "playerStressDamage": 0
+    }
+  ],
+  "combos": [
+    {
+      "relatedFacts": ["red","dating"],
+      "overwrite": "dating",
+      "comboSummary": "Patrick created an account on a dating website but never finished. He only answered that his favorite color is yellow, but on his social media he says that his favorite color is actually red. What a weird thing to lie about.",
+      "comboStressDamage": 15
+    },
+    {
+      "relatedFacts": ["red","divorce"],
+      "overwrite": "red",
+      "comboSummary": "On their anniversary a year and a half ago, Patrick's ex-husband Carl got him a silver sports car, and Patrick loved it even though his favorite color is red.",
+      "comboStressDamage": 1
+    },
+    {
+      "relatedFacts": ["parrot","divorce"],
+      "overwrite": "parrot",
+      "comboSummary": "A man named Carl's pet bird passed away six months ago, and his boyfriend replaced it. Carl seems to be Patrick's ex-husband, which explains why this bothered Patrick.",
+      "comboStressDamage": 5
+    },
+    {
+      "relatedFacts": ["parrot","chicken","divorce"],
+      "overwrite": "parrot",
+      "comboSummary": "A man named Carl's pet bird passed away six months ago, and his boyfriend replaced it. Carl seems to be Patrick's ex-husband, which explains why this bothered Patrick. That would make the late bird Chicken the cockatoo.",
+      "comboStressDamage": 7
+    },
+    {
+      "relatedFacts": ["parrot","chicken","divorce"],
+      "overwrite": "chicken",
+      "comboSummary": "Patrick and his ex-husband Carl had a cockatoo named Chicken, but it seems like it passed away six months ago.",
+      "comboStressDamage": 7
+    },
+    {
+      "relatedFacts": ["lament","divorce"],
+      "overwrite": "lament",
+      "comboSummary": "Patrick seems to harbor some grief over chicken and some hatred for a 'C'. 'C' could refer to his ex-husband Carl.",
+      "comboStressDamage": 7
+    },
+    {
+      "relatedFacts": ["lament","chicken"],
+      "overwrite": "lament",
+      "comboSummary": "Patrick has been grieving over the loss of Chicken, his pet cockatoo. He seems to blame 'C' for taking Chicken.",
+      "comboStressDamage": 7
+    },
+    {
+      "relatedFacts": ["lament","chicken","divorce"],
+      "overwrite": "lament",
+      "comboSummary": "Patrick has been grieving over the loss of Chicken, his pet cockatoo. He seems to blame 'C,' who might be his ex-husband Carl, for taking Chicken. Maybe Carl got the pets in the divorce?",
+      "comboStressDamage": 10
+    },
+    {
+      "relatedFacts": ["lament","chicken","divorce","parrot"],
+      "overwrite": "lament",
+      "comboSummary": "Patrick has been grieving over the loss of Chicken, his pet cockatoo. He seems to blame 'C,' who might be his ex-husband Carl, for taking Chicken - but Carl says Chicken had died a whole three months before the divorce.",
+      "comboStressDamage": 20
+    },
+    {
+      "relatedFacts": ["team","complaint"],
+      "overwrite": "complaint",
+      "comboSummary": "Last month, someone with the initials H.S. (his teammate Harold Sinclair, maybe?) filed a complaint against Patrick. The complaint is marked as resolved.",
+      "comboStressDamage": 7
+    },
+    {
+      "relatedFacts": ["email","complaint"],
+      "overwrite": "complaint",
+      "comboSummary": "Last month, someone with the initials H.S. filed a complaint against Patrick. The complaint is marked as resolved. That's interesting, considering he never even opened the email.",
+      "comboStressDamage": 18
+    },
+    {
+      "relatedFacts": ["email","complaint","team"],
+      "overwrite": "complaint",
+      "comboSummary": "Last month, someone with the initials H.S. (his teammate Harold Sinclair, maybe?) filed a complaint against Patrick. The complaint is marked as resolved. That's interesting, considering he never even opened the email.",
+      "comboStressDamage": 20
+    }
+  ]
+}

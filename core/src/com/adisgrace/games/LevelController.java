@@ -289,7 +289,6 @@ public class LevelController {
         return new Vector2(targetLoc[0], targetLoc[1]);
     }
 
-
     /**
      * returns target models
      *
@@ -353,6 +352,13 @@ public class LevelController {
     public boolean getLocked(String target, String fact) {
         return levelModel.getTarget(target).getLocked(fact);
     }
+
+    /**
+     * returns the current state of a target
+     * @param target name of the target
+     * @return the target state of the target
+     */
+    public TargetModel.TargetState getTargetState(String target){return levelModel.getTarget(target).getState();}
 
 
 
