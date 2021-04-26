@@ -32,12 +32,14 @@ public class Node extends Group {
     private Vector2 position;
     private Animation<TextureRegion> topAnimation;
     private TextureRegion nodeBaseReg;
+    private TextureRegion topRegion;
 
     private int nodeType;
     private NodeState nodeState;
     
     private float stateTime;
     private TextureRegion reg;
+
 
     private int colorBoi = 0;
 
@@ -81,22 +83,26 @@ public class Node extends Group {
         switch(nodeState) {
             case LOCKED:
                 topAnimation = null;
+                topRegion = null;
                 nodeBaseReg = NodeView.getLockedNode(nodeType);
                 break;
             case UNSCANNED:
                 topAnimation = NodeView.getUnscannedNode(nodeType);
+                topRegion = null;
                 nodeBaseReg = NodeView.getNodeBase(nodeType);
                 offset = 0f;
                 break;
             case SCANNED:
                 topAnimation = NodeView.getScannedNode(nodeType);
+                topRegion = null;
                 nodeBaseReg = NodeView.getNodeBase(nodeType);
                 offset = 0f;
                 break;
             case TARGET:
                 //topAnimation = NodeView.getTargetNode(nodeType);
                 topAnimation = null;
-                nodeBaseReg = NodeView.getTargetNode(nodeType);
+                topRegion = NodeView.getTargetNode(nodeType);
+                nodeBaseReg = NodeView.getTargetBase(nodeType);
                 break;
         }
     }
@@ -119,6 +125,8 @@ public class Node extends Group {
         if(nodeState != NodeState.TARGET && nodeState != NodeState.LOCKED) {
             stateTime += Gdx.graphics.getDeltaTime();
             reg = topAnimation.getKeyFrame(stateTime, true);
+        } else if(nodeState == NodeState.TARGET){
+          reg = topRegion;
         } else {
             reg = nodeBaseReg;
         }
@@ -126,6 +134,16 @@ public class Node extends Group {
         Color color = getColor();
         batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
         if(nodeState != NodeState.TARGET && nodeState != NodeState.LOCKED) {
+            if(counter%10==0){
+                offset+=(up?1:-1)*OFFSET_INCREMENT;
+            }
+            batch.draw(nodeBaseReg, getX(), getY(), getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+            batch.draw(reg, getX(), getY() + offset, getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+            if(counter++>=100){
+                counter = 0;
+                up = !up;
+            }
+        } else if(nodeState == NodeState.TARGET) {
             if(counter%10==0){
                 offset+=(up?1:-1)*OFFSET_INCREMENT;
             }

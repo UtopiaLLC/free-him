@@ -44,6 +44,8 @@ public class NodeView {
     public static Array<TextureRegion> targetNodes;
     /** Array of sprites for node bases*/
     public static Array<TextureRegion> nodeBases;
+    /** Array of sprites for target bases */
+    public static Array<TextureRegion> targetBases;
 
     private static final float ADD = 0;
     private static final float SCALE_X = 444;
@@ -137,8 +139,9 @@ public class NodeView {
 
         //ImageButton button = new ImageButton(NodeView.getTargetNode(0)); //Set the button up
         Vector2 pos = isometricToWorld(targetCoords);
-        pos.x -= (NodeView.getTargetNode(0).getTexture().getWidth() - TILE_WIDTH) / 2;
+        pos.x -= (NodeView.getTargetBase(0).getRegionWidth() - TILE_WIDTH) / 2;
         pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+
 
         Node targetNode = new Node(pos.x, pos.y, target.getName(), 1, Node.NodeState.TARGET);
         imageNodes.put(target.getName(), targetNode);
@@ -226,10 +229,6 @@ public class NodeView {
                 node.getWidth() / 10,
                 node.getHeight() / 6);
 
-        Texture node_base = new Texture("node/N_NodeBase_1.png");
-        TextureRegion[][] node_regions = new TextureRegion(node_base).split(
-                node_base.getWidth() / 6,
-                node_base.getHeight() / 2);
 
         Texture combined;
         TextureRegion[] spinFrames = new TextureRegion[10];
@@ -264,11 +263,6 @@ public class NodeView {
         regions = new TextureRegion(node).split(
                 node.getWidth() / 10,
                 node.getHeight() / 6);
-
-        node_base = new Texture("node/N_NodeBase_1.png");
-        node_regions = new TextureRegion(node_base).split(
-                node_base.getWidth() / 6,
-                node_base.getHeight() / 2);
 
         spinFrames = new TextureRegion[10];
 
@@ -307,19 +301,14 @@ public class NodeView {
                 target_Look.getWidth() / 6,
                 target_Look.getHeight() / 2);
 
-        node_base = new Texture("node/N_TargetBase_1.png");
-        node_regions = new TextureRegion(node_base).split(
-                node_base.getWidth() / 6,
-                node_base.getHeight() / 2);
-
         for(int i = 0; i < 6; i++) {
-            combined = GameCanvas.combineTextures(regions[0][i], node_regions[0][i]);
+            //combined = GameCanvas.combineTextures(regions[0][i], node_regions[0][i]);
             //drawable = new TextureRegionDrawable(new TextureRegion(combined));
-            targetNodes.add(new TextureRegion(combined));
+            targetNodes.add(new TextureRegion(regions[0][i]));
 
-            combined = GameCanvas.combineTextures(regions[1][i], node_regions[1][i]);
+            //combined = GameCanvas.combineTextures(regions[1][i], node_regions[1][i]);
             //drawable = new TextureRegionDrawable(new TextureRegion(combined));
-            targetNodes.add(new TextureRegion(combined));
+            targetNodes.add(new TextureRegion(regions[1][i]));
 
         }
 
@@ -328,8 +317,8 @@ public class NodeView {
 
         nodeBases = new Array<>();
 
-        node_base = new Texture("node/N_NodeBase_1.png");
-        node_regions = new TextureRegion(node_base).split(
+        Texture node_base = new Texture("node/N_NodeBase_1.png");
+        TextureRegion[][] node_regions = new TextureRegion(node_base).split(
                 node_base.getWidth() / 6,
                 node_base.getHeight() / 2);
 
@@ -340,8 +329,23 @@ public class NodeView {
 
         }
 
+        System.out.println("Node Bases done!");
 
+        targetBases = new Array<>();
 
+        node_base = new Texture("node/N_TargetBase_1.png");
+        node_regions = new TextureRegion(node_base).split(
+                node_base.getWidth() / 6,
+                node_base.getHeight() / 2);
+
+        for(int i = 0; i < 6; i++) {
+            targetBases.add(new TextureRegion(node_regions[0][i]));
+
+            targetBases.add(new TextureRegion(node_regions[1][i]));
+
+        }
+
+        System.out.println("Target Bases done!");
 
     }
 
@@ -453,6 +457,28 @@ public class NodeView {
      */
     public static TextureRegion getNodeBase(int type) {
         return nodeBases.get(type);
+    }
+
+    /**
+     *
+     * @param type where:
+     *             0 = Green, Litup
+     *             1 = Green, Dimmed
+     *             2 = Yellow, Litup
+     *             3 = Yellow, Dimmed
+     *             4 = Red, Litup
+     *             5 = Red, Dimmed
+     *             6 = Orange, Litup
+     *             7 = Orange, Dimmed
+     *             8 = Purple, Litup
+     *             9 = Purple, Dimmed
+     *             10 = Grey, Litup
+     *             11 = Grey, Dimmed
+     *
+     * @return Returns the node drawable based on the type specified
+     */
+    public static TextureRegion getTargetBase(int type) {
+        return targetBases.get(type);
     }
 
 }

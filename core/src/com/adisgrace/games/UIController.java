@@ -22,8 +22,8 @@ import java.util.Map;
 public class UIController {
     /** The skin used for displaying neon UI elements */
     private Skin skin;
-    /** The ImageButton for threaten, to be initialized with given texture */
-    private ImageButton threaten;
+    /** The ImageButton for harass, to be initialized with given texture */
+    private ImageButton harass;
     /** The ImageButton for expose, to be initialized with given texture */
     private ImageButton expose;
     /** The ImageButton for distract, to be initialized with given texture */
@@ -51,10 +51,11 @@ public class UIController {
         skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight()*.3f);
         skillBar.setBackground(new TextureRegionDrawable(new TextureRegion(
                 new Texture(Gdx.files.internal("UI/SkillBar_2.png")))));
+
         // numSkills is equal to the number of skill buttons + 1
         int numSkills = 6+1;
         float pad = skillBar.getWidth() / 60f;
-        skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(harass).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
         skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
         skillBar.add(distract).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
         skillBar.add(gaslight).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
@@ -68,7 +69,7 @@ public class UIController {
      * This helper method sets all buttons in toolbar to their unchecked/original states
      */
     public void unCheck(){
-        threaten.setChecked(false);
+        harass.setChecked(false);
         expose.setChecked(false);
         otherJobs.setChecked(false);
         overwork.setChecked(false);
@@ -88,6 +89,7 @@ public class UIController {
     public void toolbarOnClick(ImageButton button, final String s,
                                 GameController.ActiveVerb av, Runnable confirmFunction) {
         switch(av) {
+            case HARASS:
             case THREATEN:
             case EXPOSE:
             case GASLIGHT:
@@ -302,32 +304,32 @@ public class UIController {
      *
      * @return      ImageButton for threaten.
      */
-    public ImageButton createThreaten(InputController ic, final Runnable confirmFunction){
-        threaten = ButtonFactory.makeImageButton(
-                "skills/threaten_up.png",
-                "skills/threaten_down.png",
-                "skills/threaten_select.png");
-        final Label  threatenLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.THREATEN));
-        final String s = "threaten";
-        threaten.addListener(ic.getButtonListener(
+    public ImageButton createHarass(InputController ic, final Runnable confirmFunction){
+        harass = ButtonFactory.makeImageButton(
+                "skills/harass_up.png",
+                "skills/harass_down.png",
+                "skills/harass_select.png");
+        final Label  harassLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.HARASS));
+        final String s = "harass";
+        harass.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(threaten, s, GameController.ActiveVerb.THREATEN, confirmFunction);
+                        toolbarOnClick(harass, s, GameController.ActiveVerb.HARASS, confirmFunction);
                     }
                 }, new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnEnter(threaten, threatenLabel, GameController.ActiveVerb.THREATEN);
+                        toolbarOnEnter(harass, harassLabel, GameController.ActiveVerb.HARASS);
                     }
                 },
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnExit(threaten, threatenLabel, GameController.ActiveVerb.THREATEN);
+                        toolbarOnExit(harass, harassLabel, GameController.ActiveVerb.HARASS);
                     }
                 }));
-        return threaten;
+        return harass;
     }
 
     /**
@@ -625,7 +627,7 @@ public class UIController {
                     //Else we can display it
                     k = new Label(scannedFacts.get(i), skin);
                 }
-            } else if(GameController.activeVerb == GameController.ActiveVerb.THREATEN){
+            } else if(GameController.activeVerb == GameController.ActiveVerb.HARASS){
                 //If a scanned fact has already been used to threaten, we can't use it to threaten again
                 if (threatenedFacts.contains(scannedFacts.get(temp_i), false) ) {
                     continue;
@@ -659,12 +661,13 @@ public class UIController {
                 Actor cbutton = (Actor)event.getListenerActor();
                 String[] info = cbutton.getName().split(",");
                 switch (GameController.activeVerb) {
-                    case HARASS:
                     case THREATEN:
+                        break;
+                    case HARASS:
                         //Threaten the target
                         levelController.threaten(info[0], info[1]);
                         GameController.activeVerb = GameController.ActiveVerb.NONE;
-                        createDialogBox("You threatened the target!");
+                        createDialogBox("You harassed the target!");
                         //Add this fact to the list of facts used to threaten
                         GameController.threatenedFacts.add(scannedFacts.get(temp_i));
                         break;
