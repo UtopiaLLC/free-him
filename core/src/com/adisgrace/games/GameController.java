@@ -788,7 +788,7 @@ public class GameController implements Screen {
                 if(isTarget) {
                     if(levelController.getAP() >= PlayerModel.THREATEN_AP_COST) {
                         uiController.getBlackmailFact("Select a fact to threaten the target with.", nodeInfo[0],
-                                exposedFacts, threatenedFacts, levelController);
+                                levelController);
                     }
                     else {
                         uiController.createDialogBox("Insufficient AP to threaten the target.");
@@ -803,7 +803,7 @@ public class GameController implements Screen {
                     if(isTarget) {
                         if(levelController.getAP() >= PlayerModel.EXPOSE_AP_COST) {
                             uiController.getBlackmailFact("Select a fact to expose the target with.", nodeInfo[0],
-                                    exposedFacts, threatenedFacts, levelController);
+                                    levelController);
                         }
                         else {
                             uiController.createDialogBox("Insufficient AP to expose the target.");

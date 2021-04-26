@@ -564,8 +564,7 @@ public class UIController {
      *
      * @param s the text that is displayed above the facts to select
      */
-    public void getBlackmailFact(String s, String targetName, Array<String> exposedFacts, Array<String> threatenedFacts,
-                                 LevelController levelController) {
+    public void getBlackmailFact(String s, String targetName, LevelController levelController) {
         GameController.blackmailDialog = new Dialog("Notebook", skin) {
             public void result(Object obj) {
                 //to activate the node clicking once more
@@ -593,11 +592,9 @@ public class UIController {
         GameController.blackmailDialog.getContentTable().add( l ).prefWidth( 350 );
         //Get all fact summaries that can potentially be displayed
         Map<String, String> factSummaries = levelController.getNotes(targetName);
-
         //This will store all mappings from summaries to a fact name
         Map<String, String> summaryToFacts = new HashMap<>();
         //This will store the fact ids of all the scanned facts
-
         final Array<String> scannedFacts = new Array<>();
 
         Table table = GameController.blackmailDialog.getContentTable();
@@ -612,24 +609,52 @@ public class UIController {
             summaryToFacts.put(factSummaries.get(fact_), fact_);
         }
         table.setFillParent(false);
-
         table.row();
+
+        addEligibleBlackmailFacts(scannedFacts, summaryToFacts, targetName, table, levelController, factSummaries);
+
+        GameController.blackmailDialog.button("Cancel", true); //sends "true" as the result
+        GameController.blackmailDialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
+        GameController.blackmailDialog.show(GameController.toolbarStage);
+        //Make sure nothing else is able to be clicked while blackmail dialog is shown
+        GameController.nodeFreeze = true;
+    }
+
+    /**
+     * This method parses through all the scannedFacts of a single target to see which facts are eligible for display
+     *
+     * Eligibility is determined by these criteria
+     * 1) Scanned fact has not been exposed
+     * 2) Scanned fact has not been used to threaten
+     *
+     * @param scannedFacts array of fact summaries that were scanned
+     * @param summaryToFacts map from fact summaries to fact id
+     * @param targetName name of target
+     * @param table instance of Table used in blackmail notebook instance
+     * @param levelController level controller instance
+     * @param factSummaries map from fact name to fact summaries
+     */
+    private void addEligibleBlackmailFacts(Array<String> scannedFacts, Map<String, String> summaryToFacts,String targetName,
+                                           Table table, LevelController levelController, Map<String, String> factSummaries) {
         //Now, parse through all scannedFacts to see which are eligible for display
         for (int i = 0; i < scannedFacts.size; i++) {
             final int temp_i = i;
             //this should ALWAYS be overwritten in the code underneath
             Label k = new Label("No facts", skin);
+            String factIDAndSummaryKey = summaryToFacts.get(scannedFacts.get(temp_i)) + scannedFacts.get(temp_i);
+            System.out.println("here: " + factIDAndSummaryKey);
             if(GameController.activeVerb == GameController.ActiveVerb.EXPOSE ){
                 //If a scanned fact has already been exposed, we can't expose it again
-                if (exposedFacts.contains(scannedFacts.get(temp_i), false) ) {
+                if (GameController.exposedFacts.contains(factIDAndSummaryKey, false) ) {
                     continue;
                 } else {
                     //Else we can display it
                     k = new Label(scannedFacts.get(i), skin);
                 }
             } else if(GameController.activeVerb == GameController.ActiveVerb.HARASS){
+
                 //If a scanned fact has already been used to threaten, we can't use it to threaten again
-                if (threatenedFacts.contains(scannedFacts.get(temp_i), false) ) {
+                if (GameController.threatenedFacts.contains(factIDAndSummaryKey, false) ) {
                     continue;
                 } else {
                     //Else we can display it
@@ -640,21 +665,20 @@ public class UIController {
             //Add a listener that can be reachable via the name format "target_name,fact_id"
             if(factSummaries.keySet().size() != 0) {
                 k.setName(targetName + "," + summaryToFacts.get(scannedFacts.get(i)));
-                k.addListener(getBlackmailFactListener(levelController, scannedFacts, temp_i));
+                k.addListener(getBlackmailFactListener(levelController, factIDAndSummaryKey));
             }
             table.add(k).prefWidth(350);
             table.row();
         }
-
-        GameController.blackmailDialog.button("Cancel", true); //sends "true" as the result
-        GameController.blackmailDialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
-        GameController.blackmailDialog.show(GameController.toolbarStage);
-        //Make sure nothing else is able to be clicked while blackmail dialog is shown
-        GameController.nodeFreeze = true;
     }
 
-    private ClickListener getBlackmailFactListener(final LevelController levelController,
-                                                   final Array<String> scannedFacts, final int temp_i){
+    /**
+     * This method returns a click listener for each fact displayed in a blackmail dialog.
+     * @param levelController
+     * @param factIDAndSummary
+     * @return
+     */
+    private ClickListener getBlackmailFactListener(final LevelController levelController, final String factIDAndSummary){
         return new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -669,7 +693,8 @@ public class UIController {
                         GameController.activeVerb = GameController.ActiveVerb.NONE;
                         createDialogBox("You harassed the target!");
                         //Add this fact to the list of facts used to threaten
-                        GameController.threatenedFacts.add(scannedFacts.get(temp_i));
+                        GameController.threatenedFacts.add(factIDAndSummary);
+
                         break;
                     case EXPOSE:
                         //Expose the target
@@ -677,9 +702,9 @@ public class UIController {
                         GameController.activeVerb = GameController.ActiveVerb.NONE;
                         createDialogBox("You exposed the target!");
                         //Add this fact to the list of facts used to expose
-                        GameController.exposedFacts.add(scannedFacts.get(temp_i));
+                        GameController.exposedFacts.add(factIDAndSummary);
                         //Add this fact to the list of facts used to threaten
-                        GameController.threatenedFacts.add(scannedFacts.get(temp_i));
+                        GameController.threatenedFacts.add(factIDAndSummary);
                         break;
                     default:
                         System.out.println("This shouldn't be happening.");
