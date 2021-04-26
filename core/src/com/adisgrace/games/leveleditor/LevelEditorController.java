@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -643,6 +644,7 @@ public class LevelEditorController implements Screen {
         targetName.setMessageText("Target Name");
         targetName.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 3 * FORM_GAP);
         // Initialize with target name
+        // TODO: Apparently this line is not working
         targetName.setText(target.getName().substring(1));
         // Add listener to disable keyboard input when the field is selected
         targetName.addListener(newIgnoreInputFocusListener());
@@ -654,6 +656,7 @@ public class LevelEditorController implements Screen {
         targetParanoia.setMessageText("Target Paranoia");
         targetParanoia.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 2 * FORM_GAP);
         // Initialize with target paranoia
+        // TODO: Apparently this line is not working
         targetParanoia.setText(String.valueOf(model.getTargetTile(target.getName()).paranoia));
         // Add listener to disable keyboard input when the field is selected
         targetParanoia.addListener(newIgnoreInputFocusListener());
@@ -699,9 +702,15 @@ public class LevelEditorController implements Screen {
 
         // Node Title
         TextField nodeTitle = new TextField("", skin);
-        nodeTitle.setMessageText("Node Title");
+        // TODO: Make textboxes reusable, currently it resets all values of the node when opened again
+        if (model.getNodeTile(node.getName()).title != null && model.getNodeTile(node.getName()).title != ""){
+            nodeTitle.setMessageText(model.getNodeTile(node.getName()).title);
+        }else {
+            nodeTitle.setMessageText("Node Title");
+        }
         nodeTitle.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 5 * FORM_GAP);
         // Initialize with node title
+        // TODO: Apparently this line is not working
         nodeTitle.setText(String.valueOf(model.getNodeTile(node.getName()).title));
         // Add listener to disable keyboard input when the field is selected
         nodeTitle.addListener(newIgnoreInputFocusListener());
@@ -709,10 +718,11 @@ public class LevelEditorController implements Screen {
         nodeForm.addActor(nodeTitle);
 
         // Node Content
-        TextField nodeContent = new TextField("", skin);
+        TextArea nodeContent = new TextArea("", skin);
         nodeContent.setMessageText("Node Content");
         nodeContent.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 4 * FORM_GAP);
         // Initialize with node content
+        // TODO: Apparently this line is not working
         nodeTitle.setText(String.valueOf(model.getNodeTile(node.getName()).content));
         // Add listener to disable keyboard input when the field is selected
         nodeContent.addListener(newIgnoreInputFocusListener());
@@ -720,56 +730,34 @@ public class LevelEditorController implements Screen {
         nodeForm.addActor(nodeContent);
 
         // Node Summary
-        TextField nodeSummary = new TextField("", skin);
+        TextArea nodeSummary = new TextArea("", skin);
         nodeSummary.setMessageText("Node Summary");
         nodeSummary.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 3 * FORM_GAP);
         // Initialize with node summary
+        // TODO: Apparently this line is not working
         nodeTitle.setText(String.valueOf(model.getNodeTile(node.getName()).summary));
         // Add listener to disable keyboard input when the field is selected
         nodeSummary.addListener(newIgnoreInputFocusListener());
         // Arrange in table
         nodeForm.addActor(nodeSummary);
 
-        // Target Stress Damage
-        TextField targetStressDamage = new TextField("", skin);
-        targetStressDamage.setMessageText("Target Stress Damage");
-        targetStressDamage.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 2 * FORM_GAP);
-        // Initialize with target stress damage
-        nodeTitle.setText(String.valueOf(model.getNodeTile(node.getName()).targetSR));
+        // Target Stress Rating
+        SelectBox targetStressRating = new SelectBox(skin);
+        targetStressRating.setItems(SR);
+        targetStressRating.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 2 * FORM_GAP);
         // Add listener to disable keyboard input when the field is selected
-        targetStressDamage.addListener(newIgnoreInputFocusListener());
+        targetStressRating.addListener(newIgnoreInputFocusListener());
         // Arrange in table
-        nodeForm.addActor(targetStressDamage);
+        nodeForm.addActor(targetStressRating);
 
-        // Player Stress Damage
-        TextField playerStressDamage = new TextField("", skin);
-        playerStressDamage.setMessageText("Player Stress Damage");
-        playerStressDamage.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 1 * FORM_GAP);
-        // Initialize with player stress damage
-        nodeTitle.setText(String.valueOf(model.getNodeTile(node.getName()).playerSR));
+        // Player Stress Rating
+        SelectBox playerStressRating = new SelectBox(skin);
+        playerStressRating.setItems(SR);
+        playerStressRating.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 1 * FORM_GAP);
         // Add listener to disable keyboard input when the field is selected
-        playerStressDamage.addListener(newIgnoreInputFocusListener());
+        playerStressRating.addListener(newIgnoreInputFocusListener());
         // Arrange in table
-        nodeForm.addActor(playerStressDamage);
-
-        // TODO: Replace text box entry with dropdown menu
-//        // Target Stress Rating
-//        SelectBox targetStressRating = new SelectBox(skin);
-//        targetStressRating.setItems();
-//        targetStressRating.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 2 * FORM_GAP);
-//        // Add listener to disable keyboard input when the field is selected
-//        targetStressRating.addListener(newIgnoreInputFocusListener());
-//        // Arrange in table
-//        nodeForm.addActor(targetStressRating);
-//
-//        // Player Stress Rating
-//        SelectBox playerStressRating = new SelectBox(skin);
-//        playerStressRating.setItems();
-//        playerStressRating.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 1 * FORM_GAP);
-//        // Add listener to disable keyboard input when the field is selected
-//        playerStressRating.addListener(newIgnoreInputFocusListener());
-//        // Arrange in table
-//        nodeForm.addActor(playerStressRating);
+        nodeForm.addActor(playerStressRating);
     }
 
     /**
@@ -788,7 +776,23 @@ public class LevelEditorController implements Screen {
      * @param im        The Image of the target/node.
      */
     private void saveForm(Table form, Image im) {
-
+        int nodetype = Character.getNumericValue(im.getName().charAt(0));
+        SnapshotArray cells = form.getChildren();
+        if (nodetype == 0){ // case image to targetTile
+            LevelEditorModel.TargetTile target = model.getTargetTile(im.getName());
+            target.name = String.valueOf(((TextField)form.getChild(0)).getText());
+            target.paranoia = Integer.parseInt(String.valueOf(((TextField)form.getChild(1)).getText()));
+            target.traits = ((SelectBox)form.getChild(2)).getItems();
+            target.maxStress = Integer.parseInt(String.valueOf(((TextField)form.getChild(3)).getText()));
+            //System.out.println(target.name);
+        } else if (nodetype == 1 || nodetype == 2){ // cast image to targetNode
+            LevelEditorModel.NodeTile node = model.getNodeTile(im.getName());
+            node.title = String.valueOf(((TextField)cells.get(0)).getText());
+            node.content = String.valueOf(((TextArea)cells.get(1)).getText());
+            node.summary = String.valueOf(((TextArea)cells.get(2)).getText());
+            node.targetSR = (StressRating) ((SelectBox)cells.get(3)).getItems().get(0);
+            node.playerSR = (StressRating) ((SelectBox)cells.get(4)).getItems().get(0);
+        }
     }
 
     /*********************************************** SCREEN METHODS ***********************************************/
@@ -835,11 +839,13 @@ public class LevelEditorController implements Screen {
                 nodeType = Character.getNumericValue(selectedNode.getName().charAt(0));
                 // If was a target, save contents of targetForm for that target and clear form
                 if (nodeType == 0) {
+                    createTargetForm(selectedNode);
                     saveForm(targetForm, selectedNode);
                     targetForm.clear();
                 }
                 // If was a node, save contents of nodeForm for that node and clear form
                 else {
+                    createNodeForm(selectedNode);
                     saveForm(nodeForm, selectedNode);
                     nodeForm.clear();
                 }

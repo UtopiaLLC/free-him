@@ -94,4 +94,6 @@ public final class LevelEditorConstants {
     public static final String[] TRAIT_OPTIONS = {"paranoiac", "therapist", "gossip", "off_putting",
             "naturally_suspicious", "rich", "technologically_literate", "bad_connection", "technologically_illiterate",
             "sensitive"};
+    /** Array of stress ratings available as options */
+    public static final StressRating[] SR = {StressRating.NONE, StressRating.LOW, StressRating.MED, StressRating.HIGH};
 }
