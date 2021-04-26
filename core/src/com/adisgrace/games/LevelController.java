@@ -6,6 +6,10 @@ import com.adisgrace.games.models.LevelModel;
 import com.adisgrace.games.models.PlayerModel;
 import com.adisgrace.games.models.TargetModel;
 import com.adisgrace.games.util.Connector;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
@@ -141,6 +145,7 @@ public class LevelController {
     public boolean gaslight(String target){
         boolean success = rng.nextInt(100) > levelModel.getTarget(target).getSuspicion();
         if(success) levelModel.getTarget(target).gaslight();
+        player.gaslight(levelModel.getTarget(target));
         return success;
     }
 

@@ -40,6 +40,8 @@ public class GameController implements Screen {
         OVERWORK,
         /** Linked to running more jobs to get bitecoin*/
         OTHER_JOBS,
+        DISTRACT,
+        GASLIGHT,
         /** Linked to relaxing to reduce stress*/
         RELAX,
         /** Linked to no action being selected */
@@ -54,7 +56,9 @@ public class GameController implements Screen {
                     " for 3 AP";
             case OVERWORK: return "Overwork: Gains 2 AP, but Increases Stress";
             case OTHER_JOBS: return "Other Jobs: Make Money with 3 AP";
-            case RELAX: return "Relax: Decreases Stress with 1 AP";
+            case RELAX: return "Relax: Decreases Stress for 1 AP";
+            case GASLIGHT: return "Gaslight: Plant seeds of doubt in your target's mind, making\n them less sure of themselves" +
+                    " for 2 AP";
             default: throw new RuntimeException("Invalid ActiveVerb passed " + activeVerb.toString());
         }
     };
@@ -72,9 +76,6 @@ public class GameController implements Screen {
 
     private Array<String> levelJsons;
     private Array<LevelController> levelControllers;
-
-    private final int THREATEN_AP_COST = 2;
-    private final int EXPOSE_AP_COST = 3;
 
     /** canvas is the primary view class of the game */
     private GameCanvas canvas;
@@ -555,6 +556,8 @@ public class GameController implements Screen {
         uiController.createOtherJobs(ic, createConfirmRunnable("other jobs"));
         uiController.createOverwork(ic, createConfirmRunnable("overwork"));
         uiController.createThreaten(ic, createConfirmRunnable("threaten"));
+//        uiController.createDistract(ic, createConfirmRunnable("distract"));
+        uiController.createGaslight(ic, createConfirmRunnable("gaslight"));
         ImageButton end = createEndDay();
         ImageButton settings = createSettings();
         ImageButton notebook = createNotebook();
@@ -772,10 +775,9 @@ public class GameController implements Screen {
                 break;
             case THREATEN:
                 if(isTarget) {
-                    if(levelController.getAP() >= THREATEN_AP_COST) {
+                    if(levelController.getAP() >= PlayerModel.THREATEN_AP_COST) {
                         uiController.getBlackmailFact("Select a fact to threaten the target with.", nodeInfo[0],
                                 exposedFacts, threatenedFacts, levelController);
-
                     }
                     else {
                         uiController.createDialogBox("Insufficient AP to threaten the target.");
@@ -786,7 +788,7 @@ public class GameController implements Screen {
             case EXPOSE:
                 if(isTarget) {
                     if(isTarget) {
-                        if(levelController.getAP() >= EXPOSE_AP_COST) {
+                        if(levelController.getAP() >= PlayerModel.EXPOSE_AP_COST) {
                             uiController.getBlackmailFact("Select a fact to expose the target with.", nodeInfo[0],
                                     exposedFacts, threatenedFacts, levelController);
                         }
@@ -797,6 +799,10 @@ public class GameController implements Screen {
                     }
                 }
                 break;
+            case GASLIGHT:
+                if (isTarget) {
+//                    if levelController.getAP() >=
+                }
             default:
                 System.out.println("You shall not pass");
                 break;

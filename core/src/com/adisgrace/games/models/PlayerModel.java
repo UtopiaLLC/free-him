@@ -1,5 +1,6 @@
 package com.adisgrace.games.models;
 
+import java.lang.annotation.Target;
 import java.util.Random;
 
 public class PlayerModel {
@@ -7,12 +8,13 @@ public class PlayerModel {
 	//TODO: balancing
 	private final int DAILY_AP = 6;
 
-	private final int HACK_AP_COST = 2;
-	private final int SCAN_AP_COST = 2;
-	private final int THREATEN_AP_COST = 2;
-	private final int COERCE_AP_COST = 2;
-	private final int HARASS_AP_COST = 2;
-	private final int EXPOSE_AP_COST = 3;
+	public static final int HACK_AP_COST = 2;
+	public static final int SCAN_AP_COST = 2;
+	public static final int THREATEN_AP_COST = 2;
+	public static final int COERCE_AP_COST = 2;
+	public static final int HARASS_AP_COST = 2;
+	public static final int EXPOSE_AP_COST = 3;
+	public static final int GASLIGHT_AP_COST = 2;
 
 	private final float STARTING_STRESS = 15;
 	private final float MAX_STRESS = 100;
@@ -410,6 +412,12 @@ public class PlayerModel {
 			return this.action_points >= (EXPOSE_AP_COST + 1);
 		}else {
 			return this.action_points >= EXPOSE_AP_COST;
+		}
+	}
+
+	public void gaslight(TargetModel t){
+		if(t.getTraits().is_bad_connection()){
+			this.decrementAP(GASLIGHT_AP_COST);
 		}
 	}
 }

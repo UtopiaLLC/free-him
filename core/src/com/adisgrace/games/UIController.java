@@ -24,24 +24,18 @@ public class UIController {
     private Skin skin;
     /** The ImageButton for threaten, to be initialized with given texture */
     private ImageButton threaten;
-    /** Whether the threaten button has been checked */
-    private boolean threaten_checked = false;
     /** The ImageButton for expose, to be initialized with given texture */
     private ImageButton expose;
-    /** Whether the expose button has been checked */
-    private boolean expose_checked = false;
+    /** The ImageButton for distract, to be initialized with given texture */
+    private ImageButton distract;
+    /** The ImageButton for gaslight, to be initialized with given texture */
+    private ImageButton gaslight;
     /** The ImageButton for overwork, to be initialized with given texture */
     private ImageButton overwork;
-    /** Whether the overwork button has been checked */
-    private boolean overwork_checked = false;
     /** The ImageButton for otherJobs, to be initialized with given texture */
     private ImageButton otherJobs;
-    /** Whether the otherJobs button has been checked */
-    private boolean otherJobs_checked = false;
     /** The ImageButton for relax, to be initialized with given texture */
     private ImageButton relax;
-    /** Whether the relax button has been checked */
-    private boolean relax_checked = false;
 
     public UIController(Skin skin) {
         this.skin = skin;
@@ -58,10 +52,12 @@ public class UIController {
         skillBar.setBackground(new TextureRegionDrawable(new TextureRegion(
                 new Texture(Gdx.files.internal("UI/SkillBar_2.png")))));
         // numSkills is equal to the number of skill buttons + 1
-        int numSkills = 5+1;
+        int numSkills = 6+1;
         float pad = skillBar.getWidth() / 60f;
         skillBar.add(threaten).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
         skillBar.add(expose).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(distract).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
+        skillBar.add(gaslight).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
         skillBar.add(overwork).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
         skillBar.add(otherJobs).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
         skillBar.add(relax).width(skillBar.getWidth()/numSkills).height(skillBar.getHeight()).padRight(pad).align(Align.bottom);
@@ -72,16 +68,12 @@ public class UIController {
      * This helper method sets all buttons in toolbar to their unchecked/original states
      */
     public void unCheck(){
-        threaten_checked = false;
-        expose_checked = false;
-        otherJobs_checked = false;
-        overwork_checked = false;
-        relax_checked = false;
         threaten.setChecked(false);
         expose.setChecked(false);
         otherJobs.setChecked(false);
         overwork.setChecked(false);
-        relax.setChecked(false);
+        distract.setChecked(false);
+        gaslight.setChecked(false);
         GameController.activeVerb = GameController.ActiveVerb.NONE;
     }
 
@@ -90,22 +82,22 @@ public class UIController {
      * changes the active verb based on the button that was clicked and changes the UI
      * of the button to reflect the fact that it has been selected.
      * @param button the button that was clicked
-     * @param buttonChecked the flag for whether or not the button has been selected
      * @param s the name of the skill that was clicked
      * @param av the active verb of the skill that was clicked
      */
-    public void toolbarOnClick(ImageButton button, boolean buttonChecked, final String s,
+    public void toolbarOnClick(ImageButton button, final String s,
                                 GameController.ActiveVerb av, Runnable confirmFunction) {
         switch(av) {
             case THREATEN:
             case EXPOSE:
-                if (buttonChecked == false){
+            case GASLIGHT:
+                if (!button.isChecked()){
                     unCheck();
                     GameController.activeVerb = av;
-                    buttonChecked = true;
                     button.setChecked(true);
                 }else{
                     unCheck();
+                    button.setChecked(false);
                 }
                 break;
             case OVERWORK:
@@ -322,14 +314,13 @@ public class UIController {
                 "skills/threaten_up.png",
                 "skills/threaten_down.png",
                 "skills/threaten_select.png");
-        final Label  threatenLabel = new Label("Threaten: Threaten your target with a \n fact to blackmail to increase their stress " +
-                "for 2 AP", skin);
+        final Label  threatenLabel = new Label(GameController.getHoverText(GameController.ActiveVerb.THREATEN), skin);
         final String s = "threaten";
         threaten.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(threaten, threaten_checked, s, GameController.ActiveVerb.THREATEN, confirmFunction);
+                        toolbarOnClick(threaten, s, GameController.ActiveVerb.THREATEN, confirmFunction);
                     }
                 }, new Runnable() {
                     @Override
@@ -353,24 +344,17 @@ public class UIController {
      * @return      ImageButton for expose.
      */
     public ImageButton createExpose(InputController ic, final Runnable confirmFunction){
-//        expose = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/expose_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/expose_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/expose_select.png")))));
-//        expose.setTransform(true);
-//        expose.setScale(1f);
         expose = ButtonFactory.makeImageButton(
                 "skills/expose_up.png",
                 "skills/expose_down.png",
                 "skills/expose_select.png");
-        final Label exposeLabel = new Label("Expose: Expose your target's fact to the public\n for large stress damage" +
-                " for 3 AP", skin);
+        final Label exposeLabel = new Label(GameController.getHoverText(GameController.ActiveVerb.EXPOSE), skin);
         final String s = "expose";
         expose.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(expose, expose_checked,s, GameController.ActiveVerb.EXPOSE,  confirmFunction);
+                        toolbarOnClick(expose, s, GameController.ActiveVerb.EXPOSE,  confirmFunction);
                     }
                 }, new Runnable() {
                     @Override
@@ -385,6 +369,74 @@ public class UIController {
                     }
                 }));
         return expose;
+    }
+
+    /**
+     * This method creates a distract button with given textures for it's original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for distract.
+     */
+    public ImageButton createDistract(InputController ic, final Runnable confirmFunction){
+        distract = ButtonFactory.makeImageButton( //TODO
+                "skills/expose_up.png",
+                "skills/expose_down.png",
+                "skills/expose_select.png");
+        final Label exposeLabel = new Label(GameController.getHoverText(GameController.ActiveVerb.DISTRACT), skin);
+        final String s = "expose";
+        expose.addListener(ic.getButtonListener(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnClick(expose, s, GameController.ActiveVerb.EXPOSE,  confirmFunction);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnEnter(expose, exposeLabel, GameController.ActiveVerb.EXPOSE);
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnExit(expose, exposeLabel, GameController.ActiveVerb.EXPOSE);
+                    }
+                }));
+        return expose;
+    }
+
+    /**
+     * This method creates a gaslight button with given textures for its original status, when the cursor is hovering
+     * above it and when it is clicked.
+     *
+     * @return      ImageButton for expose.
+     */
+    public ImageButton createGaslight(InputController ic, final Runnable confirmFunction){
+        gaslight = ButtonFactory.makeImageButton(
+                "skills/expose_down.png",
+                "skills/expose_select.png",
+                "skills/expose_up.png");
+        final Label gaslightLabel = new Label(GameController.getHoverText(GameController.ActiveVerb.GASLIGHT), skin);
+        final String s = "gaslight";
+        expose.addListener(ic.getButtonListener(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnClick(gaslight, s, GameController.ActiveVerb.GASLIGHT,  confirmFunction);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnEnter(gaslight, gaslightLabel, GameController.ActiveVerb.GASLIGHT);
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbarOnExit(gaslight, gaslightLabel, GameController.ActiveVerb.GASLIGHT);
+                    }
+                }));
+        return gaslight;
     }
 
     /**
@@ -404,13 +456,13 @@ public class UIController {
                 "skills/overwork_up.png",
                 "skills/overwork_down.png",
                 "skills/overwork_select.png");
-        final Label overworkLabel = new Label("Overwork: Gains 2 AP, but Increases Stress", skin);
+        final Label overworkLabel = new Label(GameController.getHoverText(GameController.ActiveVerb.OVERWORK), skin);
         final String s = "overwork";
         overwork.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(overwork, overwork_checked,"overwork",
+                        toolbarOnClick(overwork,s,
                                 GameController.ActiveVerb.OVERWORK, confirmFunction);
                     }
                 }, new Runnable() {
@@ -435,23 +487,17 @@ public class UIController {
      * @return      ImageButton for otherjobs.
      */
     public ImageButton createOtherJobs(InputController ic, final Runnable confirmFunction){
-//        otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/otherjobs_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/otherjobs_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/otherjobs_select.png")))));
-//        otherJobs.setTransform(true);
-//        otherJobs.setScale(1f);
         otherJobs = ButtonFactory.makeImageButton(
                 "skills/otherjobs_up.png",
                 "skills/otherjobs_down.png",
                 "skills/otherjobs_select.png");
-        final Label otherJobLabel = new Label("Other Jobs: Make Money with 3 AP", skin);
+        final Label otherJobLabel = new Label(GameController.getHoverText(GameController.ActiveVerb.OTHER_JOBS), skin);
         final String s = "other jobs";
         otherJobs.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(otherJobs, otherJobs_checked,s, GameController.ActiveVerb.OTHER_JOBS, confirmFunction);
+                        toolbarOnClick(otherJobs, s, GameController.ActiveVerb.OTHER_JOBS, confirmFunction);
                     }
                 }, new Runnable() {
                     @Override
@@ -475,23 +521,17 @@ public class UIController {
      * @return      ImageButton for relax.
      */
     public ImageButton createRelax(InputController ic, final Runnable confirmFunction){
-//        relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/relax_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/relax_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-//                Gdx.files.internal("skills/relax_select.png")))));
-//        relax.setTransform(true);
-//        relax.setScale(1f);
         relax = ButtonFactory.makeImageButton(
                 "skills/relax_up.png",
                 "skills/relax_down.png",
                 "skills/relax_select.png");
-        final Label  relaxLabel = new Label("Relax: Decreases Stress with 1 AP", skin);
+        final Label  relaxLabel = new Label(GameController.getHoverText(GameController.ActiveVerb.RELAX), skin);
         final String s = "relax";
         relax.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(relax, relax_checked,"relax", GameController.ActiveVerb.RELAX, confirmFunction);
+                        toolbarOnClick(relax, s, GameController.ActiveVerb.RELAX, confirmFunction);
                     }
                 }, new Runnable() {
                     @Override
