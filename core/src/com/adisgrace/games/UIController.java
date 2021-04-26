@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 
+import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -503,7 +504,7 @@ public class UIController {
         return otherJobs;
     }
 
-    private Label createHoverLabel(String s) {
+    public Label createHoverLabel(String s) {
 //        Dialog dialog = new Dialog("", skin );
 //        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
 //        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
@@ -687,6 +688,21 @@ public class UIController {
                 GameController.blackmailDialog.hide();
             }
         };
+    }
+
+    public void nodeOnEnter(int colorState, Label buttonLabel, Node node) {
+
+//        Vector2 zeroLoc = node.localToStageCoordinates(new Vector2(0, node.getHeight()));
+//        buttonLabel.setX(zeroLoc.x);
+//        buttonLabel.setY(zeroLoc.y);
+        GameController.toolbarStage.addActor(buttonLabel);
+
+        node.changeColor(colorState-1);
+    }
+
+    public void nodeOnExit(int colorState, Label buttonLabel, Node node) {
+        buttonLabel.remove();
+        node.changeColor(colorState);
     }
 
 }

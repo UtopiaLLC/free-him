@@ -310,27 +310,7 @@ public class GameController implements Screen {
             if(targets.get(i).getState() != targetStates.get(i)) {
                 TargetModel target = targets.get(i);
                 TargetModel.TargetState state = target.getState();
-                int colorState = 1;
-                switch (state) {
-                    case UNAWARE:
-                        colorState = 1;
-                        break;
-                    case SUSPICIOUS:
-                        colorState = 3;
-                        break;
-                    case PARANOID:
-                        colorState = 5;
-                        break;
-                    case THREATENED:
-                        colorState = 7;
-                        break;
-                    case DEFEATED:
-                        colorState = 11;
-                        break;
-                    default:
-                        colorState = 9;
-                        System.out.println("BAD THINGS");
-                }
+                int colorState = getColorTypeFromState(state);
 
                 for(String fact : target.getNodes()){
                     Node node = imageNodes.get(target.getName()+","+fact);
@@ -346,6 +326,31 @@ public class GameController implements Screen {
         }
     }
 
+    private int getColorTypeFromState(TargetModel.TargetState state ) {
+        int colorState;
+        switch (state) {
+            case UNAWARE:
+                colorState = 1;
+                break;
+            case SUSPICIOUS:
+                colorState = 3;
+                break;
+            case PARANOID:
+                colorState = 5;
+                break;
+            case THREATENED:
+                colorState = 7;
+                break;
+            case DEFEATED:
+                colorState = 11;
+                break;
+            default:
+                colorState = 9;
+                break;
+        }
+        return colorState;
+    }
+
     /**
      * Delegates responsibility of adding click listeners to all
      * the nodes to the InputController
@@ -355,14 +360,56 @@ public class GameController implements Screen {
         for(final Node button : imageNodes.values()) { // Node Click Listeners
             final Node b = button;
             //Adds click listener to each node button
-            b.addListener(ic.getButtonListener(new Runnable() {
-                @Override
-                public void run() {
-                    actOnNode(b.getName(), b);
-                }
-            }));
+            final String[] nodeInfo = b.getName().split(",");
+
+            String s;
+            if(nodeInfo.length == 1) {
+                s =  "\nTarget Name: " + b.getName() + "\n" +
+                        "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n" +
+                        "Target Suspicion: " + levelController.getTargetSuspicion(b.getName()) + "\n";
+            } else {
+                s = levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
+            }
+            final Label nodeLabel = uiController.createHoverLabel(s);
+
+            nodeLabel.setFontScale(2);
+            if(nodeInfo.length == 1) {
+                Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth() * .02f, Gdx.graphics.getHeight() * .60f);
+                nodeLabel.setX(zeroLoc.x);
+                nodeLabel.setY(zeroLoc.y);
+                nodeLabel.setWidth(450f);
+                nodeLabel.setHeight(300f);
+            } else {
+                Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth() * .02f, Gdx.graphics.getHeight() * .85f);
+                nodeLabel.setX(zeroLoc.x);
+                nodeLabel.setY(zeroLoc.y);
+                nodeLabel.setWidth(300f);
+                nodeLabel.setHeight(100f);
+            }
+            b.addListener(ic.getButtonListener(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            actOnNode(b.getName(), b);
+                        }
+                    }, new Runnable() {
+                        @Override
+                        public void run() {
+                            uiController.nodeOnEnter(
+                                    getColorTypeFromState(levelController.getTargetModels().get(nodeInfo[0]).getState()),
+                                    nodeLabel, b);
+                        }
+                    },
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            uiController.nodeOnExit(
+                                    getColorTypeFromState(levelController.getTargetModels().get(nodeInfo[0]).getState()),
+                                    nodeLabel, b);
+                        }
+                    }));
             //Adds enter and exit listeners to each node button
-            b.addListener(ic.addNodeListenerEnterExit(skin, levelController));
+            //b.addListener(ic.addNodeListenerEnterExit(skin, levelController));
             button.remove();
         }
     }
