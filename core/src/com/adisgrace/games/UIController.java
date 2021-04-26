@@ -103,7 +103,6 @@ public class UIController {
                     unCheck();
                     GameController.activeVerb = av;
                     buttonChecked = true;
-                    System.out.println(threaten_checked);
                     button.setChecked(true);
                 }else{
                     unCheck();
