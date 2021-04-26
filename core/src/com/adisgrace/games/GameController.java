@@ -254,6 +254,7 @@ public class GameController implements Screen {
             }
         }
         updateNodeColors();
+        updateStats();
 
         canvas.drawIsometricGrid(stage,nodeWorldWidth,nodeWorldHeight);
         stage.getViewport().apply();
