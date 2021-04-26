@@ -636,8 +636,10 @@ public class UIController {
             }
             k.setWrap(true);
             //Add a listener that can be reachable via the name format "target_name,fact_id"
-            k.setName(targetName + "," + summaryToFacts.get(scannedFacts.get(i)));
-            k.addListener(getBlackmailFactListener(levelController, scannedFacts, temp_i));
+            if(factSummaries.keySet().size() != 0) {
+                k.setName(targetName + "," + summaryToFacts.get(scannedFacts.get(i)));
+                k.addListener(getBlackmailFactListener(levelController, scannedFacts, temp_i));
+            }
             table.add(k).prefWidth(350);
             table.row();
         }

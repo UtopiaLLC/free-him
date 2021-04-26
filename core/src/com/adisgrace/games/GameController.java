@@ -6,8 +6,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -146,6 +148,8 @@ public class GameController implements Screen {
     /** controller for input operations*/
     private InputController ic;
 
+    private Music music;
+
     /** The smallest width the game window can take */
     private static final float MINWORLDWIDTH = 1280;
     /** The smallest height the game window can take */
@@ -166,6 +170,11 @@ public class GameController implements Screen {
     private Texture SouthConnector;
     private Texture EastConnector;
     private Texture WestConnector;
+
+    private Animation<TextureRegion> NorthConnectorAnimation;
+    private Animation<TextureRegion> SouthConnectorAnimation;
+    private Animation<TextureRegion> EastConnectorAnimation;
+    private Animation<TextureRegion> WestConnectorAnimation;
 
     //private Image north, east, south, west;
 
@@ -291,6 +300,17 @@ public class GameController implements Screen {
         cameraController = new CameraController(ic, canvas);
         createToolbar();
         shapeRenderer = new ShapeRenderer();
+
+        music = Gdx.audio.newMusic(Gdx.files.internal("music/Moonlit_Skyline.mp3"));
+        music.setVolume(0.1f);
+        music.setLooping(true);
+        music.play();
+
+        NorthConnectorAnimation = connectorAnimation(NorthConnector);
+        SouthConnectorAnimation = connectorAnimation(SouthConnector);
+        EastConnectorAnimation = connectorAnimation(EastConnector);
+        WestConnectorAnimation = connectorAnimation(WestConnector);
+        
     }
 
     @Override
@@ -305,7 +325,6 @@ public class GameController implements Screen {
     public void render(float delta) {
 
         canvas.clear();
-        canvas.drawIsometricGrid(stage,nodeWorldWidth,nodeWorldHeight);
 
         // If no action is currently selected, and the cursor is not hovering above any button, then remove any effects
         if (activeVerb == ActiveVerb.NONE && hoverVerb == ActiveVerb.NONE){
@@ -320,11 +339,11 @@ public class GameController implements Screen {
             }
         }
 
+        canvas.drawIsometricGrid(stage,nodeWorldWidth,nodeWorldHeight);
         stage.getViewport().apply();
         stage.draw();
         toolbarStage.getViewport().apply();
         toolbarStage.draw();
-        updateStats();
 
         if(levelController.getLevelState() == LevelModel.LevelState.LOSE && !ended) {
             uiController.createDialogBox("YOU LOSE!");
@@ -822,39 +841,71 @@ public class GameController implements Screen {
 
     public void addConnections(String target, String fact){
         ArrayMap<String, Array<Connector>> connectors = levelController.getConnectorsOf(target, fact);
-        Vector2 connectorCoords = new Vector2();
+        //Vector2 connectorCoords = new Vector2();
         Vector2 targetCoords = levelController.getTargetPos(target);
         for(int i = 0; i < connectors.size; i++){
             Array<Connector> firstConnectors = connectors.getValueAt(i);
             //draw each individual connector on the path
             for(Connector connector : firstConnectors) {
+                Vector2 connectorCoords = new Vector2();
                 connectorCoords.set(connector.xcoord, connector.ycoord).add(targetCoords);
+
                 connectorCoords = isometricToWorld(connectorCoords);
                 if(connector.type.contains("E")) {
-                    Image east = new Image(EastConnector);
+                    System.out.println("East");
+                    ConnectorActor east = new ConnectorActor(EastConnectorAnimation, connectorCoords);
                     east.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(east);
                 }if(connector.type.contains("W")) {
-                    Image west = new Image(WestConnector);
+                    System.out.println("West");
+                    ConnectorActor west = new ConnectorActor(WestConnectorAnimation, connectorCoords);
                     west.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(west);
                 }
                 if(connector.type.contains("N")) {
-                    Image north = new Image(NorthConnector);
+                    System.out.println("North");
+                    ConnectorActor north = new ConnectorActor(NorthConnectorAnimation, connectorCoords);
                     north.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(north);
                 }
                 if(connector.type.contains("S")) {
-                    Image south = new Image(SouthConnector);
+                    System.out.println("South");
+                    ConnectorActor south = new ConnectorActor(SouthConnectorAnimation, connectorCoords);
                     south.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(south);
                 }
+
+                System.out.println("-------------");
 
             }
 
             String newFact = connectors.getKeyAt(i);
             stage.addActor(imageNodes.get(target+","+newFact));
         }
+    }
+
+    public Animation<TextureRegion> connectorAnimation(Texture tex) {
+
+        TextureRegion[] connectorFrames = new TextureRegion[50];
+        int counter = 0;
+
+        for(int i = 2; i <= 100; i+=2) {
+
+            float percentile = i/100f;
+            float coordScaler = (1 - percentile) / 2;
+
+            connectorFrames[counter] = new TextureRegion(tex,
+                    (int)(tex.getWidth() * coordScaler),
+                    (int)(tex.getHeight() * coordScaler),
+                    (int)(tex.getWidth() * percentile),
+                    (int)(tex.getHeight() * percentile));
+
+            counter++;
+        }
+
+        Animation<TextureRegion> edgeAnimation = new Animation<TextureRegion>(0.025f, connectorFrames);
+        edgeAnimation.setPlayMode(Animation.PlayMode.NORMAL);
+        return edgeAnimation;
     }
 
     /**
