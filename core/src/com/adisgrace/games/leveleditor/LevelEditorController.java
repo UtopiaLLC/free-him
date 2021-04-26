@@ -780,7 +780,12 @@ public class LevelEditorController implements Screen {
         SnapshotArray cells = form.getChildren();
         if (nodetype == 0){ // case image to targetTile
             LevelEditorModel.TargetTile target = model.getTargetTile(im.getName());
-            target.name = String.valueOf(((TextField)form.getChild(0)).getText());
+            //target.name = String.valueOf(((TextField)form.getChild(0)).getText());
+            // Update name of targetTile
+            String newName = "0" + String.valueOf(((TextField)form.getChild(0)).getText());
+            model.updateLevelTileName(im.getName(), newName);
+            im.setName(newName);
+
             target.paranoia = Integer.parseInt(String.valueOf(((TextField)form.getChild(1)).getText()));
             target.traits = ((SelectBox)form.getChild(2)).getItems();
             target.maxStress = Integer.parseInt(String.valueOf(((TextField)form.getChild(3)).getText()));
