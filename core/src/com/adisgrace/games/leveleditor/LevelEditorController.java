@@ -644,7 +644,6 @@ public class LevelEditorController implements Screen {
         targetName.setMessageText("Target Name");
         targetName.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 3 * FORM_GAP);
         // Initialize with target name
-        // TODO: Apparently this line is not working
         targetName.setText(target.getName().substring(1));
         // Add listener to disable keyboard input when the field is selected
         targetName.addListener(newIgnoreInputFocusListener());
@@ -656,7 +655,6 @@ public class LevelEditorController implements Screen {
         targetParanoia.setMessageText("Target Paranoia");
         targetParanoia.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 2 * FORM_GAP);
         // Initialize with target paranoia
-        // TODO: Apparently this line is not working
         targetParanoia.setText(String.valueOf(model.getTargetTile(target.getName()).paranoia));
         // Add listener to disable keyboard input when the field is selected
         targetParanoia.addListener(newIgnoreInputFocusListener());
@@ -667,6 +665,9 @@ public class LevelEditorController implements Screen {
         SelectBox targetTraits = new SelectBox(skin);
         targetTraits.setItems(TRAIT_OPTIONS);
         targetTraits.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + FORM_GAP);
+        if (model.getTargetTile(target.getName()).traits != null && model.getTargetTile(target.getName()).traits.size > 0) {
+            targetTraits.setSelected(model.getTargetTile(target.getName()).traits.get(0));
+        }
         // Add listener to disable keyboard input when the field is selected
         targetTraits.addListener(newIgnoreInputFocusListener());
         // Arrange in table
@@ -702,40 +703,32 @@ public class LevelEditorController implements Screen {
 
         // Node Title
         TextField nodeTitle = new TextField("", skin);
-        // TODO: Make textboxes reusable, currently it resets all values of the node when opened again
-        if (model.getNodeTile(node.getName()).title != null && model.getNodeTile(node.getName()).title != ""){
-            nodeTitle.setMessageText(model.getNodeTile(node.getName()).title);
-        }else {
-            nodeTitle.setMessageText("Node Title");
-        }
+        nodeTitle.setMessageText("Node Title");
         nodeTitle.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 5 * FORM_GAP);
         // Initialize with node title
-        // TODO: Apparently this line is not working
-        nodeTitle.setText(String.valueOf(model.getNodeTile(node.getName()).title));
+        nodeTitle.setText(node.getName().substring(1));
         // Add listener to disable keyboard input when the field is selected
         nodeTitle.addListener(newIgnoreInputFocusListener());
         // Arrange in table
         nodeForm.addActor(nodeTitle);
 
         // Node Content
-        TextArea nodeContent = new TextArea("", skin);
+        TextField nodeContent = new TextField("", skin);
         nodeContent.setMessageText("Node Content");
         nodeContent.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 4 * FORM_GAP);
         // Initialize with node content
-        // TODO: Apparently this line is not working
-        nodeTitle.setText(String.valueOf(model.getNodeTile(node.getName()).content));
+        nodeContent.setText(String.valueOf(model.getNodeTile(node.getName()).content));
         // Add listener to disable keyboard input when the field is selected
         nodeContent.addListener(newIgnoreInputFocusListener());
         // Arrange in table
         nodeForm.addActor(nodeContent);
 
         // Node Summary
-        TextArea nodeSummary = new TextArea("", skin);
+        TextField nodeSummary = new TextField("", skin);
         nodeSummary.setMessageText("Node Summary");
         nodeSummary.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 3 * FORM_GAP);
         // Initialize with node summary
-        // TODO: Apparently this line is not working
-        nodeTitle.setText(String.valueOf(model.getNodeTile(node.getName()).summary));
+        nodeSummary.setText(String.valueOf(model.getNodeTile(node.getName()).summary));
         // Add listener to disable keyboard input when the field is selected
         nodeSummary.addListener(newIgnoreInputFocusListener());
         // Arrange in table
@@ -745,6 +738,7 @@ public class LevelEditorController implements Screen {
         SelectBox targetStressRating = new SelectBox(skin);
         targetStressRating.setItems(SR);
         targetStressRating.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 2 * FORM_GAP);
+        targetStressRating.setSelected(model.getNodeTile(node.getName()).targetSR);
         // Add listener to disable keyboard input when the field is selected
         targetStressRating.addListener(newIgnoreInputFocusListener());
         // Arrange in table
@@ -754,6 +748,7 @@ public class LevelEditorController implements Screen {
         SelectBox playerStressRating = new SelectBox(skin);
         playerStressRating.setItems(SR);
         playerStressRating.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 1 * FORM_GAP);
+        playerStressRating.setSelected(model.getNodeTile(node.getName()).playerSR);
         // Add listener to disable keyboard input when the field is selected
         playerStressRating.addListener(newIgnoreInputFocusListener());
         // Arrange in table
@@ -779,24 +774,32 @@ public class LevelEditorController implements Screen {
         int nodetype = Character.getNumericValue(im.getName().charAt(0));
         SnapshotArray cells = form.getChildren();
         if (nodetype == 0){ // case image to targetTile
-            LevelEditorModel.TargetTile target = model.getTargetTile(im.getName());
-            //target.name = String.valueOf(((TextField)form.getChild(0)).getText());
-            // Update name of targetTile
             String newName = "0" + String.valueOf(((TextField)form.getChild(0)).getText());
             model.updateLevelTileName(im.getName(), newName);
             im.setName(newName);
-
-            target.paranoia = Integer.parseInt(String.valueOf(((TextField)form.getChild(1)).getText()));
-            target.traits = ((SelectBox)form.getChild(2)).getItems();
-            target.maxStress = Integer.parseInt(String.valueOf(((TextField)form.getChild(3)).getText()));
-            //System.out.println(target.name);
+            model.updateTargetParanoia(newName, Integer.parseInt(String.valueOf(((TextField)form.getChild(1)).getText())));
+            // TODO: Add support for multiple trait selection
+            Array temp = new Array();
+            temp.add(((SelectBox)form.getChild(2)).getSelected());
+            model.updateTargetTraits(newName, temp);
+            model.updateTargetMaxStress(newName, Integer.parseInt(String.valueOf(((TextField)form.getChild(3)).getText())));
         } else if (nodetype == 1 || nodetype == 2){ // cast image to targetNode
-            LevelEditorModel.NodeTile node = model.getNodeTile(im.getName());
-            node.title = String.valueOf(((TextField)cells.get(0)).getText());
-            node.content = String.valueOf(((TextArea)cells.get(1)).getText());
-            node.summary = String.valueOf(((TextArea)cells.get(2)).getText());
-            node.targetSR = (StressRating) ((SelectBox)cells.get(3)).getItems().get(0);
-            node.playerSR = (StressRating) ((SelectBox)cells.get(4)).getItems().get(0);
+            String newName;
+            if (nodetype == '1'){
+                newName = "1" + ((TextField)form.getChild(0)).getText();
+            }else {
+                newName = "2" + ((TextField)form.getChild(0)).getText();
+            }
+            model.updateLevelTileName(im.getName(), newName);
+            im.setName(newName);
+
+            model.updateNodeContent(newName, ((TextField)form.getChild(1)).getText());
+            System.out.println(model.getNodeTile(newName).content);
+
+            model.updateNodeSummary(newName, ((TextField)form.getChild(2)).getText());
+
+            model.updateNodeTargetStressRating(newName, (StressRating) ((SelectBox)form.getChild(3)).getSelected());
+            model.updateNodePlayerStressRating(newName, (StressRating) ((SelectBox)form.getChild(4)).getSelected());
         }
     }
 
@@ -844,13 +847,13 @@ public class LevelEditorController implements Screen {
                 nodeType = Character.getNumericValue(selectedNode.getName().charAt(0));
                 // If was a target, save contents of targetForm for that target and clear form
                 if (nodeType == 0) {
-                    createTargetForm(selectedNode);
+                    //createTargetForm(selectedNode);
                     saveForm(targetForm, selectedNode);
                     targetForm.clear();
                 }
                 // If was a node, save contents of nodeForm for that node and clear form
                 else {
-                    createNodeForm(selectedNode);
+                    //createNodeForm(selectedNode);
                     saveForm(nodeForm, selectedNode);
                     nodeForm.clear();
                 }

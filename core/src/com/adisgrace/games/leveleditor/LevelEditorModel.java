@@ -317,6 +317,78 @@ public class LevelEditorModel {
     }
 
     /**
+     * Updates the Target Paranoia of the node with the given name.
+     *
+     * Must be a valid node name.
+     *
+     * @param name      Name of LevelTile to modify.
+     * @param targetParanoia  targetParanoia to change the target's targetParanoia to.
+     */
+    public void updateTargetParanoia(String name, int targetParanoia) {
+        TargetTile lt = (TargetTile) levelTiles.get(name);
+        lt.paranoia = targetParanoia;
+        levelTiles.put(name,lt);
+    }
+
+    /**
+     * Updates the Target MaxStress of the node with the given name.
+     *
+     * Must be a valid node name.
+     *
+     * @param name      Name of LevelTile to modify.
+     * @param targetMaxStress  targetMaxStress to change the target's targetMaxStress to.
+     */
+    public void updateTargetMaxStress(String name, int targetMaxStress) {
+        TargetTile lt = (TargetTile) levelTiles.get(name);
+        lt.maxStress = targetMaxStress;
+        levelTiles.put(name,lt);
+    }
+
+    /**
+     * Updates the content of the node with the given name.
+     *
+     * Must be a valid node name.
+     *
+     * @param name      Name of LevelTile to modify.
+     * @param content  content to change the Node's content to.
+     */
+    public void updateNodeContent(String name, String content) {
+        NodeTile lt = (NodeTile) levelTiles.get(name);
+        lt.content = content;
+        //System.out.println("content:" + lt.content);
+        levelTiles.put(name,lt);
+    }
+
+    /**
+     * Updates the summary of the node with the given name.
+     *
+     * Must be a valid node name.
+     *
+     * @param name      Name of LevelTile to modify.
+     * @param summary  summary to change the Node's summary to.
+     */
+    public void updateNodeSummary(String name, String summary) {
+        NodeTile lt = (NodeTile) levelTiles.get(name);
+        lt.summary = summary;
+        //System.out.println("summary:" + lt.summary);
+        levelTiles.put(name,lt);
+    }
+
+    /**
+     * Updates the Target Traits of the node with the given name.
+     *
+     * Must be a valid node name.
+     *
+     * @param name      Name of LevelTile to modify.
+     * @param targetTraits  targetTraits to change the target's Traits to.
+     */
+    public void updateTargetTraits(String name, Array targetTraits) {
+        TargetTile lt = (TargetTile) levelTiles.get(name);
+        lt.traits = targetTraits;
+        levelTiles.put(name,lt);
+    }
+
+    /**
      * Updates the LevelTile with the given name to have a new name.
      *
      * @param name      Name of LevelTile to modify.
@@ -326,7 +398,6 @@ public class LevelEditorModel {
         // Rename tile in levelMap
         removeFromMap(name);
         addToMap(newName,levelTiles.get(name).x,levelTiles.get(name).y);
-
         // Rename tile in levelTiles
         levelTiles.setKey(levelTiles.indexOfKey(name), newName);
     }
