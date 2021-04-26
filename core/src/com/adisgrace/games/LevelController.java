@@ -6,6 +6,10 @@ import com.adisgrace.games.models.LevelModel;
 import com.adisgrace.games.models.PlayerModel;
 import com.adisgrace.games.models.TargetModel;
 import com.adisgrace.games.util.Connector;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
@@ -19,12 +23,13 @@ public class LevelController {
     private LevelModel levelModel;
     private PlayerModel player;
 
-
+    private Random rng;
 
     public LevelController(String levelJson){
         levelModel = new LevelModel(levelJson);
         player = new PlayerModel();
 
+        rng = new Random();
     }
 
 
@@ -130,6 +135,18 @@ public class LevelController {
         levelModel.getTargets().get(target).addStress(stressDmg);
         player.harass(levelModel.getTargets().get(target));
         return levelModel.getLevelState();
+    }
+
+    /**
+     * Attempt to gaslight a target
+     * @param target name of target
+     * @return true if the attempt was successful
+     */
+    public boolean gaslight(String target){
+        boolean success = rng.nextInt(100) > levelModel.getTarget(target).getSuspicion();
+        levelModel.getTarget(target).gaslight(success);
+        player.gaslight(levelModel.getTarget(target));
+        return success;
     }
 
     /**

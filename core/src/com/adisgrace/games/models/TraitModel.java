@@ -16,7 +16,7 @@ public class TraitModel {
     public enum Trait{
         /** decreases the Paranoia stat of all targets in level by 1 */
         PARANOIAC,
-        // Implementation in LevelModel constructor + targetModel.reduce_paranoia
+        // Implementation in LevelModel.nextDay + targetModel.reduce_paranoia
 
         /** enemy decreases the stress of all targets in level over time */
         THERAPIST,

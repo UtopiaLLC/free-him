@@ -53,8 +53,12 @@ public class TargetModel {
 	private int maxStress;
 	/** Target's current suspicion (maxes out at 100) */
 	private int suspicion;
+	/** Amount of suspicion reduced on a successful gaslight attempt */
+	private int gaslight_reduction;
 	/** Turns before the target makes a Paranoia check. Possible values are from 0 to INV_PARANOIA_CONSTANT. */
 	private int paranoia;
+	/** Boolean which is true if paranoia deducted from other targets */
+	private boolean paranoiac_used = false;
 	/** Number of turns remaining before next Paranoia check */
 	private int countdown;
 	/** Whether this target has had their suspicion raised before*/
@@ -101,6 +105,8 @@ public class TargetModel {
 		name = json.getString("targetName");
 		paranoia = json.getInt("paranoia");
 		maxStress = json.getInt("maxStress");
+
+		gaslight_reduction = json.getInt("gaslightReduction", 8);
 
 		// Initialize iterator for arrays
 		JsonValue.JsonIterator itr;
@@ -398,6 +404,22 @@ public class TargetModel {
 	}
 
 	/**
+	 * Sets the paranoiac_used variable to desired value
+	 *
+	 * @param delta 		The paranoiac_used attribute to set to
+	 * */
+	public void set_paranoiac_used(boolean delta){
+		paranoiac_used = delta;
+	}
+
+	/**
+	 * Gets the paranoiac_used variable
+	 * */
+	public boolean get_paranoiac_used(){
+		return paranoiac_used;
+	}
+
+	/**
 	 * Reduce the stress of a target by a certain amount with therapy
 	 * */
 	public void therapy(){
@@ -444,7 +466,7 @@ public class TargetModel {
 
 	/**
 	 * Increases the target's suspicion by the given amount.
-	 * 
+	 *
 	 * Suspicion is always within the range 0-100.
 	 *
 	 * @param sus		Amount by which to increase target's suspicion
@@ -454,6 +476,16 @@ public class TargetModel {
 		// Clamp suspicion to the range 0-100
 		if (suspicion < 0) {suspicion = 0;}
 		else if (suspicion > 100) {suspicion = 100;}
+	}
+
+	/**
+	 * Decreases the target's suspicion on a successful gaslight attempt,
+	 * or increases it on a failed one.
+	 * @param success Was the attempt successful?
+	 */
+	public void gaslight(boolean success) {
+		if (success) addSuspicion(-gaslight_reduction);
+		else addSuspicion(gaslight_reduction/2);
 	}
 
 	/**

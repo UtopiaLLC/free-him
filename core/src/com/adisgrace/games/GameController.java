@@ -42,6 +42,8 @@ public class GameController implements Screen {
         OVERWORK,
         /** Linked to running more jobs to get bitecoin*/
         OTHER_JOBS,
+        DISTRACT,
+        GASLIGHT,
         /** Linked to relaxing to reduce stress*/
         RELAX,
         /** Linked to no action being selected */
@@ -56,7 +58,10 @@ public class GameController implements Screen {
                     " for 3 AP";
             case OVERWORK: return "Overwork: Gains 2 AP, but Increases Stress";
             case OTHER_JOBS: return "Other Jobs: Make Money with 3 AP";
-            case RELAX: return "Relax: Decreases Stress with 1 AP";
+            case RELAX: return "Relax: Decreases Stress for 1 AP";
+            case GASLIGHT: return "Gaslight: Plant seeds of doubt in your target's mind, making\n them less sure of themselves" +
+                    " for 2 AP";
+            case DISTRACT: return "Distract: For 2 AP, divert your target's attention, letting you work free of their interference.";
             default: throw new RuntimeException("Invalid ActiveVerb passed " + activeVerb.toString());
         }
     };
@@ -74,9 +79,6 @@ public class GameController implements Screen {
 
     private Array<String> levelJsons;
     private Array<LevelController> levelControllers;
-
-    private final int THREATEN_AP_COST = 2;
-    private final int EXPOSE_AP_COST = 3;
 
     /** canvas is the primary view class of the game */
     private GameCanvas canvas;
@@ -122,9 +124,9 @@ public class GameController implements Screen {
     /** time taken for camera to accelerate to max speed */
     private int acceleration_speed = 40;
     /** list of facts used to expose the target*/
-    private Array<String> exposedFacts;
+    public static Array<String> exposedFacts;
     /** list of facts used to threaten the target*/
-    private Array<String> threatenedFacts;
+    public static Array<String> threatenedFacts;
     /** model for player stats and actions */
     //private PlayerModel player;
     /** flag for when game ended*/
@@ -132,9 +134,7 @@ public class GameController implements Screen {
     /** flag for when all nodes need to not be clicked anymore*/
     public static boolean nodeFreeze = false;
     /** dialog box for blackmail commands*/
-    private Dialog blackmailDialog;
-    /** flag for when blackmail operations are complete*/
-    private boolean getRidOfBlackmail;
+    public static Dialog blackmailDialog;
     /** progress bar that tracks the stress level of players*/
     private ProgressBar stressBar;
     /** label for the amount of bitecoin a player has*/
@@ -214,8 +214,8 @@ public class GameController implements Screen {
         }
 
         //instantiating target and expose lists
-        threatenedFacts = new Array<String>();
-        exposedFacts = new Array<String>();
+        threatenedFacts = new Array<>();
+        exposedFacts = new Array<>();
         canvas.beginDebug();
         canvas.drawIsometricGrid(stage, nodeWorldWidth, nodeWorldHeight);
         canvas.endDebug();
@@ -356,10 +356,6 @@ public class GameController implements Screen {
             //switchLevel(currentLevel+1);
         }
 
-        if(getRidOfBlackmail) {
-            blackmailDialog.hide();
-            getRidOfBlackmail = false;
-        }
 
     }
 
@@ -451,6 +447,7 @@ public class GameController implements Screen {
                     Actor cbutton = (Actor)event.getListenerActor();
                     //System.out.println(cbutton.getName());
                     actOnNode(cbutton.getName(), b);
+                    uiController.unCheck();
                 }
             });
             button.remove();
@@ -580,6 +577,8 @@ public class GameController implements Screen {
         uiController.createOtherJobs(ic, createConfirmRunnable("other jobs"));
         uiController.createOverwork(ic, createConfirmRunnable("overwork"));
         uiController.createThreaten(ic, createConfirmRunnable("threaten"));
+        uiController.createDistract(ic, createConfirmRunnable("distract"));
+        uiController.createGaslight(ic, createConfirmRunnable("gaslight"));
         ImageButton end = createEndDay();
         ImageButton settings = createSettings();
         ImageButton notebook = createNotebook();
@@ -767,12 +766,8 @@ public class GameController implements Screen {
                                 System.exit(1);
                             }
                             if(hack == 1) {
-
                                 button.changeState(Node.NodeState.UNSCANNED);
-
                                 uiController.createDialogBox("You hacked the node successfully!");
-
-
                             } else if(hack == -3) {
                                 uiController.createDialogBox("Insufficient AP to hack this node.");
                             } else if(hack == -4) {
@@ -782,10 +777,7 @@ public class GameController implements Screen {
                         case 2://scannable
                             boolean success = levelController.scan(nodeInfo[0], nodeInfo[1]);
                             if(success) {
-
                                 button.changeState(Node.NodeState.SCANNED);
-
-
                                 addConnections(nodeInfo[0], nodeInfo[1]);
                                 uiController.createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
 
@@ -801,205 +793,50 @@ public class GameController implements Screen {
                 }
                 break;
             case HARASS:
-
                 break;
             case THREATEN:
                 if(isTarget) {
-                    if(levelController.getAP() >= THREATEN_AP_COST) {
-                        getBlackmailFact("Select a fact to threaten the target with.", nodeInfo[0]);
+                    if(levelController.getAP() >= PlayerModel.THREATEN_AP_COST) {
+                        uiController.getBlackmailFact("Select a fact to threaten the target with.", nodeInfo[0],
+                                exposedFacts, threatenedFacts, levelController);
                     }
                     else {
                         uiController.createDialogBox("Insufficient AP to threaten the target.");
                         activeVerb = ActiveVerb.NONE;
                     }
-
-//                    if(levelController.getTargetStress(nodeInfo[0]) >=40) {
-//                        Texture target_Look = new Texture("node/N_TargetMale_1.png");
-//                        TextureRegion[][] regions = new TextureRegion(target_Look).split(
-//                                target_Look.getWidth() / 6,
-//                                target_Look.getHeight() / 2);
-//                        TextureRegion tRegion = regions[3][0];
-//
-//                        Texture node_base = new Texture("node/N_TargetBase_1.png");
-//                        TextureRegion[][] node_regions = new TextureRegion(node_base).split(
-//                                node_base.getWidth() / 6,
-//                                node_base.getHeight() / 2);
-//
-//                        Texture combined = GameCanvas.combineTextures(tRegion, node_regions[3][0]);
-//
-//                        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
-//                        button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
-//                                drawable, null, null));
-//                    }
                 }
                 break;
             case EXPOSE:
                 if(isTarget) {
                     if(isTarget) {
-                        if(levelController.getAP() >= EXPOSE_AP_COST) {
-                            getBlackmailFact("Select a fact to expose the target with.", nodeInfo[0]);
+                        if(levelController.getAP() >= PlayerModel.EXPOSE_AP_COST) {
+                            uiController.getBlackmailFact("Select a fact to expose the target with.", nodeInfo[0],
+                                    exposedFacts, threatenedFacts, levelController);
                         }
                         else {
                             uiController.createDialogBox("Insufficient AP to expose the target.");
                             activeVerb = ActiveVerb.NONE;
                         }
-//                        if(levelController.getTargetStress(nodeInfo[0]) >=40) {
-//                            Texture target_Look = new Texture("node/N_TargetMale_1.png");
-//                            TextureRegion[][] regions = new TextureRegion(target_Look).split(
-//                                    target_Look.getWidth() / 6,
-//                                    target_Look.getHeight() / 2);
-//                            TextureRegion tRegion = regions[3][0];
-//
-//                            Texture node_base = new Texture("node/N_TargetBase_1.png");
-//                            TextureRegion[][] node_regions = new TextureRegion(node_base).split(
-//                                    node_base.getWidth() / 6,
-//                                    node_base.getHeight() / 2);
-//
-//                            Texture combined = GameCanvas.combineTextures(tRegion, node_regions[3][0]);
-//
-//                            TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(combined));
-//                            button.setStyle(new ImageButton.ImageButtonStyle(null, null, null,
-//                                    drawable, null, null));
-//                        }
                     }
                 }
                 break;
+            case GASLIGHT:
+                if (isTarget) {
+                    if(levelController.getAP() >= PlayerModel.GASLIGHT_AP_COST) {
+                        if(levelController.gaslight(nodeInfo[0]))
+                            uiController.createDialogBox("You manage to convince them that you're a figment of their imagination.");
+                        else
+                            uiController.createDialogBox("You fail to gaslight them, and only further arouse their suspicions.");
+                    }
+                    else {
+                        uiController.createDialogBox("Insufficient AP to gaslight the target.");
+                        activeVerb = ActiveVerb.NONE;
+                    }
+                }
             default:
                 System.out.println("You shall not pass");
                 break;
         }
-    }
-
-    /**
-     * This method allows you to select a fact to threaten or expose someone.
-     *
-     * Very similar to a notebook, except every fact has a listener that allows you to click and choose a fact
-     *
-     * If a fact has been used to threaten, it will not appear in the display for threaten
-     *
-     * If a fact has been used to expose, it will not appear in the display for threaten and expose
-     *
-     *
-     * @param s the text that is displayed above the facts to select
-     */
-    public void getBlackmailFact(String s, String targetName) {
-        blackmailDialog = new Dialog("Notebook", skin) {
-            public void result(Object obj) {
-                //to activate the node clicking once more
-                nodeFreeze = false;
-                activeVerb = ActiveVerb.NONE;
-            }
-        };
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
-        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
-
-        blackmailDialog.setBackground(drawable);
-        blackmailDialog.getBackground().setMinWidth(500);
-        blackmailDialog.getBackground().setMinHeight(500);
-        Label l = new Label( s, skin );
-        //scale sizing based on the amount of text
-        if(s.length() > 50) {
-            l.setFontScale(1.5f);
-        }else {
-            l.setFontScale(2f);
-        }
-        l.setWrap( true );
-        blackmailDialog.setMovable(true);
-        //Add the text to the center of the dialog box
-        blackmailDialog.getContentTable().add( l ).prefWidth( 350 );
-        //Get all fact summaries that can potentially be displayed
-        Map<String, String> factSummaries = levelController.getNotes(targetName);
-
-        //This will store all mappings from summaries to a fact name
-        Map<String, String> summaryToFacts = new HashMap<>();
-        //This will store the fact ids of all the scanned facts
-
-        final Array<String> scannedFacts = new Array<>();
-
-        Table table = blackmailDialog.getContentTable();
-        if (factSummaries.keySet().size() == 0) {
-            scannedFacts.add("No facts scanned yet!");
-        }
-        for (String fact_ : factSummaries.keySet()) {
-            //Should not add empty fact summaries
-            if (factSummaries.containsKey(fact_))
-                scannedFacts.add(factSummaries.get(fact_));
-            //Add to both scannedFacts and summaryToFacts
-            summaryToFacts.put(factSummaries.get(fact_), fact_);
-        }
-        table.setFillParent(false);
-
-        table.row();
-        //Now, parse through all scannedFacts to see which are eligible for display
-        for (int i = 0; i < scannedFacts.size; i++) {
-            final int temp_i = i;
-            //this should ALWAYS be overwritten in the code underneath
-            Label k = new Label("No facts", skin);
-            if(activeVerb == ActiveVerb.EXPOSE ){
-                //If a scanned fact has already been exposed, we can't expose it again
-                if (exposedFacts.contains(scannedFacts.get(temp_i), false) ) {
-                    continue;
-                } else {
-                    //Else we can display it
-                    k = new Label(scannedFacts.get(i), skin);
-                }
-            } else if(activeVerb == ActiveVerb.THREATEN){
-                //If a scanned fact has already been used to threaten, we can't use it to threaten again
-                if (threatenedFacts.contains(scannedFacts.get(temp_i), false) ) {
-                    continue;
-                } else {
-                    //Else we can display it
-                    k = new Label(scannedFacts.get(i), skin);
-                }
-            }
-            if(factSummaries.keySet().size() != 0) {
-                k.setWrap(true);
-                //Add a listener that can be reachable via the name format "target_name,fact_id"
-                k.setName(targetName + "," + summaryToFacts.get(scannedFacts.get(i)));
-                k.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        Actor cbutton = (Actor) event.getListenerActor();
-                        String[] info = cbutton.getName().split(",");
-                        getRidOfBlackmail = true;
-                        switch (activeVerb) {
-                            case HARASS:
-
-                            case THREATEN:
-                                //Threaten the target
-                                levelController.threaten(info[0], info[1]);
-                                activeVerb = ActiveVerb.NONE;
-                                uiController.createDialogBox("You threatened the target!");
-                                //Add this fact to the list of facts used to threaten
-                                threatenedFacts.add(scannedFacts.get(temp_i));
-                                break;
-                            case EXPOSE:
-                                //Expose the target
-                                levelController.expose(info[0], info[1]);
-                                activeVerb = ActiveVerb.NONE;
-                                uiController.createDialogBox("You exposed the target!");
-                                //Add this fact to the list of facts used to expose
-                                exposedFacts.add(scannedFacts.get(temp_i));
-                                //Add this fact to the list of facts used to threaten
-                                threatenedFacts.add(scannedFacts.get(temp_i));
-                                break;
-                            default:
-                                System.out.println("This shouldn't be happening.");
-                        }
-                    }
-                });
-                    //Add the displayed fact to the middle of the blackmail dialog
-            }
-
-            table.add(k).prefWidth(350);
-            table.row();
-        }
-
-        blackmailDialog.button("Cancel", true); //sends "true" as the result
-        blackmailDialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
-        blackmailDialog.show(toolbarStage);
-        //Make sure nothing else is able to be clicked while blackmail dialog is shown
-        nodeFreeze = true;
     }
 
     public void addConnections(String target, String fact){
@@ -1106,7 +943,6 @@ public class GameController implements Screen {
                 }
                 break;
             case "notebook":
-                //createNotebook("Notebook:");
                 uiController.createNotebookTargetSelector("Select a target to view facts for.", targets, levelController);
                 break;
             default:
@@ -1118,12 +954,8 @@ public class GameController implements Screen {
      * Updates the stats HUD with current values
      */
     public void updateStats(){
-        //stress.setText("Player Stress: " + Integer.toString((int)world.getPlayer().getStress()));
         stressBar.setValue(levelController.getPlayerStress());
         bitecoinAmount.setText(Integer.toString((int)levelController.getPlayerCurrency()));
         ap.setText("AP: " + Integer.toString(levelController.getAP()));
-//        tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
-//        tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));
-//        money.setText("Bitecoin: " + Integer.toString((int)world.getPlayer().getBitecoin()));
     }
 }
