@@ -416,9 +416,8 @@ public class PlayerModel {
 	}
 
 	public void gaslight(TargetModel t){
-		if(t.getTraits().is_bad_connection()){
-			this.decrementAP(GASLIGHT_AP_COST);
-		}
+		if(t.getTraits().is_bad_connection()) this.decrementAP(GASLIGHT_AP_COST + 1);
+		else this.decrementAP(GASLIGHT_AP_COST);
 	}
 }
 

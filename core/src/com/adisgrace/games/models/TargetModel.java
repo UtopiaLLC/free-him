@@ -479,11 +479,13 @@ public class TargetModel {
 	}
 
 	/**
-	 * Decreases the target's suspicion using gaslight.
-	 * Only call this method on a successful attempt.
+	 * Decreases the target's suspicion on a successful gaslight attempt,
+	 * or increases it on a failed one.
+	 * @param success Was the attempt successful?
 	 */
-	public void gaslight() {
-		addSuspicion(-gaslight_reduction);
+	public void gaslight(boolean success) {
+		if (success) addSuspicion(-gaslight_reduction);
+		else addSuspicion(gaslight_reduction/2);
 	}
 
 	/**

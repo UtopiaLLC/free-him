@@ -97,7 +97,6 @@ public class UIController {
                     button.setChecked(true);
                 }else{
                     unCheck();
-                    button.setChecked(false);
                 }
                 break;
             case OVERWORK:
@@ -376,27 +375,27 @@ public class UIController {
                 "skills/expose_up.png",
                 "skills/expose_down.png",
                 "skills/expose_select.png");
-        final Label exposeLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.DISTRACT));
-        final String s = "expose";
-        expose.addListener(ic.getButtonListener(
+        final Label distractLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.DISTRACT));
+        final String s = "distract";
+        distract.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(expose, s, GameController.ActiveVerb.EXPOSE,  confirmFunction);
+                        toolbarOnClick(distract, s, GameController.ActiveVerb.DISTRACT,  confirmFunction);
                     }
                 }, new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnEnter(expose, exposeLabel, GameController.ActiveVerb.EXPOSE);
+                        toolbarOnEnter(distract, distractLabel, GameController.ActiveVerb.DISTRACT);
                     }
                 },
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnExit(expose, exposeLabel, GameController.ActiveVerb.EXPOSE);
+                        toolbarOnExit(expose, distractLabel, GameController.ActiveVerb.DISTRACT);
                     }
                 }));
-        return expose;
+        return distract;
     }
 
     /**
@@ -406,13 +405,13 @@ public class UIController {
      * @return      ImageButton for expose.
      */
     public ImageButton createGaslight(InputController ic, final Runnable confirmFunction){
-        gaslight = ButtonFactory.makeImageButton(
+        gaslight = ButtonFactory.makeImageButton( //TODO
                 "skills/expose_down.png",
                 "skills/expose_select.png",
                 "skills/expose_up.png");
-        final Label gaslightLabel = new Label(GameController.getHoverText(GameController.ActiveVerb.GASLIGHT), skin);
+        final Label gaslightLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.GASLIGHT));
         final String s = "gaslight";
-        expose.addListener(ic.getButtonListener(
+        gaslight.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {

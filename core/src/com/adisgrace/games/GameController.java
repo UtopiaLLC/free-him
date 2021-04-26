@@ -59,6 +59,7 @@ public class GameController implements Screen {
             case RELAX: return "Relax: Decreases Stress for 1 AP";
             case GASLIGHT: return "Gaslight: Plant seeds of doubt in your target's mind, making\n them less sure of themselves" +
                     " for 2 AP";
+            case DISTRACT: return "Distract: For 2 AP, divert your target's attention, letting you work free of their interference.";
             default: throw new RuntimeException("Invalid ActiveVerb passed " + activeVerb.toString());
         }
     };
@@ -427,6 +428,7 @@ public class GameController implements Screen {
                     Actor cbutton = (Actor)event.getListenerActor();
                     //System.out.println(cbutton.getName());
                     actOnNode(cbutton.getName(), b);
+                    uiController.unCheck();
                 }
             });
             button.remove();
@@ -556,7 +558,7 @@ public class GameController implements Screen {
         uiController.createOtherJobs(ic, createConfirmRunnable("other jobs"));
         uiController.createOverwork(ic, createConfirmRunnable("overwork"));
         uiController.createThreaten(ic, createConfirmRunnable("threaten"));
-//        uiController.createDistract(ic, createConfirmRunnable("distract"));
+        uiController.createDistract(ic, createConfirmRunnable("distract"));
         uiController.createGaslight(ic, createConfirmRunnable("gaslight"));
         ImageButton end = createEndDay();
         ImageButton settings = createSettings();
@@ -801,7 +803,16 @@ public class GameController implements Screen {
                 break;
             case GASLIGHT:
                 if (isTarget) {
-//                    if levelController.getAP() >=
+                    if(levelController.getAP() >= PlayerModel.GASLIGHT_AP_COST) {
+                        if(levelController.gaslight(nodeInfo[0]))
+                            uiController.createDialogBox("You manage to convince them that you're a figment of their imagination.");
+                        else
+                            uiController.createDialogBox("You fail to gaslight them, and only further arouse their suspicions.");
+                    }
+                    else {
+                        uiController.createDialogBox("Insufficient AP to gaslight the target.");
+                        activeVerb = ActiveVerb.NONE;
+                    }
                 }
             default:
                 System.out.println("You shall not pass");

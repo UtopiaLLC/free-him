@@ -144,7 +144,7 @@ public class LevelController {
      */
     public boolean gaslight(String target){
         boolean success = rng.nextInt(100) > levelModel.getTarget(target).getSuspicion();
-        if(success) levelModel.getTarget(target).gaslight();
+        levelModel.getTarget(target).gaslight(success);
         player.gaslight(levelModel.getTarget(target));
         return success;
     }
