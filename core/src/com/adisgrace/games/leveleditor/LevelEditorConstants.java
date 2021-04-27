@@ -1,6 +1,7 @@
 package com.adisgrace.games.leveleditor;
 
 import com.adisgrace.games.util.Connector;
+import com.adisgrace.games.models.TraitModel.Trait;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -84,16 +85,27 @@ public final class LevelEditorConstants {
     public static final int TOOLBAR_Y_OFFSET = 60;
 
     /** How far the form entries should be from the left side of the screen */
-    public static final int FORM_X_OFFSET = 50;
-    /** How far the bottommost form entry should be from the bottom edge of the screen */
-    public static final int FORM_Y_OFFSET = 75;
+    public static final int FORM_X_OFFSET = 40;
+    /** How far the topmost form entry should be from the top edge of the screen */
+    public static final int FORM_Y_OFFSET = 250;
     /** How far the form entries should be spaced apart vertically */
     public static final int FORM_GAP = 30;
 
-    /** Array of target traits available as options */
-    public static final String[] TRAIT_OPTIONS = {"paranoiac", "therapist", "gossip", "off_putting",
+    /** Array of target traits available as options, but as strings */
+    public static final String[] TRAIT_OPTIONS_STRINGS = {"none", "paranoiac", "therapist", "gossip", "off_putting",
             "naturally_suspicious", "rich", "technologically_literate", "bad_connection", "technologically_illiterate",
             "sensitive"};
+    /** Array of target traits available as options */
+    public static final Trait[] TRAIT_OPTIONS = {Trait.PARANOIAC, Trait.THERAPIST, Trait.GOSSIP,
+            Trait.OFF_PUTTING, Trait.NATURALLY_SUSPICIOUS, Trait.RICH, Trait.TECHNOLOGICALLY_LITERATE,
+            Trait.BAD_CONNECTION, Trait.TECHNOLOGICALLY_ILLITERATE, Trait.SENSITIVE};
     /** Array of stress ratings available as options */
     public static final StressRating[] SR = {StressRating.NONE, StressRating.LOW, StressRating.MED, StressRating.HIGH};
+
+    /** Width of a target/node form, in terms of percentage of screen width */
+    public static final float FORM_WIDTH = 0.23f;
+
+    /** Default values for certain stats */
+    public static final int DEFAULT_PARANOIA = 3;
+    public static final int DEFAULT_MAX_STRESS = 50;
 }

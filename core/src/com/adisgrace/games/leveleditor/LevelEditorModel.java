@@ -13,6 +13,9 @@ import com.badlogic.gdx.utils.ArrayMap;
 import java.io.IOException;
 import java.util.Scanner;
 
+import static com.adisgrace.games.leveleditor.LevelEditorConstants.DEFAULT_MAX_STRESS;
+import static com.adisgrace.games.leveleditor.LevelEditorConstants.DEFAULT_PARANOIA;
+
 /**
  * Class for handling the save/load functionality of the level editor.
  *
@@ -44,11 +47,11 @@ public class LevelEditorModel {
         /** Name of the target */
         String name;
         /** Paranoia stat of target */
-        int paranoia;
+        int paranoia = DEFAULT_PARANOIA;
         /** Maximum stress of target */
-        int maxStress;
+        int maxStress = DEFAULT_MAX_STRESS;
         /** Traits of the target */
-        Array<Trait> traits;
+        Array<Trait> traits = new Array<>();
 
         /**
          * Constructor for a Target with the specified attributes.
@@ -317,6 +320,20 @@ public class LevelEditorModel {
     }
 
     /**
+     * Updates the name of the target with the given name.
+     *
+     * Must be a valid target name.
+     *
+     * @param name      Name of LevelTile to modify.
+     * @param tname     Name to change the target's name to.
+     */
+    public void updateTargetName(String name, String tname) {
+        TargetTile tt = (TargetTile) levelTiles.get(name);
+        tt.name = tname;
+        levelTiles.put(name,tt);
+    }
+
+    /**
      * Updates the Target Paranoia of the node with the given name.
      *
      * Must be a valid node name.
@@ -345,6 +362,20 @@ public class LevelEditorModel {
     }
 
     /**
+     * Updates the title of the node with the given name.
+     *
+     * Must be a valid node name.
+     *
+     * @param name      Name of LevelTile to modify.
+     * @param title     Title to change the node's title to.
+     */
+    public void updateNodeTitle(String name, String title) {
+        NodeTile lt = (NodeTile) levelTiles.get(name);
+        lt.title = title;
+        levelTiles.put(name,lt);
+    }
+
+    /**
      * Updates the content of the node with the given name.
      *
      * Must be a valid node name.
@@ -355,7 +386,6 @@ public class LevelEditorModel {
     public void updateNodeContent(String name, String content) {
         NodeTile lt = (NodeTile) levelTiles.get(name);
         lt.content = content;
-        //System.out.println("content:" + lt.content);
         levelTiles.put(name,lt);
     }
 
@@ -370,7 +400,6 @@ public class LevelEditorModel {
     public void updateNodeSummary(String name, String summary) {
         NodeTile lt = (NodeTile) levelTiles.get(name);
         lt.summary = summary;
-        //System.out.println("summary:" + lt.summary);
         levelTiles.put(name,lt);
     }
 
@@ -384,7 +413,13 @@ public class LevelEditorModel {
      */
     public void updateTargetTraits(String name, Array targetTraits) {
         TargetTile lt = (TargetTile) levelTiles.get(name);
-        lt.traits = targetTraits;
+        // If any of the selected traits is None, clear all target traits
+        if (targetTraits.contains("none",false)) {
+            lt.traits.clear();
+        }
+        else {
+            lt.traits = targetTraits;
+        }
         levelTiles.put(name,lt);
     }
 

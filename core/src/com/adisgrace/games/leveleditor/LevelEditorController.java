@@ -1,6 +1,7 @@
 package com.adisgrace.games.leveleditor;
 
 import com.adisgrace.games.*;
+import com.adisgrace.games.models.TraitModel;
 import com.adisgrace.games.util.Connector;
 import com.adisgrace.games.util.Connector.*;
 import static com.adisgrace.games.leveleditor.LevelEditorConstants.*;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -18,13 +20,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.*;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ArrayMap;
-import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-
-import java.io.IOException;
-import java.util.Scanner;
 
 /**
  * Class for handling the level editor.
@@ -65,17 +62,21 @@ public class LevelEditorController implements Screen {
     Table targetForm = new Table();
     /** Table for node edit form */
     Table nodeForm = new Table();
+    /** Background for the forms */
+    Image formBG = new Image(SR_TRD_BLANK);
 
     /** Image representing the current node that is being clicked on */
     Image selectedNode;
     /** If a prior selected node was deselected in favor of selecting a new node, this is the new node */
     Image newSelectedNode;
+    /** If the form background was clicked */
+    boolean wasFormBGClicked = false;
 
     /** Current mode of the level editor, initialized as Move mode */
     private Mode editorMode = Mode.MOVE;
 
     /** Skin for TextFields and TextAreas */
-    Skin skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
+    Skin skin = new Skin(Gdx.files.internal("skins/neon-ui.json"));
 
     /** The count of the next image that is added */
     int imgCount;
@@ -239,6 +240,7 @@ public class LevelEditorController implements Screen {
         // Ensure that if something that isn't a node is clicked, lose focus
         nodeStage.getRoot().addCaptureListener(new InputListener() {
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                // If thing that is clicked isn't a node
                 if (!(event.getTarget() instanceof Image)) {
                     newSelectedNode = null;
                 }
@@ -248,6 +250,12 @@ public class LevelEditorController implements Screen {
 
         // Create tool stage for buttons
         createToolStage();
+
+        // Preemptively add form background to the stage and make semi-transparent, but keep hidden
+        formBG.setVisible(false);
+        toolStage.addActor(formBG);
+        formBG.setColor(0.3f,0.3f,0.3f,0.8f);
+        formBG.setName("background");
 
         // Preemptively add node and target forms to the stage
         toolStage.addActor(targetForm);
@@ -291,9 +299,12 @@ public class LevelEditorController implements Screen {
         toolStage.getRoot().addCaptureListener(new InputListener() {
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 // If not a TextField or SelectBox, lose focus
-                if (!(event.getTarget() instanceof TextField) && !(event.getTarget() instanceof SelectBox)
-                && !(event.getTarget() instanceof TextArea))
+                if (!(event.getTarget() instanceof TextField || event.getTarget() instanceof SelectBox
+                || event.getTarget() instanceof TextArea))
                     toolStage.setKeyboardFocus(null);
+                // If the form background was clicked, don't lose focus
+                if (event.getTarget() instanceof Image && event.getTarget().getName() != null
+                && event.getTarget().getName().equals("background")) wasFormBGClicked = true;
                 return false;
             }
         });
@@ -621,138 +632,245 @@ public class LevelEditorController implements Screen {
     }
 
     /**
+     * Helper function that creates and returns a TextField/TextArea with the given parameters.
+     *
+     * @param name          Name of the field
+     * @param height        Height at which the field is placed on the screen
+     * @param width         Width of the field
+     * @param initialText   What to initially fill the field with
+     * @param isArea        Whether the field should actually be a TextArea
+     * @return              The constructed TextField or TextArea
+     */
+    private TextField newTextFieldOrArea(String name, float height, float width, String initialText, boolean isArea) {
+        // Create text field, or text area if that's what's asked for
+        TextField field = isArea ? new TextArea("", skin) : new TextField("", skin);
+
+        // Set name of field
+        field.setMessageText(name);
+        // Set position and dimensions of field
+        field.setPosition(FORM_X_OFFSET,height);
+        field.setWidth(width);
+        // Initialize contents of field if there are contents to initialize with
+        if (!initialText.equals("null")) field.setText(initialText);
+        // Add listener to disable keyboard input when the field is selected
+        field.addListener(newIgnoreInputFocusListener());
+
+        return field;
+    }
+
+    /**
+     * Helper function that creates and returns a TextField with the given parameters.
+     *
+     * @param name          Name of the field
+     * @param height        Height at which the field is placed on the screen
+     * @param width         Width of the field
+     * @param initialText   What to initially fill the field with
+     * @return              The constructed TextField
+     */
+    private TextField newTextField(String name, float height, float width, String initialText) {
+        return newTextFieldOrArea(name, height, width, initialText, false);
+    }
+
+    /**
+     * Helper function that creates and returns a TextArea with the given parameters.
+     *
+     * @param name          Name of the field
+     * @param height        Height at which the field is placed on the screen
+     * @param width         Width of the field
+     * @param initialText   What to initially fill the field with
+     * @param boxHeight     Height of the box itself
+     * @return              The constructed TextArea
+     */
+    private TextArea newTextArea(String name, float height, float width, String initialText, int boxHeight) {
+        TextArea area = (TextArea) newTextFieldOrArea(name, height, width, initialText, true);
+        // Set text box height
+        area.setHeight(boxHeight*FORM_GAP);
+        return area;
+    }
+
+    /**
+     * Helper function that creates and returns a SelectBox with the given parameters.
+     *
+     * @param options   The backing array for the SelectBox, giving the options to select from
+     * @param height    Height at which the SelectBox is placed on the screen
+     * @param width     Width of the SelectBox
+     * @param selected  Which of the given options is already selected, if any
+     * @return          The constructed SelectBox
+     */
+    private SelectBox newSelectBox(Object[] options, float height, float width, Object selected) {
+        SelectBox box = new SelectBox(skin);
+        box.setItems(options);
+        box.setPosition(FORM_X_OFFSET,height);
+        box.setWidth(width);
+        // Only set as selected if something has been selected
+        if (selected != null) {
+            box.setSelected(selected);
+        }
+        // Add listener to disable keyboard input when the field is selected
+        box.addListener(newIgnoreInputFocusListener());
+
+        return box;
+    }
+
+    /**
+     * Helper function that creates and returns a List with the given parameters.
+     *
+     * This function in particular is only used to create the list to pick target traits from.
+     *
+     * @param options   The backing array for the List, giving the options to select from
+     * @param height    Height at which the List is placed on the screen
+     * @param width     Width of the List
+     * @param selected  Which of the given options is already selected, if any
+     * @return          The constructed List
+     */
+    private List newListBox(Object[] options, float height, float width, Array<TraitModel.Trait> selected) {
+        List box = new List(skin);
+        box.setItems(options);
+        box.setPosition(FORM_X_OFFSET,height);
+        box.setHeight(7.5f * FORM_GAP);
+        box.setWidth(width);
+        // Add listener to disable keyboard input when the field is selected
+        box.addListener(newIgnoreInputFocusListener());
+
+        // Clear the default selection
+        box.getSelection().clear();
+
+        // Select the previously-selected options
+        box.getSelection().addAll(selected);
+
+        // Ensure multiple options can be selected
+        box.getSelection().setMultiple(true);
+        // Ensure no options can be selected
+        box.getSelection().setRequired(false);
+        // Doesn't clear the selection when selecting a new option
+        box.getSelection().setToggle(true);
+
+        return box;
+    }
+
+    /**
+     * Helper function that creates, places, and returns a new Label with the given parameters.
+     *
+     * @param labelName     The text to write in the label
+     * @param height        The vertical height at which to place the label
+     * @return              The constructed Label
+     */
+    private Label newLabel(String labelName, float height) {
+        Label label = new Label(labelName, skin);
+        label.setPosition(FORM_X_OFFSET, height);
+        return label;
+    }
+
+    /**
      * Creates the form for writing target information for the given target and places it in the toolStage.
      *
      * This function takes in a target, which would be the selected node if the selected node is a target.
      *
      * The entries include, for targets specifically:
-     * [0] A TextField to enter the target name.
-     * [1] A TextField to enter the target's paranoia stat.
-     * [2] A SelectBox dropdown menu to select target traits (multiple options can be selected).
-     * [3] A TextField to enter the target's maximum stress.
+     * [2] A TextField to enter the target name.
+     * [4] A TextField to enter the target's paranoia stat.
+     * [6] A TextField to enter the target's maximum stress.
+     * [8] A SelectBox dropdown menu to select target traits (multiple options can be selected).
      *
      * @param target    The target that this form handles the information for
+     * @param height    Height of each entry in the form, in terms of pixels from the bottom
+     * @param width     Width of each entry in the form
      */
-    private void createTargetForm(Image target) {
+    private void createTargetForm(Image target, float height, float width) {
         // Place table to contain target form entries
         targetForm.left();
         targetForm.bottom();
-        targetForm.setSize(.25f*canvas.getWidth(),canvas.getHeight());
+        targetForm.setSize(FORM_WIDTH*canvas.getWidth(),height);
 
-        // Target Name
-        TextField targetName = new TextField("", skin);
-        targetName.setMessageText("Target Name");
-        targetName.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 3 * FORM_GAP);
-        // Initialize with target name
-        targetName.setText(target.getName().substring(1));
-        // Add listener to disable keyboard input when the field is selected
-        targetName.addListener(newIgnoreInputFocusListener());
-        // Arrange in table
-        targetForm.addActor(targetName);
+        targetForm.addActor(newLabel("TARGET DATA", height));
+        height -= FORM_GAP;
 
-        // Target Paranoia
-        TextField targetParanoia = new TextField("", skin);
-        targetParanoia.setMessageText("Target Paranoia");
-        targetParanoia.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 2 * FORM_GAP);
-        // Initialize with target paranoia
-        targetParanoia.setText(String.valueOf(model.getTargetTile(target.getName()).paranoia));
-        // Add listener to disable keyboard input when the field is selected
-        targetParanoia.addListener(newIgnoreInputFocusListener());
-        // Arrange in table
-        targetForm.addActor(targetParanoia);
+        // TARGET NAME
+        targetForm.addActor(newLabel("Name", height));
+        height -= FORM_GAP;
+        targetForm.addActor(newTextField("Target Name", height, width,
+                String.valueOf(model.getTargetTile(target.getName()).name)));
+        height -= FORM_GAP;
 
-        // Target Traits
-        SelectBox targetTraits = new SelectBox(skin);
-        targetTraits.setItems(TRAIT_OPTIONS);
-        targetTraits.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + FORM_GAP);
-        if (model.getTargetTile(target.getName()).traits != null && model.getTargetTile(target.getName()).traits.size > 0) {
-            targetTraits.setSelected(model.getTargetTile(target.getName()).traits.get(0));
-        }
-        // Add listener to disable keyboard input when the field is selected
-        targetTraits.addListener(newIgnoreInputFocusListener());
-        // Arrange in table
-        targetForm.addActor(targetTraits);
+        // TARGET PARANOIA
+        targetForm.addActor(newLabel("Paranoia", height));
+        height -= FORM_GAP;
+        targetForm.addActor(
+                newTextField("Target Paranoia", height, width,
+                        String.valueOf(model.getTargetTile(target.getName()).paranoia))
+        );
+        height -= FORM_GAP;
 
-        // Target Max Stress
-        TextField targetMaxStress = new TextField("", skin);
-        targetMaxStress.setMessageText("Target Max Stress");
-        targetMaxStress.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET - 1 * FORM_GAP);
-        // Initialize with target max stress
-        targetMaxStress.setText(String.valueOf(model.getTargetTile(target.getName()).maxStress));
-        // Add listener to disable keyboard input when the field is selected
-        targetMaxStress.addListener(newIgnoreInputFocusListener());
-        // Arrange in table
-        targetForm.addActor(targetMaxStress);
+        // TARGET MAX STRESS
+        targetForm.addActor(newLabel("Max Stress", height));
+        height -= FORM_GAP;
+        targetForm.addActor(
+                newTextField("Target Max Stress", height, width,
+                        String.valueOf(model.getTargetTile(target.getName()).maxStress))
+        );
+        height -= FORM_GAP;
+
+        // TARGET TRAITS
+        targetForm.addActor(newLabel("Traits (hold CTRL to deselect)", height));
+        height -= 8 * FORM_GAP;
+        // Set selected target traits to be what's already selected
+        targetForm.addActor(newListBox(TRAIT_OPTIONS, height, width, model.getTargetTile(target.getName()).traits));
     }
 
     /**
      * Creates the forms for writing target/node information and places them in the toolStage.
      *
      * These include, for nodes specifically:
-     * - A TextField to enter the node title.
-     * - A TextArea to write the node content (what's seen when scanned).
-     * - A TextArea to write the node summary (what goes into the notebook).
-     * - A SelectBox dropdown menu to select the node's target stress rating (only one option can be selected).
-     * - A SelectBox dropdown menu to select the node's player stress rating (only two options can be selected).
+     * [2] A TextField to enter the node title.
+     * [4] A TextArea to write the node content (what's seen when scanned).
+     * [6] A TextArea to write the node summary (what goes into the notebook).
+     * [8] A SelectBox dropdown menu to select the node's target stress rating (only one option can be selected).
+     * [10] A SelectBox dropdown menu to select the node's player stress rating (only one option can be selected).
+     *
+     * @param node      The node that this form handles the information for
+     * @param height    Height of each entry in the form, in terms of pixels from the bottom
+     * @param width     Width of each entry in the form
      * */
-    private void createNodeForm(Image node) {
+    private void createNodeForm(Image node, float height, float width) {
         // Place table to contain node form entries
         nodeForm.left();
         nodeForm.bottom();
-        nodeForm.setSize(.25f*canvas.getWidth(),canvas.getHeight());
+        nodeForm.setSize(FORM_WIDTH*canvas.getWidth(),height);
 
-        // Node Title
-        TextField nodeTitle = new TextField("", skin);
-        nodeTitle.setMessageText("Node Title");
-        nodeTitle.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 5 * FORM_GAP);
-        // Initialize with node title
-        nodeTitle.setText(node.getName().substring(1));
-        // Add listener to disable keyboard input when the field is selected
-        nodeTitle.addListener(newIgnoreInputFocusListener());
-        // Arrange in table
-        nodeForm.addActor(nodeTitle);
+        nodeForm.addActor(newLabel("NODE DATA", height));
+        height -= FORM_GAP;
 
-        // Node Content
-        TextField nodeContent = new TextField("", skin);
-        nodeContent.setMessageText("Node Content");
-        nodeContent.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 4 * FORM_GAP);
-        // Initialize with node content
-        nodeContent.setText(String.valueOf(model.getNodeTile(node.getName()).content));
-        // Add listener to disable keyboard input when the field is selected
-        nodeContent.addListener(newIgnoreInputFocusListener());
-        // Arrange in table
-        nodeForm.addActor(nodeContent);
+        // NODE TITLE
+        nodeForm.addActor(newLabel("Title", height));
+        height -= FORM_GAP;
+        nodeForm.addActor(newTextField("Node Title", height, width,
+                String.valueOf(model.getNodeTile(node.getName()).title)));
+        height -= FORM_GAP;
 
-        // Node Summary
-        TextField nodeSummary = new TextField("", skin);
-        nodeSummary.setMessageText("Node Summary");
-        nodeSummary.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 3 * FORM_GAP);
-        // Initialize with node summary
-        nodeSummary.setText(String.valueOf(model.getNodeTile(node.getName()).summary));
-        // Add listener to disable keyboard input when the field is selected
-        nodeSummary.addListener(newIgnoreInputFocusListener());
-        // Arrange in table
-        nodeForm.addActor(nodeSummary);
+        // NODE CONTENT
+        nodeForm.addActor(newLabel("Content", height));
+        height -= 3 * FORM_GAP + 10;
+        nodeForm.addActor(newTextArea("Node Content", height, width,
+                String.valueOf(model.getNodeTile(node.getName()).content), 3));
+        height -= FORM_GAP;
 
-        // Target Stress Rating
-        SelectBox targetStressRating = new SelectBox(skin);
-        targetStressRating.setItems(SR);
-        targetStressRating.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 2 * FORM_GAP);
-        targetStressRating.setSelected(model.getNodeTile(node.getName()).targetSR);
-        // Add listener to disable keyboard input when the field is selected
-        targetStressRating.addListener(newIgnoreInputFocusListener());
-        // Arrange in table
-        nodeForm.addActor(targetStressRating);
+        // NODE SUMMARY
+        nodeForm.addActor(newLabel("Summary", height));
+        height -= 2 * FORM_GAP + 10;
+        nodeForm.addActor(newTextArea("Node Summary", height, width,
+                String.valueOf(model.getNodeTile(node.getName()).summary), 2));
+        height -= FORM_GAP;
 
-        // Player Stress Rating
-        SelectBox playerStressRating = new SelectBox(skin);
-        playerStressRating.setItems(SR);
-        playerStressRating.setPosition(FORM_X_OFFSET,FORM_Y_OFFSET + 1 * FORM_GAP);
-        playerStressRating.setSelected(model.getNodeTile(node.getName()).playerSR);
-        // Add listener to disable keyboard input when the field is selected
-        playerStressRating.addListener(newIgnoreInputFocusListener());
-        // Arrange in table
-        nodeForm.addActor(playerStressRating);
+        // NODE TARGET STRESS RATING
+        nodeForm.addActor(newLabel("Target Stress Rating", height));
+        height -= 1.5f * FORM_GAP;
+        nodeForm.addActor(newSelectBox(SR, height, width, model.getNodeTile(node.getName()).targetSR));
+        height -= FORM_GAP;
+
+        // NODE PLAYER STRESS RATING
+        nodeForm.addActor(newLabel("Player Stress Rating", height));
+        height -= 1.5f * FORM_GAP;
+        nodeForm.addActor(newSelectBox(SR, height, width, model.getNodeTile(node.getName()).playerSR));
     }
 
     /**
@@ -763,43 +881,49 @@ public class LevelEditorController implements Screen {
      * determine which to cast to with the first digit of im.getName() - 0 for
      * target, 1 or 2 for node).
      *
-     * To access all the form entries, you can do getCells() for the Table, then
-     * iterate through the cells and do getActor for each, which should give
-     * you the textField/textArea/selectBox in the order you added them to the Table.
-     *
      * @param form      The Table containing all the target/node information.
      * @param im        The Image of the target/node.
      */
     private void saveForm(Table form, Image im) {
         int nodetype = Character.getNumericValue(im.getName().charAt(0));
-        SnapshotArray cells = form.getChildren();
-        if (nodetype == 0){ // case image to targetTile
-            String newName = "0" + String.valueOf(((TextField)form.getChild(0)).getText());
-            model.updateLevelTileName(im.getName(), newName);
-            im.setName(newName);
-            model.updateTargetParanoia(newName, Integer.parseInt(String.valueOf(((TextField)form.getChild(1)).getText())));
-            // TODO: Add support for multiple trait selection
-            Array temp = new Array();
-            temp.add(((SelectBox)form.getChild(2)).getSelected());
-            model.updateTargetTraits(newName, temp);
-            model.updateTargetMaxStress(newName, Integer.parseInt(String.valueOf(((TextField)form.getChild(3)).getText())));
-        } else if (nodetype == 1 || nodetype == 2){ // cast image to targetNode
-            String newName;
-            if (nodetype == '1'){
-                newName = "1" + ((TextField)form.getChild(0)).getText();
-            }else {
-                newName = "2" + ((TextField)form.getChild(0)).getText();
-            }
-            model.updateLevelTileName(im.getName(), newName);
-            im.setName(newName);
 
-            model.updateNodeContent(newName, ((TextField)form.getChild(1)).getText());
-            System.out.println(model.getNodeTile(newName).content);
+        // If node is a Target
+        if (nodetype == 0){
+            // Save name
+            model.updateTargetName(im.getName(), ((TextField)form.getChild(2)).getText());
 
-            model.updateNodeSummary(newName, ((TextField)form.getChild(2)).getText());
+            // Save paranoia
+            // If the field is empty, set the value to the default
+            String value = String.valueOf(((TextField)form.getChild(4)).getText());
+            if (value.equals("")) model.updateTargetParanoia(im.getName(), DEFAULT_PARANOIA);
+            else model.updateTargetParanoia(im.getName(), Integer.parseInt(value));
 
-            model.updateNodeTargetStressRating(newName, (StressRating) ((SelectBox)form.getChild(3)).getSelected());
-            model.updateNodePlayerStressRating(newName, (StressRating) ((SelectBox)form.getChild(4)).getSelected());
+            // Save max stress
+            // If the field is empty, set the value to the default
+            value = String.valueOf(((TextField)form.getChild(6)).getText());
+            if (value.equals("")) model.updateTargetMaxStress(im.getName(), DEFAULT_MAX_STRESS);
+            else model.updateTargetMaxStress(im.getName(), Integer.parseInt(value));
+
+            // Save traits
+            ArraySelection<TraitModel.Trait> selection = ((List)form.getChild(8)).getSelection();
+            model.updateTargetTraits(im.getName(), selection.toArray());
+        }
+        // If node is Unlocked or Locked
+        else if (nodetype == 1 || nodetype == 2) {
+            // Save title (note that the title is different from the name)
+            model.updateNodeTitle(im.getName(), ((TextField)form.getChild(2)).getText());
+
+            // Save content
+            model.updateNodeContent(im.getName(), ((TextField)form.getChild(4)).getText());
+
+            // Save summary
+            model.updateNodeSummary(im.getName(), ((TextField)form.getChild(6)).getText());
+
+            // Save target stress rating
+            model.updateNodeTargetStressRating(im.getName(), (StressRating) ((SelectBox)form.getChild(8)).getSelected());
+
+            // Save player stress rating
+            model.updateNodePlayerStressRating(im.getName(), (StressRating) ((SelectBox)form.getChild(10)).getSelected());
         }
     }
 
@@ -836,8 +960,14 @@ public class LevelEditorController implements Screen {
      * as saves the information of a node that was deselected.
      */
     private void displayEditForms() {
+        // If it was only the form background that was clicked, set the new selected node to be the same as the old
+        if (wasFormBGClicked) newSelectedNode = selectedNode;
+
         // If the currently selected and to-be-selected nodes are different
         if (!nodeEquals(selectedNode, newSelectedNode)) {
+            // Hide form background
+            formBG.setVisible(false);
+
             // Initialize variable for node type
             int nodeType;
 
@@ -847,13 +977,11 @@ public class LevelEditorController implements Screen {
                 nodeType = Character.getNumericValue(selectedNode.getName().charAt(0));
                 // If was a target, save contents of targetForm for that target and clear form
                 if (nodeType == 0) {
-                    //createTargetForm(selectedNode);
                     saveForm(targetForm, selectedNode);
                     targetForm.clear();
                 }
                 // If was a node, save contents of nodeForm for that node and clear form
                 else {
-                    //createNodeForm(selectedNode);
                     saveForm(nodeForm, selectedNode);
                     nodeForm.clear();
                 }
@@ -861,21 +989,33 @@ public class LevelEditorController implements Screen {
 
             // If a node is actually going to be selected next, create a form for it
             if (newSelectedNode != null) {
+                // Initialize variable for height of each entry in the form
+                float height = canvas.getHeight() - FORM_Y_OFFSET;
+                // Initialize variable for width of each entry in the form
+                float width = FORM_WIDTH*canvas.getWidth();
+
+                // Align and show background
+                formBG.setSize(width + FORM_X_OFFSET,height + FORM_GAP);
+                formBG.setPosition(FORM_X_OFFSET / 2, FORM_X_OFFSET - FORM_GAP);
+                formBG.setVisible(true);
+
                 // Determine if next selected node will be a target or a node
                 nodeType = Character.getNumericValue(newSelectedNode.getName().charAt(0));
                 // If it's a target, create a target form
                 if (nodeType == 0) {
-                    createTargetForm(newSelectedNode);
+                    createTargetForm(newSelectedNode, height, width);
                 }
                 // If it's a node, create a node form
                 else {
-                    createNodeForm(newSelectedNode);
+                    createNodeForm(newSelectedNode, height, width);
                 }
             }
 
             // Deselect the currently selected node
             deselectNode();
         }
+
+        wasFormBGClicked = false;
 
         // Regardless, set the new selected node as the new currently selected node
         selectedNode = newSelectedNode;
