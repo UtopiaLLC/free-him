@@ -92,7 +92,7 @@ public final class LevelEditorConstants {
     public static final int FORM_GAP = 30;
 
     /** Array of target traits available as options, but as strings */
-    public static final String[] TRAIT_OPTIONS_STRINGS = {"none", "paranoiac", "therapist", "gossip", "off_putting",
+    public static final String[] TRAIT_OPTIONS_STRINGS = {"paranoiac", "therapist", "gossip", "off_putting",
             "naturally_suspicious", "rich", "technologically_literate", "bad_connection", "technologically_illiterate",
             "sensitive"};
     /** Array of target traits available as options */

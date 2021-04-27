@@ -11,7 +11,6 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -45,6 +44,8 @@ public class LevelEditorController implements Screen {
 
     /** Model for level created in the level editor */
     private LevelEditorModel model;
+    /** Parser to use to convert models to JSONs */
+    private LevelEditorParser parser;
 
     /** Canvas is the primary view class of the game */
     private final GameCanvas canvas;
@@ -86,6 +87,9 @@ public class LevelEditorController implements Screen {
 
     /** Array of modes */
     private static final Mode[] MODE_ORDER = {Mode.MOVE, Mode.EDIT, Mode.DELETE, Mode.DRAW};
+
+    /** TextField that prompts for level name when saving */
+    private TextField levelName;
 
     /*************************************************** HELPERS ****************************************************/
     /**
@@ -222,6 +226,8 @@ public class LevelEditorController implements Screen {
     public LevelEditorController() {
         // Create model for level created in level editor
         model = new LevelEditorModel();
+        // Create parser to parse model into JSON when saving
+        parser = new LevelEditorParser();
 
         // Create canvas and set view and zoom
         canvas = new GameCanvas();
@@ -260,6 +266,13 @@ public class LevelEditorController implements Screen {
         // Preemptively add node and target forms to the stage
         toolStage.addActor(targetForm);
         toolStage.addActor(nodeForm);
+
+        // Add text field for level name to the top of the screen
+        levelName = newTextField("Level Name", 10,FORM_WIDTH * canvas.getWidth(), "My Level");
+        levelName.setX((canvas.getWidth() / 2) - 0.5f * levelName.getWidth());
+        // Align text to center
+        levelName.setAlignment(1);
+        toolStage.addActor(levelName);
     }
 
     /************************************************** TOOLBAR **************************************************/
@@ -410,8 +423,10 @@ public class LevelEditorController implements Screen {
                 button.addListener(new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
-                        model.saveLevel();
-                        //System.out.println("Level Saved");
+                        // Get level name from relevant text box
+                        model.setLevelName(levelName.getText());
+                        // Save the level
+                        parser.saveLevel(model);
                     }
                 });
             }

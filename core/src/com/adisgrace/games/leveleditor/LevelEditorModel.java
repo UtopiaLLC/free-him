@@ -23,6 +23,8 @@ import static com.adisgrace.games.leveleditor.LevelEditorConstants.DEFAULT_PARAN
  * JSON and construct the corresponding level.
  */
 public class LevelEditorModel {
+    /** Name of the level */
+    private String levelName;
     /** Hashmap of target/node names to their LevelTiles */
     private ArrayMap<String, LevelTile> levelTiles;
     /** Hashmap of coordinates and the names of the objects at that location */
@@ -99,24 +101,9 @@ public class LevelEditorModel {
     }
 
     /** Inner class representing a connector as the level tile at an isometric location */
-    private class ConnectorTile extends LevelTile {
+    public class ConnectorTile extends LevelTile {
         /** Direction of the connector */
         Direction dir;
-
-        /**
-         * Constructor for a ConnectorTile with the specified attributes.
-         *
-         * @param x             x-coordinate of connector in isometric space
-         * @param y             y-coordinate of connector in isometric space
-         * @param im            Connector image
-         * @param dir           Direction of connector as a Direction
-         */
-        ConnectorTile(float x, float y, Image im, Direction dir) {
-            this.x = x;
-            this.y = y;
-            this.im = im;
-            this.dir = dir;
-        }
 
         /**
          * Constructor for a ConnectorTile with the specified attributes.
@@ -168,6 +155,42 @@ public class LevelEditorModel {
      */
     public NodeTile getNodeTile(String name) {
         return (NodeTile) levelTiles.get(name);
+    }
+
+    /**
+     * Returns the hashmap of target/node names to their LevelTiles.
+     *
+     * @return  Hashmap of target/node names to their LevelTiles.
+     */
+    public ArrayMap<String, LevelTile> getLevelTiles() {
+        return levelTiles;
+    }
+
+    /**
+     * Returns the hashmap of coordinates and the names of the objects at that location.
+     *
+     * @return  Hashmap of coordinates and the names of the objects at that location.
+     */
+    public ArrayMap<Vector2, Array<String>> getLevelMap() {
+        return levelMap;
+    }
+
+    /**
+     * Returns the name of the level.
+     *
+     * @return  Name of the level.
+     */
+    public String getLevelName() {
+        return levelName;
+    }
+
+    /**
+     * Sets the level name to the given name.
+     *
+     * @param name  Name to set the level's name to.
+     */
+    public void setLevelName(String name) {
+        levelName = name;
     }
 
     /*********************************************** ADD/REMOVE TO LEVEL ***********************************************/
@@ -466,95 +489,5 @@ public class LevelEditorModel {
         removeFromLevel(lastIm.getName());
         // Actually remove image from screen
         lastIm.remove();
-    }
-
-    /*********************************************** SAVE AND LOAD ***********************************************/
-
-    /** Values of placeholder constants */
-    private static final String TARGET_NAME = "Torchlight Employee";
-    private static final int TARGET_PARANOIA = 3;
-    private static final int TARGET_MAXSTRESS = 100;
-    private static final LevelEditorConstants.StressRating PS_DMG = LevelEditorConstants.StressRating.NONE;
-
-    /**
-     * Saves the level, producing a JSON from the existing model.
-     */
-    public void saveLevel() {
-        // TODO: if there are overlapping connectors, delete the extras
-
-        // Create a LevelEditorParser
-        LevelEditorParser parser = new LevelEditorParser();
-
-        // Get filename from user input in terminal
-        // TODO: get user input not from terminal
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Enter desired level name: ");
-        String fname = scan.nextLine();
-
-        // Instantiate count of targets in level
-        int targetCount = 1;
-
-        // Go through each grid tile that contains LevelTiles
-        String c;
-        LevelTile lt;
-        String connector;
-        Array<Connector> connectors = new Array<>();
-        for (Vector2 pos : levelMap.keys()) {
-            connector = "";
-            // For each LevelTile in this grid tile
-            for (String tilename : levelMap.get(pos)) {
-                // Get identifier that can be used to identify type of tile
-                c = String.valueOf(tilename.charAt(0));
-                // Get the actual LevelTile
-                lt = levelTiles.get(tilename);
-
-                // Initialize subclasses to potentially cast to
-                NodeTile nt;
-                TargetTile tt;
-                ConnectorTile ct;
-                switch (c) {
-                    case "0": // TARGET
-                        // Cast to TargetTile
-                        tt = (TargetTile) lt;
-                        // Make target accordingly
-                        parser.make_target(fname+ " " + TARGET_NAME + " " + targetCount, TARGET_PARANOIA, 100, pos);
-                        targetCount++;
-                        break;
-                    case "1": // UNLOCKED NODE
-                        // Cast to NodeTile
-                        nt = (NodeTile) lt;
-                        // Make unlocked node accordingly
-                        parser.make_factnode(nt.im.getName(), nt.targetSR, PS_DMG, false, pos);
-                        break;
-                    case "2": // LOCKED NODE
-                        // Cast to NodeTile
-                        nt = (NodeTile) lt;
-                        // Make locked node accordingly
-                        parser.make_factnode(nt.im.getName(), nt.targetSR, PS_DMG, true, pos);
-                        break;
-                    default: // CONNECTOR
-                        // Cast to ConnectorTile
-                        ct = (ConnectorTile) lt;
-                        // Add the direction to the connector string
-                        connector += c;
-                        break;
-                }
-            }
-            // Store new connector in array of connectors
-            connectors.add(new Connector(pos,connector));
-        }
-        // Pass all connectors into the model
-        parser.make_connections(connectors);
-
-        // Make JSON
-        try {
-            // Don't need to include ".json"
-            parser.make_level_json(fname);
-        }
-        catch(IOException e) {
-            System.out.println("make_level_json failed");
-        }
-
-        System.out.println("Level " + fname + " Save Complete");
     }
 }

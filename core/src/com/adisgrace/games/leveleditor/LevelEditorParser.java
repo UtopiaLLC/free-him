@@ -2,8 +2,8 @@ package com.adisgrace.games.leveleditor;
 
 import com.adisgrace.games.util.Connector;
 import com.adisgrace.games.util.Connector.Direction;
-import com.adisgrace.games.models.FactNode;
 import com.adisgrace.games.leveleditor.LevelEditorConstants.StressRating;
+import com.adisgrace.games.leveleditor.LevelEditorModel.*;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -19,28 +19,32 @@ import java.util.*;
  * JSON and construct the corresponding level.
  */
 public class LevelEditorParser {
-    /** Name of the level */
-    private String level_name;
     /** Dimensions of the level */
     private int level_width = 0, level_height = 0;
 
-    /** Map from target names to the Target object  */
-    private Map<String, Target> targets;
-    private Map<String, FactNode> factnodes;
+    /** Map from target names to the TargetTiles  */
+    private Map<String, TargetTile> targets;
+    private Map<String, NodeTile> nodes;
     /** Map of parent name (key) to a map of child name (key) to the connectors between them, ordered
      * from parent to child */
     private Map<String, Map<String, Array<Connector>>> connections;
 
     /** Map of locations to the connector at that location */
     private HashMap<Vector2, Connector> connectorsAtCoords;
-    /** Map of locations to the FactNode at that location */
-    private HashMap<Vector2, FactNode> factnode_from_pos;
+    /** Map of locations to the NodeTile at that location */
+    private HashMap<Vector2, NodeTile> nodesAtCoords;
     /** Hashmap of nodes that are discovered but not yet explored, for use in making connections */
     private Array<String> discoveredNodes;
     /** Array of locations that have been visited, for use in making connections */
     private Array<Vector2> visited;
 
-    private int stressRating_to_int(StressRating sr){
+    /**
+     * Helper function that converts a stress rating to its integer equivalent.
+     *
+     * @param sr    Stress rating to convert
+     * @return      Integer value of the given stress rating
+     */
+    private int stressRatingToInt(StressRating sr){
         switch (sr){
             case NONE:
                 return 0;
@@ -55,240 +59,103 @@ public class LevelEditorParser {
         }
     }
 
-    /** Inner class representing the information about a target */
-    private class Target {
-        /** Isometric coordinates representing target's location */
-        float x;
-        float y;
-        /** Name of the target */
-        String name;
-        /** Paranoia stat of target */
-        int paranoia;
-        /** Maximum stress of target */
-        int maxStress;
-
-        /**
-         * Constructor for a Target with the specified attributes.
-         *
-         * @param x             x-coordinate of target in isometric space
-         * @param y             y-coordinate of target in isometric space
-         * @param name          must be unique in the level
-         * @param paranoia      must be positive, smaller is better
-         * @param maxStress     must be positive
-         */
-        private Target(float x, float y, String name, int paranoia, int maxStress) {
-            // Throws an exception if a target name is not unique
-            if(targets.containsKey(name))
-                throw new RuntimeException("Target names must be unique; there is an existing target "
-                        + name);
-            // Set attributes
-            this.x = x;
-            this.y = y;
-            this.name = name;
-            this.paranoia = paranoia;
-            this.maxStress = maxStress;
-        }
-
-        /**
-         * Constructor for a Target at 0,0 with the specified attributes.
-         *
-         * @param name          must be unique in the level
-         * @param paranoia      must be positive, smaller is better
-         * @param maxStress     must be positive
-         */
-        private Target(String name, int paranoia, int maxStress) {
-            // Throws an exception if a target name is not unique
-            if(targets.containsKey(name))
-                throw new RuntimeException("Target names must be unique; there is an existing target "
-                        + name);
-            // Set attributes
-            this.x = 0f;
-            this.y = 0f;
-            this.name = name;
-            this.paranoia = paranoia;
-            this.maxStress = maxStress;
-        }
-    }
-
     /**
      * Constructor for a LevelEditorParser.
      */
     public LevelEditorParser(){
-        targets = new HashMap<String, Target>();
-        factnodes = new HashMap<String, FactNode>();
-        connections = new HashMap<String, Map<String, Array<Connector>>>();
+        targets = new HashMap<>();
+        nodes = new HashMap<>();
+        connections = new HashMap<>();
 
         connectorsAtCoords = new HashMap<>();
-        factnode_from_pos = new HashMap<>();
+        nodesAtCoords = new HashMap<>();
         discoveredNodes = new Array<>();
     }
 
     /**
-     * Makes a target with the specified attributes and stores it in the model.
+     * Resets the parser so it can be used to parse a new level.
+     */
+    private void reset() {
+        targets.clear();
+        nodes.clear();
+        connections.clear();
+        connectorsAtCoords.clear();
+        nodesAtCoords.clear();
+        discoveredNodes.clear();
+    }
+
+    /**
+     * Saves the given level as a JSON.
      *
-     * @param name          must be unique in the level
-     * @param paranoia      must be positive, smaller is better
-     * @param maxStress     must be positive
-     * @param pos           coordinates in isometric space
+     * @param model     The model of the level to save.
      */
-    public void make_target(String name, int paranoia, int maxStress, Vector2 pos) {
-        Target tar = new Target(pos.x,pos.y,name,paranoia,maxStress);
-        targets.put(name,tar);
-    }
+    public void saveLevel(LevelEditorModel model) {
+        reset();
 
-    /**
-     * Deletes a target.
-     * @param targetName name of target to be deleted
-     */
-    public void delete_target(String targetName){
-        if(!targets.containsKey(targetName))
-            throw new RuntimeException("Invalid target passed " + targetName);
-        targets.remove(targetName);
-    }
+        // TODO: if there are overlapping connectors, delete the extras
 
-    /**
-     * Gets a map containing a target's attributes.
-     * This returns a live version of the target and any changes will be reflected in the model.
-     * @param targetName    Name of target
-     * @return              Target object
-     */
-    private Target getTarget(String targetName){
-        return targets.get(targetName);
-    }
+        // Get relevant data from the model
+        ArrayMap<String, LevelTile> levelTiles = model.getLevelTiles();
+        ArrayMap<Vector2, Array<String>> levelMap = model.getLevelMap();
 
-    /**
-     * Creates a factnode with the specified attributes
-     * @param factName must be unique within
-     * @param tsDmg
-     * @param psDmg
-     * @param locked
-     * @param coords
-     */
-    public void make_factnode(String factName, StressRating tsDmg, StressRating psDmg, boolean locked, Vector2 coords){
-        String summary;
-        String contents;
-        int tsDmg_ = stressRating_to_int(tsDmg);
-        // converts StressRating tsDmg to integer value tsDmg
-        // also assigns summary/contents based on tsDmg
-        switch(tsDmg){
-            case NONE:
-                contents = "You learn something entirely innocuous about your target.";
-                summary = "Nothing!";
-                break;
-            case LOW:
-                contents = "You crawl their web presence and find a few very embarrassing photos.";
-                summary = "Photos";
-                break;
-            case MED:
-                contents = "You dig through their history and discover a few citations or arrests some 10+ years ago.";
-                summary = "History";
-                break;
-            case HIGH:
-                contents = "You discover their involvement in some quite recent felonies that if exposed, would be prosecuted.";
-                summary = "Criminality";
-                break;
-            default:
-                throw new RuntimeException("Invalid tsDmg passed");
-        }
-        // converts StressRating psDmg to integer value psDmg
-        int psDmg_ = stressRating_to_int(psDmg);
+        // Go through each grid tile that contains LevelTiles
+        String c;
+        LevelTile lt;
+        String connector;
+        Array<Connector> connectors = new Array<>();
+        // For each occupied grid tile in the map
+        for (Vector2 pos : levelMap.keys()) {
+            connector = "";
+            // For each LevelTile in this grid tile
+            for (String tilename : levelMap.get(pos)) {
+                // Get identifier that can be used to identify type of tile
+                c = String.valueOf(tilename.charAt(0));
+                // Get the actual LevelTile
+                lt = levelTiles.get(tilename);
 
-        FactNode factNode = new FactNode(factName, "untitled fact", contents, summary,
-                new ArrayMap<String, Array<Connector>>(), (int)coords.x, (int)coords.y, locked, tsDmg_, psDmg_);
-        factnodes.put(factName, factNode);
-    }
-
-    /**
-     * Edits a particular attribute of a factnode.
-     * This does not check whether or not newFieldValue is a valid value of fieldToEdit.
-     * Accepts fields "title" (str), "content" (str), "summary" (str), "posX" (int), "posY" (int),
-     * pos (Vector2), "locked" (bool), "tsDmg" (StressRating), and "psDmg" (StressRating).
-     * @param factName name of factnode to edit
-     * @param fieldToEdit name of the attribute to be changed
-     * @param newFieldValue new value of attribute
-
-    public void edit_factnode(String factName, String fieldToEdit, Object newFieldValue){
-        if(!factnodes.containsKey(factName))
-            throw new RuntimeException("Invalid factnode passed " + factName);
-        FactNode fn = factnodes.get(factName);
-        switch(fieldToEdit){
-            case "title":
-                fn.setTitle(newFieldValue.toString());
-                break;
-            case "content":
-                fn.setContent(newFieldValue.toString());
-                break;
-            case "summary":
-                fn.setSummary(newFieldValue.toString());
-                break;
-            case "posX":
-                fn.setX((Integer)newFieldValue);
-                break;
-            case "posY":
-                fn.setY((Integer)newFieldValue);
-                break;
-            case "pos":
-                fn.setX((int)((Vector2)newFieldValue).x);
-                fn.setY((int)((Vector2)newFieldValue).y);
-                break;
-            case "locked":
-                fn.setLocked((Boolean)newFieldValue);
-                break;
-            case "tsDmg":
-                fn.setTargetStressDmg(stressRating_to_int((StressRating)newFieldValue));
-                String contents, summary;
-                switch((StressRating)newFieldValue){
-                    case NONE:
-                        contents = "You learn something entirely innocuous about your target.";
-                        summary = "Nothing!";
+                // Initialize subclasses to potentially cast to
+                NodeTile nt;
+                TargetTile tt;
+                switch (c) {
+                    case "0": // TARGET
+                        // Cast to TargetTile
+                        tt = (TargetTile) lt;
+                        // Add to array of targets
+                        targets.put(tt.im.getName(), tt);
                         break;
-                    case LOW:
-                        contents = "You crawl their web presence and find a few very embarrassing photos.";
-                        summary = "Photos";
+                    case "1": // UNLOCKED NODE
+                    case "2": // LOCKED NODE
+                        // Cast to NodeTile
+                        nt = (NodeTile) lt;
+                        // Add to nodes and nodesAtCoords
+                        nodes.put(nt.im.getName(), nt);
+                        nodesAtCoords.put(pos, nt);
                         break;
-                    case MED:
-                        contents = "You dig through their history and discover a few citations or arrests some 10+ years ago.";
-                        summary = "History";
+                    default: // CONNECTOR
+                        // Add the direction to the connector string
+                        connector += c;
                         break;
-                    case HIGH:
-                        contents = "You discover their involvement in some quite recent felonies that if exposed, would be prosecuted.";
-                        summary = "Criminality";
-                        break;
-                    default:
-                        throw new RuntimeException("Invalid tsDmg passed");
                 }
-                fn.setContent(contents);
-                fn.setSummary(summary);
-                break;
-            case "psDmg":
-                fn.setPlayerStressDmg(stressRating_to_int((StressRating)newFieldValue));
-                break;
-            default:
-                throw new RuntimeException("Invalid field passed " + fieldToEdit);
+            }
+            // Store new connector in array of connectors
+            connectors.add(new Connector(pos,connector));
         }
-    }
-    */
+        // Pass all connectors into the model
+        make_connections(connectors);
 
-    /**
-     * Remove a factnode.
-     * @param factName name of the factnode to be removed
-     */
-    public void delete_factnode(String factName){
-        if(!factnodes.containsKey(factName))
-            throw new RuntimeException("Invalid factnode passed " + factName);
-        factnodes.remove(factName);
+        // Make JSON
+        try {
+            // Don't need to include ".json"
+            make_level_json(model.getLevelName());
+        }
+        catch(IOException e) {
+            System.out.println("make_level_json failed");
+        }
+
+        System.out.println("Level " + model.getLevelName() + " Save Complete");
     }
 
-    /**
-     * Access a factnode's contents.
-     * @param factName name of the factnode
-     * @return pointer to factnode
-     */
-    public FactNode getFactNode(String factName){
-        if(!factnodes.containsKey(factName))
-            throw new RuntimeException("Invalid factnode passed " + factName);
-        return factnodes.get(factName);
-    }
+    /************************************************* CONNECTIONS *************************************************/
 
     /**
      * Creates a connection from a parent (target or factnode) to a child (factnode)
@@ -318,17 +185,6 @@ public class LevelEditorParser {
     }
 
     /**
-     * Remove a connection between a parent and a child
-     * @param parentName
-     * @param childName
-     */
-    public void delete_connection(String parentName, String childName){
-        if(!connections.containsKey(parentName) || !connections.get(parentName).containsKey(childName))
-            throw new RuntimeException("No such connection between " + parentName + " and " + childName);
-        connections.get(parentName).remove(childName);
-    }
-
-    /**
      * Takes in an array of connectors and creates connection paths between targets and nodes
      * accordingly.
      *
@@ -336,9 +192,9 @@ public class LevelEditorParser {
      */
     public void make_connections(Array<Connector> mapConnectors) {
         // Fill hashmap of nodes at each given position
-        factnode_from_pos.clear();
-        for(FactNode fn : factnodes.values()){
-            factnode_from_pos.put(new Vector2(fn.getX(), fn.getY()), fn);
+        nodesAtCoords.clear();
+        for(NodeTile fn : nodes.values()){
+            nodesAtCoords.put(new Vector2(fn.x, fn.y), fn);
         }
         // Fill hashmap of connectors at each given position
         connectorsAtCoords.clear();
@@ -356,7 +212,7 @@ public class LevelEditorParser {
         String nodeName;
 
         // Start at each target as the root of a graph
-        for(Target target : targets.values()){
+        for(TargetTile target : targets.values()){
             // Reset array of discovered nodes
             discoveredNodes.clear();
 
@@ -374,7 +230,7 @@ public class LevelEditorParser {
             while (discoveredNodes.size > 0) {
                 // Get first discovered node and start exploring from there
                 nodeName = discoveredNodes.pop();
-                currLoc = new Vector2(factnodes.get(nodeName).getX(),factnodes.get(nodeName).getY());
+                currLoc = new Vector2(nodes.get(nodeName).x,nodes.get(nodeName).y);
                 currConn = connectorsAtCoords.get(currLoc);
 
                 // Evaluate travel for each starting connector for paths from non-target nodes
@@ -463,10 +319,10 @@ public class LevelEditorParser {
         addToPath(pathSoFar, nextLoc, Connector.oppositeDir(arrivalDir));
 
         // End case: next tile has a node in it
-        if (factnode_from_pos.containsKey(nextLoc)) {
+        if (nodesAtCoords.containsKey(nextLoc)) {
             // End the search
             // Get child name
-            String child = factnode_from_pos.get(nextLoc).getNodeName();
+            String child = nodesAtCoords.get(nextLoc).im.getName();
             // Add path to map of connections
             make_connection(parent,child,pathSoFar);
             // Add node to discovered nodes
@@ -485,6 +341,8 @@ public class LevelEditorParser {
         travelThroughConnector(nextConn, pathSoFar, parent);
     }
 
+    /*********************************************** JSON PARSING ***********************************************/
+
     /**
      * Writes level to a json with the given filename
      * Targets are written to jsons named after their names, ie John Smith -> JohnSmith.json
@@ -495,7 +353,7 @@ public class LevelEditorParser {
         BufferedWriter out;
         out = new BufferedWriter(new FileWriter("levels/" + filename + ".json"));
         String targetlist = "", targetpositions = "";
-        for(Target target : targets.values()) {
+        for(TargetTile target : targets.values()) {
             targetlist += ", \"" + target.name.replaceAll(" ","") + ".json" + "\"";
             targetpositions += ", [" + (int)(target.x) + ", " + (int)(target.y) + "]";
         }
@@ -515,12 +373,12 @@ public class LevelEditorParser {
     }
 
     /**
-     * Returns an array containing all factnodes that are descendants of a target.
+     * Returns an array containing all NodeTiles that are descendants of a target.
      * MUST BE CALLED AFTER make_connections !
-     * @param targetName name of target
-     * @return array of factnode objects
+     * @param targetName    name of target
+     * @return              array of NodeTile objects
      */
-    private Array<FactNode> get_target_facts(String targetName){
+    private Array<NodeTile> get_target_facts(String targetName){
         Array<String> facts = new Array<>();
         Array<String> border = new Array<>();
         border.add(targetName);
@@ -534,10 +392,10 @@ public class LevelEditorParser {
             facts.addAll(new Array(t.toArray()));
             border.addAll(new Array(t.toArray()));
         }
-        Array<FactNode> factnodes_ = new Array<>();
+        Array<NodeTile> childNodes = new Array<>();
         for(String factname : facts)
-            factnodes_.add(factnodes.get(factname));
-        return factnodes_;
+            childNodes.add(nodes.get(factname));
+        return childNodes;
     }
 
     /**
@@ -549,7 +407,7 @@ public class LevelEditorParser {
         System.out.printf("started saving target " + targetName);
         BufferedWriter out;
         out = new BufferedWriter(new FileWriter("levels/targets/" + targetName.replaceAll(" ","") + ".json"));
-        Array<FactNode> factnodes_ = get_target_facts(targetName);
+        Array<NodeTile> childNodes = get_target_facts(targetName);
 
         int targetx = (int)((targets.get(targetName)).x);
         int targety = (int)((targets.get(targetName)).y);
@@ -586,33 +444,33 @@ public class LevelEditorParser {
         }
 
         String pod = "", nodeinfo, connections_, connectiontypes;
-        for(FactNode fact : get_target_facts(targetName)){
+        for(NodeTile fact : childNodes){
             nodeinfo = ",\n{\n" +
-                    "\t\t\"nodeName\": \"" + fact.getNodeName() + "\",\n" +
-                    "\t\t\"title\": \"" + fact.getTitle() + "\",\n" +
-                    "\t\t\"coords\": [" + (fact.getX()-targetx) + "," + (fact.getY()-targety) + "],\n" +
-                    "\t\t\"locked\": " + fact.getLocked() + ",\n" +
-                    "\t\t\"content\": \"" + fact.getContent() + "\",\n" +
-                    "\t\t\"summary\": \"" + fact.getContent() + "\",\n"; //////////////////////TODO
+                    "\t\t\"nodeName\": \"" + fact.im.getName() + "\",\n" +
+                    "\t\t\"title\": \"" + fact.title + "\",\n" +
+                    "\t\t\"coords\": [" + (fact.x-targetx) + "," + (fact.y-targety) + "],\n" +
+                    "\t\t\"locked\": " + fact.locked + ",\n" +
+                    "\t\t\"content\": \"" + fact.content + "\",\n" +
+                    "\t\t\"summary\": \"" + fact.summary + "\",\n";
 
             strcache1 = "";
-            if(connections.containsKey(fact.getNodeName())) {
-                for (String childname : connections.get(fact.getNodeName()).keySet()) {
+            if(connections.containsKey(fact.im.getName())) {
+                for (String childname : connections.get(fact.im.getName()).keySet()) {
                     strcache1 += ", \"" + childname + "\"";
                 }
                 strcache1 = "[" + strcache1.substring(2) + "]";
             } else strcache1 = "[]";
             nodeinfo += "\t\t\"children\": " + strcache1 + ",\n" +
-                    "\t\t\"targetStressDamage\": " + fact.getTargetStressDmg() + ",\n" +
-                    "\t\t\"playerStressDamage\": " + fact.getPlayerStressDmg() + ",\n";
+                    "\t\t\"targetStressDamage\": " + stressRatingToInt(fact.targetSR) + ",\n" +
+                    "\t\t\"playerStressDamage\": " + stressRatingToInt(fact.playerSR) + ",\n";
 
             connections_ = "";
             connectiontypes = "";
-            if(connections.containsKey(fact.getNodeName())) {
-                for (String childname : connections.get(fact.getNodeName()).keySet()) {
+            if(connections.containsKey(fact.im.getName())) {
+                for (String childname : connections.get(fact.im.getName()).keySet()) {
                     strcache1 = "";
                     strcache2 = "";
-                    for (Connector c : connections.get(fact.getNodeName()).get(childname)) {
+                    for (Connector c : connections.get(fact.im.getName()).get(childname)) {
                         strcache1 += ", [" + (c.xcoord - targetx) + "," + (c.ycoord - targety) + "]";
                         strcache2 += ", \"" + c.type + "\"";
                     }
@@ -639,6 +497,7 @@ public class LevelEditorParser {
                 "\t\"targetName\": \"" + targets.get(targetName).name + "\",\n" +
                 "\t\"paranoia\": " + targets.get(targetName).paranoia + ",\n" +
                 "\t\"maxStress\": " + targets.get(targetName).maxStress + ",\n" +
+                "\t\t\"traits\": " + targets.get(targetName).traits.toString() + ",\n" +
                 "\t\"firstNodes\": " + firstnodes + ",\n" +
                 "\t\"firstConnectors\": " + firstconnections + ",\n" +
                 "\t\"firstConnectorTypes\": " + firstconnectiontypes + ",\n" +
