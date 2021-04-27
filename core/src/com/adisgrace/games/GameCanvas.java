@@ -445,6 +445,29 @@ public class GameCanvas {
     	spriteBatch.setColor(tint);
 		spriteBatch.draw(image, x,  y, width, height);
 	}
+
+	/**
+	 * Draws the texture at the given position.
+	 *
+	 * Unless otherwise transformed by the global transform (@see begin(Affine2)),
+	 * the texture will be unscaled.  The bottom left of the texture will be positioned
+	 * at the given coordinates.
+	 *
+	 * @param image The texture to draw
+	 * @param x 	The x-coordinate of the bottom left corner
+	 * @param y 	The y-coordinate of the bottom left corner
+	 * @param width	The texture width
+	 * @param height The texture height
+	 */
+	public void draw(Texture image, float x, float y, float width, float height) {
+		if (active != DrawPass.STANDARD) {
+			Gdx.app.error("GameCanvas", "Cannot draw without active begin()", new IllegalStateException());
+			return;
+		}
+
+		// Unlike Lab 1, we can shortcut without a master drawing method
+		spriteBatch.draw(image, x,  y, width, height);
+	}
 	
 	/**
 	 * Draws the tinted texture at the given position.

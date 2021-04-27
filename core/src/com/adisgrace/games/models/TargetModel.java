@@ -59,6 +59,10 @@ public class TargetModel {
 	private int paranoia;
 	/** Boolean which is true if paranoia deducted from other targets */
 	private boolean paranoiac_used = false;
+	/** Turns where the target does nothing every turn*/
+	private int distractedTurns;
+	/** % chance that a distract will fail*/
+	private int distractFailChance;
 	/** Number of turns remaining before next Paranoia check */
 	private int countdown;
 	/** Whether this target has had their suspicion raised before*/
@@ -222,6 +226,8 @@ public class TargetModel {
 		suspicion = 0;
 		naturallySuspiciousCheck = false;
 		state = TargetState.UNAWARE;
+		distractedTurns = 0;
+		distractFailChance = 0;
 		countdown = paranoia;
 		rand = new Random();
 	}
@@ -489,6 +495,23 @@ public class TargetModel {
 	}
 
 	/**
+	 * Upon successful distract, target is frozen for the duration of paranoia.
+	 * Every successful distract lowers the chance for another successful distract by 25%
+	 * @return whether the distract attempt was successful or not
+	 */
+	public boolean distract(){
+		boolean success = rand.nextInt(100) > distractFailChance;
+		if(success){
+			distractedTurns += 25;
+			traits.freeze();
+			distractedTurns = paranoia;
+		}else{
+			addSuspicion(SUSPICION_LOW);
+		}
+		return success;
+	}
+
+	/**
 	 * Handles target AI behavior at the end of each round, then returns the target's state in the next round.
 	 * This function should be called for every target at the end of every round.
 	 * 
@@ -500,6 +523,16 @@ public class TargetModel {
 	public TargetState nextTurn() {
 		// If target is in state GameOver or Defeated, preemptively do nothing
 		if (state == TargetState.GAMEOVER || state == TargetState.DEFEATED) {return state;}
+
+		// If the target is distracted, do nothing this turn
+		if(distractedTurns > 0){
+			distractedTurns--;
+			return state;
+		}
+
+		//unfreezes traits that were frozen upon a successful distract
+		traits.unfreeze();
+
 		countdown--;
 		// If not time for next Paranoia check, return
 		if (countdown != 0) {return state;}

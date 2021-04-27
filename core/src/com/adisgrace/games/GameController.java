@@ -872,6 +872,20 @@ public class GameController implements Screen {
                         activeVerb = ActiveVerb.NONE;
                     }
                 }
+            case DISTRACT:
+                if(isTarget){
+                    if(levelController.getAP() >= PlayerModel.DISTRACT_AP_COST){
+                        if(levelController.distract(nodeInfo[0])){
+                            uiController.createDialogBox("You manage to distract your target. They won't have time to deal with you for a while.");
+                        }else{
+                            uiController.createDialogBox("You fail to distract them, and only further arouse their suspicions.");
+                        }
+                    }else{
+                        uiController.createDialogBox("Insufficient AP to distract the target.");
+                        activeVerb = ActiveVerb.NONE;
+                    }
+                }
+                break;
             default:
                 System.out.println("You shall not pass");
                 break;
@@ -983,6 +997,8 @@ public class GameController implements Screen {
                 break;
             case "notebook":
                 uiController.createNotebookTargetSelector("Select a target to view facts for.", targets, levelController);
+                break;
+            case "distract":
                 break;
             default:
                 System.out.println("You shall not pass");

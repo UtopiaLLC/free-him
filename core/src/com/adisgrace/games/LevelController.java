@@ -150,6 +150,16 @@ public class LevelController {
     }
 
     /**
+     * Attempt to distract a target
+     * @param target name of the target
+     * @return true if the attempt was successful
+     */
+    public boolean distract(String target){
+        player.distract(levelModel.getTarget(target));
+        return levelModel.getTarget(target).distract();
+    }
+
+    /**
      * Expose function, increases target stress greatly and reduces AP, but renders the fact unusable
      * @param target target of attack
      * @param fact fact to expose
