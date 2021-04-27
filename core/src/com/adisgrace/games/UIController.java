@@ -167,8 +167,9 @@ public class UIController {
         l.setWrap( true );
         l.setColor(Color.BLACK);
         dialog.getContentTable().add( l ).prefWidth( 250 );
-        dialog.button("Yes", true).pad(0f,0f,20f,0f); //sends "true" as the result
-        dialog.button("No", false).pad(0f,0f,20f,0f);  //sends "false" as the result
+        float bottomPad = getDialogButtonBottomPadding(300);
+        dialog.button("Yes", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
+        dialog.button("No", false).pad(0f,0f,bottomPad,0f);  //sends "false" as the result
         dialog.show(GameController.toolbarStage);
 
     }
@@ -198,7 +199,9 @@ public class UIController {
         }
         l.setWrap( true );
         dialog.getContentTable().add( l ).prefWidth( 350 );
-        dialog.button("Ok", true).pad(0f,0f,20f,0f); //sends "true" as the result
+
+        float bottomPad = getDialogButtonBottomPadding(500);
+        dialog.button("Ok", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
         dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         dialog.show(GameController.toolbarStage);
         GameController.nodeFreeze = true;
@@ -255,8 +258,8 @@ public class UIController {
             table.add(k).prefWidth(350);
             table.row();
         }
-
-        dialog.button("Ok", true).pad(0f,0f,20f,0f); //sends "true" as the result
+        float bottomPad = getDialogButtonBottomPadding(500);
+        dialog.button("Ok", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
         dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         dialog.show(GameController.toolbarStage);
         GameController.nodeFreeze = true;
@@ -298,10 +301,11 @@ public class UIController {
         dialog.getContentTable().add( l ).prefWidth( 350 );
         dialog.setMovable(true);
 
+        float bottomPad = getDialogButtonBottomPadding(500);
         for(int i = 0; i < targets.size; i++) {
-            dialog.button(targets.get(i).getName(), i).pad(0f,0f,20f,0f);
+            dialog.button(targets.get(i).getName(), i).pad(0f,0f,bottomPad,0f);
         }
-        dialog.button("Cancel", true).pad(0f,0f,20f,0f);; //sends "true" as the result
+        dialog.button("Cancel", true).pad(0f,0f,bottomPad,0f);; //sends "true" as the result
         dialog.show(GameController.toolbarStage);
     }
 
@@ -611,8 +615,8 @@ public class UIController {
         table.row();
 
         addEligibleBlackmailFacts(scannedFacts, summaryToFacts, targetName, table, levelController, factSummaries);
-
-        GameController.blackmailDialog.button("Cancel", true).pad(0f,0f,20f,0f);; //sends "true" as the result
+        float bottomPad = getDialogButtonBottomPadding(500);
+        GameController.blackmailDialog.button("Cancel", true).pad(0f,0f,bottomPad,0f);; //sends "true" as the result
         GameController.blackmailDialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         GameController.blackmailDialog.show(GameController.toolbarStage);
         //Make sure nothing else is able to be clicked while blackmail dialog is shown
@@ -729,7 +733,8 @@ public class UIController {
         node.changeColor(colorState);
     }
 
-    private float getDialogButtonBottomPadding(int width, int height) {
+    private float getDialogButtonBottomPadding(int wh) {
+        if (wh >= 400) return 40f;
         return 20f;
     }
 
