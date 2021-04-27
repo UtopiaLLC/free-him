@@ -15,6 +15,7 @@ public class PlayerModel {
 	public static final int HARASS_AP_COST = 2;
 	public static final int EXPOSE_AP_COST = 3;
 	public static final int GASLIGHT_AP_COST = 2;
+	public static final int DISTRACT_AP_COST = 2;
 
 	private final float STARTING_STRESS = 15;
 	private final float MAX_STRESS = 100;
@@ -418,6 +419,11 @@ public class PlayerModel {
 	public void gaslight(TargetModel t){
 		if(t.getTraits().is_bad_connection()) this.decrementAP(GASLIGHT_AP_COST + 1);
 		else this.decrementAP(GASLIGHT_AP_COST);
+	}
+
+	public void distract(TargetModel t){
+		if(t.getTraits().is_bad_connection()) this.decrementAP(DISTRACT_AP_COST + 1);
+		else this.decrementAP(DISTRACT_AP_COST);
 	}
 }
 
