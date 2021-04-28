@@ -478,21 +478,21 @@ public class GameController implements Screen {
                     connectorCoords.add(targetCoords);
                     connectorCoords = isometricToWorld(connectorCoords);
                     if(connector.type.contains("E")) {
-                        Image east = new Image(EastConnector);
+                        Image east = new Image(Connector.TX_EAST);
                         east.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(east);
                     }if(connector.type.contains("W")) {
-                        Image west = new Image(WestConnector);
+                        Image west = new Image(Connector.TX_WEST);
                         west.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(west);
                     }
                     if(connector.type.contains("N")) {
-                        Image north = new Image(NorthConnector);
+                        Image north = new Image(Connector.TX_NORTH);
                         north.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(north);
                     }
                     if(connector.type.contains("S")) {
-                        Image south = new Image(SouthConnector);
+                        Image south = new Image(Connector.TX_SOUTH);
                         south.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(south);
                     }
