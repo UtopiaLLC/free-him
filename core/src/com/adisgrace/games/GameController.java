@@ -822,9 +822,7 @@ public class GameController implements Screen {
                 break;
             case EXPOSE:
                 if(isTarget) {
-                    if(isTarget) {
-                        expose(nodeInfo[0]);
-                    }
+                    expose(nodeInfo[0]);
                 }
                 break;
             case GASLIGHT:
