@@ -85,11 +85,12 @@ public class LevelEditorParser {
     }
 
     /**
-     * Saves the given level as a JSON.
+     * Saves the given level as a JSON and returns whether the save was successful.
      *
      * @param model     The model of the level to save.
+     * @return          Whether the level save was successful.
      */
-    public void saveLevel(LevelEditorModel model) {
+    public boolean saveLevel(LevelEditorModel model) {
         reset();
 
         // TODO: if there are overlapping connectors, delete the extras
@@ -147,12 +148,13 @@ public class LevelEditorParser {
         try {
             // Don't need to include ".json"
             make_level_json(model.getLevelName());
+            System.out.println("Level " + model.getLevelName() + " Save Complete");
+            return true;
         }
         catch(IOException e) {
             System.out.println("make_level_json failed");
+            return false;
         }
-
-        System.out.println("Level " + model.getLevelName() + " Save Complete");
     }
 
     /************************************************* CONNECTIONS *************************************************/
@@ -496,7 +498,7 @@ public class LevelEditorParser {
             pod = "\t[\n" + pod.substring(2) + "\n\t]";
         else pod = "\t[]";
 
-        out.write("{\n" +
+        out.write("\t{\n" +
                 "\t\"targetName\": \"" + targets.get(targetName).name + "\",\n" +
                 "\t\"paranoia\": " + targets.get(targetName).paranoia + ",\n" +
                 "\t\"maxStress\": " + targets.get(targetName).maxStress + ",\n" +

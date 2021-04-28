@@ -60,6 +60,8 @@ public class LevelEditorController implements Screen {
      * Parser to use to convert models to JSONs
      */
     private LevelEditorParser parser;
+    /** Factory used to create form entries */
+    private FormFactory formFactory;
 
     /**
      * Canvas is the primary view class of the game
@@ -300,11 +302,12 @@ public class LevelEditorController implements Screen {
         model = new LevelEditorModel();
         // Create parser to parse model into JSON when saving
         parser = new LevelEditorParser();
-
         // Create canvas and set view and zoom
         canvas = new GameCanvas();
         // Get singleton instance of player input controller
         input = InputController.getInstance();
+        // Create factory used to create new form entries
+        formFactory = new FormFactory(skin, input);
 
         //canvas.setIsometricSize(4, 4);
 
@@ -355,15 +358,18 @@ public class LevelEditorController implements Screen {
      */
     private void createLevelInfoOverlays() {
         // Add text field for level name at the bottom of the screen
-        levelName = newTextField("Level Name", 10 + FORM_GAP, FORM_WIDTH * canvas.getWidth(), "My Level");
+        levelName = formFactory.newTextField("Level Name", 10 + FORM_GAP,
+                FORM_WIDTH * canvas.getWidth(), "My Level");
         levelName.setX((SCREEN_WIDTH / 2f) - 0.5f * levelName.getWidth());
         // Align text to center
         levelName.setAlignment(1);
         toolStage.addActor(levelName);
 
         // Right below, put two text fields for dimensions of the screen
-        levelDimX = newTextField("Level Width", 10, FORM_WIDTH * canvas.getWidth() / 4, "20");
-        levelDimY = newTextField("Level Height", 10, FORM_WIDTH * canvas.getWidth() / 4, "20");
+        levelDimX = formFactory.newTextField("Level Width", 10,
+                FORM_WIDTH * canvas.getWidth() / 4, "20");
+        levelDimY = formFactory.newTextField("Level Height", 10,
+                FORM_WIDTH * canvas.getWidth() / 4, "20");
         // Add to stage
         toolStage.addActor(levelDimX);
         toolStage.addActor(levelDimY);
@@ -384,7 +390,7 @@ public class LevelEditorController implements Screen {
         levelDimYLabel.setPosition((SCREEN_WIDTH / 2f) + 0.5f * levelDimY.getWidth() - levelDimYLabel.getWidth() / 2, 15);
 
         // Add label indicating what the current editor mode is
-        editorModeLabel = newLabel("MOVE MODE", SCREEN_HEIGHT - 40);
+        editorModeLabel = formFactory.newLabel("MOVE MODE", SCREEN_HEIGHT - 40);
         editorModeLabel.setAlignment(1);
         editorModeLabel.setX((SCREEN_WIDTH / 2f) - editorModeLabel.getWidth()/2);
         toolStage.addActor(editorModeLabel);
@@ -524,7 +530,6 @@ public class LevelEditorController implements Screen {
             if (k < CHANGE_MODE_TRD_ORDER.length - 1) {
                 final Mode newMode = MODE_ORDER[k];
 
-                // TODO: some kind of text that shows the mode
                 // Add listeners to button, changing depending on which node the button creates
                 // Changes the editor mode to the one determined by the button
                 button.addListener(new ChangeListener() {
@@ -552,7 +557,13 @@ public class LevelEditorController implements Screen {
                         formBG.setVisible(false);
 
                         // Save the level
-                        parser.saveLevel(model);
+                        boolean didLevelSave = parser.saveLevel(model);
+                        if (didLevelSave) {
+                            editorModeLabel.setText("Level Saved Successfully");
+                        }
+                        else {
+                            editorModeLabel.setText("Failed to Save Level");
+                        }
                     }
                 });
             }
@@ -756,152 +767,6 @@ public class LevelEditorController implements Screen {
     }
 
     /*********************************************** EDIT MODE FORMS ***********************************************/
-
-    /**
-     * Helper function that returns a new FocusListener that disables keyboard input when a text field
-     * is being used.
-     *
-     * @return new FocusListener that disables keyboard input when a text field is being used.
-     */
-    FocusListener newIgnoreInputFocusListener() {
-        return new FocusListener() {
-            public void keyboardFocusChanged(FocusListener.FocusEvent event, Actor actor, boolean focused) {
-                // Ignores keyboard input for camera control when typing in a text box
-                input.shouldIgnoreInput(focused);
-            }
-        };
-    }
-
-    /**
-     * Helper function that creates and returns a TextField/TextArea with the given parameters.
-     *
-     * @param name        Name of the field
-     * @param height      Height at which the field is placed on the screen
-     * @param width       Width of the field
-     * @param initialText What to initially fill the field with
-     * @param isArea      Whether the field should actually be a TextArea
-     * @return The constructed TextField or TextArea
-     */
-    private TextField newTextFieldOrArea(String name, float height, float width, String initialText, boolean isArea) {
-        // Create text field, or text area if that's what's asked for
-        TextField field = isArea ? new TextArea("", skin) : new TextField("", skin);
-
-        // Set name of field
-        field.setMessageText(name);
-        // Set position and dimensions of field
-        field.setPosition(FORM_X_OFFSET, height);
-        field.setWidth(width);
-        // Initialize contents of field if there are contents to initialize with
-        if (!initialText.equals("null")) field.setText(initialText);
-        // Add listener to disable keyboard input when the field is selected
-        field.addListener(newIgnoreInputFocusListener());
-
-        return field;
-    }
-
-    /**
-     * Helper function that creates and returns a TextField with the given parameters.
-     *
-     * @param name        Name of the field
-     * @param height      Height at which the field is placed on the screen
-     * @param width       Width of the field
-     * @param initialText What to initially fill the field with
-     * @return The constructed TextField
-     */
-    private TextField newTextField(String name, float height, float width, String initialText) {
-        return newTextFieldOrArea(name, height, width, initialText, false);
-    }
-
-    /**
-     * Helper function that creates and returns a TextArea with the given parameters.
-     *
-     * @param name        Name of the field
-     * @param height      Height at which the field is placed on the screen
-     * @param width       Width of the field
-     * @param initialText What to initially fill the field with
-     * @param boxHeight   Height of the box itself
-     * @return The constructed TextArea
-     */
-    private TextArea newTextArea(String name, float height, float width, String initialText, int boxHeight) {
-        TextArea area = (TextArea) newTextFieldOrArea(name, height, width, initialText, true);
-        // Set text box height
-        area.setHeight(boxHeight * FORM_GAP);
-        return area;
-    }
-
-    /**
-     * Helper function that creates and returns a SelectBox with the given parameters.
-     *
-     * @param options  The backing array for the SelectBox, giving the options to select from
-     * @param height   Height at which the SelectBox is placed on the screen
-     * @param width    Width of the SelectBox
-     * @param selected Which of the given options is already selected, if any
-     * @return The constructed SelectBox
-     */
-    private SelectBox newSelectBox(Object[] options, float height, float width, Object selected) {
-        SelectBox box = new SelectBox(skin);
-        box.setItems(options);
-        box.setPosition(FORM_X_OFFSET, height);
-        box.setWidth(width);
-        // Only set as selected if something has been selected
-        if (selected != null) {
-            box.setSelected(selected);
-        }
-        // Add listener to disable keyboard input when the field is selected
-        box.addListener(newIgnoreInputFocusListener());
-
-        return box;
-    }
-
-    /**
-     * Helper function that creates and returns a List with the given parameters.
-     * <p>
-     * This function in particular is only used to create the list to pick target traits from.
-     *
-     * @param options  The backing array for the List, giving the options to select from
-     * @param height   Height at which the List is placed on the screen
-     * @param width    Width of the List
-     * @param selected Which of the given options is already selected, if any
-     * @return The constructed List
-     */
-    private List newListBox(Object[] options, float height, float width, Array<TraitModel.Trait> selected) {
-        List box = new List(skin);
-        box.setItems(options);
-        box.setPosition(FORM_X_OFFSET, height);
-        box.setHeight(7.5f * FORM_GAP);
-        box.setWidth(width);
-        // Add listener to disable keyboard input when the field is selected
-        box.addListener(newIgnoreInputFocusListener());
-
-        // Clear the default selection
-        box.getSelection().clear();
-
-        // Select the previously-selected options
-        box.getSelection().addAll(selected);
-
-        // Ensure multiple options can be selected
-        box.getSelection().setMultiple(true);
-        // Ensure no options can be selected
-        box.getSelection().setRequired(false);
-        // Doesn't clear the selection when selecting a new option
-        box.getSelection().setToggle(true);
-
-        return box;
-    }
-
-    /**
-     * Helper function that creates, places, and returns a new Label with the given parameters.
-     *
-     * @param labelName The text to write in the label
-     * @param height    The vertical height at which to place the label
-     * @return The constructed Label
-     */
-    private Label newLabel(String labelName, float height) {
-        Label label = new Label(labelName, skin);
-        label.setPosition(FORM_X_OFFSET, height);
-        return label;
-    }
-
     /**
      * Creates the form for writing target information for the given target and places it in the toolStage.
      * <p>
@@ -923,39 +788,40 @@ public class LevelEditorController implements Screen {
         targetForm.bottom();
         targetForm.setSize(FORM_WIDTH * SCREEN_WIDTH, height);
 
-        targetForm.addActor(newLabel("TARGET DATA", height));
+        targetForm.addActor(formFactory.newLabel("TARGET DATA", height));
         height -= FORM_GAP;
 
         // TARGET NAME
-        targetForm.addActor(newLabel("Name", height));
+        targetForm.addActor(formFactory.newLabel("Name", height));
         height -= FORM_GAP;
-        targetForm.addActor(newTextField("Target Name", height, width,
+        targetForm.addActor(formFactory.newTextField("Target Name", height, width,
                 String.valueOf(model.getTargetTile(target.getName()).name)));
         height -= FORM_GAP;
 
         // TARGET PARANOIA
-        targetForm.addActor(newLabel("Paranoia", height));
+        targetForm.addActor(formFactory.newLabel("Paranoia", height));
         height -= FORM_GAP;
         targetForm.addActor(
-                newTextField("Target Paranoia", height, width,
+                formFactory.newTextField("Target Paranoia", height, width,
                         String.valueOf(model.getTargetTile(target.getName()).paranoia))
         );
         height -= FORM_GAP;
 
         // TARGET MAX STRESS
-        targetForm.addActor(newLabel("Max Stress", height));
+        targetForm.addActor(formFactory.newLabel("Max Stress", height));
         height -= FORM_GAP;
         targetForm.addActor(
-                newTextField("Target Max Stress", height, width,
+                formFactory.newTextField("Target Max Stress", height, width,
                         String.valueOf(model.getTargetTile(target.getName()).maxStress))
         );
         height -= FORM_GAP;
 
         // TARGET TRAITS
-        targetForm.addActor(newLabel("Traits (hold CTRL to deselect)", height));
+        targetForm.addActor(formFactory.newLabel("Traits (hold CTRL to deselect)", height));
         height -= 8 * FORM_GAP;
         // Set selected target traits to be what's already selected
-        targetForm.addActor(newListBox(TRAIT_OPTIONS, height, width, model.getTargetTile(target.getName()).traits));
+        targetForm.addActor(formFactory.newListBox(TRAIT_OPTIONS, height, width,
+                model.getTargetTile(target.getName()).traits));
     }
 
     /**
@@ -978,40 +844,40 @@ public class LevelEditorController implements Screen {
         nodeForm.bottom();
         nodeForm.setSize(FORM_WIDTH * SCREEN_WIDTH, height);
 
-        nodeForm.addActor(newLabel("NODE DATA", height));
+        nodeForm.addActor(formFactory.newLabel("NODE DATA", height));
         height -= FORM_GAP;
 
         // NODE TITLE
-        nodeForm.addActor(newLabel("Title", height));
+        nodeForm.addActor(formFactory.newLabel("Title", height));
         height -= FORM_GAP;
-        nodeForm.addActor(newTextField("Node Title", height, width,
+        nodeForm.addActor(formFactory.newTextField("Node Title", height, width,
                 String.valueOf(model.getNodeTile(node.getName()).title)));
         height -= FORM_GAP;
 
         // NODE CONTENT
-        nodeForm.addActor(newLabel("Content", height));
+        nodeForm.addActor(formFactory.newLabel("Content", height));
         height -= 3 * FORM_GAP + 10;
-        nodeForm.addActor(newTextArea("Node Content", height, width,
+        nodeForm.addActor(formFactory.newTextArea("Node Content", height, width,
                 String.valueOf(model.getNodeTile(node.getName()).content), 3));
         height -= FORM_GAP;
 
         // NODE SUMMARY
-        nodeForm.addActor(newLabel("Summary", height));
+        nodeForm.addActor(formFactory.newLabel("Summary", height));
         height -= 2 * FORM_GAP + 10;
-        nodeForm.addActor(newTextArea("Node Summary", height, width,
+        nodeForm.addActor(formFactory.newTextArea("Node Summary", height, width,
                 String.valueOf(model.getNodeTile(node.getName()).summary), 2));
         height -= FORM_GAP;
 
         // NODE TARGET STRESS RATING
-        nodeForm.addActor(newLabel("Target Stress Rating", height));
+        nodeForm.addActor(formFactory.newLabel("Target Stress Rating", height));
         height -= 1.5f * FORM_GAP;
-        nodeForm.addActor(newSelectBox(SR, height, width, model.getNodeTile(node.getName()).targetSR));
+        nodeForm.addActor(formFactory.newSelectBox(SR, height, width, model.getNodeTile(node.getName()).targetSR));
         height -= FORM_GAP;
 
         // NODE PLAYER STRESS RATING
-        nodeForm.addActor(newLabel("Player Stress Rating", height));
+        nodeForm.addActor(formFactory.newLabel("Player Stress Rating", height));
         height -= 1.5f * FORM_GAP;
-        nodeForm.addActor(newSelectBox(SR, height, width, model.getNodeTile(node.getName()).playerSR));
+        nodeForm.addActor(formFactory.newSelectBox(SR, height, width, model.getNodeTile(node.getName()).playerSR));
     }
 
     /**
