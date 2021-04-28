@@ -113,6 +113,8 @@ public class LevelEditorController implements Screen {
      * Current mode of the level editor, initialized as Move mode
      */
     private Mode editorMode = Mode.MOVE;
+    /** Label indicating the current mode of the level editor */
+    private Label editorModeLabel;
 
     /**
      * Skin for TextFields and TextAreas
@@ -135,9 +137,17 @@ public class LevelEditorController implements Screen {
     private static final Mode[] MODE_ORDER = {Mode.MOVE, Mode.EDIT, Mode.DELETE, Mode.DRAW};
 
     /**
-     * TextField that prompts for level name when saving
+     * TextField that holds the name of the level being worked on
      */
     private TextField levelName;
+    /**
+     * TextFields that hold the dimensions of the level being worked on
+     */
+    private TextField levelDimX;
+    private TextField levelDimY;
+    /** Dimensions of level */
+    private int levelWidth;
+    private int levelHeight;
 
     /*************************************************** HELPERS ****************************************************/
     /**
@@ -260,6 +270,22 @@ public class LevelEditorController implements Screen {
             newSelectedNode = null;
         }
 
+        // Change label based on new mode
+        switch (mode) {
+            case EDIT:
+                editorModeLabel.setText("EDIT MODE");
+                break;
+            case DRAW:
+                editorModeLabel.setText("DRAW MODE");
+                break;
+            case MOVE:
+                editorModeLabel.setText("MOVE MODE");
+                break;
+            case DELETE:
+                editorModeLabel.setText("DELETE MODE");
+                break;
+        }
+
         // Change mode
         editorMode = mode;
     }
@@ -313,12 +339,31 @@ public class LevelEditorController implements Screen {
         toolStage.addActor(targetForm);
         toolStage.addActor(nodeForm);
 
-        // Add text field for level name to the top of the screen
-        levelName = newTextField("Level Name", 10, FORM_WIDTH * canvas.getWidth(), "My Level");
-        levelName.setX((canvas.getWidth() / 2) - 0.5f * levelName.getWidth());
+        // Add text field for level name at the bottom of the screen
+        levelName = newTextField("Level Name", 10 + FORM_GAP, FORM_WIDTH * canvas.getWidth(), "My Level");
+        levelName.setX((SCREEN_WIDTH / 2f) - 0.5f * levelName.getWidth());
         // Align text to center
         levelName.setAlignment(1);
         toolStage.addActor(levelName);
+
+        // Right below, put two text fields for dimensions of the screen
+        levelDimX = newTextField("Level Width", 10, FORM_WIDTH * canvas.getWidth() / 2, "20");
+        levelDimY = newTextField("Level Height", 10, FORM_WIDTH * canvas.getWidth() / 2, "20");
+        // Place at bottom of screen
+        levelDimX.setX((SCREEN_WIDTH / 2f) - levelDimX.getWidth());
+        levelDimY.setX((SCREEN_WIDTH / 2f));
+        // Align to center
+        levelDimX.setAlignment(1);
+        levelDimY.setAlignment(1);
+        // Add to stage
+        toolStage.addActor(levelDimX);
+        toolStage.addActor(levelDimY);
+
+        // Add label indicating what the current editor mode is
+        editorModeLabel = newLabel("MOVE MODE", SCREEN_HEIGHT - 40);
+        editorModeLabel.setAlignment(1);
+        editorModeLabel.setX((SCREEN_WIDTH / 2f) - editorModeLabel.getWidth()/2);
+        toolStage.addActor(editorModeLabel);
     }
 
     /************************************************** TOOLBAR **************************************************/
@@ -848,7 +893,7 @@ public class LevelEditorController implements Screen {
         // Place table to contain target form entries
         targetForm.left();
         targetForm.bottom();
-        targetForm.setSize(FORM_WIDTH * canvas.getWidth(), height);
+        targetForm.setSize(FORM_WIDTH * SCREEN_WIDTH, height);
 
         targetForm.addActor(newLabel("TARGET DATA", height));
         height -= FORM_GAP;
@@ -903,7 +948,7 @@ public class LevelEditorController implements Screen {
         // Place table to contain node form entries
         nodeForm.left();
         nodeForm.bottom();
-        nodeForm.setSize(FORM_WIDTH * canvas.getWidth(), height);
+        nodeForm.setSize(FORM_WIDTH * SCREEN_WIDTH, height);
 
         nodeForm.addActor(newLabel("NODE DATA", height));
         height -= FORM_GAP;
@@ -1070,9 +1115,9 @@ public class LevelEditorController implements Screen {
             // If a node is actually going to be selected next, create a form for it
             if (newSelectedNode != null) {
                 // Initialize variable for height of each entry in the form
-                float height = canvas.getHeight() - FORM_Y_OFFSET;
+                float height = SCREEN_HEIGHT - FORM_Y_OFFSET;
                 // Initialize variable for width of each entry in the form
-                float width = FORM_WIDTH * canvas.getWidth();
+                float width = FORM_WIDTH * SCREEN_WIDTH;
 
                 // Align and show background
                 formBG.setSize(width + FORM_X_OFFSET, height + FORM_GAP);
@@ -1137,7 +1182,16 @@ public class LevelEditorController implements Screen {
         nodeStage.act(delta);
         toolStage.act(delta);
 
-        canvas.drawIsometricGrid(30, 10);
+        // Resize background canvas based on input level dimensions
+        try {
+            levelWidth = Integer.parseInt(levelDimX.getText());
+            levelHeight = Integer.parseInt(levelDimY.getText());
+        }
+        catch (NumberFormatException nfe) {
+            levelWidth = 1;
+            levelHeight = 1;
+        }
+        canvas.drawIsometricGrid(levelWidth, levelHeight);
 
         nodeStage.draw();
         toolStage.draw();
@@ -1152,8 +1206,11 @@ public class LevelEditorController implements Screen {
         //nodeStage.getViewport().update(width,height,true);
         camera.resize(width, height);
 
+        // Keep nodes in the same place when resizing
+        nodeStage.getViewport().update(width,height,true);
+
         // Keep toolbar in the same place when resizing
-        //toolstage.getViewport().update(width,height,true);
+        toolStage.getViewport().update(width,height,true);
     }
 
     @Override

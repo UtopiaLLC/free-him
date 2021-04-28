@@ -11,6 +11,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
  * Static file of constants, including assets, for the level editor, stored separately for convenience.
  */
 public final class LevelEditorConstants {
+    /** Screen dimensions */
+    public static final int SCREEN_WIDTH = 1280;
+    public static final int SCREEN_HEIGHT = 720;
+
     /** Order of connectors (N,E,S,W) */
     public static final Connector.Direction[] CONN_ORDER = {Connector.Direction.N, Connector.Direction.E, Connector.Direction.S, Connector.Direction.W};
     public static final String[] CONN_NAME_ORDER = {"N","E","S","W"};
