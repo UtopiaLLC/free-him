@@ -192,9 +192,9 @@ public class GameController implements Screen {
         //TODO: write function to parse folder of level jsons
         levelJsons = new Array<>();
         levelJsons.add("sample-level-1.json");
-//        levelJsons.add("sample-level-2.json");
-//        levelJsons.add("simple_level_1.json");
-//        levelJsons.add("Research_Scientist.json");
+        levelJsons.add("sample-level-2.json");
+        levelJsons.add("simple_level_1.json");
+        levelJsons.add("Research_Scientist.json");
         levelControllers = new Array<>();
 
         for(String s : levelJsons) {
@@ -241,6 +241,8 @@ public class GameController implements Screen {
      */
     public void render(float delta) {
         canvas.clear();
+
+        handleLevelSwitching();
 
         // If no action is currently selected, and the cursor is not hovering above any button, then remove any effects
         if (activeVerb == ActiveVerb.NONE && hoverVerb == ActiveVerb.NONE){
@@ -419,10 +421,12 @@ public class GameController implements Screen {
     public void handleLevelSwitching() {
         if(ic.didLeftArrow()) {
             if(currentLevel-1 < 0) {return;}
-            loadLevel(currentLevel-1);
+            currentLevel = currentLevel-1;
+            loadLevel(currentLevel);
         } else if(ic.didRightArrow()) {
             if(currentLevel+1 > levelControllers.size-1) {return;}
-            loadLevel(currentLevel+1);
+            currentLevel = currentLevel+1;
+            loadLevel(currentLevel);
         }
     }
 
@@ -433,6 +437,7 @@ public class GameController implements Screen {
     public void loadLevel(int newLevel) {
         levelController = levelControllers.get(newLevel);
 
+        System.out.println("NEW LEVEL: " + newLevel);
         stage.clear();
         targetStates = new Array<>();
         activeVerb = ActiveVerb.NONE;

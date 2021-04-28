@@ -311,8 +311,8 @@ public class InputController {
 		// Undo button (Z)
 		zPressed = Gdx.input.isKeyJustPressed(Input.Keys.Z) && !ignoreInput;
 
-		leftPressed = Gdx.input.isKeyPressed(Input.Keys.LEFT);
-		rightPressed = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
+		leftPressed = Gdx.input.isKeyJustPressed(Input.Keys.LEFT);
+		rightPressed = Gdx.input.isKeyJustPressed(Input.Keys.RIGHT);
 
 	}
 
