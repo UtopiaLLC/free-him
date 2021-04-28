@@ -797,93 +797,29 @@ public class GameController implements Screen {
         switch (activeVerb) {
             case NONE:
                 if(!isTarget) {
-                    switch (levelController.getCurrentNodeState(nodeInfo[0], nodeInfo[1])) {
-                        case 3: //locked
-                            int hack = levelController.hack(nodeInfo[0], nodeInfo[1]);
-                            if(hack == -1 || hack == -2) {
-                                System.out.println("HACK IS NOT WORKING: " + hack);
-                                System.exit(1);
-                            }
-                            if(hack == 1) {
-                                button.changeState(Node.NodeState.UNSCANNED);
-                                uiController.createDialogBox("You hacked the node successfully!");
-                            } else if(hack == -3) {
-                                uiController.createDialogBox("Insufficient AP to hack this node.");
-                            } else if(hack == -4) {
-                                uiController.createDialogBox("You failed to hack the node!");
-                            }
-                            break;
-                        case 2://scannable
-                            boolean success = levelController.scan(nodeInfo[0], nodeInfo[1]);
-                            if(success) {
-                                button.changeState(Node.NodeState.SCANNED);
-                                addConnections(nodeInfo[0], nodeInfo[1]);
-                                uiController.createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
-
-                            } else {
-                                uiController.createDialogBox("Insufficient AP to scan this node.");
-                            }
-                            break;
-                        case 1://viewable
-                            uiController.createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
-                            break;
-                    }
-
+                    hackScanView( button, nodeInfo);
                 }
                 break;
             case HARASS:
-                if(isTarget) {
-                    if(levelController.getAP() >= PlayerModel.THREATEN_AP_COST) {
-                        uiController.getBlackmailFact("Select a fact to threaten the target with.", nodeInfo[0],
-                                levelController);
-                    }
-                    else {
-                        uiController.createDialogBox("Insufficient AP to threaten the target.");
-                        activeVerb = ActiveVerb.NONE;
-                    }
-                }
-                break;
             case THREATEN:
+                if(isTarget) {
+                    harass(nodeInfo[0]);
+                }
                 break;
             case EXPOSE:
                 if(isTarget) {
                     if(isTarget) {
-                        if(levelController.getAP() >= PlayerModel.EXPOSE_AP_COST) {
-                            uiController.getBlackmailFact("Select a fact to expose the target with.", nodeInfo[0],
-                                    levelController);
-                        }
-                        else {
-                            uiController.createDialogBox("Insufficient AP to expose the target.");
-                            activeVerb = ActiveVerb.NONE;
-                        }
+                        expose(nodeInfo[0]);
                     }
                 }
                 break;
             case GASLIGHT:
                 if (isTarget) {
-                    if(levelController.getAP() >= PlayerModel.GASLIGHT_AP_COST) {
-                        if(levelController.gaslight(nodeInfo[0]))
-                            uiController.createDialogBox("You manage to convince them that you're a figment of their imagination.");
-                        else
-                            uiController.createDialogBox("You fail to gaslight them, and only further arouse their suspicions.");
-                    }
-                    else {
-                        uiController.createDialogBox("Insufficient AP to gaslight the target.");
-                        activeVerb = ActiveVerb.NONE;
-                    }
+                    gaslight(nodeInfo[0]);
                 }
             case DISTRACT:
                 if(isTarget){
-                    if(levelController.getAP() >= PlayerModel.DISTRACT_AP_COST){
-                        if(levelController.distract(nodeInfo[0])){
-                            uiController.createDialogBox("You manage to distract your target. They won't have time to deal with you for a while.");
-                        }else{
-                            uiController.createDialogBox("You fail to distract them, and only further arouse their suspicions.");
-                        }
-                    }else{
-                        uiController.createDialogBox("Insufficient AP to distract the target.");
-                        activeVerb = ActiveVerb.NONE;
-                    }
+                    distract(nodeInfo[0]);
                 }
                 break;
             default:
@@ -892,6 +828,114 @@ public class GameController implements Screen {
         }
     }
 
+    /**
+     * Functionality for hacking, scanning, and viewing a fact node
+     * @param button the node being acted upon
+     * @param nodeInfo String array with index 0: name of target, index 1: name of fact node
+     */
+    private void hackScanView(Node button, String[] nodeInfo){
+        switch (levelController.getCurrentNodeState(nodeInfo[0], nodeInfo[1])) {
+            case 3: //locked
+                int hack = levelController.hack(nodeInfo[0], nodeInfo[1]);
+                if(hack == -1 || hack == -2) {
+                    System.out.println("HACK IS NOT WORKING: " + hack);
+                    System.exit(1);
+                }
+                if(hack == 1) {
+                    button.changeState(Node.NodeState.UNSCANNED);
+                    uiController.createDialogBox("You hacked the node successfully!");
+                } else if(hack == -3) {
+                    uiController.createDialogBox("Insufficient AP to hack this node.");
+                } else if(hack == -4) {
+                    uiController.createDialogBox("You failed to hack the node!");
+                }
+                break;
+            case 2://scannable
+                boolean success = levelController.scan(nodeInfo[0], nodeInfo[1]);
+                if(success) {
+                    button.changeState(Node.NodeState.SCANNED);
+                    addConnections(nodeInfo[0], nodeInfo[1]);
+                    uiController.createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
+
+                } else {
+                    uiController.createDialogBox("Insufficient AP to scan this node.");
+                }
+                break;
+            case 1://viewable
+                uiController.createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
+                break;
+        }
+    }
+
+    /**
+     * Functionality for harassing a target
+     * @param targetName name of the target being harassed
+     */
+    private void harass(String targetName){
+        if(levelController.canThreaten(targetName)) {
+            uiController.getBlackmailFact("Select a fact to threaten the target with.", targetName,
+                    levelController);
+        }
+        else {
+            uiController.createDialogBox("Insufficient AP to threaten the target.");
+            activeVerb = ActiveVerb.NONE;
+        }
+    }
+
+    /**
+     * Functionality for exposing a target
+     * @param targetName name of the target being exposed
+     */
+    private void expose(String targetName){
+        if(levelController.canExpose(targetName)) {
+            uiController.getBlackmailFact("Select a fact to expose the target with.", targetName,
+                    levelController);
+        }
+        else {
+            uiController.createDialogBox("Insufficient AP to expose the target.");
+            activeVerb = ActiveVerb.NONE;
+        }
+    }
+
+    /**
+     * Functionality for gaslighting a target
+     * @param targetName name of the target being gaslighted
+     */
+    private void gaslight(String targetName){
+        if(levelController.canGaslight(targetName)) {
+            if(levelController.gaslight(targetName))
+                uiController.createDialogBox("You manage to convince them that you're a figment of their imagination.");
+            else
+                uiController.createDialogBox("You fail to gaslight them, and only further arouse their suspicions.");
+        }
+        else {
+            uiController.createDialogBox("Insufficient AP to gaslight the target.");
+            activeVerb = ActiveVerb.NONE;
+        }
+    }
+
+    /**
+     * Functionality for distracting a target
+     * @param targetName name of the target being distracted
+     */
+    private void distract( String targetName ) {
+        if(levelController.canDistract(targetName)){
+            if(levelController.distract(targetName)){
+                uiController.createDialogBox("You manage to distract your target. They won't have time to deal with you for a while.");
+            }else{
+                uiController.createDialogBox("You fail to distract them, and only further arouse their suspicions.");
+            }
+        }else{
+            uiController.createDialogBox("Insufficient AP to distract the target.");
+            activeVerb = ActiveVerb.NONE;
+        }
+    }
+
+    /**
+     * Adds connections between a target and a fact based on the type of each connector
+     * @param target the name of the target
+     * @param fact the name of the fact
+     */
     public void addConnections(String target, String fact){
         ArrayMap<String, Array<Connector>> connectors = levelController.getConnectorsOf(target, fact);
         //Vector2 connectorCoords = new Vector2();
@@ -937,6 +981,11 @@ public class GameController implements Screen {
         }
     }
 
+    /**
+     * Creates an animation that can be used to display connections being added between nodes
+     * @param tex the texture that is used for animation
+     * @return the animation of connections between nodes
+     */
     public Animation<TextureRegion> connectorAnimation(Texture tex) {
 
         TextureRegion[] connectorFrames = new TextureRegion[50];
@@ -989,7 +1038,6 @@ public class GameController implements Screen {
             case "otherJobs":
                 float money = levelController.otherJobs();
                 if(money != -1f) {
-
                     uiController.createDialogBox("You did some other jobs and earned some " + Float.toString(money) +  " bitecoin for yourself!");
                 } else {
                     uiController.createDialogBox("Insufficient AP to do other jobs");

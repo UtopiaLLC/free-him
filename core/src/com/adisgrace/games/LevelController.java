@@ -150,6 +150,14 @@ public class LevelController {
     }
 
     /**
+     * Returns whether or not a player is able to gaslight
+     * @return whether or not player can gaslight
+     */
+    public boolean canGaslight(String target) {
+        return player.canGaslight(levelModel.getTarget(target));
+    }
+
+    /**
      * Attempt to distract a target
      * @param target name of the target
      * @return true if the attempt was successful
@@ -157,6 +165,14 @@ public class LevelController {
     public boolean distract(String target){
         player.distract(levelModel.getTarget(target));
         return levelModel.getTarget(target).distract();
+    }
+
+    /**
+     * Returns whether or not a player is able to distract
+     * @return whether or not player can expose
+     */
+    public boolean canDistract(String target) {
+        return player.canDistract(levelModel.getTarget(target));
     }
 
     /**
@@ -182,6 +198,14 @@ public class LevelController {
     }
 
     /**
+     * Returns whether or not a player is able to expose
+     * @return whether or not player can expose
+     */
+    public boolean canExpose(String target) {
+        return player.canExpose(levelModel.getTarget(target));
+    }
+
+    /**
      * Threaten function, increases target stress and reduces AP
      * @param target target to threaten
      * @param fact fact to threaten target over
@@ -202,6 +226,14 @@ public class LevelController {
         return levelModel.getLevelState();
     }
 
+    /**
+     * Returns whether or not a player is able to threaten
+     * @return whether or not player can threaten
+     */
+    public boolean canThreaten(String target) {
+        return player.canThreaten(levelModel.getTarget(target));
+    }
+
 
     /**
      *	Calls the player's overwork function
@@ -217,6 +249,14 @@ public class LevelController {
     }
 
     /**
+     * Returns whether or not a player is able to overwork
+     * @return whether or not player can overwork
+     */
+    public boolean canOverwork() {
+        return player.canOverwork();
+    }
+
+    /**
     * Relax function, relaxes 1 AP at a time
     *
     * @return whether relax was successful
@@ -227,6 +267,14 @@ public class LevelController {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Returns whether or not a player is able to relax
+     * @return whether or not player can relax
+     */
+    public boolean canRelax() {
+        return player.canRelax();
     }
 
     /**
