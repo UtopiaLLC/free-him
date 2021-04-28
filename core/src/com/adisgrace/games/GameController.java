@@ -50,7 +50,7 @@ public class GameController implements Screen {
         NONE
     };
     public static String getHoverText(ActiveVerb activeVerb){
-        switch (activeVerb)
+        switch (activeVerb) {
             //case HARASS: return "Harass: Harass your target to slightly increase their stress for 2 AP";
             case HARASS: return "Harass: Harass your target with a \n fact to blackmail to increase their stress " +
                     "for 2 AP";

@@ -33,8 +33,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 public class InputController {
 	/** The singleton instance of the input controller */
 	private static InputController theController = null;
-	
-	/** 
+
+	/**
 	 * Return the singleton instance of the input controller
 	 *
 	 * @return the singleton instance of the input controller
@@ -45,9 +45,6 @@ public class InputController {
 		}
 		return theController;
 	}
-
-	/** Whether or not to ignore input */
-	private boolean ignoreInput = false;
 
 	// Fields to manage specific button presses
 	/** Whether each of the WASD buttons (for camera movement) have been pressed */
@@ -73,16 +70,6 @@ public class InputController {
 	/** Mouse coordinates */
 	private float mouseX;
 	private float mouseY;
-
-	/**
-	 * Sets whether input should be ignored. Used to disable other
-	 * inputs when a text field is being written to in the LevelEditor.
-	 *
-	 * @param ignoreInput	Whether input should be ignored
-	 */
-	public void shouldIgnoreInput (boolean ignoreInput) {
-		this.ignoreInput = ignoreInput;
-	}
 
 	/**
 	 * Returns true if the W key was pressed.
@@ -167,10 +154,10 @@ public class InputController {
 	 * @return current mouse y-coordinate.
 	 */
 	public float getY() {return mouseY;}
-	
+
 	/**
 	 * Creates a new input controller
-	 * 
+	 *
 	 * The input controller attempts to connect to the X-Box controller at device 0,
 	 * if it exists.  Otherwise, it falls back to the keyboard control.
 	 */
@@ -278,134 +265,20 @@ public class InputController {
 	 */
 	private void readKeyboard() {
 		// Camera movement (WASD) controls
-		wPressed = Gdx.input.isKeyPressed(Input.Keys.W) && !ignoreInput;
-		aPressed = Gdx.input.isKeyPressed(Input.Keys.A) && !ignoreInput;
-		sPressed = Gdx.input.isKeyPressed(Input.Keys.S) && !ignoreInput;
-		dPressed = Gdx.input.isKeyPressed(Input.Keys.D) && !ignoreInput;
+		wPressed = Gdx.input.isKeyPressed(Input.Keys.W);
+		aPressed = Gdx.input.isKeyPressed(Input.Keys.A);
+		sPressed = Gdx.input.isKeyPressed(Input.Keys.S);
+		dPressed = Gdx.input.isKeyPressed(Input.Keys.D);
 
 		// Camera zoom (EQ) controls
-		ePressed = Gdx.input.isKeyPressed(Input.Keys.E) && !ignoreInput;
-		qPressed = Gdx.input.isKeyPressed(Input.Keys.Q) && !ignoreInput;
+		ePressed = Gdx.input.isKeyPressed(Input.Keys.E);
+		qPressed = Gdx.input.isKeyPressed(Input.Keys.Q);
 
 		// Clear button (C)
-		cPressed = Gdx.input.isKeyJustPressed(Input.Keys.C) && !ignoreInput;
+		cPressed = Gdx.input.isKeyJustPressed(Input.Keys.C);
 
 		// Undo button (Z)
-		zPressed = Gdx.input.isKeyJustPressed(Input.Keys.Z) && !ignoreInput;
-	}
-
-	/**
-	 * This method inputs parameters to create a click listener for nodes.
-	 *
-	 * This method only adds the enter and exit listeners to the nodes for **GameController-specific** uses.
-	 *
-	 * @param skin the skin of the labels
-	 * @param levelController the levelController used in the gameplay controller
-	 * @return the ClickListener for nodes
-	 */
-	public ClickListener addNodeListenerEnterExit(final Skin skin, final LevelController levelController) {
-		return new ClickListener() {
-			Label hoverLabel = new Label("N/A", skin);
-
-			@Override
-			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-
-				Actor cbutton = (Actor) event.getListenerActor();
-				String name = cbutton.getName();
-				String[] nodeInfo = name.split(",");
-
-				if (nodeInfo.length == 1) {
-					String hoverText = "Target Name: " + name + "\n" +
-							"Target Stress: " + levelController.getTargetStress(name) + "\n" +
-							"Target Suspicion: " + levelController.getTargetSuspicion(name) + "\n";
-					hoverLabel.setText(hoverText);
-					hoverLabel.setFontScale(2);
-					Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .85f);
-					hoverLabel.setX(zeroLoc.x);
-					hoverLabel.setY(zeroLoc.y);
-
-					GameController.toolbarStage.addActor(hoverLabel);
-
-				}
-
-			}
-
-			@Override
-			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-				super.exit(event, x, y, pointer, toActor);
-				hoverLabel.remove();
-			}
-		};
-	}
-
-	/**
-	 * Returns a ClickListener that can take in any function to be run. Returns a listener with clicked, enter, exit
-	 * implemented.
-	 *
-	 * @param onClick Method to call on click
-	 * @param onEnter Method to call on enter
-	 * @param onExit Method to call on exit
-	 * @return ClickListener using associated functions
-	 */
-	public ClickListener getButtonListener(final Runnable onClick, final Runnable onEnter, final Runnable onExit){
-		return new ClickListener(){
-			@Override
-			public void clicked(InputEvent event, float x, float y){
-				onClick.run();
-			}
-
-			@Override
-			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-				onEnter.run();
-			}
-
-			@Override
-			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
-				onExit.run();
-			}
-		};
-	}
-
-	/**
-	 * Returns a ClickListener that can take in any function to be run. Used for when user clicks a button
-	 * @param onClick Method to call on click
-	 * @return ClickListener using associated functions
-	 */
-	public ClickListener getButtonListener(final Runnable onClick){
-		return new ClickListener(){
-			@Override
-			public void clicked(InputEvent event, float x, float y){
-				onClick.run();
-			}
-		};
-	}
-
-	/**
-	 * Returns a ClickListener that can take in any function to be run. Used for when user hovers over a button
-	 * @param onEnter Method to call on enter
-	 * @return ClickListener using associated functions
-	 */
-	public ClickListener getButtonListenerEnter(final Runnable onEnter){
-		return new ClickListener(){
-			@Override
-			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
-				onEnter.run();
-			}
-		};
-	}
-
-	/**
-	 * Returns a ClickListener that can take in any function to be run. Used for when user stops hovering over a button
-	 * @param onExit Method to call on exit
-	 * @return ClickListener using associated functions
-	 */
-	public ClickListener getButtonListenerExit(final Runnable onExit){
-		return new ClickListener(){
-			@Override
-			public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor){
-				onExit.run();
-			}
-		};
+		zPressed = Gdx.input.isKeyJustPressed(Input.Keys.Z);
 	}
 
 	/**
