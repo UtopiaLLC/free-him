@@ -20,7 +20,7 @@ import java.util.*;
  */
 public class LevelEditorParser {
     /** Dimensions of the level */
-    private int level_width = 0, level_height = 0;
+    public int level_width, level_height;
 
     /** Map from target names to the TargetTiles  */
     private Map<String, TargetTile> targets;

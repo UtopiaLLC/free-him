@@ -75,7 +75,7 @@ public class LevelEditorModel {
                 finalString += "\"" + TRAIT_OPTIONS_STRINGS[find(trait, TRAIT_OPTIONS)] + "\", ";
             }
             // If at least one trait was saved, trim the last comma
-            if (finalString.length() > 2) {
+            if (finalString.length() > 3) {
                 finalString = finalString.substring(0,finalString.length() - 2);
             }
             return finalString + "]";

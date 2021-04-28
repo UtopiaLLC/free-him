@@ -517,6 +517,10 @@ public class LevelEditorController implements Screen {
                     public void changed(ChangeEvent event, Actor actor) {
                         // Get level name from relevant text box
                         model.setLevelName(levelName.getText());
+                        // Set level dimensions
+                        parser.level_height = levelHeight;
+                        parser.level_width = levelWidth;
+
                         // If any forms are open, save and clear those
                         saveAndClearForm(targetForm);
                         saveAndClearForm(nodeForm);
