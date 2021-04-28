@@ -19,15 +19,29 @@ import com.badlogic.gdx.utils.ArrayMap;
 public class LevelEditorModel {
     /** Name of the level */
     private String levelName;
+    /** Dimensions of the level */
+    public int levelWidth, levelHeight;
     /** Hashmap of target/node names to their LevelTiles */
-    private ArrayMap<String, LevelTile> levelTiles;
+    private ArrayMap<String, LevelTile> levelTiles = new ArrayMap<>();
     /** Hashmap of coordinates and the names of the objects at that location */
-    private ArrayMap<Vector2, Array<String>> levelMap;
+    private ArrayMap<Vector2, Array<String>> levelMap = new ArrayMap<>();
+    /** Count of number of images in this model */
+    public int imgCount;
 
     /** Vector cache to avoid initializing vectors every time */
     private Vector2 vec = new Vector2();
 
+    /*********************************************** CONSTRUCTOR ***********************************************/
+
+    /**
+     * Constructor for a LevelEditorModel.
+     */
+    public LevelEditorModel() {
+    }
+
     /*********************************************** INNER CLASSES ***********************************************/
+    /** Enum representing the type of a tile */
+    public enum TileType {TARGET, NODE, CONNECTOR};
 
     /** Inner class representing a level tile at an isometric location */
     public class LevelTile {
@@ -36,6 +50,8 @@ public class LevelEditorModel {
         protected float y;
         /** The image itself stored at the tile */
         protected Image im;
+        /** The type of the tile */
+        protected TileType tileType;
     }
 
     /** Inner class representing a target as the level tile at an isometric location */
@@ -54,12 +70,39 @@ public class LevelEditorModel {
          *
          * @param x             x-coordinate of target in isometric space
          * @param y             y-coordinate of target in isometric space
-         * @param im            target image
+         * @param im            Target image
          */
         TargetTile(float x, float y, Image im) {
             this.x = x;
             this.y = y;
             this.im = im;
+
+            tileType = TileType.TARGET;
+        }
+
+        /**
+         * Constructor for a Target with the specified attributes.
+         *
+         * This constructor is called when loading a target into the level.
+         *
+         * @param x             x-coordinate of target in isometric space
+         * @param y             y-coordinate of target in isometric space
+         * @param name          Target's name
+         * @param paranoia      Target's paranoia stat
+         * @param maxStress     Target's max stress
+         */
+        TargetTile(float x, float y, String name, int paranoia, int maxStress) {
+            this.x = x;
+            this.y = y;
+            this.name = name;
+            this.paranoia = paranoia;
+            this.maxStress = maxStress;
+
+            // Set target image to the default target image
+            im = new Image(NODE_TEXTURES[TARGET_LOW]);
+            // Ensure image name is in correct format
+            im.setName("0" + name + imgCount);
+            tileType = TileType.TARGET;
         }
 
         /**
@@ -110,6 +153,43 @@ public class LevelEditorModel {
             this.y = y;
             this.im = im;
             this.locked = locked;
+
+            tileType = TileType.NODE;
+        }
+
+        /**
+         * Constructor for a NodeTile with the specified attributes.
+         *
+         * Note that we know the node name will be unique among all nodes in the level
+         * because it had to be when the level was first created.
+         *
+         * @param x             x-coordinate of node in isometric space
+         * @param y             y-coordinate of node in isometric space
+         * @param name          Node name, as in its unique identifier in the level
+         * @param title         Title of the node
+         * @param locked        Whether or not this node is locked
+         * @param content       Content of the node
+         * @param summary       Summary of the node
+         * @param targetSR      Target stress rating of node
+         * @param playerSR      Player stress rating of node
+         */
+        NodeTile(float x, float y, String name, String title, boolean locked, String content, String summary,
+                 StressRating targetSR, StressRating playerSR) {
+            this.x = x;
+            this.y = y;
+            this.title = title;
+            this.locked = locked;
+            this.content = content;
+            this.summary = summary;
+            this.targetSR = targetSR;
+            this.playerSR = playerSR;
+
+            // Set image to the default image for the relevant node
+            im = new Image(NODE_TEXTURES[locked ? LOCKED_LOW : UNLOCKED_LOW]);
+            // Set image name to be node name plus unique identifier
+            im.setName(name + imgCount);
+
+            tileType = TileType.NODE;
         }
     }
 
@@ -131,23 +211,93 @@ public class LevelEditorModel {
             this.y = y;
             this.im = im;
             this.dir = Connector.toDir(dir);
+
+            tileType = TileType.CONNECTOR;
+        }
+
+        /**
+         * Constructor for a ConnectorTile with the specified attributes.
+         *
+         * @param x             x-coordinate of connector in isometric space
+         * @param y             y-coordinate of connector in isometric space
+         * @param dir           Direction of connector as a string
+         */
+        ConnectorTile(float x, float y, String dir) {
+            this.x = x;
+            this.y = y;
+            this.dir = Connector.toDir(dir);
+
+            // Create image based on direction
+            im = new Image(Connector.getTexture(this.dir));
+            // Set image name to be direction plus unique identifier
+            im.setName(dir + imgCount);
+            // Set scale
+            im.setScale(0.5f);
+
+            tileType = TileType.CONNECTOR;
         }
     }
 
-
-    /*********************************************** CONSTRUCTOR ***********************************************/
-
+    /*********************************************** LOAD INTO LEVEL ***********************************************/
     /**
-     * Constructor for a LevelEditorModel.
+     * Loads a target with the given parameters into the level.
+     *
+     * @param x         x-coordinate of target in level
+     * @param y         y-coordinate of target in level
+     * @param name      Name of the target to load into level
+     * @param paranoia  Paranoia stat of target to load into level
+     * @param maxStress Max stress of target to load into level
      */
-    public LevelEditorModel() {
-        // Initialize hashmap of level tiles
-        levelTiles = new ArrayMap<>();
-        // Initialize map of level tiles at coordinates
-        levelMap = new ArrayMap<>();
+    public void loadTarget(int x, int y, String name, int paranoia, int maxStress) {
+        // Create the TargetTile and add to the level
+        addToLevel(new TargetTile(x, y, name, paranoia, maxStress));
     }
 
-    /*********************************************** GETTERS ***********************************************/
+    /**
+     * Loads a node with the given parameters into the level.
+     *
+     * Note that we can use the node's name as is since we know is unique among all nodes in the level,
+     * because it had to be when the level was first created.
+     *
+     * @param x             x-coordinate of node in isometric space
+     * @param y             y-coordinate of node in isometric space
+     * @param name          Name of the node to load into level
+     * @param title         Title of the node to load into level
+     * @param locked        Whether or not this node is locked
+     * @param content       Content of the node to load into level
+     * @param summary       Summary of the node to load into level
+     * @param targetSR      Target stress rating of node to load into level
+     * @param playerSR      Player stress rating of node to load into level
+     */
+    public void loadNode(int x, int y, String name, String title, boolean locked, String content, String summary,
+                         StressRating targetSR, StressRating playerSR) {
+        // Create the NodeTile and add to the level
+        addToLevel(new NodeTile(x, y, name, title, locked, content, summary, targetSR, playerSR));
+    }
+
+    /**
+     * Loads a connector with the given parameters into the level.
+     *
+     * In this case, a Connector with a multidirectional type is broken up into a ConnectorTile for
+     * each direction.
+     *
+     * @param x     x-coordinate of the connector
+     * @param y     y-coordinate of the connector
+     * @param type  Type of the connector
+     */
+    public void loadConnector(int x, int y, String type) {
+        // Initialize string for each direction in this connector
+        String dir;
+
+        // Create a new connector for each direction in the type
+        for (int k=0; k<type.length(); k++) {
+            dir = String.valueOf(type.charAt(k));
+            // Create the ConnectorTile and add to the level
+            addToLevel(new ConnectorTile(x,y,dir));
+        }
+    }
+
+    /*********************************************** GETTERS/SETTERS ***********************************************/
     /**
      * Returns the TargetTile with the given name.
      *
@@ -206,6 +356,31 @@ public class LevelEditorModel {
         levelName = name;
     }
 
+    /**
+     * Returns the width of the level.
+     *
+     * @return  Width of the level.
+     */
+    public int getLevelWidth() {return levelWidth;}
+
+    /**
+     * Returns the height of the level.
+     *
+     * @return  Height of the level.
+     */
+    public int getLevelHeight() {return levelHeight;}
+
+    /**
+     * Sets the dimensions of the level to the given dimensions.
+     *
+     * @param width     The width to set the level width to.
+     * @param height    The height to set the level height to.
+     */
+    public void setLevelDimensions(int width, int height) {
+        levelWidth = width;
+        levelHeight = height;
+    }
+
     /*********************************************** ADD/REMOVE TO LEVEL ***********************************************/
 
     /**
@@ -234,10 +409,26 @@ public class LevelEditorModel {
     }
 
     /**
+     * Adds the tile to the level.
+     *
+     * This adds the tile to levelTiles and levelMap.
+     *
+     * @param lt    LevelTile to add to the level.
+     */
+    public void addToLevel(LevelTile lt) {
+        // Increment image count
+        imgCount++;
+        // Add to levelTiles
+        levelTiles.put(lt.im.getName(),lt);
+        // Map to location in level map
+        addToMap(lt.im.getName(),lt.x,lt.y);
+    }
+
+    /**
      * Adds the tile with the given properties to the given location in the level.
      * Given location is in isometric space.
      *
-     * This adds the node to levelTiles and levelMap.
+     * This adds the tile to levelTiles and levelMap.
      *
      * @param im    Image representing the tile's appearance.
      * @param x     x-coordinate of location to add tile at.
@@ -268,10 +459,7 @@ public class LevelEditorModel {
                 lt = new ConnectorTile(x,y,im,c);
                 break;
         }
-        // Add to levelTiles
-        levelTiles.put(im.getName(),lt);
-        // Map to location in level map
-        addToMap(im.getName(),x,y);
+        addToLevel(lt);
     }
 
     /**

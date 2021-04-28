@@ -1,13 +1,18 @@
 package com.adisgrace.games.leveleditor;
 
+import com.adisgrace.games.models.FactNode;
+import com.adisgrace.games.models.TargetModel;
 import com.adisgrace.games.util.Connector;
 import com.adisgrace.games.util.Connector.Direction;
-import com.adisgrace.games.leveleditor.LevelEditorConstants.StressRating;
+import static com.adisgrace.games.leveleditor.LevelEditorConstants.*;
 import com.adisgrace.games.leveleditor.LevelEditorModel.*;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 
 import java.io.*;
 import java.util.*;
@@ -19,9 +24,8 @@ import java.util.*;
  * JSON and construct the corresponding level.
  */
 public class LevelEditorParser {
-    /** Dimensions of the level */
-    public int level_width, level_height;
-
+    /** Level dimensions */
+    private int level_width, level_height;
     /** Map from target names to the TargetTiles  */
     private Map<String, TargetTile> targets;
     private Map<String, NodeTile> nodes;
@@ -47,16 +51,39 @@ public class LevelEditorParser {
     private int stressRatingToInt(StressRating sr){
         switch (sr){
             case NONE:
-                return 0;
+                return SR_NONE;
             case LOW:
-                return 5;
+                return SR_LOW;
             case MED:
-                return 10;
+                return SR_MED;
             case HIGH:
-                return 20;
+                return SR_HIGH;
             default:
                 throw new RuntimeException("Invalid StressRating passed " + sr.toString());
         }
+    }
+
+    /**
+     * Helper function that converts an integer to its stress rating equivalent.
+     *
+     * Just in case, this will accept ranges of integers for low/medium/high.
+     *
+     * @param stress    Integer value to convert
+     * @return          Stress rating of the given integer value
+     */
+    private StressRating intToStressRating(int stress){
+        // If out of range
+        if (stress < 0 || stress > ((SR_HIGH - SR_MED) / 2) + SR_HIGH) {
+            throw new RuntimeException("Invalid stress value " + stress + " passed");
+        }
+        // stress = 0, so stress rating of NONE
+        else if (stress == 0) {return StressRating.NONE;}
+        // 0 < stress < halfway between LOW and MED, so stress rating of LOW
+        else if (stress < (SR_LOW + SR_MED) / 2) {return StressRating.LOW;}
+        // Halfway between LOW and MED < stress < halfway between MED and HIGH, so stress rating of MED
+        else if (stress < (SR_MED + SR_HIGH) / 2) {return StressRating.MED;}
+        // Anything else as long as it's not out of range, so stress rating of HIGH
+        else {return StressRating.HIGH;}
     }
 
     /**
@@ -85,11 +112,12 @@ public class LevelEditorParser {
     }
 
     /**
-     * Saves the given level as a JSON.
+     * Saves the given level as a JSON and returns whether the save was successful.
      *
      * @param model     The model of the level to save.
+     * @return          Whether the level save was successful.
      */
-    public void saveLevel(LevelEditorModel model) {
+    public boolean saveLevel(LevelEditorModel model) {
         reset();
 
         // TODO: if there are overlapping connectors, delete the extras
@@ -97,6 +125,8 @@ public class LevelEditorParser {
         // Get relevant data from the model
         ArrayMap<String, LevelTile> levelTiles = model.getLevelTiles();
         ArrayMap<Vector2, Array<String>> levelMap = model.getLevelMap();
+        level_width = model.getLevelWidth();
+        level_height = model.getLevelHeight();
 
         // Go through each grid tile that contains LevelTiles
         String c;
@@ -147,12 +177,13 @@ public class LevelEditorParser {
         try {
             // Don't need to include ".json"
             make_level_json(model.getLevelName());
+            System.out.println("Level " + model.getLevelName() + " Save Complete");
+            return true;
         }
         catch(IOException e) {
             System.out.println("make_level_json failed");
+            return false;
         }
-
-        System.out.println("Level " + model.getLevelName() + " Save Complete");
     }
 
     /************************************************* CONNECTIONS *************************************************/
@@ -341,7 +372,7 @@ public class LevelEditorParser {
         travelThroughConnector(nextConn, pathSoFar, parent);
     }
 
-    /*********************************************** JSON PARSING ***********************************************/
+    /******************************************** JSON PARSING: SAVE LEVEL ********************************************/
 
     /**
      * Writes level to a json with the given filename
@@ -496,7 +527,7 @@ public class LevelEditorParser {
             pod = "\t[\n" + pod.substring(2) + "\n\t]";
         else pod = "\t[]";
 
-        out.write("{\n" +
+        out.write("\t{\n" +
                 "\t\"targetName\": \"" + targets.get(targetName).name + "\",\n" +
                 "\t\"paranoia\": " + targets.get(targetName).paranoia + ",\n" +
                 "\t\"maxStress\": " + targets.get(targetName).maxStress + ",\n" +
@@ -512,5 +543,173 @@ public class LevelEditorParser {
         out.close();
 
         System.out.println("finished saving target " + targetName);
+    }
+
+    /******************************************** JSON PARSING: LOAD LEVEL ********************************************/
+    /**
+     * Returns the LevelEditorModel constructed from the level with the given filename.
+     *
+     * The model is then displayed in the level editor for further editing.
+     *
+     * @param levelfile The filename of the level to load into the level editor.
+     * @return          A LevelEditorModel of the level file.
+     */
+    public LevelEditorModel loadLevel(String levelfile) {
+        // If levelfile is missing the .json file extension, add it
+        if (!levelfile.contains(".json")) levelfile += ".json";
+
+        // Initialize model for level that's being loaded
+        LevelEditorModel model = new LevelEditorModel();
+
+        // Create JSON reader to parse through the level JSON
+        JsonValue leveljson = new JsonReader().parse(Gdx.files.internal("levels/" + levelfile));
+
+        // Get and store level name
+        model.setLevelName(leveljson.get("name").asString());
+        // Get and store level dimensions
+        int[] dims = leveljson.get("dims").asIntArray();
+        model.setLevelDimensions(dims[0], dims[1]);
+
+        // Get iterator for locations of targets in level
+        JsonValue locations = leveljson.get("targetLocs");
+        JsonValue.JsonIterator itr = locations.iterator();
+        // Initialize int array for location of each target in level
+        int[] loc;
+
+        // Go through array of targets, stored as filenames in the JSON
+        String[] targetJsons = leveljson.get("targets").asStringArray();
+        for(String targetfile : targetJsons){
+            // Get location of target
+            loc = itr.next().asIntArray();
+            // Parse each target and load into level
+            model = parseTarget(loc[0], loc[1], targetfile, model);
+        }
+
+        // Return filled model
+        return model;
+    }
+
+    /**
+     * Helper function that parses the connectors in a JSON and adds them to the given level model.
+     *
+     * This function takes in the connector coordinates and types as JsonValues.
+     *
+     * Note that the connector must add the target's coordinates to the stored location to get the true
+     * isometric coordinates.
+     *
+     * @param targetX           x-coordinate of target that this connector belongs to
+     * @param targetY           y-coordinate of target tat this connector belongs to
+     * @param connectorCoords   JSON array of coordinates of connectors.
+     * @param connectorTypes    JSON array of types of connectors.
+     * @param model             The level model to add the connectors to.
+     * @return                  The level model with the connectors added.
+     */
+    private LevelEditorModel parseConnectors(int targetX, int targetY, JsonValue connectorCoords,
+                                             JsonValue connectorTypes, LevelEditorModel model) {
+        // Create iterators for connector coordinates and types
+        JsonValue.JsonIterator coordItr = connectorCoords.iterator();
+        JsonValue.JsonIterator typeItr = connectorTypes.iterator();
+
+        // Initialize int array for location of a connector
+        int[] loc;
+        // Initialize iterator for subarray of coordinates
+        JsonValue.JsonIterator citr;
+        // Initialize iterator for subarray of types
+        JsonValue.JsonIterator titr;
+        // Go through each connector given and add it to the model
+        while (coordItr.hasNext()) {
+            // This is now an array of int arrays
+            citr = coordItr.next().iterator();
+            // This is now an array of types
+            titr = typeItr.next().iterator();
+            // Go through subarrays of coordinates/types
+            while (citr.hasNext()) {
+                // Get connector location
+                loc = citr.next().asIntArray();
+                // Load connector into level model
+                model.loadConnector(loc[0] + targetX, loc[1] + targetY, titr.next().asString());
+            }
+        }
+
+        return model;
+    }
+
+    /**
+     * Helper function that loads a target into the level editor, parsing a target JSON
+     * with the given name and storing the data in the given model.
+     *
+     * @param x             The x-coordinate of the target in the level.
+     * @param y             The y-coordinate of the target in the level.
+     * @param targetfile    The name of the file that the target's data is stored in.
+     * @param model         The model to store the parsed target data in.
+     * @return              The model with the target's data included.
+     */
+    private LevelEditorModel parseTarget(int x, int y, String targetfile, LevelEditorModel model) {
+        // Get parser for JSON
+        JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/targets/" + targetfile));
+        // Initialize iterator for arrays
+        JsonValue.JsonIterator itr;
+
+        // Get main properties of target and load into the level editor
+        model.loadTarget(x, y, json.getString("targetName"), json.getInt("paranoia"), json.getInt("maxStress"));
+
+        // Load first connectors of this target into the level editor
+        model = parseConnectors(x, y, json.get("firstConnectors"), json.get("firstConnectorTypes"), model);
+
+        // Get nodes
+        JsonValue nodesArr = json.get("pod");
+        itr = nodesArr.iterator();
+
+        // Initializations for parsing of each node
+        // The node itself as a JSON object
+        JsonValue node;
+        // Int array for location of node
+        int[] loc;
+
+        // Iterate through nodes in pod and load them into the level as NodeTiles
+        while (itr.hasNext()) {
+            // Get next node
+            node = itr.next();
+            // Get coordinates
+            loc = node.get("coords").asIntArray();
+            // Load node into level
+            model.loadNode(loc[0]+x, loc[1]+y, node.getString("nodeName"), node.getString("title"),
+                    node.getBoolean("locked"), node.getString("content"), node.getString("summary"),
+                    intToStressRating(node.getInt("targetStressDamage")),
+                    intToStressRating(node.getInt("playerStressDamage")));
+
+            // Now, need to handle connectors that are the children of this node
+            model = parseConnectors(x, y, node.get("connectorCoords"), node.get("connectorTypes"), model);
+        }
+
+        return model;
+
+        /**
+        // TODO: get combos working when they're added to the level editor
+        // Get combos
+        // Initializations
+        combos = new Array<TargetModel.Combo>();
+        JsonValue combosArr = json.get("combos");
+        itr = combosArr.iterator();
+        TargetModel.Combo combo;
+        Array<String> relatedFacts = new Array<>();
+
+        // Iterate through combos, create each as a Combo, then add to array of combos
+        while (itr.hasNext()) {
+            node = itr.next();
+
+            // Get related facts
+            nodeArr = node.get("relatedFacts");
+            nodeItr = nodeArr.iterator();
+            relatedFacts.clear();
+            while (nodeItr.hasNext()) {relatedFacts.add(nodeItr.next().asString());}
+            relatedFacts.sort();
+
+            // Construct and store combo
+            combo = new TargetModel.Combo(new Array<>(relatedFacts), node.getString("overwrite"),
+                    node.getString("comboSummary"), node.getInt("comboStressDamage"));
+            combos.add(combo);
+        }
+         */
     }
 }

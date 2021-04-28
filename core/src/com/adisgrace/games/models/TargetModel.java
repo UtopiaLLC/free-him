@@ -118,35 +118,6 @@ public class TargetModel {
 		// Get firstNodes
 		firstNodes = mapChildrenToPaths(json.get("firstNodes"), json.get("firstConnectors"),
 				json.get("firstConnectorTypes"));
-// 		firstNodes = new Array<>();
-// 		JsonValue firstNodesArr = json.get("firstNodes");
-// 		itr = firstNodesArr.iterator();
-// 		while (itr.hasNext()){firstNodes.add(itr.next().asString());}
-
-//		// Get traits, UNCOMMENT when traits finished in json
-//		Array<String> temp = new Array<String>();
-//		JsonValue traitsArr = json.get("traits");
-//		itr = traitsArr.iterator();
-//		while (itr.hasNext()){temp.add(itr.next().asString());}
-//		traits = new TraitModel(temp);
-
-
-		// Get firstConnectorPaths
-		// Get array of paths, where each path is an array of coordinates, where each coordinate is
-		// an array of exactly 2 ints representing isometric coordinates
-		//firstConnectorPaths = readConnectorCoords(json.get("firstConnectors"));
-
-		// Get firstConnectorTypes
-		// Get array of paths, where each path is an array of coordinates, where each coordinate is
-		// an array of exactly 2 ints representing isometric coordinates
-		//firstConnectorTypes = readConnectorTypes(json.get("firstConnectorTypes"));
-
-
-//		// Get target coordinates
-//		neighborArr = json.get("loc");
-//		itr = neighborArr.iterator();
-//		locX = itr.next().asInt();
-//		locY = itr.next().asInt();
 
 		// Get nodes
 		JsonValue nodesArr = json.get("pod");
