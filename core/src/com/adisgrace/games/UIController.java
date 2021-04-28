@@ -385,9 +385,9 @@ public class UIController {
      */
     public ImageButton createDistract(InputController ic, final Runnable confirmFunction){
         distract = ButtonFactory.makeImageButton( //TODO
-                "skills/expose_up.png",
-                "skills/expose_down.png",
-                "skills/expose_select.png");
+                "skills/distract_up.png",
+                "skills/distract_down.png",
+                "skills/distract_select.png");
         final Label distractLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.DISTRACT));
         final String s = "distract";
         distract.addListener(ic.getButtonListener(
@@ -419,9 +419,9 @@ public class UIController {
      */
     public ImageButton createGaslight(InputController ic, final Runnable confirmFunction){
         gaslight = ButtonFactory.makeImageButton( //TODO
-                "skills/expose_down.png",
-                "skills/expose_select.png",
-                "skills/expose_up.png");
+                "skills/gaslight_up.png",
+                "skills/gaslight_down.png",
+                "skills/gaslight_select.png");
         final Label gaslightLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.GASLIGHT));
         final String s = "gaslight";
         gaslight.addListener(ic.getButtonListener(

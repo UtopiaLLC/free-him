@@ -167,13 +167,6 @@ public class GameController implements Screen {
 
     public int currentLevel;
 
-    private Array<Connector> visibleConnectors;
-
-    private Texture NorthConnector;
-    private Texture SouthConnector;
-    private Texture EastConnector;
-    private Texture WestConnector;
-
     private Animation<TextureRegion> NorthConnectorAnimation;
     private Animation<TextureRegion> SouthConnectorAnimation;
     private Animation<TextureRegion> EastConnectorAnimation;
@@ -211,11 +204,6 @@ public class GameController implements Screen {
 
         loadLevel(0);
 
-        NorthConnector = Connector.getTexture("N");
-        SouthConnector = Connector.getTexture("S");
-        WestConnector = Connector.getTexture("W");
-        EastConnector = Connector.getTexture("E");
-
         cameraController = new CameraController(ic, canvas);
         createToolbar();
         shapeRenderer = new ShapeRenderer();
@@ -225,10 +213,10 @@ public class GameController implements Screen {
         setVolume(0.1f);
         playMusic();
 
-        NorthConnectorAnimation = connectorAnimation(NorthConnector);
-        SouthConnectorAnimation = connectorAnimation(SouthConnector);
-        EastConnectorAnimation = connectorAnimation(EastConnector);
-        WestConnectorAnimation = connectorAnimation(WestConnector);
+        NorthConnectorAnimation = connectorAnimation(Connector.TX_NORTH);
+        SouthConnectorAnimation = connectorAnimation(Connector.TX_SOUTH);
+        EastConnectorAnimation = connectorAnimation(Connector.TX_EAST);
+        WestConnectorAnimation = connectorAnimation(Connector.TX_WEST);
 
         
     }
@@ -474,11 +462,6 @@ public class GameController implements Screen {
 
         addNodeListeners(imageNodes);
 
-        NorthConnector = Connector.getTexture("N");
-        SouthConnector = Connector.getTexture("S");
-        WestConnector = Connector.getTexture("W");
-        EastConnector = Connector.getTexture("E");
-
 
         //This draws all the primary connections that are visible at the beginning of the game
         Vector2 connectorCoords = new Vector2();
@@ -495,21 +478,21 @@ public class GameController implements Screen {
                     connectorCoords.add(targetCoords);
                     connectorCoords = isometricToWorld(connectorCoords);
                     if(connector.type.contains("E")) {
-                        Image east = new Image(EastConnector);
+                        Image east = new Image(Connector.TX_EAST);
                         east.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(east);
                     }if(connector.type.contains("W")) {
-                        Image west = new Image(WestConnector);
+                        Image west = new Image(Connector.TX_WEST);
                         west.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(west);
                     }
                     if(connector.type.contains("N")) {
-                        Image north = new Image(NorthConnector);
+                        Image north = new Image(Connector.TX_NORTH);
                         north.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(north);
                     }
                     if(connector.type.contains("S")) {
-                        Image south = new Image(SouthConnector);
+                        Image south = new Image(Connector.TX_SOUTH);
                         south.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(south);
                     }
