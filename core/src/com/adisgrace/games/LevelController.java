@@ -6,6 +6,10 @@ import com.adisgrace.games.models.LevelModel;
 import com.adisgrace.games.models.PlayerModel;
 import com.adisgrace.games.models.TargetModel;
 import com.adisgrace.games.util.Connector;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
@@ -19,12 +23,13 @@ public class LevelController {
     private LevelModel levelModel;
     private PlayerModel player;
 
-
+    private Random rng;
 
     public LevelController(String levelJson){
         levelModel = new LevelModel(levelJson);
         player = new PlayerModel();
 
+        rng = new Random();
     }
 
 
@@ -59,17 +64,14 @@ public class LevelController {
 
         if(!levelModel.getTargets().containsKey(target))
             return -1;
-        // TODO: uncomment these
-        /*
-        if(!player.canHack())
+        if(!player.canHack(levelModel.getTargets().get(target))) // pass target to playerModel since traits affect AP cost
             return -3;
-        player.hack();
+        player.hack(levelModel.getTargets().get(target)); // pass target to playerModel since traits affect AP cost
         if(rng.nextDouble() < 0.2){
             levelModel.getTargets().get(target).addSuspicion(25);
             return -4;
         }
         levelModel.getHackedFacts().get(target).add(fact);
-         */
         return 1;
     }
 
@@ -83,12 +85,10 @@ public class LevelController {
     public boolean scan(String target, String fact){
         if(!levelModel.getTargets().containsKey(target))
             return false;
-        // TODO: uncomment these
-        /**
-        if(!player.canScan())
+        if(!player.canScan(levelModel.getTargets().get(target))) // pass target to playerModel since traits affect AP cost
             return false;
-        player.scan(0f); // Stress cost for scanning is unimplemented
-        */
+        player.scan(0f, levelModel.getTargets().get(target)); // Stress cost for scanning is unimplemented
+        // pass target to playerModel since traits affect AP cost
         levelModel.getSummaries().get(target).put(fact, levelModel.getTargets().get(target).getSummary(fact));
         levelModel.getContents().get(target).put(fact, levelModel.getTargets().get(target).getContent(fact));
         // combo checking
@@ -135,6 +135,28 @@ public class LevelController {
         levelModel.getTargets().get(target).addStress(stressDmg);
         player.harass(levelModel.getTargets().get(target));
         return levelModel.getLevelState();
+    }
+
+    /**
+     * Attempt to gaslight a target
+     * @param target name of target
+     * @return true if the attempt was successful
+     */
+    public boolean gaslight(String target){
+        boolean success = rng.nextInt(100) > levelModel.getTarget(target).getSuspicion();
+        levelModel.getTarget(target).gaslight(success);
+        player.gaslight(levelModel.getTarget(target));
+        return success;
+    }
+
+    /**
+     * Attempt to distract a target
+     * @param target name of the target
+     * @return true if the attempt was successful
+     */
+    public boolean distract(String target){
+        player.distract(levelModel.getTarget(target));
+        return levelModel.getTarget(target).distract();
     }
 
     /**
@@ -277,7 +299,6 @@ public class LevelController {
         return new Vector2(targetLoc[0], targetLoc[1]);
     }
 
-
     /**
      * returns target models
      *
@@ -341,6 +362,14 @@ public class LevelController {
     public boolean getLocked(String target, String fact) {
         return levelModel.getTarget(target).getLocked(fact);
     }
+
+    /**
+     * returns the current state of a target
+     * @param target name of the target
+     * @return the target state of the target
+     */
+    public TargetModel.TargetState getTargetState(String target){return levelModel.getTarget(target).getState();}
+
 
 
 

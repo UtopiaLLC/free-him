@@ -1,0 +1,6 @@
+{
+  "name": "Level 1",
+  "dims": [5, 5],
+  "targets": ["PatrickWestfield2.json", "level1TorchlightEmployee1.json"],
+  "targetLocs": [[0, 0], [-5, -4]]
+}

@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
-
 import javax.swing.plaf.TextUI;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,32 +32,43 @@ public class NodeView {
     private static final int TILE_HEIGHT = 256;
     private static final int TILE_WIDTH = 444;
 
+    /** Array of sprites for locked nodes*/
+    public static Array<TextureRegion> lockedNodes;
+    /** Array of sprites for unscanned nodes*/
+    public static Array<Animation> unscannedNodes;
+    /** Array of sprites for scanned nodes*/
+    public static Array<Animation> scannedNodes;
+    /** Array of sprites for target nodes*/
+    public static Array<TextureRegion> targetNodes;
+    /** Array of sprites for node bases*/
+    public static Array<TextureRegion> nodeBases;
+    /** Array of sprites for target bases */
+    public static Array<TextureRegion> targetBases;
+
     private static final float ADD = 0;
     private static final float SCALE_X = 444;
     private static final float SCALE_Y = 256;
     private static final float LOCKED_OFFSET = 114.8725f;
 
-    public NodeView(Stage stage, TargetModel target, Array<String> targetNodes,Vector2 targetCoords) {
+    public NodeView(Stage stage, TargetModel target, Array<String> targetNodes, Vector2 targetCoords,
+                    Array<Boolean> locked) {
         this.stage = stage;
         nodeCoords = new Array<>();
-        // TODO: uncomment these
-        /**
-        Array<String> targetNodes = target.getNodes();
-        Array<Boolean> lockedNodes = new Array<>();
+
+        //Array<String> targetNodes = target.getNodes();
+        //Array<Boolean> lockedNodes = new Array<>();
 
         for (String nodeName: targetNodes ){
             Vector2 node = target.getNodeCoords(nodeName);
             node.x = node.x + targetCoords.x;
             node.y = node.y + targetCoords.y;
             nodeCoords.add(node);
-            lockedNodes.add(levelController.getLocked(target.getName(), nodeName));
+            //lockedNodes.add(levelController.getLocked(target.getName(), nodeName));
         }
         //targetCoords = scaleNodeCoordinates(targetCoords, ADD, SCALE_X, SCALE_Y);
 
         imageNodes = new HashMap<>();
-      
-        createImageNodes(target, targetNodes, targetCoords, lockedNodes);
-         */
+        createImageNodes(target, targetNodes, targetCoords, locked);
     }
 
     /**
@@ -118,7 +128,7 @@ public class NodeView {
             } else {
                 state = Node.NodeState.UNSCANNED;
             }
-            Node node = new Node(pos.x, pos.y, target.getName()+","+targetNodes.get(i), 0, state);
+            Node node = new Node(pos.x, pos.y, target.getName()+","+targetNodes.get(i), 1, state);
             imageNodes.put(target.getName()+","+targetNodes.get(i), node);
 
             stage.addActor(node);
@@ -126,15 +136,13 @@ public class NodeView {
 
         //ImageButton button = new ImageButton(NodeView.getTargetNode(0)); //Set the button up
         Vector2 pos = isometricToWorld(targetCoords);
-        pos.x -= (NodeView.getTargetNode(0).getTexture().getWidth() - TILE_WIDTH) / 2;
+        pos.x -= (NodeView.getTargetBase(0).getRegionWidth() - TILE_WIDTH) / 2;
         pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
 
-        // TODO: uncomment these
-        /**
-        Node targetNode = new Node(pos.x, pos.y, targetName, 0, Node.NodeState.TARGET);
-        imageNodes.put(targetName, targetNode);
+
+        Node targetNode = new Node(pos.x, pos.y, target.getName(), 1, Node.NodeState.TARGET);
+        imageNodes.put(target.getName(), targetNode);
         stage.addActor(targetNode);
-         */
 
 
     }
@@ -181,43 +189,11 @@ public class NodeView {
         return vec;
     }
 
-    public static Array<TextureRegion> lockedNodes;
-    public static Array<Animation> unscannedNodes;
-    public static Array<Animation> scannedNodes;
-    public static Array<TextureRegion> targetNodes;
-    public static Array<TextureRegion> nodeBases;
-
-
-    public static class AnimatedDrawable extends BaseDrawable {
-
-        private Animation<TextureRegion> animation;
-        private TextureRegion keyFrame;
-        private float stateTime = 0;
-
-        public AnimatedDrawable(Animation<TextureRegion> animation){
-
-            this.animation = animation;
-            TextureRegion key = animation.getKeyFrame(0f);
-
-            this.setLeftWidth(key.getRegionWidth()/2);
-            this.setRightWidth(key.getRegionWidth()/2);
-            this.setTopHeight(key.getRegionHeight()/2);
-            this.setBottomHeight(key.getRegionHeight()/2);
-            this.setMinWidth(key.getRegionWidth());
-            this.setMinHeight(key.getRegionHeight());
-
-        }
-
-        @Override
-        public void draw(Batch batch, float x, float y, float width, float height){
-
-            stateTime += Gdx.graphics.getDeltaTime();
-            keyFrame = animation.getKeyFrame(stateTime, true);
-
-            batch.draw(keyFrame, x,y, keyFrame.getRegionWidth(), keyFrame.getRegionHeight());
-        }
-    }
-
+    /**
+     * Loads the animation frames from the spritesheet into Animation objects.
+     * There are 12 animations each for scanned and unscanned sprites, 6 different colors corresponding
+     * to the target state, each with a highlight and lowlight version.
+     */
     public static void loadAnimations() {
 
 
@@ -250,10 +226,6 @@ public class NodeView {
                 node.getWidth() / 10,
                 node.getHeight() / 6);
 
-        Texture node_base = new Texture("node/N_NodeBase_1.png");
-        TextureRegion[][] node_regions = new TextureRegion(node_base).split(
-                node_base.getWidth() / 6,
-                node_base.getHeight() / 2);
 
         Texture combined;
         TextureRegion[] spinFrames = new TextureRegion[10];
@@ -270,7 +242,7 @@ public class NodeView {
 
             unscannedNodes.add(spinAnimation);
 
-
+            spinFrames = new TextureRegion[10];
             for (int i = 0; i < 10; i++) {
                 //combined = GameCanvas.combineTextures(regions[j][i], node_regions[1][j]);
                 //spinFrames[i] = new TextureRegion(combined);
@@ -279,7 +251,7 @@ public class NodeView {
 
             spinAnimation = new Animation<TextureRegion>(0.025f, spinFrames);
             unscannedNodes.add(spinAnimation);
-
+            spinFrames = new TextureRegion[10];
         }
         System.out.println("Unscanned nodes done!");
         //Scanned Nodes!
@@ -288,11 +260,6 @@ public class NodeView {
         regions = new TextureRegion(node).split(
                 node.getWidth() / 10,
                 node.getHeight() / 6);
-
-        node_base = new Texture("node/N_NodeBase_1.png");
-        node_regions = new TextureRegion(node_base).split(
-                node_base.getWidth() / 6,
-                node_base.getHeight() / 2);
 
         spinFrames = new TextureRegion[10];
 
@@ -308,6 +275,7 @@ public class NodeView {
             spinAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
             scannedNodes.add(spinAnimation);
+            spinFrames = new TextureRegion[10];
 
             for (int i = 0; i < 10; i++) {
                 //combined = GameCanvas.combineTextures(regions[j][i], node_regions[1][j]);
@@ -317,7 +285,7 @@ public class NodeView {
 
             spinAnimation = new Animation<TextureRegion>(0.025f, spinFrames);
             scannedNodes.add(spinAnimation);
-
+            spinFrames = new TextureRegion[10];
         }
 
         System.out.println("Scanned nodes done!");
@@ -330,19 +298,14 @@ public class NodeView {
                 target_Look.getWidth() / 6,
                 target_Look.getHeight() / 2);
 
-        node_base = new Texture("node/N_TargetBase_1.png");
-        node_regions = new TextureRegion(node_base).split(
-                node_base.getWidth() / 6,
-                node_base.getHeight() / 2);
-
         for(int i = 0; i < 6; i++) {
-            combined = GameCanvas.combineTextures(regions[0][i], node_regions[0][i]);
+            //combined = GameCanvas.combineTextures(regions[0][i], node_regions[0][i]);
             //drawable = new TextureRegionDrawable(new TextureRegion(combined));
-            targetNodes.add(new TextureRegion(combined));
+            targetNodes.add(new TextureRegion(regions[0][i]));
 
-            combined = GameCanvas.combineTextures(regions[1][i], node_regions[1][i]);
+            //combined = GameCanvas.combineTextures(regions[1][i], node_regions[1][i]);
             //drawable = new TextureRegionDrawable(new TextureRegion(combined));
-            targetNodes.add(new TextureRegion(combined));
+            targetNodes.add(new TextureRegion(regions[1][i]));
 
         }
 
@@ -351,8 +314,8 @@ public class NodeView {
 
         nodeBases = new Array<>();
 
-        node_base = new Texture("node/N_NodeBase_1.png");
-        node_regions = new TextureRegion(node_base).split(
+        Texture node_base = new Texture("node/N_NodeBase_1.png");
+        TextureRegion[][] node_regions = new TextureRegion(node_base).split(
                 node_base.getWidth() / 6,
                 node_base.getHeight() / 2);
 
@@ -363,8 +326,23 @@ public class NodeView {
 
         }
 
+        System.out.println("Node Bases done!");
 
+        targetBases = new Array<>();
 
+        node_base = new Texture("node/N_TargetBase_1.png");
+        node_regions = new TextureRegion(node_base).split(
+                node_base.getWidth() / 6,
+                node_base.getHeight() / 2);
+
+        for(int i = 0; i < 6; i++) {
+            targetBases.add(new TextureRegion(node_regions[0][i]));
+
+            targetBases.add(new TextureRegion(node_regions[1][i]));
+
+        }
+
+        System.out.println("Target Bases done!");
 
     }
 
@@ -476,6 +454,28 @@ public class NodeView {
      */
     public static TextureRegion getNodeBase(int type) {
         return nodeBases.get(type);
+    }
+
+    /**
+     *
+     * @param type where:
+     *             0 = Green, Litup
+     *             1 = Green, Dimmed
+     *             2 = Yellow, Litup
+     *             3 = Yellow, Dimmed
+     *             4 = Red, Litup
+     *             5 = Red, Dimmed
+     *             6 = Orange, Litup
+     *             7 = Orange, Dimmed
+     *             8 = Purple, Litup
+     *             9 = Purple, Dimmed
+     *             10 = Grey, Litup
+     *             11 = Grey, Dimmed
+     *
+     * @return Returns the node drawable based on the type specified
+     */
+    public static TextureRegion getTargetBase(int type) {
+        return targetBases.get(type);
     }
 
 }

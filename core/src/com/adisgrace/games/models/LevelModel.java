@@ -40,6 +40,9 @@ public class LevelModel {
     // Locations of each target in isometric coordinates
     private Map<String, int[]> targetLocs;
 
+    // Set of names of boss targets in the level
+    private Set<String> bosses;
+
     // Map of visible factnodes
     private Map<String, Array<String>> visibleFacts;
 
@@ -104,7 +107,6 @@ public class LevelModel {
 
         JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/" + levelJson));
         String[] targetJsons = json.get("targets").asStringArray();
-
         name = json.get("name").asString();
 
         int[] dims = json.get("dims").asIntArray();
@@ -127,24 +129,14 @@ public class LevelModel {
                     hackedFacts.get(t.getName()).add(fact);
                 }
             }
-
         }
+
+        if(json.get("bosses") != null)
+            bosses = new HashSet<>(Arrays.asList(json.get("bosses").asStringArray()));
+        else bosses = new HashSet<>(targets.keySet());
 
         n_days = 0;
         rng = new Random();
-
-        // Implements target trait : paranoiac
-        // iterate over all targets to see if any is paranoiac
-        for (TargetModel t : targets.values()){
-            if (t.getTraits().is_paranoiac()){
-                //If a target is paranoiac and is alive, reduce paranoia of all targets in level by 1
-                if (t.getState() != TargetModel.TargetState.DEFEATED){
-                    for (TargetModel tt : targets.values()){
-                        tt.reduce_paranoia(1);
-                    }
-                }
-            }
-        }
     }
 
     public Map<String, TargetModel> getTargets() {
@@ -240,10 +232,9 @@ public class LevelModel {
         if(!player.isLiving())
             return LevelState.LOSE;
 
-        for(TargetModel t: targets.values()){
-            if(t.getState() == TargetModel.TargetState.GAMEOVER)
+        for(String t: bosses){
+            if(targets.get(t).getState().equals(TargetModel.TargetState.GAMEOVER))
                 return LevelState.LOSE;
-
         }
 
         boolean allDefeated = true;
@@ -260,7 +251,28 @@ public class LevelModel {
 
     public void nextDay(){
         n_days++;
-
+        // Implements target trait : paranoiac
+        // iterate over all targets to see if any is paranoiac
+        for (TargetModel t : targets.values()){
+            if (t.getTraits().is_paranoiac()){
+                //If a target is paranoiac and is alive and paranoiac_used is false, reduce paranoia of all targets in level by 1
+                if (t.getState() != TargetModel.TargetState.DEFEATED && t.get_paranoiac_used() == false){
+                    for (TargetModel tt : targets.values()){
+                        tt.reduce_paranoia(1);
+                    }
+                    // set paranoiac_used to true after target ability used
+                    t.set_paranoiac_used(true);
+                }
+                //If a target is paranoiac and is dead and paranoiac_used is true, buff paranoia of all targets in level by 1
+                if (t.getState() == TargetModel.TargetState.DEFEATED && t.get_paranoiac_used() == true){
+                    for (TargetModel tt : targets.values()){
+                        tt.reduce_paranoia(-1);
+                    }
+                    // set paranoiac_used to true after target ability used
+                    t.set_paranoiac_used(false);
+                }
+            }
+        }
     }
 
 
@@ -340,6 +352,23 @@ public class LevelModel {
      */
     public TargetModel getTarget(String targetname){
         return targets.get(targetname);
+    }
+
+    /**
+     * Returns whether a target is a boss
+     * @param targetname name of target
+     * @return true if target is a boss for this level
+     */
+    public boolean isBoss(String targetname){
+        return bosses.contains(targetname);
+    }
+
+    /**
+     * Returns the bosses of the level
+     * @return set of boss names
+     */
+    public Set<String> getBosses(){
+        return bosses;
     }
 
     /************************************************* PLAYER METHODS *************************************************/
@@ -431,10 +460,6 @@ public class LevelModel {
             out.put(fact_, summaries.get(targetname).get(fact_));
         return out;
     }
-
-
-
-
 
     /**
      * Coerce function, <b>unimplemented</b>

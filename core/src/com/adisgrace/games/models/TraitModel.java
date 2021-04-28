@@ -16,7 +16,7 @@ public class TraitModel {
     public enum Trait{
         /** decreases the Paranoia stat of all targets in level by 1 */
         PARANOIAC,
-        // Implementation in LevelModel constructor + targetModel.reduce_paranoia
+        // Implementation in LevelModel.nextDay + targetModel.reduce_paranoia
 
         /** enemy decreases the stress of all targets in level over time */
         THERAPIST,
@@ -70,6 +70,8 @@ public class TraitModel {
     public static final float SENSITIVE_MULTIPLIER = 1.15f;
     /** Traits of a target, stored as an arrayList of Traits */
     private ArrayList<Trait> traits;
+    /** Whether this target's traits are frozen or not. When frozen none of the traits are effective*/
+    private boolean frozen;
 
     /**
      * Constructor for a traitModel. Saves the traits as an array.
@@ -79,6 +81,7 @@ public class TraitModel {
     public TraitModel(Array<String> t){
         // Initializing traits with for-each loop
         traits = new ArrayList<>();
+        frozen = false;
         for (String s: t) {
             switch (s){
                 case "paranoiac":
@@ -126,69 +129,75 @@ public class TraitModel {
      * Returns whether the specific target is paranoiac.
      * */
     public boolean is_paranoiac(){
-        return traits.contains(Trait.PARANOIAC);
+        return !frozen&&traits.contains(Trait.PARANOIAC);
     }
 
     /**
      * Returns whether the specific target is therapist.
      * */
     public boolean is_therapist(){
-        return traits.contains(Trait.THERAPIST);
+        return !frozen&&traits.contains(Trait.THERAPIST);
     }
 
     /**
      * Returns whether the specific target is gossip.
      * */
     public boolean is_gossip(){
-        return traits.contains(Trait.GOSSIP);
+        return !frozen&&traits.contains(Trait.GOSSIP);
     }
 
     /**
      * Returns whether the specific target is off_putting.
      * */
     public boolean is_off_putting(){
-        return traits.contains(Trait.OFF_PUTTING);
+        return !frozen&&traits.contains(Trait.OFF_PUTTING);
     }
 
     /**
      * Returns whether the specific target is naturally_suspicious.
      * */
     public boolean is_naturally_suspicious(){
-        return traits.contains(Trait.NATURALLY_SUSPICIOUS);
+        return !frozen&&traits.contains(Trait.NATURALLY_SUSPICIOUS);
     }
 
     /**
      * Returns whether the specific target is rich.
      * */
     public boolean is_rich(){
-        return traits.contains(Trait.RICH);
+        return !frozen&&traits.contains(Trait.RICH);
     }
 
     /**
      * Returns whether the specific target is technologically_literate.
      * */
     public boolean is_technologically_literate(){
-        return traits.contains(Trait.TECHNOLOGICALLY_LITERATE);
+        return !frozen&&traits.contains(Trait.TECHNOLOGICALLY_LITERATE);
     }
 
     /**
      * Returns whether the specific target is bad_connection.
      * */
     public boolean is_bad_connection(){
-        return traits.contains(Trait.BAD_CONNECTION);
+        return !frozen&&traits.contains(Trait.BAD_CONNECTION);
     }
 
     /**
      * Returns whether the specific target is technologically_illiterate.
      * */
-    public boolean is_technologically_illiterate(){
-        return traits.contains(Trait.TECHNOLOGICALLY_ILLITERATE);
-    }
+    public boolean is_technologically_illiterate(){ return !frozen&&traits.contains(Trait.TECHNOLOGICALLY_ILLITERATE); }
 
     /**
      * Returns whether the specific target is sensitive.
      * */
-    public boolean is_sensitive(){
-        return traits.contains(Trait.SENSITIVE);
-    }
+    public boolean is_sensitive(){ return !frozen&&traits.contains(Trait.SENSITIVE); }
+
+    /**
+     * Freezes this target, rendering their traits unusable until the target is unfrozen
+     */
+    public void freeze(){frozen = true;}
+
+    /**
+     * Unfreezes this target, meaning their traits are now in effect again
+     */
+    public void unfreeze(){frozen = false;}
 }

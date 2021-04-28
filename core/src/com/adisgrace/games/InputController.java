@@ -407,4 +407,118 @@ public class InputController {
 			}
 		};
 	}
+
+	/**
+	 * This method inputs parameters to create a click listener for nodes.
+	 *
+	 * This method only adds the enter and exit listeners to the nodes for **GameController-specific** uses.
+	 *
+	 * @param skin the skin of the labels
+	 * @param levelController the levelController used in the gameplay controller
+	 * @return the ClickListener for nodes
+	 */
+	public ClickListener addNodeListenerEnterExit(final Skin skin, final LevelController levelController) {
+		return new ClickListener() {
+			Label hoverLabel = new Label("N/A", skin);
+
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+
+				Actor cbutton = (Actor) event.getListenerActor();
+				String name = cbutton.getName();
+				String[] nodeInfo = name.split(",");
+
+				if (nodeInfo.length == 1) {
+					String hoverText = "Target Name: " + name + "\n" +
+							"Target Stress: " + levelController.getTargetStress(name) + "\n" +
+							"Target Suspicion: " + levelController.getTargetSuspicion(name) + "\n";
+					hoverLabel.setText(hoverText);
+					hoverLabel.setFontScale(2);
+					Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .85f);
+					hoverLabel.setX(zeroLoc.x);
+					hoverLabel.setY(zeroLoc.y);
+
+					GameController.toolbarStage.addActor(hoverLabel);
+
+				}
+
+			}
+
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+				super.exit(event, x, y, pointer, toActor);
+				hoverLabel.remove();
+			}
+		};
+	}
+
+	/**
+	 * Returns a ClickListener that can take in any function to be run. Returns a listener with clicked, enter, exit
+	 * implemented.
+	 *
+	 * @param onClick Method to call on click
+	 * @param onEnter Method to call on enter
+	 * @param onExit Method to call on exit
+	 * @return ClickListener using associated functions
+	 */
+	public ClickListener getButtonListener(final Runnable onClick, final Runnable onEnter, final Runnable onExit){
+		return new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y){
+				onClick.run();
+			}
+
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+				onEnter.run();
+			}
+
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+				onExit.run();
+			}
+		};
+	}
+
+	/**
+	 * Returns a ClickListener that can take in any function to be run. Used for when user clicks a button
+	 * @param onClick Method to call on click
+	 * @return ClickListener using associated functions
+	 */
+	public ClickListener getButtonListener(final Runnable onClick){
+		return new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y){
+				onClick.run();
+			}
+		};
+	}
+
+	/**
+	 * Returns a ClickListener that can take in any function to be run. Used for when user hovers over a button
+	 * @param onEnter Method to call on enter
+	 * @return ClickListener using associated functions
+	 */
+	public ClickListener getButtonListenerEnter(final Runnable onEnter){
+		return new ClickListener(){
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+				onEnter.run();
+			}
+		};
+	}
+
+	/**
+	 * Returns a ClickListener that can take in any function to be run. Used for when user stops hovering over a button
+	 * @param onExit Method to call on exit
+	 * @return ClickListener using associated functions
+	 */
+	public ClickListener getButtonListenerExit(final Runnable onExit){
+		return new ClickListener(){
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor){
+				onExit.run();
+			}
+		};
+	}
 }

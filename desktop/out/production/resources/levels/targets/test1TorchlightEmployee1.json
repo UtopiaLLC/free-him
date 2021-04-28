@@ -1,0 +1,37 @@
+{
+	"targetName": "test1 Torchlight Employee 1",
+	"paranoia": 3,
+	"maxStress": 100,
+	"firstNodes": ["1Node1", "2Node2"],
+	"firstConnectors": [[3,5], [0,2], [-1,2], [-2,2], [3,5], [0,2], [1,2]],
+	"firstConnectorTypes": ["", "S", "SN", "SN", "", "SN", "SN"],
+	"pod": 	[
+{
+		"nodeName": "1Node1",
+		"title": "untitled fact",
+		"coords": [-2,1],
+		"locked": false,
+		"content": "You dig through their history and discover a few citations or arrests some 10+ years ago.",
+		"summary": "History",
+		"children": [],
+		"targetStressDamage": 10,
+		"playerStressDamage": 0,
+		"connectorCoords": [],
+		"connectorTypes": []
+	},
+{
+		"nodeName": "2Node2",
+		"title": "untitled fact",
+		"coords": [1,1],
+		"locked": true,
+		"content": "You discover their involvement in some quite recent felonies that if exposed, would be prosecuted.",
+		"summary": "Criminality",
+		"children": [],
+		"targetStressDamage": 20,
+		"playerStressDamage": 0,
+		"connectorCoords": [],
+		"connectorTypes": []
+	}
+	],
+	"combos": []
+}

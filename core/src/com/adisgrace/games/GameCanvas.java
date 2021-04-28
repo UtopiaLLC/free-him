@@ -21,6 +21,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -96,6 +97,7 @@ public class GameCanvas {
 	private TextureRegion holder;
 
 	private Texture tile;
+	private Texture gradient;
 
 	/**
 	 * Creates a new GameCanvas determined by the application configuration.
@@ -121,7 +123,8 @@ public class GameCanvas {
 		global = new Matrix4();
 		vertex = new Vector2();
 
-		tile = new Texture(Gdx.files.internal("background/B_MapTileBG_2.png"));
+		tile = new Texture(Gdx.files.internal("background/B_MapTileBG_4.png"));
+		gradient = new Texture(Gdx.files.internal("background/B_Gradient_2.png"));
 	}
 		
     /**
@@ -440,6 +443,29 @@ public class GameCanvas {
 		
 		// Unlike Lab 1, we can shortcut without a master drawing method
     	spriteBatch.setColor(tint);
+		spriteBatch.draw(image, x,  y, width, height);
+	}
+
+	/**
+	 * Draws the texture at the given position.
+	 *
+	 * Unless otherwise transformed by the global transform (@see begin(Affine2)),
+	 * the texture will be unscaled.  The bottom left of the texture will be positioned
+	 * at the given coordinates.
+	 *
+	 * @param image The texture to draw
+	 * @param x 	The x-coordinate of the bottom left corner
+	 * @param y 	The y-coordinate of the bottom left corner
+	 * @param width	The texture width
+	 * @param height The texture height
+	 */
+	public void draw(Texture image, float x, float y, float width, float height) {
+		if (active != DrawPass.STANDARD) {
+			Gdx.app.error("GameCanvas", "Cannot draw without active begin()", new IllegalStateException());
+			return;
+		}
+
+		// Unlike Lab 1, we can shortcut without a master drawing method
 		spriteBatch.draw(image, x,  y, width, height);
 	}
 	
@@ -1177,7 +1203,26 @@ public class GameCanvas {
 	public void drawIsometricGrid(Stage stage, int width, int height){
 		int twidth = 444;
 		int theight = 256;
+
 		begin();
+		boolean fill_map = true;
+
+		if(fill_map) {
+
+			int grad_width = width * twidth;
+			int grad_height = height * theight;
+			draw(gradient, Color.WHITE, 0, 0, -grad_width / 2, -grad_height / 2, grad_width, grad_height);
+		} else {
+
+			//draw(gradient, Color.WHITE, 0, 0, float x, float y, float angle, float sx, float sy);
+
+			draw(gradient, Color.WHITE, 0, 0, 0, 0, 0, -1, -1);
+			draw(gradient, Color.WHITE, 0, 0, 0, 0, 0, 1, -1);
+			draw(gradient, Color.WHITE, 0, 0, 0, 0, 0, -1, 1);
+			draw(gradient, Color.WHITE, 0, 0, 0, 0, 0, 1, 1);
+
+
+		}
 		//assuming grid tiles are (444, 256) in size
 		//drawing a 100 x 100 tile grid centered around the origin, offset so that (0, 0) is the center of the tile sprite
 		for(int col = -width / 2; col <= width / 2; col+=1){
@@ -1185,6 +1230,10 @@ public class GameCanvas {
 				draw(tile, Color.WHITE, 0, 0, (-twidth/2) + twidth*col, (-theight/2) + theight*row, 444, 256);
 			}
 		}
+
+//		spriteBatch.setBlendFunction(GL20.GL_ZERO, GL20.GL_SRC_COLOR);
+//		//spriteBatch.setBlendFunction(GL20.GL_DST_COLOR, GL20.GL_ONE);
+
 
 		end();
 
