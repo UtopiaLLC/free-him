@@ -88,7 +88,7 @@ public class LevelController {
             return false;
         if(!player.canScan(levelModel.getTargets().get(target))) // pass target to playerModel since traits affect AP cost
             return false;
-        player.scan(0f, levelModel.getTargets().get(target)); // Stress cost for scanning is unimplemented
+        player.scan(levelModel.getTarget(target).getStressCost(fact), levelModel.getTargets().get(target)); // Stress cost for scanning is unimplemented
         // pass target to playerModel since traits affect AP cost
         levelModel.getSummaries().get(target).put(fact, levelModel.getTargets().get(target).getSummary(fact));
         levelModel.getContents().get(target).put(fact, levelModel.getTargets().get(target).getContent(fact));
