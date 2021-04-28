@@ -594,12 +594,18 @@ public class LevelEditorParser {
      *
      * This function takes in the connector coordinates and types as JsonValues.
      *
+     * Note that the connector must add the target's coordinates to the stored location to get the true
+     * isometric coordinates.
+     *
+     * @param targetX           x-coordinate of target that this connector belongs to
+     * @param targetY           y-coordinate of target tat this connector belongs to
      * @param connectorCoords   JSON array of coordinates of connectors.
      * @param connectorTypes    JSON array of types of connectors.
      * @param model             The level model to add the connectors to.
      * @return                  The level model with the connectors added.
      */
-    private LevelEditorModel parseConnectors(JsonValue connectorCoords, JsonValue connectorTypes, LevelEditorModel model) {
+    private LevelEditorModel parseConnectors(int targetX, int targetY, JsonValue connectorCoords,
+                                             JsonValue connectorTypes, LevelEditorModel model) {
         // Create iterators for connector coordinates and types
         JsonValue.JsonIterator coordItr = connectorCoords.iterator();
         JsonValue.JsonIterator typeItr = connectorTypes.iterator();
@@ -621,7 +627,7 @@ public class LevelEditorParser {
                 // Get connector location
                 loc = citr.next().asIntArray();
                 // Load connector into level model
-                model.loadConnector(loc[0], loc[1], titr.next().asString());
+                model.loadConnector(loc[0] + targetX, loc[1] + targetY, titr.next().asString());
             }
         }
 
@@ -648,7 +654,7 @@ public class LevelEditorParser {
         model.loadTarget(x, y, json.getString("targetName"), json.getInt("paranoia"), json.getInt("maxStress"));
 
         // Load first connectors of this target into the level editor
-        model = parseConnectors(json.get("firstConnectors"), json.get("firstConnectorTypes"), model);
+        model = parseConnectors(x, y, json.get("firstConnectors"), json.get("firstConnectorTypes"), model);
 
         // Get nodes
         JsonValue nodesArr = json.get("pod");
@@ -667,13 +673,13 @@ public class LevelEditorParser {
             // Get coordinates
             loc = node.get("coords").asIntArray();
             // Load node into level
-            model.loadNode(loc[0], loc[1], node.getString("nodeName"), node.getString("title"),
+            model.loadNode(loc[0]+x, loc[1]+y, node.getString("nodeName"), node.getString("title"),
                     node.getBoolean("locked"), node.getString("content"), node.getString("summary"),
                     intToStressRating(node.getInt("targetStressDamage")),
                     intToStressRating(node.getInt("playerStressDamage")));
 
             // Now, need to handle connectors that are the children of this node
-            model = parseConnectors(node.get("connectorCoords"), node.get("connectorTypes"), model);
+            model = parseConnectors(x, y, node.get("connectorCoords"), node.get("connectorTypes"), model);
         }
 
         return model;

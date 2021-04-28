@@ -25,6 +25,8 @@ public class LevelEditorModel {
     private ArrayMap<String, LevelTile> levelTiles = new ArrayMap<>();
     /** Hashmap of coordinates and the names of the objects at that location */
     private ArrayMap<Vector2, Array<String>> levelMap = new ArrayMap<>();
+    /** Count of number of images in this model */
+    public int imgCount;
 
     /** Vector cache to avoid initializing vectors every time */
     private Vector2 vec = new Vector2();
@@ -99,10 +101,7 @@ public class LevelEditorModel {
             // Set target image to the default target image
             im = new Image(NODE_TEXTURES[TARGET_LOW]);
             // Ensure image name is in correct format
-            im.setName("0" + name);
-            // Set scale
-            im.setScale(0.5f);
-
+            im.setName("0" + name + imgCount);
             tileType = TileType.TARGET;
         }
 
@@ -187,10 +186,8 @@ public class LevelEditorModel {
 
             // Set image to the default image for the relevant node
             im = new Image(NODE_TEXTURES[locked ? LOCKED_LOW : UNLOCKED_LOW]);
-            // Set image name to be node name
-            im.setName(name);
-            // Set scale
-            im.setScale(0.5f);
+            // Set image name to be node name plus unique identifier
+            im.setName(name + imgCount);
 
             tileType = TileType.NODE;
         }
@@ -232,8 +229,8 @@ public class LevelEditorModel {
 
             // Create image based on direction
             im = new Image(Connector.getTexture(this.dir));
-            // Set image name to be direction
-            im.setName(dir);
+            // Set image name to be direction plus unique identifier
+            im.setName(dir + imgCount);
             // Set scale
             im.setScale(0.5f);
 
@@ -419,6 +416,8 @@ public class LevelEditorModel {
      * @param lt    LevelTile to add to the level.
      */
     public void addToLevel(LevelTile lt) {
+        // Increment image count
+        imgCount++;
         // Add to levelTiles
         levelTiles.put(lt.im.getName(),lt);
         // Map to location in level map

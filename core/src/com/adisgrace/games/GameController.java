@@ -155,8 +155,8 @@ public class GameController implements Screen {
     /** The smallest height the game window can take */
     private static final float MINWORLDHEIGHT = 720;
 
-    private static final int nodeWorldWidth = 15;
-    private static final int nodeWorldHeight = 15;
+    private static final int nodeWorldWidth = 30;
+    private static final int nodeWorldHeight = 30;
 
     /** Dimensions of map tile */
     private static final int TILE_HEIGHT = 256;
@@ -205,10 +205,10 @@ public class GameController implements Screen {
 
         loadLevel(0);
 
-        NorthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("N")));
-        SouthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("S")));
-        WestConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("W")));
-        EastConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("E")));
+        NorthConnector = Connector.getTexture("N");
+        SouthConnector = Connector.getTexture("S");
+        WestConnector = Connector.getTexture("W");
+        EastConnector = Connector.getTexture("E");
 
         cameraController = new CameraController(ic, canvas);
         createToolbar();
@@ -463,10 +463,10 @@ public class GameController implements Screen {
 
         addNodeListeners(imageNodes);
 
-        NorthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("N")));
-        SouthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("S")));
-        WestConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("W")));
-        EastConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("E")));
+        NorthConnector = Connector.getTexture("N");
+        SouthConnector = Connector.getTexture("S");
+        WestConnector = Connector.getTexture("W");
+        EastConnector = Connector.getTexture("E");
 
 
         //This draws all the primary connections that are visible at the beginning of the game

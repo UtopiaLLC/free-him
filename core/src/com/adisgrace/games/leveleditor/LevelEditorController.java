@@ -106,11 +106,6 @@ public class LevelEditorController implements Screen {
     private Label editorModeLabel;
 
     /**
-     * The count of the next image that is added
-     */
-    private int imgCount;
-
-    /**
      * Vector cache to avoid initializing vectors every time
      */
     private Vector2 vec = new Vector2();
@@ -330,8 +325,6 @@ public class LevelEditorController implements Screen {
                 switch (lt.tileType) {
                     case TARGET:
                         // Add target to level
-
-                        break;
                     case NODE:
                         // Add node to level
                         addNode((int)loc.x, (int)loc.y, lt.im);
@@ -343,6 +336,11 @@ public class LevelEditorController implements Screen {
                 }
             }
         }
+
+        // Set the level name and dimensions to what was read
+        levelName.setText(model.getLevelName());
+        levelDimX.setText(String.valueOf(model.getLevelWidth()));
+        levelDimY.setText(String.valueOf(model.getLevelHeight()));
     }
 
     /**
@@ -614,32 +612,33 @@ public class LevelEditorController implements Screen {
      *
      * @param x     x-coordinate of node, in isometric coordinates
      * @param y     y-coordinate of node, in isometric coordinates
-     * @param im    Image representing the node
+     * @param image Image representing the node
      */
-    private void addNode(int x, int y, Image im) {
+    private void addNode(int x, int y, Image image) {
         // Create image
+        final Image im = image;
+        nodeStage.addActor(im);
 
-        // Place image by converting isometric to world coords
+        // Convert from isometric to world space
+        vec.set(x,y);
         isometricToWorld(vec);
-        // Retrieve from vector cache
-        im.setPosition(vec.x,vec.y - LOCKED_OFFSET);
+        x = (int)vec.x;
+        y = (int)vec.y;
+        // Account for difference between tile width and sprite width
+        x -= (im.getWidth() - TILE_WIDTH) / 2;
+        y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+        // Place node
+        im.setPosition(x,y);
+        im.setOrigin(0, 0);
 
-        // Increment image count to ensure unique nodes
-        imgCount++;
-
-        // Get node type from image name
+        // Get node type
         int nodeType = Character.getNumericValue(im.getName().charAt(0));
 
         // Get relevant low and high textures for this node
         final TextureRegionDrawable nodeLow = NODE_TRDS[nodeType];
         final TextureRegionDrawable nodeHigh = NODE_TRDS[nodeType + 3];
 
-        // Make image final so it can be used in listeners
-        final Image imFinal = im;
-        nodeStage.addActor(im);
-
         // Add listeners, which change their behavior depending on the editor mode
-
         // Add drag listener that does something during a drag
         im.addListener((new DragListener() {
             public void touchDragged(InputEvent event, float x, float y, int pointer) {
@@ -647,16 +646,14 @@ public class LevelEditorController implements Screen {
                 // Updates image position on drag
                 if (editorMode == Mode.MOVE) {
                     // When dragging, snaps image center to cursor
-                    float dx = x - imFinal.getWidth() * 0.5f;
-                    float dy = y - imFinal.getHeight() * 0.25f;
-                    imFinal.setPosition(imFinal.getX() + dx, imFinal.getY() + dy);
-
+                    float dx = x - im.getWidth() * 0.5f;
+                    float dy = y - im.getHeight() * 0.25f;
+                    im.setPosition(im.getX() + dx, im.getY() + dy);
                     // Change to high version of asset
-                    imFinal.setDrawable(nodeHigh);
+                    im.setDrawable(nodeHigh);
                 }
             }
         }));
-
         // Add drag listener that does something when a drag ends
         im.addListener((new DragListener() {
             public void dragStop(InputEvent event, float x, float y, int pointer) {
@@ -664,36 +661,29 @@ public class LevelEditorController implements Screen {
                 // Snap to center of nearby isometric grid
                 if (editorMode == Mode.MOVE) {
                     // Get coordinates of center of image
-                    float newX = imFinal.getX() + x - imFinal.getWidth() * 0.5f;
-                    float newY = imFinal.getY() + y - imFinal.getHeight() * 0.25f;
-
+                    float newX = im.getX() + x - im.getWidth() * 0.5f;
+                    float newY = im.getY() + y - im.getHeight() * 0.25f;
                     // Get location that image should snap to
                     nearestIsoCenter(newX, newY);
                     newX = vec.x;
                     newY = vec.y;
-
                     // Update LevelTile with new isometric location
-                    model.updateLevelTileLocation(imFinal.getName(), newX, newY);
-
+                    model.updateLevelTileLocation(im.getName(), newX, newY);
                     // Convert to world space
                     vec.set(newX, newY);
                     isometricToWorld(vec);
                     // Retrieve from vector cache
                     newX = vec.x;
                     newY = vec.y;
-
                     // Account for difference between tile width and sprite width
-                    newX -= (imFinal.getWidth() - TILE_WIDTH) / 2;
+                    newX -= (im.getWidth() - TILE_WIDTH) / 2;
                     newY += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
-
-                    imFinal.setPosition(newX, newY);
-
+                    im.setPosition(newX, newY);
                     // Change back to low version of asset
-                    imFinal.setDrawable(nodeLow);
+                    im.setDrawable(nodeLow);
                 }
             }
         }));
-
         // Add click listener that does something when the node is clicked
         im.addListener((new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
@@ -702,17 +692,16 @@ public class LevelEditorController implements Screen {
                     // In Edit Mode, select the node
                     case EDIT:
                         // If a different node was previously selected
-                        if (!nodeEquals(selectedNode, imFinal)) {
-                            newSelectedNode = imFinal;
+                        if (!nodeEquals(selectedNode, im)) {
+                            newSelectedNode = im;
                         }
                         // Change to high version of asset to indicate it's been selected
-                        imFinal.setDrawable(new TextureRegionDrawable(nodeHigh));
-
+                        im.setDrawable(new TextureRegionDrawable(nodeHigh));
                         break;
                     // In Delete Mode, delete the node
                     case DELETE:
-                        model.removeFromLevel(imFinal.getName());
-                        imFinal.remove();
+                        model.removeFromLevel(im.getName());
+                        im.remove();
                         break;
                     default:
                         break;
@@ -722,6 +711,8 @@ public class LevelEditorController implements Screen {
     }
 
     /**
+     * TODO: combine with the other addNode
+     *
      * Adds a draggable node of the given type to the stage.
      * <p>
      * Called when one of the node-adding buttons is pressed. Each image is given a name that is a number
@@ -739,9 +730,8 @@ public class LevelEditorController implements Screen {
         im.setPosition(-(im.getWidth() - TILE_WIDTH) / 2, ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2);
         im.setOrigin(0, 0);
         // Set name of image, which is the node type, the string "Node," and a unique number
-        String name = nodeType + "Node" + imgCount;
+        String name = nodeType + "Node" + model.imgCount;
         im.setName(name);
-        imgCount++;
         // Add to level (stress rating will automatically initialize to None)
         model.addToLevel(im, 0, 0);
         // Get relevant low and high textures for this node
@@ -827,23 +817,15 @@ public class LevelEditorController implements Screen {
      *
      * This function is only directly called when initially populating the level editor with saved level data.
      *
-     * @param x     Screen space x-coordinate of the location to add the connector at
-     * @param y     Screen space y-coordinate of the location to add the connector at
-     * @param im    Image of the connector being placed
+     * @param x     Isometric x-coordinate of the location to add the connector at
+     * @param y     Isometric y-coordinate of the location to add the connector at
+     * @param image Image of the connector being placed
      */
-    private void addConnector(float x, float y, Image im) {
-        // Convert mouse position from screen to world coordinates
-        vec = camera.screenToWorld(x, y);
-        x = vec.x;
-        y = vec.y;
-
-        // Increment imgCount to ensure unique names
-        imgCount++;
-
-        // Get nearest isometric center to where the mouse clicked
-        nearestIsoCenter(x, y);
-        x = vec.x;
-        y = vec.y - 1; // For some reason this is consistently off by 1, so we take care of that this way
+    private void addConnector(float x, float y, Image image) {
+        // Create image
+        final Image im = image;
+        // Add to stage
+        nodeStage.addActor(im);
 
         // Convert to world space
         vec.set(x, y + 1); // Don't know why it needs to be y+1, but it does
@@ -851,16 +833,9 @@ public class LevelEditorController implements Screen {
         // Retrieve from vector cache
         x = vec.x;
         y = vec.y;
-
         // Place connector at nearest isometric center
         im.setPosition(x - (TILE_WIDTH / 4), y - (TILE_HEIGHT / 4));
         im.setOrigin(0, 0);
-
-        // Make image final so it can be used in listeners
-        final Image imFinal = im;
-        // Place the connector on the stage
-        nodeStage.addActor(imFinal);
-
         // Add listeners, which change their behavior depending on the editor mode
         // Add click listener that does something when the connector is left-clicked
         im.addListener((new ClickListener() {
@@ -870,16 +845,16 @@ public class LevelEditorController implements Screen {
                     // In Draw Mode, rotate the connector
                     case DRAW:
                         // Set the appearance and name to be the next connector
-                        int nextConn = nextEntry(String.valueOf(imFinal.getName().charAt(0)), CONN_NAME_ORDER);
-                        String name = CONN_NAME_ORDER[nextConn] + imFinal.getName().substring(1);
-                        model.updateLevelTileName(imFinal.getName(), name);
-                        imFinal.setName(name);
-                        imFinal.setDrawable(new TextureRegionDrawable(Connector.getTexture(CONN_ORDER[nextConn])));
+                        int nextConn = nextEntry(String.valueOf(im.getName().charAt(0)), CONN_NAME_ORDER);
+                        String name = CONN_NAME_ORDER[nextConn] + im.getName().substring(1);
+                        model.updateLevelTileName(im.getName(), name);
+                        im.setName(name);
+                        im.setDrawable(new TextureRegionDrawable(Connector.getTexture(CONN_ORDER[nextConn])));
                         break;
                     // In Delete Mode, delete the connector
                     case DELETE:
-                        model.removeFromLevel(imFinal.getName());
-                        imFinal.remove();
+                        model.removeFromLevel(im.getName());
+                        im.remove();
                         break;
                     default:
                         break;
@@ -889,6 +864,8 @@ public class LevelEditorController implements Screen {
     }
 
     /**
+     * TODO: combine with the other addConnector
+     *
      * Adds a connector to the grid tile at the given coordinates.
      * <p>
      * Called when right-clicking anywhere in Draw Mode. Coordinates given are in screen space.
@@ -906,8 +883,7 @@ public class LevelEditorController implements Screen {
         nodeStage.addActor(im);
         // Set name of connector, which defaults to "N". The first letter is the connector, the second
         // is a unique identifier.
-        im.setName("N" + imgCount);
-        imgCount++;
+        im.setName("N" + model.imgCount);
         // Set scale
         im.setScale(0.5f);
         // Get nearest isometric center to where the mouse clicked
@@ -1147,7 +1123,7 @@ public class LevelEditorController implements Screen {
     private void clearLevel() {
         model.clear();
         // Reset image count
-        imgCount = 0;
+        model.imgCount = 0;
     }
 
     /**
