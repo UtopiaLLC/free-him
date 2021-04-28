@@ -255,7 +255,7 @@ public class GameController implements Screen {
         updateNodeColors();
         updateStats();
 
-        canvas.drawIsometricGrid(stage,nodeWorldWidth,nodeWorldHeight);
+        canvas.drawIsometricGrid(nodeWorldWidth,nodeWorldHeight);
         stage.getViewport().apply();
         stage.draw();
         toolbarStage.getViewport().apply();
@@ -435,7 +435,7 @@ public class GameController implements Screen {
         threatenedFacts = new Array<>();
         exposedFacts = new Array<>();
         canvas.beginDebug();
-        canvas.drawIsometricGrid(stage, nodeWorldWidth, nodeWorldHeight);
+        canvas.drawIsometricGrid(nodeWorldWidth, nodeWorldHeight);
         canvas.endDebug();
 
         // Creating Nodes
