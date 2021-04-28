@@ -313,7 +313,7 @@ public class InputController {
 
 		leftPressed = Gdx.input.isKeyPressed(Input.Keys.LEFT);
 		rightPressed = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
-		
+
 	}
 
 	/**
