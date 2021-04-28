@@ -433,7 +433,7 @@ public class LevelEditorParser {
                 strcache1 = "";
                 strcache2 = "";
                 for (Connector c : connection) {
-                    strcache1 += ", [" + (c.xcoord - targetx) + "," + (c.ycoord - targetx) + "]";
+                    strcache1 += ", [" + (c.xcoord - targetx) + "," + (c.ycoord - targety) + "]";
                     strcache2 += ", \"" + c.type + "\"";
                 }
                 firstconnections += ", [" + strcache1.substring(2) + "]";
