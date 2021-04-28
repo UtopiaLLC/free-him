@@ -1221,7 +1221,6 @@ public class GameCanvas {
 			draw(gradient, Color.WHITE, 0, 0, 0, 0, 0, -1, 1);
 			draw(gradient, Color.WHITE, 0, 0, 0, 0, 0, 1, 1);
 
-
 		}
 		//assuming grid tiles are (444, 256) in size
 		//drawing a 100 x 100 tile grid centered around the origin, offset so that (0, 0) is the center of the tile sprite

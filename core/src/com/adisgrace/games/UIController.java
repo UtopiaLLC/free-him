@@ -5,6 +5,7 @@ import com.adisgrace.games.util.ButtonFactory;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -154,17 +155,20 @@ public class UIController {
                 }
             }
         };
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(300);
         dialog.getBackground().setMinHeight(300);
-        Label l = new Label( s, skin );
+//        Label l = new Label( s, skin );
+        Label l = new Label(s, skin);
         l.setFontScale(2);
         l.setWrap( true );
+        l.setColor(Color.BLACK);
         dialog.getContentTable().add( l ).prefWidth( 250 );
-        dialog.button("Yes", true); //sends "true" as the result
-        dialog.button("No", false);  //sends "false" as the result
+        float bottomPad = getDialogButtonBottomPadding(300);
+        dialog.button("Yes", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
+        dialog.button("No", false).pad(0f,0f,bottomPad,0f);  //sends "false" as the result
         dialog.show(GameController.toolbarStage);
 
     }
@@ -180,12 +184,13 @@ public class UIController {
                 GameController.nodeFreeze = false;
             }
         };
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
         Label l = new Label( s, skin );
+        l.setColor(Color.BLACK);
         if(s.length() > 50) {
             l.setFontScale(1.5f);
         }else {
@@ -193,7 +198,9 @@ public class UIController {
         }
         l.setWrap( true );
         dialog.getContentTable().add( l ).prefWidth( 350 );
-        dialog.button("Ok", true); //sends "true" as the result
+
+        float bottomPad = getDialogButtonBottomPadding(500);
+        dialog.button("Ok", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
         dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         dialog.show(GameController.toolbarStage);
         GameController.nodeFreeze = true;
@@ -206,17 +213,18 @@ public class UIController {
      * @param levelController controller instance for the level
      */
     public void createNotebookDialog(String s,  String targetName, LevelController levelController) {
-        Dialog dialog = new Dialog("Notebook", skin) {
+        Dialog dialog = new Dialog("", skin) {
             public void result(Object obj) {
                 GameController.nodeFreeze = false;
             }
         };
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
         Label l = new Label( s, skin );
+        l.setColor(Color.BLACK);
         if(s.length() > 50) {
             l.setFontScale(1.5f);
         }else {
@@ -249,8 +257,8 @@ public class UIController {
             table.add(k).prefWidth(350);
             table.row();
         }
-
-        dialog.button("Ok", true); //sends "true" as the result
+        float bottomPad = getDialogButtonBottomPadding(500);
+        dialog.button("Ok", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
         dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         dialog.show(GameController.toolbarStage);
         GameController.nodeFreeze = true;
@@ -264,7 +272,7 @@ public class UIController {
      */
     public void createNotebookTargetSelector(String s, final Array<TargetModel> targets,
                                              final LevelController levelController) {
-        Dialog dialog = new Dialog("Notebook", skin) {
+        Dialog dialog = new Dialog("", skin) {
             public void result(Object obj) {
                 GameController.nodeFreeze = false;
 
@@ -276,12 +284,13 @@ public class UIController {
             }
         };
 
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
         Label l = new Label( s, skin );
+        l.setColor(Color.BLACK);
         if(s.length() > 50) {
             l.setFontScale(1.5f);
         }else {
@@ -291,10 +300,11 @@ public class UIController {
         dialog.getContentTable().add( l ).prefWidth( 350 );
         dialog.setMovable(true);
 
+        float bottomPad = getDialogButtonBottomPadding(500);
         for(int i = 0; i < targets.size; i++) {
-            dialog.button(targets.get(i).getName(), i);
+            dialog.button(targets.get(i).getName(), i).pad(0f,0f,bottomPad,0f);
         }
-        dialog.button("Cancel", true); //sends "true" as the result
+        dialog.button("Cancel", true).pad(0f,0f,bottomPad,0f);; //sends "true" as the result
         dialog.show(GameController.toolbarStage);
     }
 
@@ -349,11 +359,7 @@ public class UIController {
                 new Runnable() {
                     @Override
                     public void run() {
-<<<<<<< HEAD
-                        toolbarOnClick(expose, expose_checked,s, GameController.ActiveVerb.EXPOSE,  confirmFunction);
-=======
                         toolbarOnClick(expose, s, GameController.ActiveVerb.EXPOSE,  confirmFunction);
->>>>>>> main
                     }
                 }, new Runnable() {
                     @Override
@@ -371,8 +377,6 @@ public class UIController {
     }
 
     /**
-<<<<<<< HEAD
-=======
      * This method creates a distract button with given textures for it's original status, when the cursor is hovering
      * above it and when it is clicked.
      *
@@ -441,39 +445,23 @@ public class UIController {
     }
 
     /**
->>>>>>> main
      * This method creates a overwork button with given textures for it's original status, when the cursor is hovering
      * above it and when it is clicked.
      *
      * @return      ImageButton for overwork.
      */
     public ImageButton createOverwork(InputController ic, final Runnable confirmFunction){
-<<<<<<< HEAD
-        overwork = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/overwork_select.png")))));
-        overwork.setTransform(true);
-        overwork.setScale(1f);
-        final Label overworkLabel = new Label("Overwork: Gains 2 AP, but Increases Stress", skin);
-=======
         overwork = ButtonFactory.makeImageButton(
                 "skills/overwork_up.png",
                 "skills/overwork_down.png",
                 "skills/overwork_select.png");
         final Label overworkLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.OVERWORK));
->>>>>>> main
         final String s = "overwork";
         overwork.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-<<<<<<< HEAD
-                        toolbarOnClick(overwork, overwork_checked,"overwork",
-=======
-                        toolbarOnClick(overwork,s,
->>>>>>> main
-                                GameController.ActiveVerb.OVERWORK, confirmFunction);
+                        toolbarOnClick(overwork,s,GameController.ActiveVerb.OVERWORK, confirmFunction);
                     }
                 }, new Runnable() {
                     @Override
@@ -497,31 +485,17 @@ public class UIController {
      * @return      ImageButton for otherjobs.
      */
     public ImageButton createOtherJobs(InputController ic, final Runnable confirmFunction){
-<<<<<<< HEAD
-        otherJobs = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/otherjobs_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/otherjobs_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/otherjobs_select.png")))));
-        otherJobs.setTransform(true);
-        otherJobs.setScale(1f);
-        final Label otherJobLabel = new Label("Other Jobs: Make Money with 3 AP", skin);
-=======
         otherJobs = ButtonFactory.makeImageButton(
                 "skills/otherjobs_up.png",
                 "skills/otherjobs_down.png",
                 "skills/otherjobs_select.png");
         final Label otherJobLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.OTHER_JOBS));
->>>>>>> main
         final String s = "other jobs";
         otherJobs.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-<<<<<<< HEAD
-                        toolbarOnClick(otherJobs, otherJobs_checked,s, GameController.ActiveVerb.OTHER_JOBS, confirmFunction);
-=======
                         toolbarOnClick(otherJobs, s, GameController.ActiveVerb.OTHER_JOBS, confirmFunction);
->>>>>>> main
                     }
                 }, new Runnable() {
                     @Override
@@ -538,24 +512,13 @@ public class UIController {
         return otherJobs;
     }
 
-<<<<<<< HEAD
-=======
     public Label createHoverLabel(String s) {
-//        Dialog dialog = new Dialog("", skin );
-//        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
-//        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
-//
-//        dialog.setHeight(400);
-//        dialog.setBackground(drawable);
-
         Label l = new Label(s, skin, "win-95");
         l.setWrap(true);
-        l.setHeight(100);
-
+        l.setHeight(70);
         return l;
     }
 
->>>>>>> main
     /**
      * This method creates a relax button with given textures for it's original status, when the cursor is hovering
      * above it and when it is clicked.
@@ -563,31 +526,17 @@ public class UIController {
      * @return      ImageButton for relax.
      */
     public ImageButton createRelax(InputController ic, final Runnable confirmFunction){
-<<<<<<< HEAD
-        relax = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/relax_up.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/relax_down.png")))), new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("skills/relax_select.png")))));
-        relax.setTransform(true);
-        relax.setScale(1f);
-        final Label  relaxLabel = new Label("Relax: Decreases Stress with 1 AP", skin);
-=======
         relax = ButtonFactory.makeImageButton(
                 "skills/relax_up.png",
                 "skills/relax_down.png",
                 "skills/relax_select.png");
         final Label  relaxLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.RELAX));
->>>>>>> main
         final String s = "relax";
         relax.addListener(ic.getButtonListener(
                 new Runnable() {
                     @Override
                     public void run() {
-<<<<<<< HEAD
-                        toolbarOnClick(relax, relax_checked,"relax", GameController.ActiveVerb.RELAX, confirmFunction);
-=======
                         toolbarOnClick(relax, s, GameController.ActiveVerb.RELAX, confirmFunction);
->>>>>>> main
                     }
                 }, new Runnable() {
                     @Override
@@ -604,8 +553,6 @@ public class UIController {
         return relax;
     }
 
-<<<<<<< HEAD
-=======
     /**
      * This method allows you to select a fact to threaten or expose someone.
      *
@@ -619,21 +566,21 @@ public class UIController {
      * @param s the text that is displayed above the facts to select
      */
     public void getBlackmailFact(String s, String targetName, LevelController levelController) {
-        GameController.blackmailDialog = new Dialog("Notebook", skin) {
+        GameController.blackmailDialog = new Dialog("", skin) {
             public void result(Object obj) {
                 //to activate the node clicking once more
                 GameController.nodeFreeze = false;
                 GameController.activeVerb = GameController.ActiveVerb.NONE;
             }
         };
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
 
         GameController.blackmailDialog.setBackground(drawable);
         GameController.blackmailDialog.getBackground().setMinWidth(500);
         GameController.blackmailDialog.getBackground().setMinHeight(500);
-//        Label l = new Label( s, skin );
-        Label l = new Label(s, skin, "win-95");
+        Label l = new Label(s, skin);
+        l.setColor(Color.BLACK);
         //scale sizing based on the amount of text
         if(s.length() > 50) {
             l.setFontScale(1.5f);
@@ -666,8 +613,8 @@ public class UIController {
         table.row();
 
         addEligibleBlackmailFacts(scannedFacts, summaryToFacts, targetName, table, levelController, factSummaries);
-
-        GameController.blackmailDialog.button("Cancel", true); //sends "true" as the result
+        float bottomPad = getDialogButtonBottomPadding(500);
+        GameController.blackmailDialog.button("Cancel", true).pad(0f,0f,bottomPad,0f);; //sends "true" as the result
         GameController.blackmailDialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         GameController.blackmailDialog.show(GameController.toolbarStage);
         //Make sure nothing else is able to be clicked while blackmail dialog is shown
@@ -721,6 +668,7 @@ public class UIController {
                 k.setName(targetName + "," + summaryToFacts.get(scannedFacts.get(i)));
                 k.addListener(getBlackmailFactListener(levelController, factIDAndSummaryKey));
             }
+            k.setColor(Color.BLACK);
             table.add(k).prefWidth(350);
             table.row();
         }
@@ -783,5 +731,9 @@ public class UIController {
         node.changeColor(colorState);
     }
 
->>>>>>> main
+    private float getDialogButtonBottomPadding(int wh) {
+        if (wh >= 400) return 40f;
+        return 20f;
+    }
+
 }
