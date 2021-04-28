@@ -117,7 +117,7 @@ public class LevelEditorController implements Screen {
     private Label editorModeLabel;
 
     /**
-     * Skin for TextFields and TextAreas
+     * Skin for Scene2D elements
      */
     Skin skin = new Skin(Gdx.files.internal("skins/neon-ui.json"));
 
@@ -339,6 +339,21 @@ public class LevelEditorController implements Screen {
         toolStage.addActor(targetForm);
         toolStage.addActor(nodeForm);
 
+        // Create the overlays that give/set info about the level being worked on
+        createLevelInfoOverlays();
+    }
+
+    /**
+     * Helper function that creates the overlays that give/set info about the level being worked on and
+     * adds them to the tool stage, also placing them accordingly.
+     *
+     * This includes:
+     * - A TextField to input the level name.
+     * - A TextField to input the level width, and the relevant Label.
+     * - A TextField to input the level height, and the relevant Label.
+     * - A Label that tells the user what the editor mode is.
+     */
+    private void createLevelInfoOverlays() {
         // Add text field for level name at the bottom of the screen
         levelName = newTextField("Level Name", 10 + FORM_GAP, FORM_WIDTH * canvas.getWidth(), "My Level");
         levelName.setX((SCREEN_WIDTH / 2f) - 0.5f * levelName.getWidth());
@@ -347,17 +362,26 @@ public class LevelEditorController implements Screen {
         toolStage.addActor(levelName);
 
         // Right below, put two text fields for dimensions of the screen
-        levelDimX = newTextField("Level Width", 10, FORM_WIDTH * canvas.getWidth() / 2, "20");
-        levelDimY = newTextField("Level Height", 10, FORM_WIDTH * canvas.getWidth() / 2, "20");
-        // Place at bottom of screen
-        levelDimX.setX((SCREEN_WIDTH / 2f) - levelDimX.getWidth());
-        levelDimY.setX((SCREEN_WIDTH / 2f));
-        // Align to center
-        levelDimX.setAlignment(1);
-        levelDimY.setAlignment(1);
+        levelDimX = newTextField("Level Width", 10, FORM_WIDTH * canvas.getWidth() / 4, "20");
+        levelDimY = newTextField("Level Height", 10, FORM_WIDTH * canvas.getWidth() / 4, "20");
         // Add to stage
         toolStage.addActor(levelDimX);
         toolStage.addActor(levelDimY);
+        // Create labels for what these text fields are and add to stage
+        Label levelDimXLabel = new Label("Width", skin);
+        Label levelDimYLabel = new Label("Height", skin);
+        toolStage.addActor(levelDimXLabel);
+        toolStage.addActor(levelDimYLabel);
+
+        // Place at bottom of screen
+        levelDimX.setX((SCREEN_WIDTH / 2f) - levelDimX.getWidth());
+        levelDimY.setX((SCREEN_WIDTH / 2f) + levelDimX.getWidth());
+        // Align to center
+        levelDimX.setAlignment(1);
+        levelDimY.setAlignment(1);
+        // Place labels next to the relevant fields
+        levelDimXLabel.setPosition((SCREEN_WIDTH / 2f) - 1.5f * levelDimX.getWidth() - levelDimXLabel.getWidth() / 2, 15);
+        levelDimYLabel.setPosition((SCREEN_WIDTH / 2f) + 0.5f * levelDimY.getWidth() - levelDimYLabel.getWidth() / 2, 15);
 
         // Add label indicating what the current editor mode is
         editorModeLabel = newLabel("MOVE MODE", SCREEN_HEIGHT - 40);
