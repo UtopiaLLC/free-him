@@ -650,15 +650,25 @@ public class TargetModel {
 
 	/**
 	 * Returns the summary stored in the node with the given name.
-	 * 
+	 *
 	 * The summary is what is stored in the player's notebook, so they can see a more concise version of the facts
 	 * they've learned without having to reread each node.
-	 * 
+	 *
 	 * @param name	Name of the node whose summary we want
 	 * @return 		Summary stored at the given node
 	 */
 	public String getSummary(String name) {
 		return getFactNode(name).getSummary();
+	}
+
+	/**
+	 * Returns the player stress damage of the node with the given name.
+	 *
+	 * @param name	Name of the node whose summary we want
+	 * @return 		Stress damage
+	 */
+	public int getStressCost(String name) {
+		return getFactNode(name).getPlayerStressDmg();
 	}
 
 	/**

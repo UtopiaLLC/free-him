@@ -38,6 +38,7 @@ public class LevelController {
      * @return the current state of the level
      */
     public LevelModel.LevelState getLevelState(){
+        if(!player.isLiving()) return LevelModel.LevelState.LOSE;
         return levelModel.getLevelState();
     }
 
@@ -67,7 +68,8 @@ public class LevelController {
         if(!player.canHack(levelModel.getTargets().get(target))) // pass target to playerModel since traits affect AP cost
             return -3;
         player.hack(levelModel.getTargets().get(target)); // pass target to playerModel since traits affect AP cost
-        if(rng.nextDouble() < 0.2){
+//        if(rng.nextDouble() < 0.2){
+        if(false){
             levelModel.getTargets().get(target).addSuspicion(25);
             return -4;
         }
@@ -87,7 +89,7 @@ public class LevelController {
             return false;
         if(!player.canScan(levelModel.getTargets().get(target))) // pass target to playerModel since traits affect AP cost
             return false;
-        player.scan(0f, levelModel.getTargets().get(target)); // Stress cost for scanning is unimplemented
+        player.scan(levelModel.getTarget(target).getStressCost(fact), levelModel.getTargets().get(target)); // Stress cost for scanning is unimplemented
         // pass target to playerModel since traits affect AP cost
         levelModel.getSummaries().get(target).put(fact, levelModel.getTargets().get(target).getSummary(fact));
         levelModel.getContents().get(target).put(fact, levelModel.getTargets().get(target).getContent(fact));
