@@ -691,7 +691,7 @@ public class UIController {
                         break;
                     case HARASS:
                         //Threaten the target
-                        levelController.threaten(info[0], info[1]);
+                        levelController.harass(info[0], info[1]);
                         GameController.activeVerb = GameController.ActiveVerb.NONE;
                         createDialogBox("You harassed the target!");
                         //Add this fact to the list of facts used to threaten

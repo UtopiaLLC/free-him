@@ -350,19 +350,6 @@ public class WorldModel {
 		return GAMESTATE.ONGOING;
 	}
 
-	/**
-	*	Harass a target
-	*
-	*	@param targetname 	name of target
-	*	@return 			the gamestate after this action
-	*/
-	public GAMESTATE harass(String targetname){
-		// Get harass damage and inflict on target
-		int stressDmg = targets.get(targetname).harass();
-		targets.get(targetname).addStress(stressDmg);
-		player.harass(targets.get(targetname));
-		return this.getGameState();
-	}
 
 	/**
 	 * Hack function, decreases player AP and hacks target fact
@@ -496,7 +483,7 @@ public class WorldModel {
 		if(!exposablenodes.get(targetname).contains(fact, false))
 			throw new RuntimeException("This fact has already been exposed");
 		player.threaten(targets.get(targetname));  // pass target to playerModel since traits affect AP cost
-		int stressDamage = targets.get(targetname).threaten(fact);
+		int stressDamage = targets.get(targetname).harass(fact);
 		targets.get(targetname).addStress(stressDamage);
 		return stressDamage;
 	}
