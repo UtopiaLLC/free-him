@@ -40,52 +40,52 @@ public class TargetModel {
 
 	/** The target's name */
 	private String name;
+	/** The target's location in isometric space */
+	private int locX, locY;
 	/** The target's traits */
 	private TraitModel traits = new TraitModel();
-	/** The target's location in world coordinates */
-	private int locX;
-	private int locY;
-	/**	Targets connected to the current target */
-	private Array<String> neighbors;
-	/** Target's current stress level */
-	private int stress;
 	/** Target's maximum stress level (when stress reaches that point, target has been revenged) */
 	private int maxStress;
-	/** Target's current suspicion (maxes out at 100) */
-	private int suspicion;
-	/** Amount of suspicion reduced on a successful gaslight attempt */
-	private int gaslight_reduction;
 	/** Turns before the target makes a Paranoia check. Possible values are from 0 to INV_PARANOIA_CONSTANT. */
 	private int paranoia;
+	/** Dictionary representing the nodes that are in the same pod as the target, where a node can be accessed with its name */
+	private HashMap<String, FactNode> podDict;
+	/** Hashmap of nodes that are first shown when the level begins, mapped to the corresponding paths that lead to them. */
+	private ArrayMap<String, Array<Connector>> firstNodes;
+	/** Array of Target combos */
+	private Array<Combo> combos;
+
+	/** Target's current stress level */
+	private int stress;
+	/** Target's current suspicion (maxes out at 100) */
+	private int suspicion;
+	/** Current state of target */
+	private TargetState state;
+	/** Number of turns remaining before next Paranoia check */
+	private int countdown;
+
+	/** Amount of suspicion reduced on a successful gaslight attempt */
+	private int gaslight_reduction;
 	/** Boolean which is true if paranoia deducted from other targets */
 	private boolean paranoiac_used = false;
 	/** Turns where the target does nothing every turn*/
 	private int distractedTurns;
 	/** % chance that a distract will fail*/
 	private int distractFailChance;
-	/** Number of turns remaining before next Paranoia check */
-	private int countdown;
 	/** Whether this target has had their suspicion raised before*/
 	private static boolean naturallySuspiciousCheck;
-	/** Current state of target */
-	private TargetState state;
-	/** Dictionary representing the nodes that are in the same pod as the target, where a node can be accessed with its name */
-	private HashMap<String, FactNode> podDict;
-	/** Hashmap of nodes that are first shown when the level begins, mapped to the corresponding paths that lead to them. */
-	private ArrayMap<String, Array<Connector>> firstNodes;
 
-	/** Array of Target combos */
-	private Array<Combo> combos;
+	/** Instance of Random class, to be used whenever a random number is needed */
+	private Random rand;
 
 	/** Constant for inverse Paranoia check, made every (INV_PARANOIA_CONSTANT - paranoia) turns */
 	private static final int INV_PARANOIA_CONSTANT = 5;
-
 	/** Constants for low/medium/high suspicion */
 	private static final int SUSPICION_LOW = 5;
 	private static final int SUSPICION_MED = 10;
 	private static final int SUSPICION_HIGH = 15;
-	/** Instance of Random class, to be used whenever a random number is needed */
-	private Random rand;
+	/** Constant for multiplier that stress damage is multiplied by for expose */
+	private static final float EXPOSE_MULTIPLIER = 2.5f;
 
 	/************************************************* TARGET CONSTRUCTOR *************************************************/
 
@@ -797,8 +797,8 @@ public class TargetModel {
 			// Reset countdown to next Paranoia check
 			countdown = paranoia;
 		}
-		// Return amount of damage dealt
-		return stressDmg;
+		// Return amount of damage dealt, multiplied by expose multiplier
+		return (int)(stressDmg * EXPOSE_MULTIPLIER);
 	}
 
 	/************************************************* COMBO METHODS *************************************************/
