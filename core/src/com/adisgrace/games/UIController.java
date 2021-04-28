@@ -17,7 +17,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 
-import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -462,8 +461,7 @@ public class UIController {
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(overwork,s,
-                                GameController.ActiveVerb.OVERWORK, confirmFunction);
+                        toolbarOnClick(overwork,s,GameController.ActiveVerb.OVERWORK, confirmFunction);
                     }
                 }, new Runnable() {
                     @Override

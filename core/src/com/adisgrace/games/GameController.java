@@ -50,7 +50,7 @@ public class GameController implements Screen {
         NONE
     };
     public static String getHoverText(ActiveVerb activeVerb){
-        switch (activeVerb){
+        switch (activeVerb)
             //case HARASS: return "Harass: Harass your target to slightly increase their stress for 2 AP";
             case HARASS: return "Harass: Harass your target with a \n fact to blackmail to increase their stress " +
                     "for 2 AP";
@@ -209,7 +209,6 @@ public class GameController implements Screen {
         SouthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("S")));
         WestConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("W")));
         EastConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("E")));
-
 
         cameraController = new CameraController(ic, canvas);
         createToolbar();
@@ -797,8 +796,8 @@ public class GameController implements Screen {
         switch (activeVerb) {
             case NONE:
                 if(!isTarget) {
-                    hackScanView( button, nodeInfo);
-                }
+                         hackScanView( button, nodeInfo);
+                    }
                 break;
             case HARASS:
             case THREATEN:
@@ -987,7 +986,6 @@ public class GameController implements Screen {
      * @return the animation of connections between nodes
      */
     public Animation<TextureRegion> connectorAnimation(Texture tex) {
-
         TextureRegion[] connectorFrames = new TextureRegion[50];
         int counter = 0;
 
