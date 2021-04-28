@@ -94,6 +94,7 @@ public class UIController {
             case THREATEN:
             case EXPOSE:
             case GASLIGHT:
+            case DISTRACT:
                 if (!button.isChecked()){
                     unCheck();
                     GameController.activeVerb = av;
