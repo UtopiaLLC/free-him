@@ -211,8 +211,18 @@ public class LevelEditorController implements Screen {
      * @param mode      Mode to change the editor to
      */
     private void changeEditorMode(Mode mode) {
+        // Save and clear any edit forms that are shown
+        saveAndClearForm(targetForm);
+        saveAndClearForm(nodeForm);
+
+        // Hide form background
+        formBG.setVisible(false);
+
         // Deselect any currently-selected nodes
-        if (selectedNode != null) {deselectNode();}
+        if (selectedNode != null) {
+            deselectNode();
+            newSelectedNode = null;
+        }
 
         // Change mode
         editorMode = mode;
@@ -311,13 +321,14 @@ public class LevelEditorController implements Screen {
         // Set stage to lose focus when clicking on someplace not in a form
         toolStage.getRoot().addCaptureListener(new InputListener() {
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                // If not a TextField or SelectBox, lose focus
+                // If not part of a form, lose focus
                 if (!(event.getTarget() instanceof TextField || event.getTarget() instanceof SelectBox
                 || event.getTarget() instanceof TextArea))
                     toolStage.setKeyboardFocus(null);
-                // If the form background was clicked, don't lose focus
-                if (event.getTarget() instanceof Image && event.getTarget().getName() != null
-                && event.getTarget().getName().equals("background")) wasFormBGClicked = true;
+                // If the form background was clicked or a label was clicked, don't lose focus
+                if ((event.getTarget() instanceof Image && event.getTarget().getName() != null
+                && event.getTarget().getName().equals("background")) || event.getTarget() instanceof Label)
+                    wasFormBGClicked = true;
                 return false;
             }
         });
@@ -942,6 +953,20 @@ public class LevelEditorController implements Screen {
         }
     }
 
+    /**
+     * Helper function that saves and clears a form for the currently selected node.
+     *
+     * Called when a node is deselected, or when the editor mode changes.
+     *
+     * @param form  The form to save and clear.
+     */
+    private void saveAndClearForm(Table form) {
+        // If form is not showing, do nothing
+        if (!form.hasChildren()) return;
+        saveForm(form, selectedNode);
+        form.clear();
+    }
+
     /*********************************************** SCREEN METHODS ***********************************************/
     @Override
     public void show() {
@@ -992,13 +1017,11 @@ public class LevelEditorController implements Screen {
                 nodeType = Character.getNumericValue(selectedNode.getName().charAt(0));
                 // If was a target, save contents of targetForm for that target and clear form
                 if (nodeType == 0) {
-                    saveForm(targetForm, selectedNode);
-                    targetForm.clear();
+                    saveAndClearForm(targetForm);
                 }
                 // If was a node, save contents of nodeForm for that node and clear form
                 else {
-                    saveForm(nodeForm, selectedNode);
-                    nodeForm.clear();
+                    saveAndClearForm(nodeForm);
                 }
             }
 

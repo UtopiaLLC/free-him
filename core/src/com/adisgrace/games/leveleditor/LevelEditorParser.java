@@ -224,7 +224,7 @@ public class LevelEditorParser {
             visited.add(currLoc);
 
             // Evaluate travel through this connector starting at the target, with no paths so far
-            travelThroughConnector(currConn,new ArrayMap<Vector2,Connector>(),target.name);
+            travelThroughConnector(currConn,new ArrayMap<Vector2,Connector>(),target.im.getName());
 
             // While there are still discovered nodes, keep searching
             while (discoveredNodes.size > 0) {
@@ -404,9 +404,12 @@ public class LevelEditorParser {
      * @param targetName name of target to compile a json for
      */
     public void make_target_json(String targetName) throws IOException{
-        System.out.printf("started saving target " + targetName);
+        // Get actual target name, as opposed to the one used for internal referencing
+        String realTargetName = targets.get(targetName).name;
+
+        System.out.printf("started saving target " + realTargetName);
         BufferedWriter out;
-        out = new BufferedWriter(new FileWriter("levels/targets/" + targetName.replaceAll(" ","") + ".json"));
+        out = new BufferedWriter(new FileWriter("levels/targets/" + realTargetName.replaceAll(" ","") + ".json"));
         Array<NodeTile> childNodes = get_target_facts(targetName);
 
         int targetx = (int)((targets.get(targetName)).x);

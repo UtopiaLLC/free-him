@@ -47,7 +47,7 @@ public class LevelEditorModel {
     /** Inner class representing a target as the level tile at an isometric location */
     public class TargetTile extends LevelTile {
         /** Name of the target */
-        String name;
+        String name = "";
         /** Paranoia stat of target */
         int paranoia = DEFAULT_PARANOIA;
         /** Maximum stress of target */
@@ -72,13 +72,13 @@ public class LevelEditorModel {
     /** Inner class representing a node as the level tile at an isometric location */
     public class NodeTile extends LevelTile {
         /** Title of the node */
-        String title;
+        String title = "";
         /** Whether or not node is locked */
-        boolean locked;
+        boolean locked = false;
         /** Content of the node */
-        String content;
+        String content = "";
         /** Summary of the node */
-        String summary;
+        String summary = "";
         /** Target stress rating of the node, representing target stress damage */
         StressRating targetSR = StressRating.NONE;
         /** Player stress rating of the node, representing player stress damage */
