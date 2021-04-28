@@ -124,20 +124,6 @@ public class LevelController {
     }
 
     /**
-     *	Harass a target
-     *
-     *	@param target 	name of target
-     *	@return 			the gamestate after this action
-     */
-    public LevelModel.LevelState harass(String target){
-        // Get harass damage and inflict on target
-        int stressDmg = levelModel.getTargets().get(target).harass();
-        levelModel.getTargets().get(target).addStress(stressDmg);
-        player.harass(levelModel.getTargets().get(target));
-        return levelModel.getLevelState();
-    }
-
-    /**
      * Attempt to gaslight a target
      * @param target name of target
      * @return true if the attempt was successful
@@ -206,12 +192,12 @@ public class LevelController {
     }
 
     /**
-     * Threaten function, increases target stress and reduces AP
+     * Harass function, increases target stress and reduces AP
      * @param target target to threaten
      * @param fact fact to threaten target over
      * @return amount of stress increase on target
      */
-    public LevelModel.LevelState threaten(String target, String fact){
+    public LevelModel.LevelState harass(String target, String fact){
         if(!levelModel.getTargets().containsKey(target))
             throw new RuntimeException("Invalid target");
         if(!levelModel.getContents().get(target).containsKey(fact))
@@ -221,7 +207,7 @@ public class LevelController {
         if(!levelModel.getExposableFacts().get(target).contains(fact, false))
             throw new RuntimeException("This fact has already been exposed");
         player.threaten(levelModel.getTargets().get(target)); // pass target to playerModel since traits affect AP cost
-        int stressDamage = levelModel.getTargets().get(target).threaten(fact);
+        int stressDamage = levelModel.getTargets().get(target).harass(fact);
         levelModel.getTargets().get(target).addStress(stressDamage);
         return levelModel.getLevelState();
     }
@@ -230,7 +216,7 @@ public class LevelController {
      * Returns whether or not a player is able to threaten
      * @return whether or not player can threaten
      */
-    public boolean canThreaten(String target) {
+    public boolean canHarass(String target) {
         return player.canThreaten(levelModel.getTarget(target));
     }
 

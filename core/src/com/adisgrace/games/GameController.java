@@ -886,7 +886,7 @@ public class GameController implements Screen {
      * @param targetName name of the target being harassed
      */
     private void harass(String targetName){
-        if(levelController.canThreaten(targetName)) {
+        if(levelController.canHarass(targetName)) {
             uiController.getBlackmailFact("Select a fact to threaten the target with.", targetName,
                     levelController);
         }
