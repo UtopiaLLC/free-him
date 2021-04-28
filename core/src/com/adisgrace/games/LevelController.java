@@ -67,7 +67,8 @@ public class LevelController {
         if(!player.canHack(levelModel.getTargets().get(target))) // pass target to playerModel since traits affect AP cost
             return -3;
         player.hack(levelModel.getTargets().get(target)); // pass target to playerModel since traits affect AP cost
-        if(rng.nextDouble() < 0.2){
+//        if(rng.nextDouble() < 0.2){
+        if(false){
             levelModel.getTargets().get(target).addSuspicion(25);
             return -4;
         }
