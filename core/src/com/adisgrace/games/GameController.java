@@ -72,6 +72,8 @@ public class GameController implements Screen {
             case THREATEN: return "Threaten";
             case EXPOSE: return "Expose";
             case OVERWORK: return "Overwork";
+            case DISTRACT: return "Distract";
+            case GASLIGHT: return "Gaslight";
             case OTHER_JOBS: return "Other Jobs";
             case RELAX: return "Relax";
             default: return "None";
@@ -1058,6 +1060,7 @@ public class GameController implements Screen {
                 uiController.createNotebookTargetSelector("Select a target to view facts for.", targets, levelController);
                 break;
             case "distract":
+            case "gaslight":
                 break;
             default:
                 System.out.println("You shall not pass");
