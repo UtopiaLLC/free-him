@@ -5,6 +5,7 @@ import com.adisgrace.games.models.TraitModel.Trait;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 /**
@@ -15,9 +16,14 @@ public final class LevelEditorConstants {
     public static final int SCREEN_WIDTH = 1280;
     public static final int SCREEN_HEIGHT = 720;
 
+    /** Skin for Scene2D elements */
+    public static final Skin skin = new Skin(Gdx.files.internal("skins/neon-ui.json"));
+
     /** Order of connectors (N,E,S,W) */
     public static final Connector.Direction[] CONN_ORDER = {Connector.Direction.N, Connector.Direction.E, Connector.Direction.S, Connector.Direction.W};
     public static final String[] CONN_NAME_ORDER = {"N","E","S","W"};
+    /** Constants to get the correct indices for node textures */
+    public static final int TARGET_LOW = 0, UNLOCKED_LOW = 1, LOCKED_LOW = 2, TARGET_HIGH = 3, UNLOCKED_HIGH = 4, LOCKED_HIGH = 5;
     /** Array of all textures for nodes */
     public static final Texture[] NODE_TEXTURES = new Texture[]{
             new Texture(Gdx.files.internal("leveleditor/N_TargetMaleIndividualLow_1.png")),
@@ -29,13 +35,14 @@ public final class LevelEditorConstants {
     };
     /** Array of all TextureRegionDrawables for nodes */
     public static final TextureRegionDrawable[] NODE_TRDS = new TextureRegionDrawable[]{
-            new TextureRegionDrawable(NODE_TEXTURES[0]),
-            new TextureRegionDrawable(NODE_TEXTURES[1]),
-            new TextureRegionDrawable(NODE_TEXTURES[2]),
-            new TextureRegionDrawable(NODE_TEXTURES[3]),
-            new TextureRegionDrawable(NODE_TEXTURES[4]),
-            new TextureRegionDrawable(NODE_TEXTURES[5])
+            new TextureRegionDrawable(NODE_TEXTURES[TARGET_LOW]),
+            new TextureRegionDrawable(NODE_TEXTURES[UNLOCKED_LOW]),
+            new TextureRegionDrawable(NODE_TEXTURES[LOCKED_LOW]),
+            new TextureRegionDrawable(NODE_TEXTURES[TARGET_HIGH]),
+            new TextureRegionDrawable(NODE_TEXTURES[UNLOCKED_HIGH]),
+            new TextureRegionDrawable(NODE_TEXTURES[LOCKED_HIGH])
     };
+
     /** Array of TextureRegionDrawables of all node creation buttons, in order */
     public static final TextureRegionDrawable[] ADD_NODE_TRD_ORDER = new TextureRegionDrawable[]{
             new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_AddNodeTarget_1.png"))),
@@ -52,7 +59,7 @@ public final class LevelEditorConstants {
     };
 
     /** Predefined stress levels for FactNodes */
-    public enum StressRating{
+    public enum StressRating {
         NONE, LOW, MED, HIGH
     }
 
@@ -104,6 +111,8 @@ public final class LevelEditorConstants {
             Trait.BAD_CONNECTION, Trait.TECHNOLOGICALLY_ILLITERATE, Trait.SENSITIVE};
     /** Array of stress ratings available as options */
     public static final StressRating[] SR = {StressRating.NONE, StressRating.LOW, StressRating.MED, StressRating.HIGH};
+    /** Constants for stress rating values */
+    public static final int SR_NONE = 0, SR_LOW = 5, SR_MED = 10, SR_HIGH = 20;
 
     /** Width of a target/node form, in terms of percentage of screen width */
     public static final float FORM_WIDTH = 0.23f;

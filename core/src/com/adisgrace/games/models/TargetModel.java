@@ -118,35 +118,6 @@ public class TargetModel {
 		// Get firstNodes
 		firstNodes = mapChildrenToPaths(json.get("firstNodes"), json.get("firstConnectors"),
 				json.get("firstConnectorTypes"));
-// 		firstNodes = new Array<>();
-// 		JsonValue firstNodesArr = json.get("firstNodes");
-// 		itr = firstNodesArr.iterator();
-// 		while (itr.hasNext()){firstNodes.add(itr.next().asString());}
-
-//		// Get traits, UNCOMMENT when traits finished in json
-//		Array<String> temp = new Array<String>();
-//		JsonValue traitsArr = json.get("traits");
-//		itr = traitsArr.iterator();
-//		while (itr.hasNext()){temp.add(itr.next().asString());}
-//		traits = new TraitModel(temp);
-
-
-		// Get firstConnectorPaths
-		// Get array of paths, where each path is an array of coordinates, where each coordinate is
-		// an array of exactly 2 ints representing isometric coordinates
-		//firstConnectorPaths = readConnectorCoords(json.get("firstConnectors"));
-
-		// Get firstConnectorTypes
-		// Get array of paths, where each path is an array of coordinates, where each coordinate is
-		// an array of exactly 2 ints representing isometric coordinates
-		//firstConnectorTypes = readConnectorTypes(json.get("firstConnectorTypes"));
-
-
-//		// Get target coordinates
-//		neighborArr = json.get("loc");
-//		itr = neighborArr.iterator();
-//		locX = itr.next().asInt();
-//		locY = itr.next().asInt();
 
 		// Get nodes
 		JsonValue nodesArr = json.get("pod");
@@ -723,23 +694,6 @@ public class TargetModel {
 	}
 
 	/**
-	 * Used to harass the target.
-	 *
-	 * Target stress and suspicion are increased by a low amount.
-	 *
-	 * Returns the amount of damage dealt.
-	 *
-	 * @return	Amount of damage to be dealt to the target
-	 */
-	public int harass() {
-		// Increase target's suspicion by a low amount
-		suspicion += randInRange(SUSPICION_LOW, 50);
-		naturallySuspiciousCheck = true;
-		// Return low amount of stress damage to deal to target
-		return randInRange(5, 50);
-	}
-
-	/**
 	 * Used to threaten the target with the fact stored at the given node.
 	 * 
 	 * If the fact can be used to threaten, moves the target to the Threatened state, resets the
@@ -752,7 +706,7 @@ public class TargetModel {
 	 * @param fact	Name of the node where the threatening fact is stored
 	 * @return 		Amount of damage dealt to target (can be 0)
 	 */
-	public int threaten(String fact) {
+	public int harass(String fact) {
 		int stressDmg = getFactNode(fact).getTargetStressDmg();
 		// Increase target's suspicion by a low amount
 		suspicion += randInRange(SUSPICION_LOW, 25);
@@ -762,7 +716,8 @@ public class TargetModel {
 			// Deal stress damage to target
 			addStress(stressDmg);
 			// Move target to threatened
-			state = TargetState.THREATENED;
+			//TODO: threaten has become harass, and harass does not change target state
+//			state = TargetState.THREATENED;
 			// Reset countdown to next Paranoia check
 			countdown = paranoia;
 		}
@@ -793,6 +748,7 @@ public class TargetModel {
 			// Deal damage to target
 			addStress(stressDmg);
 			// Move target to Paranoid
+			//TODO: match to action outcomes
 			state = TargetState.PARANOID;
 			// Reset countdown to next Paranoia check
 			countdown = paranoia;
