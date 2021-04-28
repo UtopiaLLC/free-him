@@ -162,7 +162,7 @@ public class GameController implements Screen {
     private static final int TILE_HEIGHT = 256;
     private static final int TILE_WIDTH = 444;
 
-    private int currentLevel;
+    public int currentLevel;
 
     private Array<Connector> visibleConnectors;
 
@@ -216,9 +216,9 @@ public class GameController implements Screen {
         shapeRenderer = new ShapeRenderer();
 
         music = Gdx.audio.newMusic(Gdx.files.internal("music/Moonlit_Skyline.mp3"));
-        music.setVolume(0.1f);
         music.setLooping(true);
-        music.play();
+        setVolume(0.1f);
+        playMusic();
 
         NorthConnectorAnimation = connectorAnimation(NorthConnector);
         SouthConnectorAnimation = connectorAnimation(SouthConnector);
@@ -238,7 +238,6 @@ public class GameController implements Screen {
      * renders the game display at consistent time steps
      */
     public void render(float delta) {
-
         canvas.clear();
 
         // If no action is currently selected, and the cursor is not hovering above any button, then remove any effects
@@ -412,6 +411,16 @@ public class GameController implements Screen {
             //Adds enter and exit listeners to each node button
             //b.addListener(ic.addNodeListenerEnterExit(skin, levelController));
             button.remove();
+        }
+    }
+
+    public void handleLevelSwitching() {
+        if(ic.didLeftArrow()) {
+            if(currentLevel-1 < 0) {return;}
+            loadLevel(currentLevel-1);
+        } else if(ic.didRightArrow()) {
+            if(currentLevel+1 > levelControllers.size-1) {return;}
+            loadLevel(currentLevel+1);
         }
     }
 
@@ -1012,5 +1021,17 @@ public class GameController implements Screen {
         stressBar.setValue(levelController.getPlayerStress());
         bitecoinAmount.setText(Integer.toString((int)levelController.getPlayerCurrency()));
         ap.setText("AP: " + Integer.toString(levelController.getAP()));
+    }
+
+    public void playMusic() {
+        music.play();
+    }
+
+    public void stopMusic() {
+        music.stop();
+    }
+
+    public void setVolume(float volume) {
+        music.setVolume(volume);
     }
 }

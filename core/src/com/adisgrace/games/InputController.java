@@ -56,6 +56,9 @@ public class InputController {
 	private boolean ePressed;
 	private boolean qPressed;
 
+	private boolean leftPressed;
+	private boolean rightPressed;
+
 	/** Whether right-click was just pressed */
 	private boolean rightClicked;
 	/** Whether left-click was just pressed */
@@ -98,6 +101,21 @@ public class InputController {
 	 * @return true if the S key was pressed.
 	 */
 	public boolean didDown() {return sPressed;}
+
+	/**
+	 * Returns true if the left key was pressed.
+	 *
+	 * @return true if the left key was pressed.
+	 */
+	public boolean didLeftArrow() {return leftPressed;}
+
+	/**
+	 * Returns true if the right key was pressed.
+	 *
+	 * @return true if the right key was pressed.
+	 */
+	public boolean didRightArrow() {return rightPressed;}
+
 
 	/**
 	 * Returns true if the E key was pressed.
@@ -279,6 +297,9 @@ public class InputController {
 
 		// Undo button (Z)
 		zPressed = Gdx.input.isKeyJustPressed(Input.Keys.Z);
+
+		leftPressed = Gdx.input.isKeyPressed(Input.Keys.LEFT);
+		rightPressed = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
 	}
 
 	/**
