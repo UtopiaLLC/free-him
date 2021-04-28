@@ -6,7 +6,6 @@ import com.adisgrace.games.models.TraitModel.Trait;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Array;
 
 /**
  * Static file of constants, including assets, for the level editor, stored separately for convenience.
@@ -108,4 +107,22 @@ public final class LevelEditorConstants {
     /** Default values for certain stats */
     public static final int DEFAULT_PARANOIA = 3;
     public static final int DEFAULT_MAX_STRESS = 50;
+
+    /**
+     * Finds the index of a value in the array.
+     *
+     * Returns the index of the given value in the array, or -1 if the value was not found.
+     *
+     * @param val       Value in array
+     * @param arr       Array that value belongs to
+     * @return          Index of the value in the array
+     */
+    public static <T>int find(T val, T[] arr) {
+        // Loop through array until given value is found in the array
+        for (int k=0; k<arr.length; k++) {
+            if (arr[k].equals(val)) {return k;}
+        }
+        // Return -1 if value was not found
+        return -1;
+    }
 }

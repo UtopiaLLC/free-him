@@ -142,24 +142,6 @@ public class LevelEditorController implements Screen {
     }
 
     /**
-     * Helper function that finds the index of a value in the array.
-     *
-     * Returns the index of the given value in the array, or -1 if the value was not found.
-     *
-     * @param val       Value in array
-     * @param arr       Array that value belongs to
-     * @return          Index of the value in the array
-     */
-    private <T>int find(T val, T[] arr) {
-        // Loop through array until given value is found in the array
-        for (int k=0; k<arr.length; k++) {
-            if (arr[k].equals(val)) {return k;}
-        }
-        // Return -1 if value was not found
-        return -1;
-    }
-
-    /**
      * Helper function that compares equality between two "nodes," represented
      * as named images.
      *
@@ -436,6 +418,12 @@ public class LevelEditorController implements Screen {
                     public void changed(ChangeEvent event, Actor actor) {
                         // Get level name from relevant text box
                         model.setLevelName(levelName.getText());
+                        // If any forms are open, save and clear those
+                        saveAndClearForm(targetForm);
+                        saveAndClearForm(nodeForm);
+                        // Hide form background
+                        formBG.setVisible(false);
+
                         // Save the level
                         parser.saveLevel(model);
                     }

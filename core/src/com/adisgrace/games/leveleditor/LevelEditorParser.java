@@ -500,7 +500,7 @@ public class LevelEditorParser {
                 "\t\"targetName\": \"" + targets.get(targetName).name + "\",\n" +
                 "\t\"paranoia\": " + targets.get(targetName).paranoia + ",\n" +
                 "\t\"maxStress\": " + targets.get(targetName).maxStress + ",\n" +
-                "\t\t\"traits\": " + targets.get(targetName).traits.toString() + ",\n" +
+                "\t\"traits\": " + targets.get(targetName).traitsAsString() + ",\n" +
                 "\t\"firstNodes\": " + firstnodes + ",\n" +
                 "\t\"firstConnectors\": " + firstconnections + ",\n" +
                 "\t\"firstConnectorTypes\": " + firstconnectiontypes + ",\n" +

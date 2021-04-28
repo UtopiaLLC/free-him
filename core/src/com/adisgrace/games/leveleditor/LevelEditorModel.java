@@ -2,19 +2,13 @@ package com.adisgrace.games.leveleditor;
 
 import com.adisgrace.games.util.Connector;
 import com.adisgrace.games.util.Connector.Direction;
-import com.adisgrace.games.leveleditor.LevelEditorConstants.StressRating;
+import static com.adisgrace.games.leveleditor.LevelEditorConstants.*;
 import com.adisgrace.games.models.TraitModel.Trait;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
-
-import java.io.IOException;
-import java.util.Scanner;
-
-import static com.adisgrace.games.leveleditor.LevelEditorConstants.DEFAULT_MAX_STRESS;
-import static com.adisgrace.games.leveleditor.LevelEditorConstants.DEFAULT_PARANOIA;
 
 /**
  * Class for handling the save/load functionality of the level editor.
@@ -66,6 +60,25 @@ public class LevelEditorModel {
             this.x = x;
             this.y = y;
             this.im = im;
+        }
+
+        /**
+         * Returns this target's traits converted into a single string.
+         *
+         * This is used when writing the traits to the JSON when saving the level.
+         *
+         * @return  Target's traits converted into a single string.
+         */
+        public String traitsAsString() {
+            String finalString = "[";
+            for (Trait trait : traits) {
+                finalString += "\"" + TRAIT_OPTIONS_STRINGS[find(trait, TRAIT_OPTIONS)] + "\", ";
+            }
+            // If at least one trait was saved, trim the last comma
+            if (finalString.length() > 2) {
+                finalString = finalString.substring(0,finalString.length() - 2);
+            }
+            return finalString + "]";
         }
     }
 
