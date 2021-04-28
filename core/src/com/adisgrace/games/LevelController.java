@@ -38,6 +38,7 @@ public class LevelController {
      * @return the current state of the level
      */
     public LevelModel.LevelState getLevelState(){
+        if(!player.isLiving()) return LevelModel.LevelState.LOSE;
         return levelModel.getLevelState();
     }
 
