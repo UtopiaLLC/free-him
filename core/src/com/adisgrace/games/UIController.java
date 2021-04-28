@@ -161,7 +161,7 @@ public class UIController {
         dialog.getBackground().setMinWidth(300);
         dialog.getBackground().setMinHeight(300);
 //        Label l = new Label( s, skin );
-        Label l = new Label(s, skin);
+        Label l = new Label(s, skin, "dialog-box");
         l.setFontScale(2);
         l.setWrap( true );
         l.setColor(Color.BLACK);
@@ -189,7 +189,7 @@ public class UIController {
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
-        Label l = new Label( s, skin );
+        Label l = new Label( s, skin, "dialog-box");
         l.setColor(Color.BLACK);
         if(s.length() > 50) {
             l.setFontScale(1.5f);
@@ -223,7 +223,7 @@ public class UIController {
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
-        Label l = new Label( s, skin );
+        Label l = new Label( s, skin, "dialog-box");
         l.setColor(Color.BLACK);
         if(s.length() > 50) {
             l.setFontScale(1.5f);
@@ -251,7 +251,7 @@ public class UIController {
 
         table.row();
         for (int i = 0; i < scannedFacts.size; i++) {
-            Label k = new Label(scannedFacts.get(i), skin);
+            Label k = new Label(scannedFacts.get(i), skin, "dialog-box");
             k.setFontScale(1.3f);
             k.setWrap(true);
             table.add(k).prefWidth(350);
@@ -289,7 +289,7 @@ public class UIController {
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
-        Label l = new Label( s, skin );
+        Label l = new Label( s, skin, "dialog-box");
         l.setColor(Color.BLACK);
         if(s.length() > 50) {
             l.setFontScale(1.5f);
@@ -579,7 +579,7 @@ public class UIController {
         GameController.blackmailDialog.setBackground(drawable);
         GameController.blackmailDialog.getBackground().setMinWidth(500);
         GameController.blackmailDialog.getBackground().setMinHeight(500);
-        Label l = new Label(s, skin);
+        Label l = new Label(s, skin, "dialog-box");
         l.setColor(Color.BLACK);
         //scale sizing based on the amount of text
         if(s.length() > 50) {
@@ -641,7 +641,7 @@ public class UIController {
         for (int i = 0; i < scannedFacts.size; i++) {
             final int temp_i = i;
             //this should ALWAYS be overwritten in the code underneath
-            Label k = new Label("No facts", skin);
+            Label k = new Label("No facts", skin, "dialog-box");
             String factIDAndSummaryKey = summaryToFacts.get(scannedFacts.get(temp_i)) + scannedFacts.get(temp_i);
             System.out.println("here: " + factIDAndSummaryKey);
             if(GameController.activeVerb == GameController.ActiveVerb.EXPOSE ){

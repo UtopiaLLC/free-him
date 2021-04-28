@@ -23,6 +23,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import org.w3c.dom.ls.LSOutput;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -192,9 +193,9 @@ public class GameController implements Screen {
         //TODO: write function to parse folder of level jsons
         levelJsons = new Array<>();
         levelJsons.add("sample-level-1.json");
-//        levelJsons.add("sample-level-2.json");
-//        levelJsons.add("simple_level_1.json");
-//        levelJsons.add("Research_Scientist.json");
+        levelJsons.add("sample-level-2.json");
+        levelJsons.add("simple_level_1.json");
+        levelJsons.add("Research_Scientist.json");
         levelControllers = new Array<>();
 
         for(String s : levelJsons) {
@@ -390,6 +391,7 @@ public class GameController implements Screen {
                 nodeLabel.setWidth(300f);
                 nodeLabel.setHeight(100f);
             }
+            final LevelController lc = levelController;
             b.addListener(ic.getButtonListener(
                     new Runnable() {
                         @Override
@@ -400,7 +402,7 @@ public class GameController implements Screen {
                         @Override
                         public void run() {
                             uiController.nodeOnEnter(
-                                    getColorTypeFromState(levelController.getTargetModels().get(nodeInfo[0]).getState()),
+                                    getColorTypeFromState(lc.getTargetModels().get(nodeInfo[0]).getState()),
                                     nodeLabel, b);
                         }
                     },
@@ -408,8 +410,8 @@ public class GameController implements Screen {
                         @Override
                         public void run() {
                             uiController.nodeOnExit(
-                                    getColorTypeFromState(levelController.getTargetModels().get(nodeInfo[0]).getState()),
-                                    nodeLabel, b);
+                                        getColorTypeFromState(lc.getTargetModels().get(nodeInfo[0]).getState()),
+                                        nodeLabel, b);
                         }
                     }));
             //Adds enter and exit listeners to each node button
@@ -581,12 +583,8 @@ public class GameController implements Screen {
             public void clicked(InputEvent event, float x, float y)
             {
                 final String s = "notebook";
-                uiController.confirmDialog("Are you sure you want to open notebook?", new Runnable(){
-                    @Override
-                    public void run() {
-                        callConfirmFunction(s);
-                    }
-                });
+                callConfirmFunction(s);
+
             }
         });
         return notebook;
