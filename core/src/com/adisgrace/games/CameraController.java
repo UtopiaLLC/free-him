@@ -33,7 +33,7 @@ public class CameraController {
 
         // Set initial zoom
         currentZoom = camera.zoom;
-        camera.zoom = 1.5f;
+        camera.zoom = 2f;
     }
 
     /**

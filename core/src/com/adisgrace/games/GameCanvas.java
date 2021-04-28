@@ -1196,11 +1196,10 @@ public class GameCanvas {
 	/**
 	 * Draws an isometric grid on the given stage
 	 *
-	 * @param stage		The stage to which the grid will be drawn
 	 * @param width		the horizontal radius of the grid
 	 * @param height	the vertical radius of the grid
 	 */
-	public void drawIsometricGrid(Stage stage, int width, int height){
+	public void drawIsometricGrid(int width, int height){
 		int twidth = 444;
 		int theight = 256;
 
@@ -1224,8 +1223,8 @@ public class GameCanvas {
 		}
 		//assuming grid tiles are (444, 256) in size
 		//drawing a 100 x 100 tile grid centered around the origin, offset so that (0, 0) is the center of the tile sprite
-		for(int col = -width / 2; col <= width / 2; col+=1){
-			for(int row = -height / 2; row <= height / 2; row+=1){
+		for(int col = -width / 4; col < (width / 4) + (width % 4) / 2; col+=1){
+			for(int row = -height / 4; row < (height / 4) + (height % 4) / 2; row+=1){
 				draw(tile, Color.WHITE, 0, 0, (-twidth/2) + twidth*col, (-theight/2) + theight*row, 444, 256);
 			}
 		}

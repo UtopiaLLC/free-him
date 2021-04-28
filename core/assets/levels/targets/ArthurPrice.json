@@ -1,0 +1,103 @@
+{
+	"targetName": "Arthur Price",
+	"paranoia": 4,
+	"maxStress": 40,
+	"traits": ["technologically_literate"],
+	"firstNodes": ["2Node1", "2Node3", "2Node2"],
+	"firstConnectors": [[[0,0], [0,-1], [0,-2]], [[0,0], [0,1], [1,1], [2,1]], [[0,0], [-1,0], [-2,0], [-3,0], [-3,1]]],
+	"firstConnectorTypes": [["S", "NS", "N"], ["N", "SE", "WE", "W"], ["W", "EW", "EW", "EN", "S"]],
+	"pod": 	[
+{
+		"nodeName": "2Node1",
+		"title": "Bad Relationships",
+		"coords": [0.0,-2.0],
+		"locked": true,
+		"content": "There has been rumors about how he doesn't get along well with other fellow researchers at Torchlight. It seems that he does not allow other people to talk about details of his research in his lab.",
+		"summary": "He has bad relationships with his colleagues and technicians in his lab.",
+		"children": ["1Node4"],
+		"targetStressDamage": 0,
+		"playerStressDamage": 5,
+		"connectorCoords": [[[0,-2], [0,-3], [1,-3], [1,-4]]],
+		"connectorTypes": [["S", "NE", "WS", "N"]]
+	},
+{
+		"nodeName": "2Node3",
+		"title": "Doodle Scholar",
+		"coords": [2.0,1.0],
+		"locked": true,
+		"content": "In his 3rd most cited paper, \"BDFS: How to Collect Chests in Ganshin Impact Fully Automated\", you find his graphs and tables seems a bit off but doesn't have any clue why.",
+		"summary": "Weird data in his published paper.",
+		"children": ["2Node5"],
+		"targetStressDamage": 5,
+		"playerStressDamage": 0,
+		"connectorCoords": [[[2,1], [2,2], [2,3], [2,4]]],
+		"connectorTypes": [["N", "SN", "SN", "S"]]
+	},
+{
+		"nodeName": "2Node2",
+		"title": "Radioactive Man fan",
+		"coords": [-3.0,1.0],
+		"locked": true,
+		"content": "His amazon account shows that he is a big Radioactive Man fan. He even purchased all Radioactive Man nendriods from amazon.co.jp",
+		"summary": "He loves Radioactive Man and collects merchandise",
+		"children": ["1Node7"],
+		"targetStressDamage": 0,
+		"playerStressDamage": 0,
+		"connectorCoords": [[[-3,1], [-4,1], [-5,1], [-5,2]]],
+		"connectorTypes": [["W", "EW", "EN", "S"]]
+	},
+{
+		"nodeName": "1Node7",
+		"title": "Big Spender",
+		"coords": [-5.0,2.0],
+		"locked": false,
+		"content": "He spent over $4000 bitecoins on a game called Gankknights. He also posted screenshots of card draws in the game on his social media",
+		"summary": "Spends a lot on gatcha games",
+		"children": [],
+		"targetStressDamage": 0,
+		"playerStressDamage": 5,
+		"connectorCoords": [],
+		"connectorTypes": []
+	},
+{
+		"nodeName": "2Node5",
+		"title": "Abnormal Numerical Data",
+		"coords": [2.0,4.0],
+		"locked": true,
+		"content": "After consulting an expert in the area, the expert pointed out that the numerical data in his paper is forged according to the Newcomb-Benford law.",
+		"summary": "Arthur's paper have forged data",
+		"children": ["1Node6"],
+		"targetStressDamage": 10,
+		"playerStressDamage": 5,
+		"connectorCoords": [[[2,4], [3,4], [4,4]]],
+		"connectorTypes": [["E", "WE", "W"]]
+	},
+{
+		"nodeName": "1Node6",
+		"title": "Corporate Transaction History",
+		"coords": [4.0,4.0],
+		"locked": false,
+		"content": "You discovered a large sum of bitecoins transacted into his account right before the paper with forged data was published. The transaction seems to be from one of Torchlights VPs.",
+		"summary": "The research was heavily influenced by a Torchlight VP",
+		"children": [],
+		"targetStressDamage": 20,
+		"playerStressDamage": 10,
+		"connectorCoords": [],
+		"connectorTypes": []
+	},
+{
+		"nodeName": "1Node4",
+		"title": "Fired technician",
+		"coords": [1.0,-4.0],
+		"locked": false,
+		"content": "A technician who used to work in his lab reported on Blueddit that past research from the lab is hard to replicate",
+		"summary": "Research from Arthur's lab is hard to replicate",
+		"children": [],
+		"targetStressDamage": 10,
+		"playerStressDamage": 5,
+		"connectorCoords": [],
+		"connectorTypes": []
+	}
+	],
+	"combos": []
+}

@@ -1,0 +1,6 @@
+{
+	"name": "Research_Scientist",
+	"dims": [0, 0],
+	"targets": ["ArthurPrice.json"],
+	"targetLocs": [[0, -1]]
+}

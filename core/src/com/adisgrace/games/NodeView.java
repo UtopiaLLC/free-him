@@ -68,7 +68,6 @@ public class NodeView {
         //targetCoords = scaleNodeCoordinates(targetCoords, ADD, SCALE_X, SCALE_Y);
 
         imageNodes = new HashMap<>();
-      
         createImageNodes(target, targetNodes, targetCoords, locked);
     }
 

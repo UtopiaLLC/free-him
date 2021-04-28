@@ -5,6 +5,7 @@ import com.adisgrace.games.util.ButtonFactory;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -16,7 +17,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 
-import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -155,17 +155,20 @@ public class UIController {
                 }
             }
         };
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(300);
         dialog.getBackground().setMinHeight(300);
-        Label l = new Label( s, skin );
+//        Label l = new Label( s, skin );
+        Label l = new Label(s, skin);
         l.setFontScale(2);
         l.setWrap( true );
+        l.setColor(Color.BLACK);
         dialog.getContentTable().add( l ).prefWidth( 250 );
-        dialog.button("Yes", true); //sends "true" as the result
-        dialog.button("No", false);  //sends "false" as the result
+        float bottomPad = getDialogButtonBottomPadding(300);
+        dialog.button("Yes", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
+        dialog.button("No", false).pad(0f,0f,bottomPad,0f);  //sends "false" as the result
         dialog.show(GameController.toolbarStage);
 
     }
@@ -181,12 +184,13 @@ public class UIController {
                 GameController.nodeFreeze = false;
             }
         };
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
         Label l = new Label( s, skin );
+        l.setColor(Color.BLACK);
         if(s.length() > 50) {
             l.setFontScale(1.5f);
         }else {
@@ -194,7 +198,9 @@ public class UIController {
         }
         l.setWrap( true );
         dialog.getContentTable().add( l ).prefWidth( 350 );
-        dialog.button("Ok", true); //sends "true" as the result
+
+        float bottomPad = getDialogButtonBottomPadding(500);
+        dialog.button("Ok", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
         dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         dialog.show(GameController.toolbarStage);
         GameController.nodeFreeze = true;
@@ -207,17 +213,18 @@ public class UIController {
      * @param levelController controller instance for the level
      */
     public void createNotebookDialog(String s,  String targetName, LevelController levelController) {
-        Dialog dialog = new Dialog("Notebook", skin) {
+        Dialog dialog = new Dialog("", skin) {
             public void result(Object obj) {
                 GameController.nodeFreeze = false;
             }
         };
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
         Label l = new Label( s, skin );
+        l.setColor(Color.BLACK);
         if(s.length() > 50) {
             l.setFontScale(1.5f);
         }else {
@@ -250,8 +257,8 @@ public class UIController {
             table.add(k).prefWidth(350);
             table.row();
         }
-
-        dialog.button("Ok", true); //sends "true" as the result
+        float bottomPad = getDialogButtonBottomPadding(500);
+        dialog.button("Ok", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
         dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         dialog.show(GameController.toolbarStage);
         GameController.nodeFreeze = true;
@@ -265,7 +272,7 @@ public class UIController {
      */
     public void createNotebookTargetSelector(String s, final Array<TargetModel> targets,
                                              final LevelController levelController) {
-        Dialog dialog = new Dialog("Notebook", skin) {
+        Dialog dialog = new Dialog("", skin) {
             public void result(Object obj) {
                 GameController.nodeFreeze = false;
 
@@ -277,12 +284,13 @@ public class UIController {
             }
         };
 
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
         Label l = new Label( s, skin );
+        l.setColor(Color.BLACK);
         if(s.length() > 50) {
             l.setFontScale(1.5f);
         }else {
@@ -292,10 +300,11 @@ public class UIController {
         dialog.getContentTable().add( l ).prefWidth( 350 );
         dialog.setMovable(true);
 
+        float bottomPad = getDialogButtonBottomPadding(500);
         for(int i = 0; i < targets.size; i++) {
-            dialog.button(targets.get(i).getName(), i);
+            dialog.button(targets.get(i).getName(), i).pad(0f,0f,bottomPad,0f);
         }
-        dialog.button("Cancel", true); //sends "true" as the result
+        dialog.button("Cancel", true).pad(0f,0f,bottomPad,0f);; //sends "true" as the result
         dialog.show(GameController.toolbarStage);
     }
 
@@ -452,8 +461,7 @@ public class UIController {
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(overwork,s,
-                                GameController.ActiveVerb.OVERWORK, confirmFunction);
+                        toolbarOnClick(overwork,s,GameController.ActiveVerb.OVERWORK, confirmFunction);
                     }
                 }, new Runnable() {
                     @Override
@@ -505,17 +513,9 @@ public class UIController {
     }
 
     public Label createHoverLabel(String s) {
-//        Dialog dialog = new Dialog("", skin );
-//        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
-//        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
-//
-//        dialog.setHeight(400);
-//        dialog.setBackground(drawable);
-
         Label l = new Label(s, skin, "win-95");
         l.setWrap(true);
-        l.setHeight(100);
-
+        l.setHeight(70);
         return l;
     }
 
@@ -566,21 +566,21 @@ public class UIController {
      * @param s the text that is displayed above the facts to select
      */
     public void getBlackmailFact(String s, String targetName, LevelController levelController) {
-        GameController.blackmailDialog = new Dialog("Notebook", skin) {
+        GameController.blackmailDialog = new Dialog("", skin) {
             public void result(Object obj) {
                 //to activate the node clicking once more
                 GameController.nodeFreeze = false;
                 GameController.activeVerb = GameController.ActiveVerb.NONE;
             }
         };
-        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/background.png")));
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
 
         GameController.blackmailDialog.setBackground(drawable);
         GameController.blackmailDialog.getBackground().setMinWidth(500);
         GameController.blackmailDialog.getBackground().setMinHeight(500);
-//        Label l = new Label( s, skin );
-        Label l = new Label(s, skin, "win-95");
+        Label l = new Label(s, skin);
+        l.setColor(Color.BLACK);
         //scale sizing based on the amount of text
         if(s.length() > 50) {
             l.setFontScale(1.5f);
@@ -613,8 +613,8 @@ public class UIController {
         table.row();
 
         addEligibleBlackmailFacts(scannedFacts, summaryToFacts, targetName, table, levelController, factSummaries);
-
-        GameController.blackmailDialog.button("Cancel", true); //sends "true" as the result
+        float bottomPad = getDialogButtonBottomPadding(500);
+        GameController.blackmailDialog.button("Cancel", true).pad(0f,0f,bottomPad,0f);; //sends "true" as the result
         GameController.blackmailDialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         GameController.blackmailDialog.show(GameController.toolbarStage);
         //Make sure nothing else is able to be clicked while blackmail dialog is shown
@@ -668,6 +668,7 @@ public class UIController {
                 k.setName(targetName + "," + summaryToFacts.get(scannedFacts.get(i)));
                 k.addListener(getBlackmailFactListener(levelController, factIDAndSummaryKey));
             }
+            k.setColor(Color.BLACK);
             table.add(k).prefWidth(350);
             table.row();
         }
@@ -728,6 +729,11 @@ public class UIController {
     public void nodeOnExit(int colorState, Label buttonLabel, Node node) {
         buttonLabel.remove();
         node.changeColor(colorState);
+    }
+
+    private float getDialogButtonBottomPadding(int wh) {
+        if (wh >= 400) return 40f;
+        return 20f;
     }
 
 }
