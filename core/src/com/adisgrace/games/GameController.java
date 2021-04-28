@@ -167,13 +167,6 @@ public class GameController implements Screen {
 
     public int currentLevel;
 
-    private Array<Connector> visibleConnectors;
-
-    private Texture NorthConnector;
-    private Texture SouthConnector;
-    private Texture EastConnector;
-    private Texture WestConnector;
-
     private Animation<TextureRegion> NorthConnectorAnimation;
     private Animation<TextureRegion> SouthConnectorAnimation;
     private Animation<TextureRegion> EastConnectorAnimation;
@@ -211,11 +204,6 @@ public class GameController implements Screen {
 
         loadLevel(0);
 
-        NorthConnector = Connector.getTexture("N");
-        SouthConnector = Connector.getTexture("S");
-        WestConnector = Connector.getTexture("W");
-        EastConnector = Connector.getTexture("E");
-
         cameraController = new CameraController(ic, canvas);
         createToolbar();
         shapeRenderer = new ShapeRenderer();
@@ -225,10 +213,10 @@ public class GameController implements Screen {
         setVolume(0.1f);
         playMusic();
 
-        NorthConnectorAnimation = connectorAnimation(NorthConnector);
-        SouthConnectorAnimation = connectorAnimation(SouthConnector);
-        EastConnectorAnimation = connectorAnimation(EastConnector);
-        WestConnectorAnimation = connectorAnimation(WestConnector);
+        NorthConnectorAnimation = connectorAnimation(Connector.TX_NORTH);
+        SouthConnectorAnimation = connectorAnimation(Connector.TX_SOUTH);
+        EastConnectorAnimation = connectorAnimation(Connector.TX_EAST);
+        WestConnectorAnimation = connectorAnimation(Connector.TX_WEST);
 
         
     }
@@ -473,11 +461,6 @@ public class GameController implements Screen {
         }
 
         addNodeListeners(imageNodes);
-
-        NorthConnector = Connector.getTexture("N");
-        SouthConnector = Connector.getTexture("S");
-        WestConnector = Connector.getTexture("W");
-        EastConnector = Connector.getTexture("E");
 
 
         //This draws all the primary connections that are visible at the beginning of the game

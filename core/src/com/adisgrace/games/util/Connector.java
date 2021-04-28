@@ -47,7 +47,7 @@ public class Connector {
     private static final String C_WEST = "leveleditor/connectors/C_W_2.png";
 
     /** Textures for each type of connector */
-    private static final Texture TX_NORTH = new Texture(Gdx.files.internal(C_NORTH)),
+    public static final Texture TX_NORTH = new Texture(Gdx.files.internal(C_NORTH)),
             TX_EAST = new Texture(Gdx.files.internal(C_EAST)), TX_SOUTH = new Texture(Gdx.files.internal(C_SOUTH)),
             TX_WEST = new Texture(Gdx.files.internal(C_WEST));
 
