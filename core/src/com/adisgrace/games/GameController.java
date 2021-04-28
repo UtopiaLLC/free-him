@@ -370,8 +370,7 @@ public class GameController implements Screen {
             String s;
             if(nodeInfo.length == 1) {
                 s =  "\nTarget Name: " + b.getName() + "\n" +
-                        "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n" +
-                        "Target Suspicion: " + levelController.getTargetSuspicion(b.getName()) + "\n";
+                        "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n";
             } else {
                 s = levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
             }
