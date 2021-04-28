@@ -10,7 +10,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -19,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.*;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -33,7 +33,7 @@ public class LevelEditorController implements Screen {
     /**
      * Enumeration representing the current mode of the level editor
      */
-    public enum Mode {
+    private enum Mode {
         /**
          * Move Mode: nodes can be freely moved around onscreen
          */
@@ -52,64 +52,51 @@ public class LevelEditorController implements Screen {
         DRAW
     }
 
-    /**
-     * Model for level created in the level editor
-     */
+    /** Model for level created in the level editor */
     private LevelEditorModel model;
-    /**
-     * Parser to use to convert models to JSONs
-     */
-    private LevelEditorParser parser;
+    /** Parser to use to convert models to JSONs */
+    private LevelEditorParser parser = new LevelEditorParser();
+    /** Canvas is the primary view class of the game */
+    private final GameCanvas canvas = new GameCanvas();
+    /** Gets player input */
+    private final InputController input = InputController.getInstance();
     /** Factory used to create form entries */
-    private FormFactory formFactory;
+    private FormFactory formFactory = new FormFactory(input);
+    /** Controller for view camera for node map */
+    private final CameraController camera = new CameraController(input, canvas);
 
-    /**
-     * Canvas is the primary view class of the game
-     */
-    private final GameCanvas canvas;
-    /**
-     * Gets player input
-     */
-    private final InputController input;
-    /**
-     * Controller for view camera for node map
-     */
-    private final CameraController camera;
-
-    /**
-     * Stage where nodes and connectors are drawn
-     */
-    Stage nodeStage;
+    /** Stage where nodes and connectors are drawn */
+    private Stage nodeStage;
     /**
      * Stage where buttons are drawn on
      */
-    Stage toolStage;
+    private Stage toolStage;
 
     /**
      * Table for target edit form
      */
-    Table targetForm = new Table();
+    private Table targetForm = new Table();
     /**
      * Table for node edit form
      */
-    Table nodeForm = new Table();
+    private Table nodeForm = new Table();
     /**
      * Background for the forms
      */
-    Image formBG = new Image(SR_TRD_BLANK);
+    private Image formBG = new Image(SR_TRD_BLANK);
 
     /**
      * Image representing the current node that is being clicked on
      */
-    Image selectedNode;
+    private Image selectedNode;
     /**
      * If a prior selected node was deselected in favor of selecting a new node, this is the new node
      */
-    Image newSelectedNode;
+    private Image newSelectedNode;
     /**
      * If the form background was clicked
      */
-    boolean wasFormBGClicked = false;
+    private boolean wasFormBGClicked = false;
 
     /**
      * Current mode of the level editor, initialized as Move mode
@@ -119,14 +106,9 @@ public class LevelEditorController implements Screen {
     private Label editorModeLabel;
 
     /**
-     * Skin for Scene2D elements
-     */
-    Skin skin = new Skin(Gdx.files.internal("skins/neon-ui.json"));
-
-    /**
      * The count of the next image that is added
      */
-    int imgCount;
+    private int imgCount;
 
     /**
      * Vector cache to avoid initializing vectors every time
@@ -147,9 +129,6 @@ public class LevelEditorController implements Screen {
      */
     private TextField levelDimX;
     private TextField levelDimY;
-    /** Dimensions of level */
-    private int levelWidth;
-    private int levelHeight;
 
     /*************************************************** HELPERS ****************************************************/
     /**
@@ -294,26 +273,84 @@ public class LevelEditorController implements Screen {
 
     /************************************************* CONSTRUCTOR *************************************************/
     /**
-     * Creates a new level editor controller. This initializes the UI and sets up the isometric
-     * grid.
+     * Creates a new level editor controller.
+     *
+     * This constructor is only called when the level editor is opened for a new level.
      */
     public LevelEditorController() {
-        // Create model for level created in level editor
+        // Create a new model
         model = new LevelEditorModel();
-        // Create parser to parse model into JSON when saving
-        parser = new LevelEditorParser();
-        // Create canvas and set view and zoom
-        canvas = new GameCanvas();
-        // Get singleton instance of player input controller
-        input = InputController.getInstance();
-        // Create factory used to create new form entries
-        formFactory = new FormFactory(skin, input);
+        // Initialize the rest of the level editor
+        initializeLevelEditor();
+    }
 
-        //canvas.setIsometricSize(4, 4);
+    /**
+     * Creates a new level editor controller.
+     *
+     * This constructor is only called when the level editor is opened for a previously-saved level.
+     *
+     * @param levelfile     The filename of the previously-saved level to load into the level editor.
+     */
+    public LevelEditorController(String levelfile) {
+        // Create a model based on a previously-saved level file
+        model = parser.loadLevel(levelfile);
+        // Initialize the rest of the level editor
+        initializeLevelEditor();
 
+        // Populate the level based on the model
+        repopulateLevel();
+    }
+
+    /**
+     * Helper function that draws all the tiles that are stored in the model.
+     *
+     * Called when loading a previously-created level into the level editor.
+     */
+    private void repopulateLevel() {
+        // Get the level data from the model
+        ArrayMap<String, LevelEditorModel.LevelTile> levelTiles = model.getLevelTiles();
+        ArrayMap<Vector2, Array<String>> levelMap = model.getLevelMap();
+        // Initialize vector to hold each location
+        Vector2 loc;
+        // Initialize array to hold the names of the tiles at each location
+        Array<String> tilesAtLoc;
+        // Initialize level tile for tile at location
+        LevelEditorModel.LevelTile lt;
+
+        // Go through the level map and place whatever is at each location at that location
+        for (int k=0; k<levelMap.size; k++) {
+            loc = levelMap.getKeyAt(k);
+            System.out.println(loc);
+            tilesAtLoc = levelMap.getValueAt(k);
+            // Go through each tile at this location
+            for (int i=0; i<tilesAtLoc.size; i++) {
+                // Get the tile at this location
+                lt = levelTiles.get(tilesAtLoc.get(i));
+                // Depending on its type, add a different image to the level
+                switch (lt.tileType) {
+                    case TARGET:
+                        // Add target to level
+
+                        break;
+                    case NODE:
+                        // Add node to level
+                        addNode((int)loc.x, (int)loc.y, lt.im);
+                        break;
+                    case CONNECTOR:
+                        // Add connector to level
+                        addConnector((int)loc.x, (int)loc.y, lt.im);
+                        break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Initializes the UI and sets up the isometric grid.
+     */
+    private void initializeLevelEditor() {
         // Set up camera
         ExtendViewport viewport = new ExtendViewport(canvas.getWidth(), canvas.getHeight());
-        camera = new CameraController(input, canvas);
         camera.setViewport(viewport);
 
         // Create stage for grid and tile with isometric grid
@@ -446,11 +483,6 @@ public class LevelEditorController implements Screen {
     }
 
     /**
-     * TODO: combine createNodeButtons and createModeButtons into a single function
-     * Can take in a boolean for whether to do Node or Mode
-     */
-
-    /**
      * Function that adds the buttons used to create nodes to the stage and toolbar.
      * <p>
      * These include:
@@ -546,9 +578,6 @@ public class LevelEditorController implements Screen {
                     public void changed(ChangeEvent event, Actor actor) {
                         // Get level name from relevant text box
                         model.setLevelName(levelName.getText());
-                        // Set level dimensions
-                        parser.level_height = levelHeight;
-                        parser.level_width = levelWidth;
 
                         // If any forms are open, save and clear those
                         saveAndClearForm(targetForm);
@@ -558,12 +587,8 @@ public class LevelEditorController implements Screen {
 
                         // Save the level
                         boolean didLevelSave = parser.saveLevel(model);
-                        if (didLevelSave) {
-                            editorModeLabel.setText("Level Saved Successfully");
-                        }
-                        else {
-                            editorModeLabel.setText("Failed to Save Level");
-                        }
+                        // Set label to indicate whether or not level save was successful
+                        editorModeLabel.setText(didLevelSave ? "Level Saved Successfully" : "Failed to Save Level");
                     }
                 });
             }
@@ -576,6 +601,125 @@ public class LevelEditorController implements Screen {
     }
 
     /*********************************************** NODES ***********************************************/
+    /**
+     * Adds a draggable node of the given type to the stage.
+     *
+     * Called when one of the node-adding buttons is pressed. Each image is given a name that is a number
+     * of increasing value, so that no names are repeated in a single level editor session.
+     *
+     * This specific function is only directly called when repopulating the level editor with saved level data.
+     *
+     * This function also contains all the behaviors of each node and what it does when it is interacted
+     * with.
+     *
+     * @param x     x-coordinate of node, in isometric coordinates
+     * @param y     y-coordinate of node, in isometric coordinates
+     * @param im    Image representing the node
+     */
+    private void addNode(int x, int y, Image im) {
+        // Create image
+
+        // Place image by converting isometric to world coords
+        isometricToWorld(vec);
+        // Retrieve from vector cache
+        im.setPosition(vec.x,vec.y - LOCKED_OFFSET);
+
+        // Increment image count to ensure unique nodes
+        imgCount++;
+
+        // Get node type from image name
+        int nodeType = Character.getNumericValue(im.getName().charAt(0));
+
+        // Get relevant low and high textures for this node
+        final TextureRegionDrawable nodeLow = NODE_TRDS[nodeType];
+        final TextureRegionDrawable nodeHigh = NODE_TRDS[nodeType + 3];
+
+        // Make image final so it can be used in listeners
+        final Image imFinal = im;
+        nodeStage.addActor(im);
+
+        // Add listeners, which change their behavior depending on the editor mode
+
+        // Add drag listener that does something during a drag
+        im.addListener((new DragListener() {
+            public void touchDragged(InputEvent event, float x, float y, int pointer) {
+                // Only do this if editor mode is Move
+                // Updates image position on drag
+                if (editorMode == Mode.MOVE) {
+                    // When dragging, snaps image center to cursor
+                    float dx = x - imFinal.getWidth() * 0.5f;
+                    float dy = y - imFinal.getHeight() * 0.25f;
+                    imFinal.setPosition(imFinal.getX() + dx, imFinal.getY() + dy);
+
+                    // Change to high version of asset
+                    imFinal.setDrawable(nodeHigh);
+                }
+            }
+        }));
+
+        // Add drag listener that does something when a drag ends
+        im.addListener((new DragListener() {
+            public void dragStop(InputEvent event, float x, float y, int pointer) {
+                // Only do this if editor mode is Move
+                // Snap to center of nearby isometric grid
+                if (editorMode == Mode.MOVE) {
+                    // Get coordinates of center of image
+                    float newX = imFinal.getX() + x - imFinal.getWidth() * 0.5f;
+                    float newY = imFinal.getY() + y - imFinal.getHeight() * 0.25f;
+
+                    // Get location that image should snap to
+                    nearestIsoCenter(newX, newY);
+                    newX = vec.x;
+                    newY = vec.y;
+
+                    // Update LevelTile with new isometric location
+                    model.updateLevelTileLocation(imFinal.getName(), newX, newY);
+
+                    // Convert to world space
+                    vec.set(newX, newY);
+                    isometricToWorld(vec);
+                    // Retrieve from vector cache
+                    newX = vec.x;
+                    newY = vec.y;
+
+                    // Account for difference between tile width and sprite width
+                    newX -= (imFinal.getWidth() - TILE_WIDTH) / 2;
+                    newY += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+
+                    imFinal.setPosition(newX, newY);
+
+                    // Change back to low version of asset
+                    imFinal.setDrawable(nodeLow);
+                }
+            }
+        }));
+
+        // Add click listener that does something when the node is clicked
+        im.addListener((new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                // Different behavior on clicked depending on editor mode
+                switch (editorMode) {
+                    // In Edit Mode, select the node
+                    case EDIT:
+                        // If a different node was previously selected
+                        if (!nodeEquals(selectedNode, imFinal)) {
+                            newSelectedNode = imFinal;
+                        }
+                        // Change to high version of asset to indicate it's been selected
+                        imFinal.setDrawable(new TextureRegionDrawable(nodeHigh));
+
+                        break;
+                    // In Delete Mode, delete the node
+                    case DELETE:
+                        model.removeFromLevel(imFinal.getName());
+                        imFinal.remove();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }));
+    }
 
     /**
      * Adds a draggable node of the given type to the stage.
@@ -590,139 +734,43 @@ public class LevelEditorController implements Screen {
      */
     private void addNode(int nodeType) {
         // Create image
-        final Image im = new Image(NODE_TEXTURES[nodeType]);
-        nodeStage.addActor(im);
-        im.setPosition(-(im.getWidth() - TILE_WIDTH) / 2, ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2);
+        Image im = new Image(NODE_TEXTURES[nodeType]);
         im.setOrigin(0, 0);
 
         // Set name of image, which is the node type, the string "Node," and a unique number
-        String name = nodeType + "Node" + imgCount;
-        im.setName(name);
-        imgCount++;
+        im.setName(nodeType + "Node" + imgCount);
 
         // Add to level (stress rating will automatically initialize to None)
         model.addToLevel(im, 0, 0);
 
-        // Get relevant low and high textures for this node
-        final TextureRegionDrawable nodeLow = NODE_TRDS[nodeType];
-        final TextureRegionDrawable nodeHigh = NODE_TRDS[nodeType + 3];
-
-        // Add listeners, which change their behavior depending on the editor mode
-
-        // Add drag listener that does something during a drag
-        im.addListener((new DragListener() {
-            public void touchDragged(InputEvent event, float x, float y, int pointer) {
-                // Only do this if editor mode is Move
-                // Updates image position on drag
-                if (editorMode == Mode.MOVE) {
-                    // When dragging, snaps image center to cursor
-                    float dx = x - im.getWidth() * 0.5f;
-                    float dy = y - im.getHeight() * 0.25f;
-                    im.setPosition(im.getX() + dx, im.getY() + dy);
-
-                    // Change to high version of asset
-                    im.setDrawable(nodeHigh);
-                }
-            }
-        }));
-
-        // Add drag listener that does something when a drag ends
-        im.addListener((new DragListener() {
-            public void dragStop(InputEvent event, float x, float y, int pointer) {
-                // Only do this if editor mode is Move
-                // Snap to center of nearby isometric grid
-                if (editorMode == Mode.MOVE) {
-                    // Get coordinates of center of image
-                    float newX = im.getX() + x - im.getWidth() * 0.5f;
-                    float newY = im.getY() + y - im.getHeight() * 0.25f;
-
-                    // Get location that image should snap to
-                    nearestIsoCenter(newX, newY);
-                    newX = vec.x;
-                    newY = vec.y;
-
-                    // Update LevelTile with new isometric location
-                    model.updateLevelTileLocation(im.getName(), newX, newY);
-
-                    // Convert to world space
-                    vec.set(newX, newY);
-                    isometricToWorld(vec);
-                    // Retrieve from vector cache
-                    newX = vec.x;
-                    newY = vec.y;
-
-                    // Account for difference between tile width and sprite width
-                    newX -= (im.getWidth() - TILE_WIDTH) / 2;
-                    newY += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
-
-                    im.setPosition(newX, newY);
-
-                    // Change back to low version of asset
-                    im.setDrawable(nodeLow);
-                }
-            }
-        }));
-
-        // Add click listener that does something when the node is clicked
-        im.addListener((new ClickListener() {
-            public void clicked(InputEvent event, float x, float y) {
-                // Different behavior on clicked depending on editor mode
-                switch (editorMode) {
-                    // In Edit Mode, select the node
-                    case EDIT:
-                        // If a different node was previously selected
-                        if (!nodeEquals(selectedNode, im)) {
-                            newSelectedNode = im;
-                        }
-                        // Change to high version of asset to indicate it's been selected
-                        im.setDrawable(new TextureRegionDrawable(nodeHigh));
-
-                        break;
-                    // In Delete Mode, delete the node
-                    case DELETE:
-                        model.removeFromLevel(im.getName());
-                        im.remove();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }));
+        addNode(0, 0, im);
     }
 
     /*********************************************** CONNECTORS ***********************************************/
     /**
      * Adds a connector to the grid tile at the given coordinates.
-     * <p>
+     *
      * Called when right-clicking anywhere in Draw Mode. Coordinates given are in screen space.
      *
-     * @param x Screen space x-coordinate of the location to add the connector at
-     * @param y Screen space y-coordinate of the location to add the connector at
+     * This function is only directly called when initially populating the level editor with saved level data.
+     *
+     * @param x     Screen space x-coordinate of the location to add the connector at
+     * @param y     Screen space y-coordinate of the location to add the connector at
+     * @param im    Image of the connector being placed
      */
-    public void addConnector(float x, float y) {
+    private void addConnector(float x, float y, Image im) {
         // Convert mouse position from screen to world coordinates
         vec = camera.screenToWorld(x, y);
         x = vec.x;
         y = vec.y;
 
-        // Create connector image, defaulting to the North connector
-        final Image im = new Image(new Texture(Gdx.files.internal(Connector.getAssetPath(Direction.N))));
-        nodeStage.addActor(im);
-
-        // Set name of connector, which defaults to "N". The first letter is the connector, the second
-        // is a unique identifier.
-        im.setName("N" + imgCount);
+        // Increment imgCount to ensure unique names
         imgCount++;
-        // Set scale
-        im.setScale(0.5f);
 
         // Get nearest isometric center to where the mouse clicked
         nearestIsoCenter(x, y);
         x = vec.x;
         y = vec.y - 1; // For some reason this is consistently off by 1, so we take care of that this way
-
-        // Add connector to level
-        model.addToLevel(im, x, y);
 
         // Convert to world space
         vec.set(x, y + 1); // Don't know why it needs to be y+1, but it does
@@ -735,6 +783,11 @@ public class LevelEditorController implements Screen {
         im.setPosition(x - (TILE_WIDTH / 4), y - (TILE_HEIGHT / 4));
         im.setOrigin(0, 0);
 
+        // Make image final so it can be used in listeners
+        final Image imFinal = im;
+        // Place the connector on the stage
+        nodeStage.addActor(imFinal);
+
         // Add listeners, which change their behavior depending on the editor mode
         // Add click listener that does something when the connector is left-clicked
         im.addListener((new ClickListener() {
@@ -744,26 +797,44 @@ public class LevelEditorController implements Screen {
                     // In Draw Mode, rotate the connector
                     case DRAW:
                         // Set the appearance and name to be the next connector
-                        int nextConn = nextEntry(String.valueOf(im.getName().charAt(0)), CONN_NAME_ORDER);
-                        String name = CONN_NAME_ORDER[nextConn] + im.getName().substring(1);
-                        model.updateLevelTileName(im.getName(), name);
-                        im.setName(name);
-                        im.setDrawable(new TextureRegionDrawable(
-                                new Texture(Gdx.files.internal(
-                                        // Path to connector asset
-                                        Connector.getAssetPath(CONN_ORDER[nextConn])
-                                ))));
+                        int nextConn = nextEntry(String.valueOf(imFinal.getName().charAt(0)), CONN_NAME_ORDER);
+                        String name = CONN_NAME_ORDER[nextConn] + imFinal.getName().substring(1);
+                        model.updateLevelTileName(imFinal.getName(), name);
+                        imFinal.setName(name);
+                        imFinal.setDrawable(new TextureRegionDrawable(Connector.getTexture(CONN_ORDER[nextConn])));
                         break;
                     // In Delete Mode, delete the connector
                     case DELETE:
-                        model.removeFromLevel(im.getName());
-                        im.remove();
+                        model.removeFromLevel(imFinal.getName());
+                        imFinal.remove();
                         break;
                     default:
                         break;
                 }
             }
         }));
+    }
+
+    /**
+     * Adds a connector to the grid tile at the given coordinates.
+     * <p>
+     * Called when right-clicking anywhere in Draw Mode. Coordinates given are in screen space.
+     *
+     * @param x Screen space x-coordinate of the location to add the connector at
+     * @param y Screen space y-coordinate of the location to add the connector at
+     */
+    private void addConnector(float x, float y) {
+        // Create connector image, defaulting to the North connector
+        final Image im = new Image(Connector.getTexture(Direction.N));
+        // Set name of image, which is just the direction it defaults to (north)
+        im.setName("N");
+        // Set scale
+        im.setScale(0.5f);
+
+        // Add connector to level
+        model.addToLevel(im, x, y);
+
+        addConnector(x,y,im);
     }
 
     /*********************************************** EDIT MODE FORMS ***********************************************/
@@ -1078,14 +1149,12 @@ public class LevelEditorController implements Screen {
 
         // Resize background canvas based on input level dimensions
         try {
-            levelWidth = Integer.parseInt(levelDimX.getText());
-            levelHeight = Integer.parseInt(levelDimY.getText());
+            model.setLevelDimensions(Integer.parseInt(levelDimX.getText()), Integer.parseInt(levelDimY.getText()));
         }
         catch (NumberFormatException nfe) {
-            levelWidth = 1;
-            levelHeight = 1;
+            model.setLevelDimensions(0, 0);
         }
-        canvas.drawIsometricGrid(levelWidth, levelHeight);
+        canvas.drawIsometricGrid(model.getLevelWidth(), model.getLevelHeight());
 
         nodeStage.draw();
         toolStage.draw();

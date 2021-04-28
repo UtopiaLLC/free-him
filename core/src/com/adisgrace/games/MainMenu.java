@@ -125,7 +125,7 @@ public class MainMenu implements Screen {
 
         // Draw background image
         canvas.begin();
-        canvas.draw(TITLE_ASSET, 0, 0, canvas.getWidth(), canvas.getHeight());
+        canvas.draw(TITLE_ASSET, 0, 0, 1280, 720);
         canvas.end();
 
         // Draw buttons
@@ -134,7 +134,10 @@ public class MainMenu implements Screen {
 
     @Override
     public void resize(int width, int height) {
+        canvas.resize();
 
+        // Keep buttons in the same place when resizing
+        stage.getViewport().update(width,height,true);
     }
 
     @Override

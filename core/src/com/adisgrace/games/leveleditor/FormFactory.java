@@ -2,6 +2,8 @@ package com.adisgrace.games.leveleditor;
 
 import com.adisgrace.games.InputController;
 import com.adisgrace.games.models.TraitModel;
+import static com.adisgrace.games.leveleditor.LevelEditorConstants.*;
+
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
@@ -14,20 +16,15 @@ import static com.adisgrace.games.leveleditor.LevelEditorConstants.FORM_X_OFFSET
  * Factory class that constructs form entries for use in the level editor.
  */
 public final class FormFactory {
-    /** Skin for Scene2D elements */
-    private static Skin skin;
-
     /** Input controller to ignore input with */
     private static InputController input;
 
     /**
      * Constructor for a FormFactory.
      *
-     * @param skin      Skin for Scene2D elements
      * @param input     Input controller, for use in ignoring input when using a form entry
      */
-    public FormFactory(Skin skin, InputController input) {
-        this.skin = skin;
+    public FormFactory(InputController input) {
         this.input = input;
     }
 
@@ -49,14 +46,16 @@ public final class FormFactory {
     /**
      * Creates and returns a TextField/TextArea with the given parameters.
      *
-     * @param name        Name of the field
-     * @param height      Height at which the field is placed on the screen
-     * @param width       Width of the field
-     * @param initialText What to initially fill the field with
-     * @param isArea      Whether the field should actually be a TextArea
+     * @param name              Name of the field
+     * @param height            Height at which the field is placed on the screen
+     * @param width             Width of the field
+     * @param initialText       What to initially fill the field with
+     * @param isArea            Whether the field should actually be a TextArea
+     * @param doDisableInput    Whether or not to disable keyboard input when this text field/area is selected
      * @return The constructed TextField or TextArea
      */
-    private static TextField newTextFieldOrArea(String name, float height, float width, String initialText, boolean isArea) {
+    private static TextField newTextFieldOrArea(String name, float height, float width, String initialText,
+                                                boolean isArea, boolean doDisableInput) {
         // Create text field, or text area if that's what's asked for
         TextField field = isArea ? new TextArea("", skin) : new TextField("", skin);
 
@@ -67,8 +66,8 @@ public final class FormFactory {
         field.setWidth(width);
         // Initialize contents of field if there are contents to initialize with
         if (!initialText.equals("null")) field.setText(initialText);
-        // Add listener to disable keyboard input when the field is selected
-        field.addListener(newIgnoreInputFocusListener());
+        // Add listener to disable keyboard input when the field is selected, if so desired
+        if (doDisableInput) field.addListener(newIgnoreInputFocusListener());
 
         return field;
     }
@@ -83,7 +82,22 @@ public final class FormFactory {
      * @return The constructed TextField
      */
     public static TextField newTextField(String name, float height, float width, String initialText) {
-        return newTextFieldOrArea(name, height, width, initialText, false);
+        return newTextFieldOrArea(name, height, width, initialText, false, true);
+    }
+
+    /**
+     * Creates and returns a TextField with the given parameters.
+     *
+     * @param name              Name of the field
+     * @param height            Height at which the field is placed on the screen
+     * @param width             Width of the field
+     * @param initialText       What to initially fill the field with
+     * @param doDisableInput    Whether or not to disable keyboard input when this text field/area is selected
+     * @return The constructed TextField
+     */
+    public static TextField newTextField(String name, float height, float width, String initialText,
+                                         boolean doDisableInput) {
+        return newTextFieldOrArea(name, height, width, initialText, false, doDisableInput);
     }
 
     /**
@@ -97,7 +111,7 @@ public final class FormFactory {
      * @return The constructed TextArea
      */
     public static TextArea newTextArea(String name, float height, float width, String initialText, int boxHeight) {
-        TextArea area = (TextArea) newTextFieldOrArea(name, height, width, initialText, true);
+        TextArea area = (TextArea) newTextFieldOrArea(name, height, width, initialText, true, true);
         // Set text box height
         area.setHeight(boxHeight * FORM_GAP);
         return area;
