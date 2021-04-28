@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
@@ -111,6 +112,8 @@ public class GameController implements Screen {
     private Label stress;
     /** ap is the dialog label for ap */
     private Label ap;
+    /** apImages is the images for ap shown on the right toolbar*/
+    private Image[] apImages;
     /** tStress is the dialog label for tStress */
     private Label tStress;
     /** tSusp is the dialog label for tSusp */
@@ -577,6 +580,21 @@ public class GameController implements Screen {
     }
 
     /**
+     * This method creates an AP image which reflects how much AP the player has left
+     * @return Array of images representing how much AP the player has
+     */
+    private Image[] createAP(){
+        Texture apTexture = new Texture(Gdx.files.internal("UI/APCounter.png"));
+        TextureRegion[][] apSplitTextures = new TextureRegion(apTexture).split(apTexture.getWidth()/9, apTexture.getHeight());
+        Image[] ap = new Image[apSplitTextures[0].length];
+        for(int i = 0; i < ap.length; i++){
+            ap[i] = new Image(apSplitTextures[0][i]);
+        }
+
+        return ap;
+    }
+
+    /**
      * Creates a runnable that runs the callConfirmFunction method
      * @param s
      * @return the runnable associated with callConfirmFunction
@@ -618,11 +636,13 @@ public class GameController implements Screen {
         uiController.createHarass(ic, createConfirmRunnable("harass"));
         uiController.createDistract(ic, createConfirmRunnable("distract"));
         uiController.createGaslight(ic, createConfirmRunnable("gaslight"));
+
         ImageButton end = createEndDay();
         ImageButton settings = createSettings();
         ImageButton notebook = createNotebook();
+        apImages = createAP();
 
-        Table toolbar = createToolbarTable(end, settings, notebook);
+        Table toolbar = createToolbarTable(end, settings, notebook, apImages[levelController.getAP()]);
         toolbarStage.addActor(toolbar);
         toolbarStage.addActor(createStats());
     }
@@ -633,9 +653,10 @@ public class GameController implements Screen {
      * @param end ImageButton for end day
      * @param notebook ImageButton for notebook
      * @param settings ImageButton for settings
+     * @param ap Image for ap
      * @return the toolbar table
      */
-    private Table createToolbarTable(ImageButton end, ImageButton notebook, ImageButton settings) {
+    private Table createToolbarTable(ImageButton end, ImageButton notebook, ImageButton settings, Image ap) {
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight();
 
@@ -645,7 +666,7 @@ public class GameController implements Screen {
 
         Table leftSide = createLeftsideTable(toolbar);
         Table skillBar = uiController.createSkillBarTable(toolbar);
-        Table rightSide = createRightsideTable(toolbar, end, notebook, settings);
+        Table rightSide = createRightsideTable(toolbar, end, notebook, settings, ap);
 
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
         toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
@@ -659,11 +680,14 @@ public class GameController implements Screen {
      * @param end ImageButton for end
      * @param notebook ImageButton for notebook
      * @param settings ImageButton for settings
+     * @param ap how much ap the player has
      * @return the right side table
      */
-    private Table createRightsideTable(Table toolbar, ImageButton end, ImageButton notebook, ImageButton settings) {
+    private Table createRightsideTable(Table toolbar, ImageButton end, ImageButton notebook, ImageButton settings, Image ap) {
         Table rightSide = new Table();
         rightSide.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
+        rightSide.add(ap).width(rightSide.getWidth()).height(/*rightSide.getHeight*/60f).align(Align.center);
+        rightSide.row();
         rightSide.add(end).width(rightSide.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
         rightSide.row();
         rightSide.add(notebook).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
