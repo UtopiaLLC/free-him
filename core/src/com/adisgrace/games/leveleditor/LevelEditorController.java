@@ -734,16 +734,89 @@ public class LevelEditorController implements Screen {
      */
     private void addNode(int nodeType) {
         // Create image
-        Image im = new Image(NODE_TEXTURES[nodeType]);
+        final Image im = new Image(NODE_TEXTURES[nodeType]);
+        nodeStage.addActor(im);
+        im.setPosition(-(im.getWidth() - TILE_WIDTH) / 2, ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2);
         im.setOrigin(0, 0);
-
         // Set name of image, which is the node type, the string "Node," and a unique number
-        im.setName(nodeType + "Node" + imgCount);
-
+        String name = nodeType + "Node" + imgCount;
+        im.setName(name);
+        imgCount++;
         // Add to level (stress rating will automatically initialize to None)
         model.addToLevel(im, 0, 0);
-
-        addNode(0, 0, im);
+        // Get relevant low and high textures for this node
+        final TextureRegionDrawable nodeLow = NODE_TRDS[nodeType];
+        final TextureRegionDrawable nodeHigh = NODE_TRDS[nodeType + 3];
+        // Add listeners, which change their behavior depending on the editor mode
+        // Add drag listener that does something during a drag
+        im.addListener((new DragListener() {
+            public void touchDragged(InputEvent event, float x, float y, int pointer) {
+                // Only do this if editor mode is Move
+                // Updates image position on drag
+                if (editorMode == Mode.MOVE) {
+                    // When dragging, snaps image center to cursor
+                    float dx = x - im.getWidth() * 0.5f;
+                    float dy = y - im.getHeight() * 0.25f;
+                    im.setPosition(im.getX() + dx, im.getY() + dy);
+                    // Change to high version of asset
+                    im.setDrawable(nodeHigh);
+                }
+            }
+        }));
+        // Add drag listener that does something when a drag ends
+        im.addListener((new DragListener() {
+            public void dragStop(InputEvent event, float x, float y, int pointer) {
+                // Only do this if editor mode is Move
+                // Snap to center of nearby isometric grid
+                if (editorMode == Mode.MOVE) {
+                    // Get coordinates of center of image
+                    float newX = im.getX() + x - im.getWidth() * 0.5f;
+                    float newY = im.getY() + y - im.getHeight() * 0.25f;
+                    // Get location that image should snap to
+                    nearestIsoCenter(newX, newY);
+                    newX = vec.x;
+                    newY = vec.y;
+                    // Update LevelTile with new isometric location
+                    model.updateLevelTileLocation(im.getName(), newX, newY);
+                    // Convert to world space
+                    vec.set(newX, newY);
+                    isometricToWorld(vec);
+                    // Retrieve from vector cache
+                    newX = vec.x;
+                    newY = vec.y;
+                    // Account for difference between tile width and sprite width
+                    newX -= (im.getWidth() - TILE_WIDTH) / 2;
+                    newY += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+                    im.setPosition(newX, newY);
+                    // Change back to low version of asset
+                    im.setDrawable(nodeLow);
+                }
+            }
+        }));
+        // Add click listener that does something when the node is clicked
+        im.addListener((new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                // Different behavior on clicked depending on editor mode
+                switch (editorMode) {
+                    // In Edit Mode, select the node
+                    case EDIT:
+                        // If a different node was previously selected
+                        if (!nodeEquals(selectedNode, im)) {
+                            newSelectedNode = im;
+                        }
+                        // Change to high version of asset to indicate it's been selected
+                        im.setDrawable(new TextureRegionDrawable(nodeHigh));
+                        break;
+                    // In Delete Mode, delete the node
+                    case DELETE:
+                        model.removeFromLevel(im.getName());
+                        im.remove();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }));
     }
 
     /*********************************************** CONNECTORS ***********************************************/
@@ -824,17 +897,59 @@ public class LevelEditorController implements Screen {
      * @param y Screen space y-coordinate of the location to add the connector at
      */
     private void addConnector(float x, float y) {
+        // Convert mouse position from screen to world coordinates
+        vec = camera.screenToWorld(x, y);
+        x = vec.x;
+        y = vec.y;
         // Create connector image, defaulting to the North connector
         final Image im = new Image(Connector.getTexture(Direction.N));
-        // Set name of image, which is just the direction it defaults to (north)
-        im.setName("N");
+        nodeStage.addActor(im);
+        // Set name of connector, which defaults to "N". The first letter is the connector, the second
+        // is a unique identifier.
+        im.setName("N" + imgCount);
+        imgCount++;
         // Set scale
         im.setScale(0.5f);
-
+        // Get nearest isometric center to where the mouse clicked
+        nearestIsoCenter(x, y);
+        x = vec.x;
+        y = vec.y - 1; // For some reason this is consistently off by 1, so we take care of that this way
         // Add connector to level
         model.addToLevel(im, x, y);
-
-        addConnector(x,y,im);
+        // Convert to world space
+        vec.set(x, y + 1); // Don't know why it needs to be y+1, but it does
+        isometricToWorld(vec);
+        // Retrieve from vector cache
+        x = vec.x;
+        y = vec.y;
+        // Place connector at nearest isometric center
+        im.setPosition(x - (TILE_WIDTH / 4), y - (TILE_HEIGHT / 4));
+        im.setOrigin(0, 0);
+        // Add listeners, which change their behavior depending on the editor mode
+        // Add click listener that does something when the connector is left-clicked
+        im.addListener((new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                // Different behavior on clicked depending on editor mode
+                switch (editorMode) {
+                    // In Draw Mode, rotate the connector
+                    case DRAW:
+                        // Set the appearance and name to be the next connector
+                        int nextConn = nextEntry(String.valueOf(im.getName().charAt(0)), CONN_NAME_ORDER);
+                        String name = CONN_NAME_ORDER[nextConn] + im.getName().substring(1);
+                        model.updateLevelTileName(im.getName(), name);
+                        im.setName(name);
+                        im.setDrawable(new TextureRegionDrawable(Connector.getTexture(CONN_ORDER[nextConn])));
+                        break;
+                    // In Delete Mode, delete the connector
+                    case DELETE:
+                        model.removeFromLevel(im.getName());
+                        im.remove();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }));
     }
 
     /*********************************************** EDIT MODE FORMS ***********************************************/
