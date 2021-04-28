@@ -192,9 +192,9 @@ public class GameController implements Screen {
         //TODO: write function to parse folder of level jsons
         levelJsons = new Array<>();
         levelJsons.add("sample-level-1.json");
-        levelJsons.add("sample-level-2.json");
-        levelJsons.add("simple_level_1.json");
-        levelJsons.add("Research_Scientist.json");
+//        levelJsons.add("sample-level-2.json");
+//        levelJsons.add("simple_level_1.json");
+//        levelJsons.add("Research_Scientist.json");
         levelControllers = new Array<>();
 
         for(String s : levelJsons) {
