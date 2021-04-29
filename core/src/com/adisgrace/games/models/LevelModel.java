@@ -137,7 +137,7 @@ public class LevelModel {
             }
         }
 
-        if(json.get("bosses") != null || json.get("bosses").asStringArray().length > 0)
+        if(json.get("bosses") != null && json.get("bosses").asStringArray().length > 0)
             bosses = new HashSet<>(Arrays.asList(json.get("bosses").asStringArray()));
         else bosses = new HashSet<>(targets.keySet());
 
