@@ -41,10 +41,10 @@ public class Connector {
     public String type;
 
     /** Paths for each type of connector */
-    private static final String C_NORTH = "leveleditor/connectors/C_N_2.png";
-    private static final String C_EAST = "leveleditor/connectors/C_E_2.png";
-    private static final String C_SOUTH = "leveleditor/connectors/C_S_2.png";
-    private static final String C_WEST = "leveleditor/connectors/C_W_2.png";
+    private static final String C_NORTH = "leveleditor/connectors/C_N_6.png";
+    private static final String C_EAST = "leveleditor/connectors/C_E_6.png";
+    private static final String C_SOUTH = "leveleditor/connectors/C_S_6.png";
+    private static final String C_WEST = "leveleditor/connectors/C_W_6.png";
 
     /** Textures for each type of connector */
     public static final Texture TX_NORTH = new Texture(Gdx.files.internal(C_NORTH)),
