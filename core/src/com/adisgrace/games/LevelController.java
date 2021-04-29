@@ -5,6 +5,7 @@ package com.adisgrace.games;
 import com.adisgrace.games.models.LevelModel;
 import com.adisgrace.games.models.PlayerModel;
 import com.adisgrace.games.models.TargetModel;
+import com.adisgrace.games.models.TraitModel;
 import com.adisgrace.games.util.Connector;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -405,6 +406,13 @@ public class LevelController {
      * @return the target state of the target
      */
     public TargetModel.TargetState getTargetState(String target){return levelModel.getTarget(target).getState();}
+
+    /**
+     * returns the traits of a target
+     * @param target name of the target
+     * @return the target traits of the target
+     */
+    public TraitModel getTargetTraits(String target){return levelModel.getTarget(target).getTraits();}
 
 
 

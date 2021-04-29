@@ -390,6 +390,14 @@ public class GameController implements Screen {
                     }, new Runnable() {
                         @Override
                         public void run() {
+                            String labelS;
+                            if(nodeInfo.length == 1) {
+                                labelS =  "\nTarget Name: " + b.getName() + "\n" +
+                                        "Target Stress: " + lc.getTargetStress(b.getName()) + "\n";
+                            } else {
+                                labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
+                            }
+                            nodeLabel.setText(labelS);
                             uiController.nodeOnEnter(
                                     getColorTypeFromState(lc.getTargetModels().get(nodeInfo[0]).getState()),
                                     nodeLabel, b);
