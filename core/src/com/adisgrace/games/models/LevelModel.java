@@ -284,6 +284,17 @@ public class LevelModel {
                     t.set_paranoiac_used(false);
                 }
             }
+            if (t.getTraits().is_gossip()){
+                // if target is gossip and is alivespread suspicion to all other targets
+                if (t.getState() != TargetModel.TargetState.DEFEATED){
+                    for (TargetModel tt : targets.values()){
+                        // target does not spread suspicion to itself
+                        if (tt != t){
+                            tt.receive_gossip(t.spread_gossip());
+                        }
+                    }
+                }
+            }
         }
     }
 
