@@ -114,6 +114,8 @@ public class GameController implements Screen {
     private Label ap;
     /** apImages is the images for ap shown on the right toolbar*/
     private Image[] apImages;
+    /** current amount of AP displayed*/
+    private Table displayedAP;
     /** tStress is the dialog label for tStress */
     private Label tStress;
     /** tSusp is the dialog label for tSusp */
@@ -215,6 +217,7 @@ public class GameController implements Screen {
 
 
         cameraController = new CameraController(ic, canvas);
+        displayedAP = new Table();
         createToolbar();
         shapeRenderer = new ShapeRenderer();
 
@@ -642,7 +645,7 @@ public class GameController implements Screen {
         ImageButton notebook = createNotebook();
         apImages = createAP();
 
-        Table toolbar = createToolbarTable(end, settings, notebook, apImages[levelController.getAP()]);
+        Table toolbar = createToolbarTable(end, settings, notebook);
         toolbarStage.addActor(toolbar);
         toolbarStage.addActor(createStats());
     }
@@ -653,10 +656,9 @@ public class GameController implements Screen {
      * @param end ImageButton for end day
      * @param notebook ImageButton for notebook
      * @param settings ImageButton for settings
-     * @param ap Image for ap
      * @return the toolbar table
      */
-    private Table createToolbarTable(ImageButton end, ImageButton notebook, ImageButton settings, Image ap) {
+    private Table createToolbarTable(ImageButton end, ImageButton notebook, ImageButton settings) {
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight();
 
@@ -666,10 +668,13 @@ public class GameController implements Screen {
 
         Table leftSide = createLeftsideTable(toolbar);
         Table skillBar = uiController.createSkillBarTable(toolbar);
-        Table rightSide = createRightsideTable(toolbar, end, notebook, settings, ap);
+        Table rightSide = createRightsideTable(toolbar, end, notebook, settings);
+        displayedAP.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
+        displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/55f).align(Align.center);
 
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
         toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
+        toolbar.add(displayedAP).right().width(.15f*toolbar.getWidth()).height(.20f*toolbar.getHeight()).align(Align.top);
         toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
         return toolbar;
     }
@@ -680,14 +685,11 @@ public class GameController implements Screen {
      * @param end ImageButton for end
      * @param notebook ImageButton for notebook
      * @param settings ImageButton for settings
-     * @param ap how much ap the player has
      * @return the right side table
      */
-    private Table createRightsideTable(Table toolbar, ImageButton end, ImageButton notebook, ImageButton settings, Image ap) {
+    private Table createRightsideTable(Table toolbar, ImageButton end, ImageButton notebook, ImageButton settings) {
         Table rightSide = new Table();
         rightSide.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
-        rightSide.add(ap).width(rightSide.getWidth()).height(/*rightSide.getHeight*/60f).align(Align.center);
-        rightSide.row();
         rightSide.add(end).width(rightSide.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
         rightSide.row();
         rightSide.add(notebook).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
@@ -1036,5 +1038,7 @@ public class GameController implements Screen {
         stressBar.setValue(levelController.getPlayerStress());
         bitecoinAmount.setText(Integer.toString((int)levelController.getPlayerCurrency()));
         ap.setText("AP: " + Integer.toString(levelController.getAP()));
+        displayedAP.reset();
+        displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
     }
 }
