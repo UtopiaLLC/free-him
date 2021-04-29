@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
@@ -115,6 +116,10 @@ public class GameController implements Screen {
     private Label stress;
     /** ap is the dialog label for ap */
     private Label ap;
+    /** apImages is the images for ap shown on the right toolbar*/
+    private Image[] apImages;
+    /** current amount of AP displayed*/
+    private Image displayedAP;
     /** tStress is the dialog label for tStress */
     private Label tStress;
     /** tSusp is the dialog label for tSusp */
@@ -184,6 +189,7 @@ public class GameController implements Screen {
             TX_MENU_BACK = new Texture(Gdx.files.internal("UI/MenuBack.png"));
     /** Constants for dimensions of screen */
     private static final int SCREEN_WIDTH = 1280, SCREEN_HEIGHT = 720;
+    private static final int RIGHT_SIDE_HEIGHT = 205;
 
 
 
@@ -621,6 +627,21 @@ public class GameController implements Screen {
     }
 
     /**
+     * This method creates an AP image which reflects how much AP the player has left
+     * @return Array of images representing how much AP the player has
+     */
+    private Image[] createAP(){
+        Texture apTexture = new Texture(Gdx.files.internal("UI/APCounter.png"));
+        TextureRegion[][] apSplitTextures = new TextureRegion(apTexture).split(apTexture.getWidth()/9, apTexture.getHeight());
+        Image[] ap = new Image[apSplitTextures[0].length];
+        for(int i = 0; i < ap.length; i++){
+            ap[i] = new Image(apSplitTextures[0][i]);
+        }
+
+        return ap;
+    }
+
+    /**
      * Creates a runnable that runs the callConfirmFunction method
      * @param s
      * @return the runnable associated with callConfirmFunction
@@ -662,9 +683,11 @@ public class GameController implements Screen {
         uiController.createHarass(ic, createConfirmRunnable("harass"));
         uiController.createDistract(ic, createConfirmRunnable("distract"));
         uiController.createGaslight(ic, createConfirmRunnable("gaslight"));
+
         ImageButton end = createEndDay();
         ImageButton settings = createSettings();
         ImageButton notebook = createNotebook();
+        apImages = createAP();
 
         Table toolbar = createToolbarTable(end, settings, notebook);
         toolbarStage.addActor(toolbar);
@@ -694,6 +717,10 @@ public class GameController implements Screen {
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
         toolbar.add(skillBar).width(.67f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
         toolbar.add(rightSide).right().width(.10f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.topRight);
+
+        displayedAP = apImages[levelController.getAP()];
+        displayedAP.setPosition(SCREEN_WIDTH - displayedAP.getWidth(), RIGHT_SIDE_HEIGHT);
+        toolbarStage.addActor(displayedAP);
 
 
         // Add menu back
@@ -1114,6 +1141,12 @@ public class GameController implements Screen {
         stressBar.setValue(levelController.getPlayerStress());
         bitecoinAmount.setText(Integer.toString((int)levelController.getPlayerCurrency()));
         ap.setText("AP: " + Integer.toString(levelController.getAP()));
+        displayedAP.remove();
+        displayedAP = apImages[levelController.getAP()];
+        displayedAP.setPosition(SCREEN_WIDTH - displayedAP.getWidth(), RIGHT_SIDE_HEIGHT);
+        toolbarStage.addActor(displayedAP);
+
+//        displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
     }
 
     public void playMusic() {
