@@ -65,7 +65,7 @@ public class GameController implements Screen {
             case RELAX: return "Relax: Decreases Stress for 1 AP";
             case GASLIGHT: return "Gaslight: Plant seeds of doubt in your target's mind, making\n them less sure of themselves" +
                     " for 2 AP";
-            case DISTRACT: return "Distract: For 2 AP, divert your target's attention, letting you work free of their interference.";
+            case DISTRACT: return "Distract: For 2 AP, divert your target's attention, \nletting you work free of their interference.";
             default: throw new RuntimeException("Invalid ActiveVerb passed " + activeVerb.toString());
         }
     };
