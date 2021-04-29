@@ -175,6 +175,13 @@ public class TargetModel {
 		Combo combo;
 		Array<String> relatedFacts = new Array<>();
 
+		// Get traits, UNCOMMENT when traits finished in json
+		Array<String> temp = new Array<String>();
+		JsonValue traitsArr = json.get("traits");
+		itr = traitsArr.iterator();
+		while (itr.hasNext()){temp.add(itr.next().asString());}
+		traits = new TraitModel(temp);
+
 		// Iterate through combos, create each as a Combo, then add to array of combos
 		while (itr.hasNext()) {
 			node = itr.next();
