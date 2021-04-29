@@ -12,7 +12,7 @@
 		"title": "Torchlight Personnel File",
 		"coords": [1.0,2.0],
 		"locked": false,
-		"content": "Apparently William Macintyre, a young publicist for Torchlight, has been working from home for the past few weeks as he deals with a family emergency abroad. There's a note that his connection tends to be bad, but he still puts in the work... although that might make it harder for you to put in the work, if his devices are harder to access due to his poor connection.",
+		"content": "Apparently William Macintyre, a young Public Relations representative for Torchlight, has been working from home for the past few weeks as he deals with a family emergency abroad. There's a note that his connection tends to be bad, but he still puts in the work... although that might make it harder for you to put in the work, if he's harder to get in contact with due to his poor connection.",
 		"summary": "William has been diligently working from home while he deals with a family emergency abroad.",
 		"children": ["2Node38", "1Node18", "1Node16"],
 		"targetStressDamage": 0,
