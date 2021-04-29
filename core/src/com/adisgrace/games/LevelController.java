@@ -431,7 +431,7 @@ public class LevelController {
      * @param target name of the target
      * @return the target traits of the target
      */
-    public TraitModel getTargetTraits(String target){return levelModel.getTarget(target).getTraits();}
+    public ArrayList<TraitModel.Trait> getTargetTraits(String target){return levelModel.getTarget(target).getTraits().get_traits();}
 
 
 

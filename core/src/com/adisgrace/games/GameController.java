@@ -25,6 +25,7 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import org.w3c.dom.ls.LSOutput;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -374,8 +375,20 @@ public class GameController implements Screen {
 
             String s;
             if(nodeInfo.length == 1) {
+                ArrayList<TraitModel.Trait> traits = levelController.getTargetTraits(b.getName());
+                String traitString = "";
+                for(TraitModel.Trait trait : traits) {
+                    traitString += trait.toString() + ", ";
+                }
+
+                if(traits.size() > 0) {
+                    traitString = traitString.substring(0, traitString.length()-2);
+                } else {
+                    traitString = "None";
+                }
                 s =  "\nTarget Name: " + b.getName() + "\n" +
-                        "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n";
+                        "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n"+
+                        "Target Traits: " + traitString+ "\n";
             } else {
                 s = levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
             }
@@ -407,8 +420,20 @@ public class GameController implements Screen {
                         public void run() {
                             String labelS;
                             if(nodeInfo.length == 1) {
+                                ArrayList<TraitModel.Trait> traits = levelController.getTargetTraits(b.getName());
+                                String traitString = "";
+                                for(TraitModel.Trait trait : traits) {
+                                    traitString += trait.toString() + ", ";
+                                }
+                                if(traits.size() > 0) {
+                                    traitString = traitString.substring(0, traitString.length()-2);
+                                } else {
+                                    traitString = "None";
+                                }
+
                                 labelS =  "\nTarget Name: " + b.getName() + "\n" +
-                                        "Target Stress: " + lc.getTargetStress(b.getName()) + "\n";
+                                        "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n"+
+                                        "Target Traits: " + traitString+ "\n";
                             } else {
                                 labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
                             }
