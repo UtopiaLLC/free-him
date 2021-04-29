@@ -667,8 +667,10 @@ public class GameController implements Screen {
         Table rightSide = createRightsideTable(toolbar, end, notebook, settings);
 
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
-        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
-        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
+        toolbar.add(skillBar).width(.67f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
+        toolbar.add(rightSide).right().width(.10f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.topRight);
+
+        toolbar.debug();
 
         // Add menu back
         Image menuBack = new Image(TX_MENU_BACK);
@@ -688,12 +690,13 @@ public class GameController implements Screen {
      */
     private Table createRightsideTable(Table toolbar, ImageButton end, ImageButton notebook, ImageButton settings) {
         Table rightSide = new Table();
+        rightSide.debug();
         rightSide.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
-        rightSide.add(end).width(rightSide.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
+        rightSide.add(end).width(rightSide.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.right);
         rightSide.row();
-        rightSide.add(notebook).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
+        rightSide.add(notebook).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.right);
         rightSide.row();
-        rightSide.add(settings).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
+        rightSide.add(settings).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.right);
         return rightSide;
 
     }
