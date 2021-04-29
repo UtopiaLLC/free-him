@@ -81,15 +81,16 @@ public class LevelController {
      * @return an int reflecting the result of the hack
      */
     public int hack(String target, String fact){
-        Random rng = new Random();
-
         if(!levelModel.getTargets().containsKey(target))
             return -1;
         if(!player.canHack(levelModel.getTargets().get(target))) // pass target to playerModel since traits affect AP cost
             return -3;
         player.hack(levelModel.getTargets().get(target)); // pass target to playerModel since traits affect AP cost
-//        if(rng.nextDouble() < 0.2){
+
         levelModel.getHackedFacts().get(target).add(fact);
+
+        // Increase target suspicion accordingly
+        levelModel.getTargets().get(target).unlock();
         return 1;
     }
 
@@ -124,6 +125,9 @@ public class LevelController {
             }
         }
         levelModel.getExposableFacts().get(target).add(fact);
+
+        // Increase target suspicion accordingly
+        levelModel.getTargets().get(target).scan();
         return true;
     }
 

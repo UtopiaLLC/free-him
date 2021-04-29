@@ -263,7 +263,7 @@ public class LevelModel {
             TargetModel t = targets.get(targetname);
             if(!bosses.contains(targetname) && t.getState() != TargetModel.TargetState.DEFEATED){
                 for(String bossname : bosses){
-                    targets.get(bossname).addSuspicion((int)(t.getSuspicion() * SUSPICION_SPREAD));
+                    //targets.get(bossname).addSuspicion((int)(t.getSuspicion() * SUSPICION_SPREAD));
                 }
             }
             if (t.getTraits().is_paranoiac()){

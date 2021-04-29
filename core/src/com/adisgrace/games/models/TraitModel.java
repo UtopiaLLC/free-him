@@ -61,7 +61,7 @@ public class TraitModel {
     /** How much stress the therapist heals */
     public static final int HEALING_CONST = 3;
     /** What percentage stress is being spread by the target */
-    public static final float GOSSIP_CONST = .05f;
+    public static final float GOSSIP_CONST = .30f;
     /** How much stress off-putting targets deal*/
     public static final float OFF_PUTTING_CONST = 5;
     /** How much suspicion a target goes up by every turn for naturally suspicious*/

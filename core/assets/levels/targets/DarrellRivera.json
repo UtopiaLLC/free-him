@@ -1,6 +1,6 @@
 	{
 	"targetName": "Darrell Rivera",
-	"paranoia": 2,
+	"paranoia": 1,
 	"maxStress": 50,
 	"traits": ["gossip"],
 	"firstNodes": ["1Node47"],

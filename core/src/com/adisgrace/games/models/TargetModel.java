@@ -424,7 +424,7 @@ public class TargetModel {
 	 * @param r			The amount of suspicion received from gossip
 	 * */
 	public void receive_gossip(int r){
-		suspicion += r;
+		addSuspicion(r);
 	}
 
 	/**
@@ -455,7 +455,7 @@ public class TargetModel {
 	 *
 	 * @param sus		Amount by which to increase target's suspicion
 	 */
-	public void addSuspicion(int sus) {
+	private void addSuspicion(int sus) {
 		suspicion += sus;
 		// Clamp suspicion to the range 0-100
 		if (suspicion < 0) {suspicion = 0;}
@@ -517,7 +517,7 @@ public class TargetModel {
 
 		//if target is naturally suspicious and has raised suspicion before, increase suspicion
 		if(this.getTraits().is_naturally_suspicious() && naturallySuspiciousCheck){
-			suspicion+=TraitModel.NATURALLY_SUSPICIOUS_CONST;
+			addSuspicion((int)TraitModel.NATURALLY_SUSPICIOUS_CONST);
 		}
 
 		// Otherwise, handle Paranoia check depending on state
@@ -527,9 +527,9 @@ public class TargetModel {
 				if (rand.nextInt(100) < suspicion) {
 					// If suspicion check succeeds, move target to Suspicious
 					state = TargetState.SUSPICIOUS;
-					// Reset countdown for inverse Paranoia check
-					countdown = INV_PARANOIA_CONSTANT - paranoia;
 				}
+				// Reset countdown for inverse Paranoia check
+				countdown = INV_PARANOIA_CONSTANT - paranoia;
 				break;
 			case SUSPICIOUS:
 				// Move back to Unaware
@@ -550,6 +550,8 @@ public class TargetModel {
 			default:
 				// If GameOver or Defeated, do nothing
 		}
+
+		System.out.println("TARGET SUSPICION = " + suspicion);
 		// Return new state
 		return state;
 	}	
@@ -746,7 +748,7 @@ public class TargetModel {
 		//TODO: edit effectiveness of the stress damage to be scaled more than 2 in certain cases
 		getFactNode(fact).setTargetStressDmg(stressDmg-2);
 		// Increase target's suspicion by a low amount
-		suspicion += randInRange(SUSPICION_LOW, 25);
+		addSuspicion(randInRange(SUSPICION_LOW, 25));
 		naturallySuspiciousCheck = true;
 		// If fact deals threaten damage above a critical threshold
 		if (stressDmg > 5) {
@@ -778,7 +780,7 @@ public class TargetModel {
 		FactNode factNode = getFactNode(fact);
 		int stressDmg = factNode.getTargetStressDmg();
 		// Increase target's suspicion by a medium amount
-		suspicion += randInRange(SUSPICION_MED, 25);
+		addSuspicion(randInRange(SUSPICION_MED, 25));
 		naturallySuspiciousCheck = true;
 		// If exposing deals nonzero damage
 		if (stressDmg != 0) {

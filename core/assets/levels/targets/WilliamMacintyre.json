@@ -1,6 +1,6 @@
 	{
 	"targetName": "William Macintyre",
-	"paranoia": 4,
+	"paranoia": 1,
 	"maxStress": 70,
 	"traits": ["bad_connection", "rich"],
 	"firstNodes": ["1Node3"],
