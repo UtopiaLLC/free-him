@@ -33,8 +33,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 public class InputController {
 	/** The singleton instance of the input controller */
 	private static InputController theController = null;
-	
-	/** 
+
+	/**
 	 * Return the singleton instance of the input controller
 	 *
 	 * @return the singleton instance of the input controller
@@ -46,6 +46,9 @@ public class InputController {
 		return theController;
 	}
 
+	/** Whether or not to ignore input */
+	private boolean ignoreInput = false;
+
 	// Fields to manage specific button presses
 	/** Whether each of the WASD buttons (for camera movement) have been pressed */
 	private boolean wPressed;
@@ -55,6 +58,9 @@ public class InputController {
 	/** Whether each of the EQ buttons (for camera zoom) have been pressed */
 	private boolean ePressed;
 	private boolean qPressed;
+
+	private boolean leftPressed;
+	private boolean rightPressed;
 
 	/** Whether right-click was just pressed */
 	private boolean rightClicked;
@@ -70,6 +76,16 @@ public class InputController {
 	/** Mouse coordinates */
 	private float mouseX;
 	private float mouseY;
+
+	/**
+	 * Sets whether input should be ignored. Used to disable other
+	 * inputs when a text field is being written to in the LevelEditor.
+	 *
+	 * @param ignoreInput	Whether input should be ignored
+	 */
+	public void shouldIgnoreInput (boolean ignoreInput) {
+		this.ignoreInput = ignoreInput;
+	}
 
 	/**
 	 * Returns true if the W key was pressed.
@@ -98,6 +114,21 @@ public class InputController {
 	 * @return true if the S key was pressed.
 	 */
 	public boolean didDown() {return sPressed;}
+
+	/**
+	 * Returns true if the left key was pressed.
+	 *
+	 * @return true if the left key was pressed.
+	 */
+	public boolean didLeftArrow() {return leftPressed;}
+
+	/**
+	 * Returns true if the right key was pressed.
+	 *
+	 * @return true if the right key was pressed.
+	 */
+	public boolean didRightArrow() {return rightPressed;}
+
 
 	/**
 	 * Returns true if the E key was pressed.
@@ -154,75 +185,14 @@ public class InputController {
 	 * @return current mouse y-coordinate.
 	 */
 	public float getY() {return mouseY;}
-	
+
 	/**
 	 * Creates a new input controller
-	 * 
+	 *
 	 * The input controller attempts to connect to the X-Box controller at device 0,
 	 * if it exists.  Otherwise, it falls back to the keyboard control.
 	 */
 	public InputController() {
-	}
-
-	/**
-	 * TODO
-	 * @param n
-	 * @param skin
-	 * @param actOnNode
-	 * @param levelController
-	 */
-	public void addNodeListener(Node n, final Skin skin, final Runnable actOnNode,
-								final LevelController levelController) {
-		n.addListener(new ClickListener()
-		{
-			Label hoverLabel = new Label("N/A", skin);
-
-			@Override
-			public void clicked(InputEvent event, float x, float y)
-			{
-				Actor cbutton = (Actor)event.getListenerActor();
-				//System.out.println(cbutton.getName());
-				actOnNode.run();
-			}
-
-			@Override
-			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-
-				Actor cbutton = (Actor)event.getListenerActor();
-				String name = cbutton.getName();
-				String [] nodeInfo = name.split(",");
-
-				if(nodeInfo.length==1) {
-//                        tState = new Label("Target State: " + target.getState(), skin);
-//                        tStress.setText("Target Stress: " + Integer.toString(target.getStress()));
-//                      tSusp.setText("Target Suspicion: " + Integer.toString(target.getSuspicion()));
-
-
-					String hoverText = "Target Name: " + name + "\n" +
-							"Target Stress: " + levelController.getTargetStress(name) + "\n" +
-							"Target Suspicion: " + levelController.getTargetSuspicion(name) + "\n";
-
-
-					hoverLabel.setText(hoverText);
-					hoverLabel.setFontScale(2);
-
-					//Vector2 zeroLoc = b.localToStageCoordinates(new Vector2(0, b.getHeight()));
-					Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth()*.05f, Gdx.graphics.getHeight()*.85f);
-					hoverLabel.setX(zeroLoc.x);
-					hoverLabel.setY(zeroLoc.y);
-
-					GameController.toolbarStage.addActor(hoverLabel);
-
-				}
-
-			}
-
-			@Override
-			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-				super.exit(event, x, y, pointer, toActor);
-				hoverLabel.remove();
-			}
-		});
 	}
 
 	/**
@@ -265,20 +235,24 @@ public class InputController {
 	 */
 	private void readKeyboard() {
 		// Camera movement (WASD) controls
-		wPressed = Gdx.input.isKeyPressed(Input.Keys.W);
-		aPressed = Gdx.input.isKeyPressed(Input.Keys.A);
-		sPressed = Gdx.input.isKeyPressed(Input.Keys.S);
-		dPressed = Gdx.input.isKeyPressed(Input.Keys.D);
+		wPressed = Gdx.input.isKeyPressed(Input.Keys.W) && !ignoreInput;
+		aPressed = Gdx.input.isKeyPressed(Input.Keys.A) && !ignoreInput;
+		sPressed = Gdx.input.isKeyPressed(Input.Keys.S) && !ignoreInput;
+		dPressed = Gdx.input.isKeyPressed(Input.Keys.D) && !ignoreInput;
 
 		// Camera zoom (EQ) controls
-		ePressed = Gdx.input.isKeyPressed(Input.Keys.E);
-		qPressed = Gdx.input.isKeyPressed(Input.Keys.Q);
+		ePressed = Gdx.input.isKeyPressed(Input.Keys.E) && !ignoreInput;
+		qPressed = Gdx.input.isKeyPressed(Input.Keys.Q) && !ignoreInput;
 
 		// Clear button (C)
-		cPressed = Gdx.input.isKeyJustPressed(Input.Keys.C);
+		cPressed = Gdx.input.isKeyJustPressed(Input.Keys.C) && !ignoreInput;
 
 		// Undo button (Z)
-		zPressed = Gdx.input.isKeyJustPressed(Input.Keys.Z);
+		zPressed = Gdx.input.isKeyJustPressed(Input.Keys.Z) && !ignoreInput;
+
+		leftPressed = Gdx.input.isKeyJustPressed(Input.Keys.LEFT);
+		rightPressed = Gdx.input.isKeyJustPressed(Input.Keys.RIGHT);
+
 	}
 
 	/**

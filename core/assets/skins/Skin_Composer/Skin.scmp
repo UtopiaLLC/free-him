@@ -1847,6 +1847,25 @@ atlasData: {
 			type: FONT
 			hidden: false
 		}
+		{
+			file: D:/faris/Documents/College Stuff/Semester Folders/SP21/Classes/Game Dev/Actual Game/Game-Code/free-him/core/assets/skins/Skin_Composer/Skin_data/VT323-Regular.png
+			bgColor: {
+				r: 1
+				g: 1
+				b: 1
+				a: 1
+			}
+			tint: null
+			tintName: null
+			name: VT323-Regular
+			tiled: false
+			minWidth: -1
+			minHeight: -1
+			customized: false
+			tenPatchData: null
+			type: FONT
+			hidden: false
+		}
 	]
 }
 jsonData: {
@@ -1952,6 +1971,11 @@ jsonData: {
 			class: com.ray3k.skincomposer.data.FontData
 			name: font-pressed
 			file: D:/faris/Documents/College Stuff/Semester Folders/SP21/Classes/Game Dev/Actual Game/Game-Code/free-him/core/assets/skins/Skin_Composer/Skin_data/font-pressed-export.fnt
+		}
+		{
+			class: com.ray3k.skincomposer.data.FontData
+			name: VT323-Regular
+			file: D:/faris/Documents/College Stuff/Semester Folders/SP21/Classes/Game Dev/Actual Game/Game-Code/free-him/core/assets/skins/Skin_Composer/Skin_data/VT323-Regular.fnt
 		}
 	]
 	freeTypeFonts: []
@@ -2720,7 +2744,7 @@ jsonData: {
 						type: com.badlogic.gdx.graphics.g2d.BitmapFont
 						name: font
 						optional: false
-						value: font
+						value: VT323-Regular
 					}
 					fontColor: {
 						type: com.badlogic.gdx.graphics.Color
@@ -2747,7 +2771,7 @@ jsonData: {
 						type: com.badlogic.gdx.graphics.g2d.BitmapFont
 						name: font
 						optional: false
-						value: font
+						value: VT323-Regular
 					}
 					fontColor: {
 						type: com.badlogic.gdx.graphics.Color
@@ -2760,6 +2784,33 @@ jsonData: {
 						name: background
 						optional: true
 						value: Label_2
+					}
+				}
+				deletable: true
+				parent: null
+			}
+			{
+				class: com.ray3k.skincomposer.data.StyleData
+				name: dialog-box
+				clazz: com.badlogic.gdx.scenes.scene2d.ui.Label
+				properties: {
+					font: {
+						type: com.badlogic.gdx.graphics.g2d.BitmapFont
+						name: font
+						optional: false
+						value: VT323-Regular
+					}
+					fontColor: {
+						type: com.badlogic.gdx.graphics.Color
+						name: fontColor
+						optional: true
+						value: Black
+					}
+					background: {
+						type: com.badlogic.gdx.scenes.scene2d.utils.Drawable
+						name: background
+						optional: true
+						value: null
 					}
 				}
 				deletable: true

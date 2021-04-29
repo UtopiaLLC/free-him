@@ -40,52 +40,52 @@ public class TargetModel {
 
 	/** The target's name */
 	private String name;
+	/** The target's location in isometric space */
+	private int locX, locY;
 	/** The target's traits */
 	private TraitModel traits = new TraitModel();
-	/** The target's location in world coordinates */
-	private int locX;
-	private int locY;
-	/**	Targets connected to the current target */
-	private Array<String> neighbors;
-	/** Target's current stress level */
-	private int stress;
 	/** Target's maximum stress level (when stress reaches that point, target has been revenged) */
 	private int maxStress;
-	/** Target's current suspicion (maxes out at 100) */
-	private int suspicion;
-	/** Amount of suspicion reduced on a successful gaslight attempt */
-	private int gaslight_reduction;
 	/** Turns before the target makes a Paranoia check. Possible values are from 0 to INV_PARANOIA_CONSTANT. */
 	private int paranoia;
+	/** Dictionary representing the nodes that are in the same pod as the target, where a node can be accessed with its name */
+	private HashMap<String, FactNode> podDict;
+	/** Hashmap of nodes that are first shown when the level begins, mapped to the corresponding paths that lead to them. */
+	private ArrayMap<String, Array<Connector>> firstNodes;
+	/** Array of Target combos */
+	private Array<Combo> combos;
+
+	/** Target's current stress level */
+	private int stress;
+	/** Target's current suspicion (maxes out at 100) */
+	private int suspicion;
+	/** Current state of target */
+	private TargetState state;
+	/** Number of turns remaining before next Paranoia check */
+	private int countdown;
+
+	/** Amount of suspicion reduced on a successful gaslight attempt */
+	private int gaslight_reduction;
 	/** Boolean which is true if paranoia deducted from other targets */
 	private boolean paranoiac_used = false;
 	/** Turns where the target does nothing every turn*/
 	private int distractedTurns;
 	/** % chance that a distract will fail*/
 	private int distractFailChance;
-	/** Number of turns remaining before next Paranoia check */
-	private int countdown;
 	/** Whether this target has had their suspicion raised before*/
 	private static boolean naturallySuspiciousCheck;
-	/** Current state of target */
-	private TargetState state;
-	/** Dictionary representing the nodes that are in the same pod as the target, where a node can be accessed with its name */
-	private HashMap<String, FactNode> podDict;
-	/** Hashmap of nodes that are first shown when the level begins, mapped to the corresponding paths that lead to them. */
-	private ArrayMap<String, Array<Connector>> firstNodes;
 
-	/** Array of Target combos */
-	private Array<Combo> combos;
+	/** Instance of Random class, to be used whenever a random number is needed */
+	private Random rand;
 
 	/** Constant for inverse Paranoia check, made every (INV_PARANOIA_CONSTANT - paranoia) turns */
 	private static final int INV_PARANOIA_CONSTANT = 5;
-
 	/** Constants for low/medium/high suspicion */
 	private static final int SUSPICION_LOW = 5;
 	private static final int SUSPICION_MED = 10;
 	private static final int SUSPICION_HIGH = 15;
-	/** Instance of Random class, to be used whenever a random number is needed */
-	private Random rand;
+	/** Constant for multiplier that stress damage is multiplied by for expose */
+	private static final float EXPOSE_MULTIPLIER = 2.5f;
 
 	/************************************************* TARGET CONSTRUCTOR *************************************************/
 
@@ -118,35 +118,6 @@ public class TargetModel {
 		// Get firstNodes
 		firstNodes = mapChildrenToPaths(json.get("firstNodes"), json.get("firstConnectors"),
 				json.get("firstConnectorTypes"));
-// 		firstNodes = new Array<>();
-// 		JsonValue firstNodesArr = json.get("firstNodes");
-// 		itr = firstNodesArr.iterator();
-// 		while (itr.hasNext()){firstNodes.add(itr.next().asString());}
-
-//		// Get traits, UNCOMMENT when traits finished in json
-//		Array<String> temp = new Array<String>();
-//		JsonValue traitsArr = json.get("traits");
-//		itr = traitsArr.iterator();
-//		while (itr.hasNext()){temp.add(itr.next().asString());}
-//		traits = new TraitModel(temp);
-
-
-		// Get firstConnectorPaths
-		// Get array of paths, where each path is an array of coordinates, where each coordinate is
-		// an array of exactly 2 ints representing isometric coordinates
-		//firstConnectorPaths = readConnectorCoords(json.get("firstConnectors"));
-
-		// Get firstConnectorTypes
-		// Get array of paths, where each path is an array of coordinates, where each coordinate is
-		// an array of exactly 2 ints representing isometric coordinates
-		//firstConnectorTypes = readConnectorTypes(json.get("firstConnectorTypes"));
-
-
-//		// Get target coordinates
-//		neighborArr = json.get("loc");
-//		itr = neighborArr.iterator();
-//		locX = itr.next().asInt();
-//		locY = itr.next().asInt();
 
 		// Get nodes
 		JsonValue nodesArr = json.get("pod");
@@ -203,6 +174,13 @@ public class TargetModel {
 		itr = combosArr.iterator();
 		Combo combo;
 		Array<String> relatedFacts = new Array<>();
+
+		// Get traits, UNCOMMENT when traits finished in json
+		Array<String> temp = new Array<String>();
+		JsonValue traitsArr = json.get("traits");
+		itr = traitsArr.iterator();
+		while (itr.hasNext()){temp.add(itr.next().asString());}
+		traits = new TraitModel(temp);
 
 		// Iterate through combos, create each as a Combo, then add to array of combos
 		while (itr.hasNext()) {
@@ -679,15 +657,25 @@ public class TargetModel {
 
 	/**
 	 * Returns the summary stored in the node with the given name.
-	 * 
+	 *
 	 * The summary is what is stored in the player's notebook, so they can see a more concise version of the facts
 	 * they've learned without having to reread each node.
-	 * 
+	 *
 	 * @param name	Name of the node whose summary we want
 	 * @return 		Summary stored at the given node
 	 */
 	public String getSummary(String name) {
 		return getFactNode(name).getSummary();
+	}
+
+	/**
+	 * Returns the player stress damage of the node with the given name.
+	 *
+	 * @param name	Name of the node whose summary we want
+	 * @return 		Stress damage
+	 */
+	public int getStressCost(String name) {
+		return getFactNode(name).getPlayerStressDmg();
 	}
 
 	/**
@@ -723,23 +711,6 @@ public class TargetModel {
 	}
 
 	/**
-	 * Used to harass the target.
-	 *
-	 * Target stress and suspicion are increased by a low amount.
-	 *
-	 * Returns the amount of damage dealt.
-	 *
-	 * @return	Amount of damage to be dealt to the target
-	 */
-	public int harass() {
-		// Increase target's suspicion by a low amount
-		suspicion += randInRange(SUSPICION_LOW, 50);
-		naturallySuspiciousCheck = true;
-		// Return low amount of stress damage to deal to target
-		return randInRange(5, 50);
-	}
-
-	/**
 	 * Used to threaten the target with the fact stored at the given node.
 	 * 
 	 * If the fact can be used to threaten, moves the target to the Threatened state, resets the
@@ -752,8 +723,10 @@ public class TargetModel {
 	 * @param fact	Name of the node where the threatening fact is stored
 	 * @return 		Amount of damage dealt to target (can be 0)
 	 */
-	public int threaten(String fact) {
+	public int harass(String fact) {
 		int stressDmg = getFactNode(fact).getTargetStressDmg();
+		//TODO: edit effectiveness of the stress damage to be scaled more than 2 in certain cases
+		getFactNode(fact).setTargetStressDmg(stressDmg-2);
 		// Increase target's suspicion by a low amount
 		suspicion += randInRange(SUSPICION_LOW, 25);
 		naturallySuspiciousCheck = true;
@@ -762,7 +735,8 @@ public class TargetModel {
 			// Deal stress damage to target
 			addStress(stressDmg);
 			// Move target to threatened
-			state = TargetState.THREATENED;
+			//TODO: threaten has become harass, and harass does not change target state
+//			state = TargetState.THREATENED;
 			// Reset countdown to next Paranoia check
 			countdown = paranoia;
 		}
@@ -793,12 +767,13 @@ public class TargetModel {
 			// Deal damage to target
 			addStress(stressDmg);
 			// Move target to Paranoid
+			//TODO: match to action outcomes
 			state = TargetState.PARANOID;
 			// Reset countdown to next Paranoia check
 			countdown = paranoia;
 		}
-		// Return amount of damage dealt
-		return stressDmg;
+		// Return amount of damage dealt, multiplied by expose multiplier
+		return (int)(stressDmg * EXPOSE_MULTIPLIER);
 	}
 
 	/************************************************* COMBO METHODS *************************************************/

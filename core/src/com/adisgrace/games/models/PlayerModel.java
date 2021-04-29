@@ -23,6 +23,8 @@ public class PlayerModel {
 
 	private final float STARTING_BITECOIN = 30;
 	private final float DAILY_BITECOIN_COST = 10;
+	private final float SCAN_BITECOIN_CHANCE = 10;
+	private final float SCAN_BITECOIN = 10;
 
 	private final int OVERWORK_AP = 2;
 	private final float OVERWORK_STRESS_MEAN = 15;
@@ -282,6 +284,11 @@ public class PlayerModel {
 		}else {
 			this.decrementAP(SCAN_AP_COST);
 		}
+		if(rng.nextInt(100) < SCAN_BITECOIN_CHANCE){
+			if(t.getTraits().is_rich())
+				this.incrementBitecoin(SCAN_BITECOIN * 2);
+			else this.incrementBitecoin(SCAN_BITECOIN);
+		}
 		return this.incrementStress(san_cost);
 	}
 
@@ -421,9 +428,38 @@ public class PlayerModel {
 		else this.decrementAP(GASLIGHT_AP_COST);
 	}
 
+	/**
+	 * @return can the player gaslight
+	 *
+	 * @param t	Target which the player wants to gaslight
+	 */
+	public boolean canGaslight(TargetModel t) {
+		if (t.getTraits().is_bad_connection()){
+			// Costs 1 more AP if target is bad_connection
+			return this.action_points >= (GASLIGHT_AP_COST + 1);
+		}else {
+			return this.action_points >= GASLIGHT_AP_COST;
+		}
+	}
+
+
 	public void distract(TargetModel t){
 		if(t.getTraits().is_bad_connection()) this.decrementAP(DISTRACT_AP_COST + 1);
 		else this.decrementAP(DISTRACT_AP_COST);
+	}
+
+	/**
+	 * @return can the player gaslight
+	 *
+	 * @param t	Target which the player wants to gaslight
+	 */
+	public boolean canDistract(TargetModel t) {
+		if (t.getTraits().is_bad_connection()){
+			// Costs 1 more AP if target is bad_connection
+			return this.action_points >= (DISTRACT_AP_COST + 1);
+		}else {
+			return this.action_points >= DISTRACT_AP_COST;
+		}
 	}
 }
 

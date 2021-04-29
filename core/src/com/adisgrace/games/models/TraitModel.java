@@ -200,4 +200,11 @@ public class TraitModel {
      * Unfreezes this target, meaning their traits are now in effect again
      */
     public void unfreeze(){frozen = false;}
+
+    /**
+     * Gets the traits for this TraitModel as an ArrayList of traits
+     */
+    public ArrayList<Trait> get_traits(){
+        return traits;
+    }
 }

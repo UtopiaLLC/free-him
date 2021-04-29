@@ -5,6 +5,7 @@ package com.adisgrace.games;
 import com.adisgrace.games.models.LevelModel;
 import com.adisgrace.games.models.PlayerModel;
 import com.adisgrace.games.models.TargetModel;
+import com.adisgrace.games.models.TraitModel;
 import com.adisgrace.games.util.Connector;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -23,21 +24,41 @@ public class LevelController {
     private LevelModel levelModel;
     private PlayerModel player;
 
+    private int n_rows, n_cols;
+
     private Random rng;
 
     public LevelController(String levelJson){
         levelModel = new LevelModel(levelJson);
+        n_rows = levelModel.getHeight();
+        n_cols = levelModel.getWidth();
         player = new PlayerModel();
 
         rng = new Random();
     }
 
+    /**
+     * Width of level map
+     * @return number of columns in level grid
+     */
+    public int getWidth() {
+        return n_cols;
+    }
+
+    /**
+     * Height of level map
+     * @return number of rows in level grid
+     */
+    public int getHeight() {
+        return n_rows;
+    }
 
     /**
      *
      * @return the current state of the level
      */
     public LevelModel.LevelState getLevelState(){
+        if(!player.isLiving()) return LevelModel.LevelState.LOSE;
         return levelModel.getLevelState();
     }
 
@@ -67,7 +88,8 @@ public class LevelController {
         if(!player.canHack(levelModel.getTargets().get(target))) // pass target to playerModel since traits affect AP cost
             return -3;
         player.hack(levelModel.getTargets().get(target)); // pass target to playerModel since traits affect AP cost
-        if(rng.nextDouble() < 0.2){
+//        if(rng.nextDouble() < 0.2){
+        if(false){
             levelModel.getTargets().get(target).addSuspicion(25);
             return -4;
         }
@@ -87,7 +109,7 @@ public class LevelController {
             return false;
         if(!player.canScan(levelModel.getTargets().get(target))) // pass target to playerModel since traits affect AP cost
             return false;
-        player.scan(0f, levelModel.getTargets().get(target)); // Stress cost for scanning is unimplemented
+        player.scan(levelModel.getTarget(target).getStressCost(fact), levelModel.getTargets().get(target)); // Stress cost for scanning is unimplemented
         // pass target to playerModel since traits affect AP cost
         levelModel.getSummaries().get(target).put(fact, levelModel.getTargets().get(target).getSummary(fact));
         levelModel.getContents().get(target).put(fact, levelModel.getTargets().get(target).getContent(fact));
@@ -124,20 +146,6 @@ public class LevelController {
     }
 
     /**
-     *	Harass a target
-     *
-     *	@param target 	name of target
-     *	@return 			the gamestate after this action
-     */
-    public LevelModel.LevelState harass(String target){
-        // Get harass damage and inflict on target
-        int stressDmg = levelModel.getTargets().get(target).harass();
-        levelModel.getTargets().get(target).addStress(stressDmg);
-        player.harass(levelModel.getTargets().get(target));
-        return levelModel.getLevelState();
-    }
-
-    /**
      * Attempt to gaslight a target
      * @param target name of target
      * @return true if the attempt was successful
@@ -150,6 +158,14 @@ public class LevelController {
     }
 
     /**
+     * Returns whether or not a player is able to gaslight
+     * @return whether or not player can gaslight
+     */
+    public boolean canGaslight(String target) {
+        return player.canGaslight(levelModel.getTarget(target));
+    }
+
+    /**
      * Attempt to distract a target
      * @param target name of the target
      * @return true if the attempt was successful
@@ -157,6 +173,14 @@ public class LevelController {
     public boolean distract(String target){
         player.distract(levelModel.getTarget(target));
         return levelModel.getTarget(target).distract();
+    }
+
+    /**
+     * Returns whether or not a player is able to distract
+     * @return whether or not player can expose
+     */
+    public boolean canDistract(String target) {
+        return player.canDistract(levelModel.getTarget(target));
     }
 
     /**
@@ -182,12 +206,20 @@ public class LevelController {
     }
 
     /**
-     * Threaten function, increases target stress and reduces AP
+     * Returns whether or not a player is able to expose
+     * @return whether or not player can expose
+     */
+    public boolean canExpose(String target) {
+        return player.canExpose(levelModel.getTarget(target));
+    }
+
+    /**
+     * Harass function, increases target stress and reduces AP
      * @param target target to threaten
      * @param fact fact to threaten target over
      * @return amount of stress increase on target
      */
-    public LevelModel.LevelState threaten(String target, String fact){
+    public int harass(String target, String fact){
         if(!levelModel.getTargets().containsKey(target))
             throw new RuntimeException("Invalid target");
         if(!levelModel.getContents().get(target).containsKey(fact))
@@ -197,9 +229,19 @@ public class LevelController {
         if(!levelModel.getExposableFacts().get(target).contains(fact, false))
             throw new RuntimeException("This fact has already been exposed");
         player.threaten(levelModel.getTargets().get(target)); // pass target to playerModel since traits affect AP cost
-        int stressDamage = levelModel.getTargets().get(target).threaten(fact);
-        levelModel.getTargets().get(target).addStress(stressDamage);
-        return levelModel.getLevelState();
+        int stressDamage = levelModel.getTargets().get(target).harass(fact);
+        if (stressDamage >= 0) {
+            levelModel.getTargets().get(target).addStress(stressDamage);
+        }
+        return stressDamage;
+    }
+
+    /**
+     * Returns whether or not a player is able to threaten
+     * @return whether or not player can threaten
+     */
+    public boolean canHarass(String target) {
+        return player.canThreaten(levelModel.getTarget(target));
     }
 
 
@@ -217,6 +259,14 @@ public class LevelController {
     }
 
     /**
+     * Returns whether or not a player is able to overwork
+     * @return whether or not player can overwork
+     */
+    public boolean canOverwork() {
+        return player.canOverwork();
+    }
+
+    /**
     * Relax function, relaxes 1 AP at a time
     *
     * @return whether relax was successful
@@ -227,6 +277,14 @@ public class LevelController {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Returns whether or not a player is able to relax
+     * @return whether or not player can relax
+     */
+    public boolean canRelax() {
+        return player.canRelax();
     }
 
     /**
@@ -369,6 +427,14 @@ public class LevelController {
      * @return the target state of the target
      */
     public TargetModel.TargetState getTargetState(String target){return levelModel.getTarget(target).getState();}
+
+    /**
+     * returns the traits of a target
+     * @param target name of the target
+     * @return the target traits of the target
+     */
+    public ArrayList<TraitModel.Trait> getTargetTraits(String target){return levelModel.getTarget(target).getTraits().get_traits();}
+
 
 
 

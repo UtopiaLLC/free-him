@@ -24,7 +24,9 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import org.w3c.dom.ls.LSOutput;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -51,7 +53,7 @@ public class GameController implements Screen {
         NONE
     };
     public static String getHoverText(ActiveVerb activeVerb){
-        switch (activeVerb){
+        switch (activeVerb) {
             //case HARASS: return "Harass: Harass your target to slightly increase their stress for 2 AP";
             case HARASS: return "Harass: Harass your target with a \n fact to blackmail to increase their stress " +
                     "for 2 AP";
@@ -72,6 +74,8 @@ public class GameController implements Screen {
             case THREATEN: return "Threaten";
             case EXPOSE: return "Expose";
             case OVERWORK: return "Overwork";
+            case DISTRACT: return "Distract";
+            case GASLIGHT: return "Gaslight";
             case OTHER_JOBS: return "Other Jobs";
             case RELAX: return "Relax";
             default: return "None";
@@ -79,7 +83,7 @@ public class GameController implements Screen {
     }
 
     private Array<String> levelJsons;
-    private Array<LevelController> levelControllers;
+    //private Array<LevelController> levelControllers;
 
     /** canvas is the primary view class of the game */
     private GameCanvas canvas;
@@ -160,21 +164,14 @@ public class GameController implements Screen {
     /** The smallest height the game window can take */
     private static final float MINWORLDHEIGHT = 720;
 
-    private static final int nodeWorldWidth = 15;
-    private static final int nodeWorldHeight = 15;
+    private static final int nodeWorldWidth = 30;
+    private static final int nodeWorldHeight = 30;
 
     /** Dimensions of map tile */
     private static final int TILE_HEIGHT = 256;
     private static final int TILE_WIDTH = 444;
 
-    private int currentLevel;
-
-    private Array<Connector> visibleConnectors;
-
-    private Texture NorthConnector;
-    private Texture SouthConnector;
-    private Texture EastConnector;
-    private Texture WestConnector;
+    public int currentLevel;
 
     private Animation<TextureRegion> NorthConnectorAnimation;
     private Animation<TextureRegion> SouthConnectorAnimation;
@@ -184,6 +181,15 @@ public class GameController implements Screen {
     private Array<TargetModel.TargetState> targetStates;
 
     //private Image north, east, south, west;
+
+    /** Assets for use in game */
+    private static final Texture TX_END_DAY_LOW = new Texture(Gdx.files.internal("UI/UI_EndDayLow_1.png")),
+            TX_NOTEBOOK_LOW = new Texture(Gdx.files.internal("UI/UI_NotebookLow_1.png")),
+            TX_SETTINGS_LOW = new Texture(Gdx.files.internal("UI/UI_SettingsLow_1.png")),
+            TX_MENU_BACK = new Texture(Gdx.files.internal("UI/MenuBack.png"));
+    /** Constants for dimensions of screen */
+    private static final int SCREEN_WIDTH = 1280, SCREEN_HEIGHT = 720;
+
 
 
     public GameController() {
@@ -196,12 +202,15 @@ public class GameController implements Screen {
 
         //TODO: write function to parse folder of level jsons
         levelJsons = new Array<>();
-        levelJsons.add("sample-level-1.json");
-        levelControllers = new Array<>();
+        levelJsons.add("Tutorial1.json");
+        levelJsons.add("Tutorial2.json");
+        levelJsons.add("Tutorial3.json");
+        levelJsons.add("Tutorial4.json");
+//        levelControllers = new Array<>();
 
-        for(String s : levelJsons) {
-            levelControllers.add(new LevelController(s));
-        }
+//        for(String s : levelJsons) {
+//            levelControllers.add(new LevelController(s));
+//        }
 
         skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
         uiController = new UIController(skin);
@@ -210,26 +219,20 @@ public class GameController implements Screen {
 
         loadLevel(0);
 
-        NorthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("N")));
-        SouthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("S")));
-        WestConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("W")));
-        EastConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("E")));
-
-
         cameraController = new CameraController(ic, canvas);
         displayedAP = new Table();
         createToolbar();
         shapeRenderer = new ShapeRenderer();
 
         music = Gdx.audio.newMusic(Gdx.files.internal("music/Moonlit_Skyline.mp3"));
-        music.setVolume(0.1f);
         music.setLooping(true);
-        music.play();
+        setVolume(0.1f);
+        playMusic();
 
-        NorthConnectorAnimation = connectorAnimation(NorthConnector);
-        SouthConnectorAnimation = connectorAnimation(SouthConnector);
-        EastConnectorAnimation = connectorAnimation(EastConnector);
-        WestConnectorAnimation = connectorAnimation(WestConnector);
+        NorthConnectorAnimation = connectorAnimation(Connector.TX_NORTH);
+        SouthConnectorAnimation = connectorAnimation(Connector.TX_SOUTH);
+        EastConnectorAnimation = connectorAnimation(Connector.TX_EAST);
+        WestConnectorAnimation = connectorAnimation(Connector.TX_WEST);
 
         
     }
@@ -244,8 +247,9 @@ public class GameController implements Screen {
      * renders the game display at consistent time steps
      */
     public void render(float delta) {
-
         canvas.clear();
+
+        handleLevelSwitching();
 
         // If no action is currently selected, and the cursor is not hovering above any button, then remove any effects
         if (activeVerb == ActiveVerb.NONE && hoverVerb == ActiveVerb.NONE){
@@ -262,7 +266,7 @@ public class GameController implements Screen {
         updateNodeColors();
         updateStats();
 
-        canvas.drawIsometricGrid(stage,nodeWorldWidth,nodeWorldHeight);
+        canvas.drawIsometricGrid(nodeWorldWidth,nodeWorldHeight);
         stage.getViewport().apply();
         stage.draw();
         toolbarStage.getViewport().apply();
@@ -272,13 +276,19 @@ public class GameController implements Screen {
 
         if(levelController.getLevelState() == LevelModel.LevelState.LOSE && !ended) {
             uiController.createDialogBox("YOU LOSE!");
-            ended = true;
-            //switchLevel(0);
+            //ended = true;
+            uiController.createDialogBox("You must now restart!");
+            loadLevel(currentLevel);
 
         } else if (levelController.getLevelState() == LevelModel.LevelState.WIN && !ended) {
             uiController.createDialogBox("You Win!");
-            ended = true;
-            //switchLevel(currentLevel+1);
+            //ended = true;
+            if(currentLevel+1 > levelJsons.size-1) {
+                uiController.createDialogBox("You beat all our levels!");
+            } else {
+                currentLevel = currentLevel+1;
+                loadLevel(currentLevel);
+            }
         }
 
 
@@ -371,9 +381,20 @@ public class GameController implements Screen {
 
             String s;
             if(nodeInfo.length == 1) {
+                ArrayList<TraitModel.Trait> traits = levelController.getTargetTraits(b.getName());
+                String traitString = "";
+                for(TraitModel.Trait trait : traits) {
+                    traitString += trait.toString() + ", ";
+                }
+
+                if(traits.size() > 0) {
+                    traitString = traitString.substring(0, traitString.length()-2);
+                } else {
+                    traitString = "None";
+                }
                 s =  "\nTarget Name: " + b.getName() + "\n" +
-                        "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n" +
-                        "Target Suspicion: " + levelController.getTargetSuspicion(b.getName()) + "\n";
+                        "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n"+
+                        "Target Traits: " + traitString+ "\n";
             } else {
                 s = levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
             }
@@ -393,6 +414,7 @@ public class GameController implements Screen {
                 nodeLabel.setWidth(300f);
                 nodeLabel.setHeight(100f);
             }
+            final LevelController lc = levelController;
             b.addListener(ic.getButtonListener(
                     new Runnable() {
                         @Override
@@ -402,8 +424,28 @@ public class GameController implements Screen {
                     }, new Runnable() {
                         @Override
                         public void run() {
+                            String labelS;
+                            if(nodeInfo.length == 1) {
+                                ArrayList<TraitModel.Trait> traits = levelController.getTargetTraits(b.getName());
+                                String traitString = "";
+                                for(TraitModel.Trait trait : traits) {
+                                    traitString += trait.toString() + ", ";
+                                }
+                                if(traits.size() > 0) {
+                                    traitString = traitString.substring(0, traitString.length()-2);
+                                } else {
+                                    traitString = "None";
+                                }
+
+                                labelS =  "\nTarget Name: " + b.getName() + "\n" +
+                                        "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n"+
+                                        "Target Traits: " + traitString+ "\n";
+                            } else {
+                                labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
+                            }
+                            nodeLabel.setText(labelS);
                             uiController.nodeOnEnter(
-                                    getColorTypeFromState(levelController.getTargetModels().get(nodeInfo[0]).getState()),
+                                    getColorTypeFromState(lc.getTargetModels().get(nodeInfo[0]).getState()),
                                     nodeLabel, b);
                         }
                     },
@@ -411,8 +453,8 @@ public class GameController implements Screen {
                         @Override
                         public void run() {
                             uiController.nodeOnExit(
-                                    getColorTypeFromState(levelController.getTargetModels().get(nodeInfo[0]).getState()),
-                                    nodeLabel, b);
+                                        getColorTypeFromState(lc.getTargetModels().get(nodeInfo[0]).getState()),
+                                        nodeLabel, b);
                         }
                     }));
             //Adds enter and exit listeners to each node button
@@ -421,13 +463,27 @@ public class GameController implements Screen {
         }
     }
 
+    public void handleLevelSwitching() {
+        if(ic.didLeftArrow()) {
+            if(currentLevel-1 < 0) {return;}
+            currentLevel = currentLevel-1;
+            loadLevel(currentLevel);
+        } else if(ic.didRightArrow()) {
+            if(currentLevel+1 > levelJsons.size-1) {return;}
+            currentLevel = currentLevel+1;
+            loadLevel(currentLevel);
+        }
+    }
+
     /**
      * This method switches the level based on the number inputted
      * @param newLevel the level that the game needs to be switched to
      */
     public void loadLevel(int newLevel) {
-        levelController = levelControllers.get(newLevel);
+        //levelController = levelControllers.get(newLevel);
+        levelController = new LevelController(levelJsons.get(newLevel));
 
+        System.out.println("NEW LEVEL: " + newLevel);
         stage.clear();
         targetStates = new Array<>();
         activeVerb = ActiveVerb.NONE;
@@ -442,7 +498,7 @@ public class GameController implements Screen {
         threatenedFacts = new Array<>();
         exposedFacts = new Array<>();
         canvas.beginDebug();
-        canvas.drawIsometricGrid(stage, nodeWorldWidth, nodeWorldHeight);
+        canvas.drawIsometricGrid(nodeWorldWidth, nodeWorldHeight);
         canvas.endDebug();
 
         // Creating Nodes
@@ -461,11 +517,6 @@ public class GameController implements Screen {
 
         addNodeListeners(imageNodes);
 
-        NorthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("N")));
-        SouthConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("S")));
-        WestConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("W")));
-        EastConnector = new Texture(Gdx.files.internal(Connector.getAssetPath("E")));
-
 
         //This draws all the primary connections that are visible at the beginning of the game
         Vector2 connectorCoords = new Vector2();
@@ -482,21 +533,21 @@ public class GameController implements Screen {
                     connectorCoords.add(targetCoords);
                     connectorCoords = isometricToWorld(connectorCoords);
                     if(connector.type.contains("E")) {
-                        Image east = new Image(EastConnector);
+                        Image east = new Image(Connector.TX_EAST);
                         east.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(east);
                     }if(connector.type.contains("W")) {
-                        Image west = new Image(WestConnector);
+                        Image west = new Image(Connector.TX_WEST);
                         west.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(west);
                     }
                     if(connector.type.contains("N")) {
-                        Image north = new Image(NorthConnector);
+                        Image north = new Image(Connector.TX_NORTH);
                         north.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(north);
                     }
                     if(connector.type.contains("S")) {
-                        Image south = new Image(SouthConnector);
+                        Image south = new Image(Connector.TX_SOUTH);
                         south.setPosition(connectorCoords.x, connectorCoords.y);
                         stage.addActor(south);
                     }
@@ -516,8 +567,7 @@ public class GameController implements Screen {
      * @return      ImageButton for EndDay.
      */
     private ImageButton createEndDay(){
-        ImageButton end = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("UI/EndDay.png")))));
+        ImageButton end = new ImageButton(new TextureRegionDrawable(new TextureRegion(TX_END_DAY_LOW)));
         end.setTransform(true);
         end.setScale(1f);
         end.addListener(new ClickListener()
@@ -539,8 +589,7 @@ public class GameController implements Screen {
      * @return      ImageButton for Settings.
      */
     private ImageButton createSettings(){
-        ImageButton settings = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("UI/Settings.png")))));
+        ImageButton settings = new ImageButton(new TextureRegionDrawable(new TextureRegion(TX_SETTINGS_LOW)));
         settings.setTransform(true);
         settings.setScale(1f);
         settings.addListener(new ClickListener()
@@ -561,8 +610,7 @@ public class GameController implements Screen {
      * @return      ImageButton for Notebook.
      */
     private ImageButton createNotebook(){
-        ImageButton notebook = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("UI/Notebook.png")))));
+        ImageButton notebook = new ImageButton(new TextureRegionDrawable(new TextureRegion(TX_NOTEBOOK_LOW)));
         notebook.setTransform(true);
         notebook.setScale(1f);
         notebook.addListener(new ClickListener()
@@ -571,12 +619,8 @@ public class GameController implements Screen {
             public void clicked(InputEvent event, float x, float y)
             {
                 final String s = "notebook";
-                uiController.confirmDialog("Are you sure you want to open notebook?", new Runnable(){
-                    @Override
-                    public void run() {
-                        callConfirmFunction(s);
-                    }
-                });
+                callConfirmFunction(s);
+
             }
         });
         return notebook;
@@ -673,9 +717,15 @@ public class GameController implements Screen {
         displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/55f).align(Align.center);
 
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
-        toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
+        toolbar.add(skillBar).width(.67f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
+        toolbar.add(rightSide).right().width(.10f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.topRight);
         toolbar.add(displayedAP).right().width(.15f*toolbar.getWidth()).height(.20f*toolbar.getHeight()).align(Align.top);
-        toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
+
+        // Add menu back
+        Image menuBack = new Image(TX_MENU_BACK);
+        toolbarStage.addActor(menuBack);
+        menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
+
         return toolbar;
     }
 
@@ -690,11 +740,11 @@ public class GameController implements Screen {
     private Table createRightsideTable(Table toolbar, ImageButton end, ImageButton notebook, ImageButton settings) {
         Table rightSide = new Table();
         rightSide.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
-        rightSide.add(end).width(rightSide.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
+        rightSide.add(end).width(rightSide.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.right);
         rightSide.row();
-        rightSide.add(notebook).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
+        rightSide.add(notebook).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.right);
         rightSide.row();
-        rightSide.add(settings).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.center);
+        rightSide.add(settings).width(rightSide.getWidth()).height(/*rightSide.getHeight*/100f).align(Align.right);
         return rightSide;
 
     }
@@ -823,93 +873,27 @@ public class GameController implements Screen {
         switch (activeVerb) {
             case NONE:
                 if(!isTarget) {
-                    switch (levelController.getCurrentNodeState(nodeInfo[0], nodeInfo[1])) {
-                        case 3: //locked
-                            int hack = levelController.hack(nodeInfo[0], nodeInfo[1]);
-                            if(hack == -1 || hack == -2) {
-                                System.out.println("HACK IS NOT WORKING: " + hack);
-                                System.exit(1);
-                            }
-                            if(hack == 1) {
-                                button.changeState(Node.NodeState.UNSCANNED);
-                                uiController.createDialogBox("You hacked the node successfully!");
-                            } else if(hack == -3) {
-                                uiController.createDialogBox("Insufficient AP to hack this node.");
-                            } else if(hack == -4) {
-                                uiController.createDialogBox("You failed to hack the node!");
-                            }
-                            break;
-                        case 2://scannable
-                            boolean success = levelController.scan(nodeInfo[0], nodeInfo[1]);
-                            if(success) {
-                                button.changeState(Node.NodeState.SCANNED);
-                                addConnections(nodeInfo[0], nodeInfo[1]);
-                                uiController.createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
-
-                            } else {
-                                uiController.createDialogBox("Insufficient AP to scan this node.");
-                            }
-                            break;
-                        case 1://viewable
-                            uiController.createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
-                            break;
+                         hackScanView( button, nodeInfo);
                     }
-
-                }
                 break;
             case HARASS:
-                if(isTarget) {
-                    if(levelController.getAP() >= PlayerModel.THREATEN_AP_COST) {
-                        uiController.getBlackmailFact("Select a fact to threaten the target with.", nodeInfo[0],
-                                levelController);
-                    }
-                    else {
-                        uiController.createDialogBox("Insufficient AP to threaten the target.");
-                        activeVerb = ActiveVerb.NONE;
-                    }
-                }
-                break;
             case THREATEN:
+                if(isTarget) {
+                    harass(nodeInfo[0]);
+                }
                 break;
             case EXPOSE:
                 if(isTarget) {
-                    if(isTarget) {
-                        if(levelController.getAP() >= PlayerModel.EXPOSE_AP_COST) {
-                            uiController.getBlackmailFact("Select a fact to expose the target with.", nodeInfo[0],
-                                    levelController);
-                        }
-                        else {
-                            uiController.createDialogBox("Insufficient AP to expose the target.");
-                            activeVerb = ActiveVerb.NONE;
-                        }
-                    }
+                    expose(nodeInfo[0]);
                 }
                 break;
             case GASLIGHT:
                 if (isTarget) {
-                    if(levelController.getAP() >= PlayerModel.GASLIGHT_AP_COST) {
-                        if(levelController.gaslight(nodeInfo[0]))
-                            uiController.createDialogBox("You manage to convince them that you're a figment of their imagination.");
-                        else
-                            uiController.createDialogBox("You fail to gaslight them, and only further arouse their suspicions.");
-                    }
-                    else {
-                        uiController.createDialogBox("Insufficient AP to gaslight the target.");
-                        activeVerb = ActiveVerb.NONE;
-                    }
+                    gaslight(nodeInfo[0]);
                 }
             case DISTRACT:
                 if(isTarget){
-                    if(levelController.getAP() >= PlayerModel.DISTRACT_AP_COST){
-                        if(levelController.distract(nodeInfo[0])){
-                            uiController.createDialogBox("You manage to distract your target. They won't have time to deal with you for a while.");
-                        }else{
-                            uiController.createDialogBox("You fail to distract them, and only further arouse their suspicions.");
-                        }
-                    }else{
-                        uiController.createDialogBox("Insufficient AP to distract the target.");
-                        activeVerb = ActiveVerb.NONE;
-                    }
+                    distract(nodeInfo[0]);
                 }
                 break;
             default:
@@ -918,6 +902,118 @@ public class GameController implements Screen {
         }
     }
 
+    /**
+     * Functionality for hacking, scanning, and viewing a fact node
+     * @param button the node being acted upon
+     * @param nodeInfo String array with index 0: name of target, index 1: name of fact node
+     */
+    private void hackScanView(Node button, String[] nodeInfo){
+        switch (levelController.getCurrentNodeState(nodeInfo[0], nodeInfo[1])) {
+            case 3: //locked
+                int hack = levelController.hack(nodeInfo[0], nodeInfo[1]);
+                if(hack == -1 || hack == -2) {
+                    System.out.println("HACK IS NOT WORKING: " + hack);
+                    System.exit(1);
+                }
+                if(hack == 1) {
+                    button.changeState(Node.NodeState.UNSCANNED);
+                    uiController.createDialogBox("You hacked the node successfully!");
+                } else if(hack == -3) {
+                    uiController.createDialogBox("Insufficient AP to hack this node.");
+                } else if(hack == -4) {
+                    uiController.createDialogBox("You failed to hack the node!");
+                }
+                break;
+            case 2://scannable
+                boolean success = levelController.scan(nodeInfo[0], nodeInfo[1]);
+                if(success) {
+                    button.changeState(Node.NodeState.SCANNED);
+                    addConnections(nodeInfo[0], nodeInfo[1]);
+                    uiController.createDialogBox(
+                            levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1])+"\n\n"+
+                            levelController.viewFact(nodeInfo[0], nodeInfo[1]));
+
+                } else {
+                    uiController.createDialogBox("Insufficient AP to scan this node.");
+                }
+                break;
+            case 1://viewable
+                uiController.createDialogBox(
+                        levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1])+"\n\n"+
+                                levelController.viewFact(nodeInfo[0], nodeInfo[1]));
+                break;
+        }
+    }
+
+    /**
+     * Functionality for harassing a target
+     * @param targetName name of the target being harassed
+     */
+    private void harass(String targetName){
+        if(levelController.canHarass(targetName)) {
+            uiController.getBlackmailFact("Select a fact to threaten the target with.", targetName,
+                    levelController);
+        }
+        else {
+            uiController.createDialogBox("Insufficient AP to threaten the target.");
+            activeVerb = ActiveVerb.NONE;
+        }
+    }
+
+    /**
+     * Functionality for exposing a target
+     * @param targetName name of the target being exposed
+     */
+    private void expose(String targetName){
+        if(levelController.canExpose(targetName)) {
+            uiController.getBlackmailFact("Select a fact to expose the target with.", targetName,
+                    levelController);
+        }
+        else {
+            uiController.createDialogBox("Insufficient AP to expose the target.");
+            activeVerb = ActiveVerb.NONE;
+        }
+    }
+
+    /**
+     * Functionality for gaslighting a target
+     * @param targetName name of the target being gaslighted
+     */
+    private void gaslight(String targetName){
+        if(levelController.canGaslight(targetName)) {
+            if(levelController.gaslight(targetName))
+                uiController.createDialogBox("You manage to convince them that you're a figment of their imagination.");
+            else
+                uiController.createDialogBox("You fail to gaslight them, and only further arouse their suspicions.");
+        }
+        else {
+            uiController.createDialogBox("Insufficient AP to gaslight the target.");
+            activeVerb = ActiveVerb.NONE;
+        }
+    }
+
+    /**
+     * Functionality for distracting a target
+     * @param targetName name of the target being distracted
+     */
+    private void distract( String targetName ) {
+        if(levelController.canDistract(targetName)){
+            if(levelController.distract(targetName)){
+                uiController.createDialogBox("You manage to distract your target. They won't have time to deal with you for a while.");
+            }else{
+                uiController.createDialogBox("You fail to distract them, and only further arouse their suspicions.");
+            }
+        }else{
+            uiController.createDialogBox("Insufficient AP to distract the target.");
+            activeVerb = ActiveVerb.NONE;
+        }
+    }
+
+    /**
+     * Adds connections between a target and a fact based on the type of each connector
+     * @param target the name of the target
+     * @param fact the name of the fact
+     */
     public void addConnections(String target, String fact){
         ArrayMap<String, Array<Connector>> connectors = levelController.getConnectorsOf(target, fact);
         //Vector2 connectorCoords = new Vector2();
@@ -963,8 +1059,12 @@ public class GameController implements Screen {
         }
     }
 
+    /**
+     * Creates an animation that can be used to display connections being added between nodes
+     * @param tex the texture that is used for animation
+     * @return the animation of connections between nodes
+     */
     public Animation<TextureRegion> connectorAnimation(Texture tex) {
-
         TextureRegion[] connectorFrames = new TextureRegion[50];
         int counter = 0;
 
@@ -1015,7 +1115,6 @@ public class GameController implements Screen {
             case "otherJobs":
                 float money = levelController.otherJobs();
                 if(money != -1f) {
-
                     uiController.createDialogBox("You did some other jobs and earned some " + Float.toString(money) +  " bitecoin for yourself!");
                 } else {
                     uiController.createDialogBox("Insufficient AP to do other jobs");
@@ -1025,6 +1124,7 @@ public class GameController implements Screen {
                 uiController.createNotebookTargetSelector("Select a target to view facts for.", targets, levelController);
                 break;
             case "distract":
+            case "gaslight":
                 break;
             default:
                 System.out.println("You shall not pass");
@@ -1040,5 +1140,17 @@ public class GameController implements Screen {
         ap.setText("AP: " + Integer.toString(levelController.getAP()));
         displayedAP.reset();
         displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
+    }
+
+    public void playMusic() {
+        music.play();
+    }
+
+    public void stopMusic() {
+        music.stop();
+    }
+
+    public void setVolume(float volume) {
+        music.setVolume(volume);
     }
 }

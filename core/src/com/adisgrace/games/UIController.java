@@ -17,7 +17,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 
-import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,6 +94,7 @@ public class UIController {
             case THREATEN:
             case EXPOSE:
             case GASLIGHT:
+            case DISTRACT:
                 if (!button.isChecked()){
                     unCheck();
                     GameController.activeVerb = av;
@@ -162,7 +162,7 @@ public class UIController {
         dialog.getBackground().setMinWidth(300);
         dialog.getBackground().setMinHeight(300);
 //        Label l = new Label( s, skin );
-        Label l = new Label(s, skin);
+        Label l = new Label(s, skin, "dialog-box");
         l.setFontScale(2);
         l.setWrap( true );
         l.setColor(Color.BLACK);
@@ -190,10 +190,13 @@ public class UIController {
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
-        Label l = new Label( s, skin );
+        Label l = new Label( s, skin, "dialog-box");
         l.setColor(Color.BLACK);
-        if(s.length() > 50) {
-            l.setFontScale(1.5f);
+        if(s.length() > 350) {
+            l.setFontScale(1.0f);
+        }
+        else if(s.length() > 75) {
+            l.setFontScale(1.25f);
         }else {
             l.setFontScale(2f);
         }
@@ -224,7 +227,7 @@ public class UIController {
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
-        Label l = new Label( s, skin );
+        Label l = new Label( s, skin, "dialog-box");
         l.setColor(Color.BLACK);
         if(s.length() > 50) {
             l.setFontScale(1.5f);
@@ -252,7 +255,7 @@ public class UIController {
 
         table.row();
         for (int i = 0; i < scannedFacts.size; i++) {
-            Label k = new Label(scannedFacts.get(i), skin);
+            Label k = new Label(scannedFacts.get(i), skin, "dialog-box");
             k.setFontScale(1.3f);
             k.setWrap(true);
             table.add(k).prefWidth(350);
@@ -290,7 +293,7 @@ public class UIController {
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(500);
         dialog.getBackground().setMinHeight(500);
-        Label l = new Label( s, skin );
+        Label l = new Label( s, skin, "dialog-box");
         l.setColor(Color.BLACK);
         if(s.length() > 50) {
             l.setFontScale(1.5f);
@@ -385,9 +388,9 @@ public class UIController {
      */
     public ImageButton createDistract(InputController ic, final Runnable confirmFunction){
         distract = ButtonFactory.makeImageButton( //TODO
-                "skills/expose_up.png",
-                "skills/expose_down.png",
-                "skills/expose_select.png");
+                "skills/distract_up.png",
+                "skills/distract_down.png",
+                "skills/distract_select.png");
         final Label distractLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.DISTRACT));
         final String s = "distract";
         distract.addListener(ic.getButtonListener(
@@ -419,9 +422,9 @@ public class UIController {
      */
     public ImageButton createGaslight(InputController ic, final Runnable confirmFunction){
         gaslight = ButtonFactory.makeImageButton( //TODO
-                "skills/expose_down.png",
-                "skills/expose_select.png",
-                "skills/expose_up.png");
+                "skills/gaslight_up.png",
+                "skills/gaslight_down.png",
+                "skills/gaslight_select.png");
         final Label gaslightLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.GASLIGHT));
         final String s = "gaslight";
         gaslight.addListener(ic.getButtonListener(
@@ -462,8 +465,7 @@ public class UIController {
                 new Runnable() {
                     @Override
                     public void run() {
-                        toolbarOnClick(overwork,s,
-                                GameController.ActiveVerb.OVERWORK, confirmFunction);
+                        toolbarOnClick(overwork,s,GameController.ActiveVerb.OVERWORK, confirmFunction);
                     }
                 }, new Runnable() {
                     @Override
@@ -581,7 +583,7 @@ public class UIController {
         GameController.blackmailDialog.setBackground(drawable);
         GameController.blackmailDialog.getBackground().setMinWidth(500);
         GameController.blackmailDialog.getBackground().setMinHeight(500);
-        Label l = new Label(s, skin);
+        Label l = new Label(s, skin, "dialog-box");
         l.setColor(Color.BLACK);
         //scale sizing based on the amount of text
         if(s.length() > 50) {
@@ -605,7 +607,6 @@ public class UIController {
             scannedFacts.add("No facts scanned yet!");
         }
         for (String fact_ : factSummaries.keySet()) {
-            //Should not add empty fact summaries
             if (factSummaries.containsKey(fact_))
                 scannedFacts.add(factSummaries.get(fact_));
             //Add to both scannedFacts and summaryToFacts
@@ -643,7 +644,7 @@ public class UIController {
         for (int i = 0; i < scannedFacts.size; i++) {
             final int temp_i = i;
             //this should ALWAYS be overwritten in the code underneath
-            Label k = new Label("No facts", skin);
+            Label k = new Label("No facts", skin, "dialog-box");
             String factIDAndSummaryKey = summaryToFacts.get(scannedFacts.get(temp_i)) + scannedFacts.get(temp_i);
             System.out.println("here: " + factIDAndSummaryKey);
             if(GameController.activeVerb == GameController.ActiveVerb.EXPOSE ){
@@ -692,13 +693,14 @@ public class UIController {
                     case THREATEN:
                         break;
                     case HARASS:
-                        //Threaten the target
-                        levelController.threaten(info[0], info[1]);
+                        //Harass the target
+                        int stressDamage = levelController.harass(info[0], info[1]);
                         GameController.activeVerb = GameController.ActiveVerb.NONE;
                         createDialogBox("You harassed the target!");
                         //Add this fact to the list of facts used to threaten
-                        GameController.threatenedFacts.add(factIDAndSummary);
-
+                        if (stressDamage < 0) {
+                            GameController.threatenedFacts.add(factIDAndSummary);
+                        }
                         break;
                     case EXPOSE:
                         //Expose the target

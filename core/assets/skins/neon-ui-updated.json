@@ -12,6 +12,9 @@ com.badlogic.gdx.graphics.g2d.BitmapFont: {
 	font-pressed: {
 		file: font-pressed-export.fnt
 	}
+	VT323-Regular: {
+		file: VT323-Regular.fnt
+	}
 }
 com.badlogic.gdx.graphics.Color: {
 	Black: {
@@ -333,14 +336,18 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 		fontColor: Neon_purple
 	}
 	win-95: {
-		font: font
+		font: VT323-Regular
 		fontColor: Black
 		background: Label_1
 	}
 	win-95-2: {
-		font: font
+		font: VT323-Regular
 		fontColor: Black
 		background: Label_2
+	}
+	dialog-box: {
+		font: VT323-Regular
+		fontColor: Black
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {

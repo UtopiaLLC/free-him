@@ -27,10 +27,6 @@ public class LevelModel {
     // Name of the Level
     private String name;
 
-    //dimensions of the world
-    private int width;
-    private int height;
-
     // Player object
     private PlayerModel player;
 
@@ -42,6 +38,10 @@ public class LevelModel {
 
     // Set of names of boss targets in the level
     private Set<String> bosses;
+
+    // Multiplier for suspicion spread from nonbosses to bosses
+    // Every nonboss adds (suspicion)*SUSPICION_SPREAD suspicion to every boss
+    private static double SUSPICION_SPREAD = 0.2;
 
     // Map of visible factnodes
     private Map<String, Array<String>> visibleFacts;
@@ -72,6 +72,7 @@ public class LevelModel {
 
     // Dimensions of level grid
     private int n_rows, n_cols;
+    private static final int DEFAULT_LEVEL_DIM = 20;
 
     /** Enumeration representing the game's current state */
     protected enum GAMESTATE{
@@ -109,9 +110,14 @@ public class LevelModel {
         String[] targetJsons = json.get("targets").asStringArray();
         name = json.get("name").asString();
 
-        int[] dims = json.get("dims").asIntArray();
-        width = dims[0];
-        height = dims[1];
+        if (json.get("dims") != null) {
+            int[] dims = json.get("dims").asIntArray();
+            n_cols = dims[0];
+            n_rows = dims[1];
+        } else {
+            n_cols = DEFAULT_LEVEL_DIM;
+            n_rows = DEFAULT_LEVEL_DIM;
+        }
 
         //binds each target string to a location in the level
         JsonValue locations = json.get("targetLocs");
@@ -131,7 +137,7 @@ public class LevelModel {
             }
         }
 
-        if(json.get("bosses") != null)
+        if(json.get("bosses") != null && json.get("bosses").asStringArray().length > 0)
             bosses = new HashSet<>(Arrays.asList(json.get("bosses").asStringArray()));
         else bosses = new HashSet<>(targets.keySet());
 
@@ -178,14 +184,14 @@ public class LevelModel {
      * Returns the width of this level
      */
     public int getWidth() {
-        return width;
+        return n_cols;
     }
 
     /**
      * Returns the height of this level
      */
     public int getHeight() {
-        return height;
+        return n_rows;
     }
 
     /**
@@ -253,7 +259,13 @@ public class LevelModel {
         n_days++;
         // Implements target trait : paranoiac
         // iterate over all targets to see if any is paranoiac
-        for (TargetModel t : targets.values()){
+        for (String targetname : targets.keySet()){
+            TargetModel t = targets.get(targetname);
+            if(!bosses.contains(targetname) && t.getState() != TargetModel.TargetState.DEFEATED){
+                for(String bossname : bosses){
+                    targets.get(bossname).addSuspicion((int)(t.getSuspicion() * SUSPICION_SPREAD));
+                }
+            }
             if (t.getTraits().is_paranoiac()){
                 //If a target is paranoiac and is alive and paranoiac_used is false, reduce paranoia of all targets in level by 1
                 if (t.getState() != TargetModel.TargetState.DEFEATED && t.get_paranoiac_used() == false){

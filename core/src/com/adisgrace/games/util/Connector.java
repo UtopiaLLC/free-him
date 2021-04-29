@@ -1,6 +1,9 @@
 package com.adisgrace.games.util;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 /**
  * Connector inner class that represents part of a line between two nodes or a target and a node.
@@ -38,10 +41,15 @@ public class Connector {
     public String type;
 
     /** Paths for each type of connector */
-    public static final String C_NORTH = "leveleditor/connectors/C_N_2.png";
-    public static final String C_EAST = "leveleditor/connectors/C_E_2.png";
-    public static final String C_SOUTH = "leveleditor/connectors/C_S_2.png";
-    public static final String C_WEST = "leveleditor/connectors/C_W_2.png";
+    private static final String C_NORTH = "leveleditor/connectors/C_N_6.png";
+    private static final String C_EAST = "leveleditor/connectors/C_E_6.png";
+    private static final String C_SOUTH = "leveleditor/connectors/C_S_6.png";
+    private static final String C_WEST = "leveleditor/connectors/C_W_6.png";
+
+    /** Textures for each type of connector */
+    public static final Texture TX_NORTH = new Texture(Gdx.files.internal(C_NORTH)),
+            TX_EAST = new Texture(Gdx.files.internal(C_EAST)), TX_SOUTH = new Texture(Gdx.files.internal(C_SOUTH)),
+            TX_WEST = new Texture(Gdx.files.internal(C_WEST));
 
     /** Constants for steps taken in the various direction a connector can go */
     private static final Vector2 N_STEP = new Vector2(0,1);
@@ -99,45 +107,34 @@ public class Connector {
     }
 
     /**
-     * Returns the path to the asset of the given connector.
+     * Returns the texture for a connector with the given direction.
      *
-     * @param dir   The direction of the connector to return the path to the asset of.
-     * @return      The path to the asset for a given connector.
+     * @param dir   A connector direction to get the texture for
+     * @return      The texture for a connector with the given direction
      */
-    public static String getAssetPath(Direction dir) {
+    public static Texture getTexture(Direction dir) {
         switch(dir) {
             case N:
-                return C_NORTH;
+                return TX_NORTH;
             case E:
-                return C_EAST;
+                return TX_EAST;
             case S:
-                return C_SOUTH;
+                return TX_SOUTH;
             case W:
-                return C_WEST;
+                return TX_WEST;
             default:
                 throw new RuntimeException("Connector can only be NESW");
         }
     }
 
     /**
-     * Returns the path to the asset of the given connector.
+     * Returns the texture for a connector with the given direction.
      *
-     * @param dir   The direction of the connector to return the path to the asset of.
-     * @return      The path to the asset for a given connector.
+     * @param dir   A connector direction to get the texture for, as a String
+     * @return      The texture for a connector with the given direction
      */
-    public static String getAssetPath(String dir) {
-        switch(dir) {
-            case "N":
-                return C_NORTH;
-            case "E":
-                return C_EAST;
-            case "S":
-                return C_SOUTH;
-            case "W":
-                return C_WEST;
-            default:
-                throw new RuntimeException("Connector can only be NESW");
-        }
+    public static Texture getTexture(String dir) {
+        return getTexture(toDir(dir));
     }
 
     /**
