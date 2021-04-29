@@ -189,6 +189,7 @@ public class GameController implements Screen {
             TX_MENU_BACK = new Texture(Gdx.files.internal("UI/MenuBack.png"));
     /** Constants for dimensions of screen */
     private static final int SCREEN_WIDTH = 1280, SCREEN_HEIGHT = 720;
+    private static final int RIGHT_SIDE_HEIGHT = 205;
 
 
 
@@ -713,16 +714,12 @@ public class GameController implements Screen {
         Table skillBar = uiController.createSkillBarTable(toolbar);
         Table rightSide = createRightsideTable(toolbar, end, notebook, settings);
 
-//        displayedAP.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
-//        displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/55f).align(Align.center);
-
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
         toolbar.add(skillBar).width(.67f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
         toolbar.add(rightSide).right().width(.10f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.topRight);
-//        toolbar.add(displayedAP).right().width(.15f*toolbar.getWidth()).height(.20f*toolbar.getHeight()).align(Align.top);
 
         displayedAP = apImages[levelController.getAP()];
-        displayedAP.setPosition(0,0);//SCREEN_WIDTH - displayedAP.getWidth(), 500);
+        displayedAP.setPosition(SCREEN_WIDTH - displayedAP.getWidth(), RIGHT_SIDE_HEIGHT);
         toolbarStage.addActor(displayedAP);
 
 
@@ -1145,8 +1142,9 @@ public class GameController implements Screen {
         ap.setText("AP: " + Integer.toString(levelController.getAP()));
         displayedAP.remove();
         displayedAP = apImages[levelController.getAP()];
+        displayedAP.setPosition(SCREEN_WIDTH - displayedAP.getWidth(), RIGHT_SIDE_HEIGHT);
         toolbarStage.addActor(displayedAP);
-        displayedAP.setPosition(SCREEN_WIDTH - displayedAP.getWidth(), 0);
+
 //        displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
     }
 
