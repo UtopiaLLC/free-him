@@ -27,10 +27,6 @@ public class LevelModel {
     // Name of the Level
     private String name;
 
-    //dimensions of the world
-    private int width;
-    private int height;
-
     // Player object
     private PlayerModel player;
 
@@ -72,6 +68,7 @@ public class LevelModel {
 
     // Dimensions of level grid
     private int n_rows, n_cols;
+    private static final int DEFAULT_LEVEL_DIM = 20;
 
     /** Enumeration representing the game's current state */
     protected enum GAMESTATE{
@@ -109,9 +106,14 @@ public class LevelModel {
         String[] targetJsons = json.get("targets").asStringArray();
         name = json.get("name").asString();
 
-        int[] dims = json.get("dims").asIntArray();
-        width = dims[0];
-        height = dims[1];
+        if (json.get("dims") != null) {
+            int[] dims = json.get("dims").asIntArray();
+            n_cols = dims[0];
+            n_rows = dims[1];
+        } else {
+            n_cols = DEFAULT_LEVEL_DIM;
+            n_rows = DEFAULT_LEVEL_DIM;
+        }
 
         //binds each target string to a location in the level
         JsonValue locations = json.get("targetLocs");
@@ -178,14 +180,14 @@ public class LevelModel {
      * Returns the width of this level
      */
     public int getWidth() {
-        return width;
+        return n_cols;
     }
 
     /**
      * Returns the height of this level
      */
     public int getHeight() {
-        return height;
+        return n_rows;
     }
 
     /**

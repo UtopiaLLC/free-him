@@ -23,15 +23,34 @@ public class LevelController {
     private LevelModel levelModel;
     private PlayerModel player;
 
+    private int n_rows, n_cols;
+
     private Random rng;
 
     public LevelController(String levelJson){
         levelModel = new LevelModel(levelJson);
+        n_rows = levelModel.getHeight();
+        n_cols = levelModel.getWidth();
         player = new PlayerModel();
 
         rng = new Random();
     }
 
+    /**
+     * Width of level map
+     * @return number of columns in level grid
+     */
+    public int getWidth() {
+        return n_cols;
+    }
+
+    /**
+     * Height of level map
+     * @return number of rows in level grid
+     */
+    public int getHeight() {
+        return n_rows;
+    }
 
     /**
      *
