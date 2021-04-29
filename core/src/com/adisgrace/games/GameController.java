@@ -866,6 +866,7 @@ public class GameController implements Screen {
                 if (isTarget) {
                     gaslight(nodeInfo[0]);
                 }
+                break;
             case DISTRACT:
                 if(isTarget){
                     distract(nodeInfo[0]);
