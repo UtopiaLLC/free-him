@@ -81,9 +81,9 @@ public class TargetModel {
 	/** Constant for inverse Paranoia check, made every (INV_PARANOIA_CONSTANT - paranoia) turns */
 	private static final int INV_PARANOIA_CONSTANT = 5;
 	/** Constants for low/medium/high suspicion */
-	private static final int SUSPICION_LOW = 5;
-	private static final int SUSPICION_MED = 10;
-	private static final int SUSPICION_HIGH = 15;
+	private static final int SUSPICION_LOW = 15;
+	private static final int SUSPICION_MED = 25;
+	private static final int SUSPICION_HIGH = 35;
 	/** Constant for multiplier that stress damage is multiplied by for expose */
 	private static final float EXPOSE_MULTIPLIER = 2.5f;
 
@@ -708,6 +708,24 @@ public class TargetModel {
 	private int randInRange(int val, int range) {
 		int bound = (int)(((float)range / 100f) * val);
 		return (val + rand.nextInt(bound * 2) - bound);
+	}
+
+	/**
+	 * Increases the target's suspicion when a node in their network is scanned.
+	 *
+	 * Should be called whenever a node in the target's network is first scanned.
+	 */
+	public void scan() {
+		addSuspicion(randInRange(SUSPICION_LOW , 30));
+	}
+
+	/**
+	 * Increases the target's suspicion when a locked node is unlocked.
+	 *
+	 * Should be called whenever a locked node in the target's network is first unlocked.
+	 */
+	public void unlock() {
+		addSuspicion(randInRange(SUSPICION_LOW , 50));
 	}
 
 	/**
