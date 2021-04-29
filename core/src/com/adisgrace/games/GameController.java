@@ -116,7 +116,7 @@ public class GameController implements Screen {
     /** stress is the dialog label for stress */
     private Label stress;
     /** ap is the dialog label for ap */
-    private Label ap;
+//    private Label ap;
     /** apImages is the images for ap shown on the right toolbar*/
     private Image[] apImages;
     /** current amount of AP displayed*/
@@ -850,13 +850,13 @@ public class GameController implements Screen {
         Table stats = new Table();
         stress = new Label("Player Stress: " + Integer.toString((int)(levelController.getPlayerStress())), skin);
         stress.setFontScale(2);
-        ap = new Label("AP: " + Integer.toString(levelController.getAP()), skin);
-        ap.setFontScale(2);
+//        ap = new Label("AP: " + Integer.toString(levelController.getAP()), skin);
+//        ap.setFontScale(2);
 
         stats.top();
         stats.setFillParent(true);
 
-        stats.add(ap).expandX().padTop(10);
+//        stats.add(ap).expandX().padTop(10);
         return stats;
     }
 
@@ -1143,7 +1143,7 @@ public class GameController implements Screen {
     public void updateStats(){
         stressBar.setValue(levelController.getPlayerStress());
         bitecoinAmount.setText(Integer.toString((int)levelController.getPlayerCurrency()));
-        ap.setText("AP: " + Integer.toString(levelController.getAP()));
+//        ap.setText("AP: " + Integer.toString(levelController.getAP()));
         displayedAP.remove();
         displayedAP = apImages[levelController.getAP()];
         displayedAP.setPosition(SCREEN_WIDTH - displayedAP.getWidth(), RIGHT_SIDE_HEIGHT);
