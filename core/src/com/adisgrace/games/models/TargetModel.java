@@ -725,6 +725,8 @@ public class TargetModel {
 	 */
 	public int harass(String fact) {
 		int stressDmg = getFactNode(fact).getTargetStressDmg();
+		//TODO: edit effectiveness of the stress damage to be scaled more than 2 in certain cases
+		getFactNode(fact).setTargetStressDmg(stressDmg-2);
 		// Increase target's suspicion by a low amount
 		suspicion += randInRange(SUSPICION_LOW, 25);
 		naturallySuspiciousCheck = true;

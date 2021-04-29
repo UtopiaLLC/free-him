@@ -219,7 +219,7 @@ public class LevelController {
      * @param fact fact to threaten target over
      * @return amount of stress increase on target
      */
-    public LevelModel.LevelState harass(String target, String fact){
+    public int harass(String target, String fact){
         if(!levelModel.getTargets().containsKey(target))
             throw new RuntimeException("Invalid target");
         if(!levelModel.getContents().get(target).containsKey(fact))
@@ -230,8 +230,10 @@ public class LevelController {
             throw new RuntimeException("This fact has already been exposed");
         player.threaten(levelModel.getTargets().get(target)); // pass target to playerModel since traits affect AP cost
         int stressDamage = levelModel.getTargets().get(target).harass(fact);
-        levelModel.getTargets().get(target).addStress(stressDamage);
-        return levelModel.getLevelState();
+        if (stressDamage >= 0) {
+            levelModel.getTargets().get(target).addStress(stressDamage);
+        }
+        return stressDamage;
     }
 
     /**

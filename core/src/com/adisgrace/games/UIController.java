@@ -607,7 +607,6 @@ public class UIController {
             scannedFacts.add("No facts scanned yet!");
         }
         for (String fact_ : factSummaries.keySet()) {
-            //Should not add empty fact summaries
             if (factSummaries.containsKey(fact_))
                 scannedFacts.add(factSummaries.get(fact_));
             //Add to both scannedFacts and summaryToFacts
@@ -694,13 +693,14 @@ public class UIController {
                     case THREATEN:
                         break;
                     case HARASS:
-                        //Threaten the target
-                        levelController.harass(info[0], info[1]);
+                        //Harass the target
+                        int stressDamage = levelController.harass(info[0], info[1]);
                         GameController.activeVerb = GameController.ActiveVerb.NONE;
                         createDialogBox("You harassed the target!");
                         //Add this fact to the list of facts used to threaten
-                        GameController.threatenedFacts.add(factIDAndSummary);
-
+                        if (stressDamage < 0) {
+                            GameController.threatenedFacts.add(factIDAndSummary);
+                        }
                         break;
                     case EXPOSE:
                         //Expose the target
