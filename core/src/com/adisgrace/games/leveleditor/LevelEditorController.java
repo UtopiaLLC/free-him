@@ -1222,21 +1222,10 @@ public class LevelEditorController implements Screen {
             addConnector(input.getX(), input.getY());
         }
 
-        // Move camera
-        canvas.clear();
-        camera.moveCamera();
-
         // If in Edit Mode, determine if edit forms need to be handled
         if (editorMode == Mode.EDIT) {
             displayEditForms();
         }
-
-        // UPDATE
-
-        // Draw objects on canvas
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        nodeStage.act(delta);
-        toolStage.act(delta);
 
         // Resize background canvas based on input level dimensions
         try {
@@ -1245,8 +1234,19 @@ public class LevelEditorController implements Screen {
         catch (NumberFormatException nfe) {
             model.setLevelDimensions(0, 0);
         }
-        canvas.drawIsometricGrid(model.getLevelWidth(), model.getLevelHeight());
 
+        // UPDATE
+
+        // Move camera
+        canvas.clear();
+        camera.moveCamera();
+
+        // Act on stages
+        nodeStage.act(delta);
+        toolStage.act(delta);
+
+        // Draw objects on canvas
+        canvas.drawIsometricGrid(model.getLevelWidth(), model.getLevelHeight());
         nodeStage.draw();
         toolStage.draw();
     }
@@ -1257,7 +1257,6 @@ public class LevelEditorController implements Screen {
      */
     public void resize(int width, int height) {
         // Keep game world at the same scale even when resizing
-        //nodeStage.getViewport().update(width,height,true);
         camera.resize(width, height);
 
         // Keep nodes in the same place when resizing

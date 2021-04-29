@@ -176,6 +176,11 @@ public class GameController implements Screen {
 
     //private Image north, east, south, west;
 
+    /** Assets for use in game */
+    private static final Texture TX_END_DAY_LOW = new Texture(Gdx.files.internal("UI/UI_EndDayLow_1.png")),
+            TX_NOTEBOOK_LOW = new Texture(Gdx.files.internal("UI/UI_NotebookLow_1.png")),
+            TX_SETTINGS_LOW = new Texture(Gdx.files.internal("UI/UI_SettingsLow_1.png"));
+
 
     public GameController() {
         canvas = new GameCanvas();
@@ -187,10 +192,10 @@ public class GameController implements Screen {
 
         //TODO: write function to parse folder of level jsons
         levelJsons = new Array<>();
-        levelJsons.add("sample-level-1.json");
-        levelJsons.add("sample-level-2.json");
-        levelJsons.add("simple_level_1.json");
-        levelJsons.add("Research_Scientist.json");
+        levelJsons.add("Tutorial1.json");
+        levelJsons.add("Tutorial2.json");
+        levelJsons.add("Tutorial3.json");
+        levelJsons.add("Tutorial4.json");
         levelControllers = new Array<>();
 
         for(String s : levelJsons) {
@@ -520,8 +525,7 @@ public class GameController implements Screen {
      * @return      ImageButton for EndDay.
      */
     private ImageButton createEndDay(){
-        ImageButton end = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("UI/EndDay.png")))));
+        ImageButton end = new ImageButton(new TextureRegionDrawable(new TextureRegion(TX_END_DAY_LOW)));
         end.setTransform(true);
         end.setScale(1f);
         end.addListener(new ClickListener()
@@ -543,8 +547,7 @@ public class GameController implements Screen {
      * @return      ImageButton for Settings.
      */
     private ImageButton createSettings(){
-        ImageButton settings = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("UI/Settings.png")))));
+        ImageButton settings = new ImageButton(new TextureRegionDrawable(new TextureRegion(TX_SETTINGS_LOW)));
         settings.setTransform(true);
         settings.setScale(1f);
         settings.addListener(new ClickListener()
@@ -565,8 +568,7 @@ public class GameController implements Screen {
      * @return      ImageButton for Notebook.
      */
     private ImageButton createNotebook(){
-        ImageButton notebook = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(
-                Gdx.files.internal("UI/Notebook.png")))));
+        ImageButton notebook = new ImageButton(new TextureRegionDrawable(new TextureRegion(TX_NOTEBOOK_LOW)));
         notebook.setTransform(true);
         notebook.setScale(1f);
         notebook.addListener(new ClickListener()
