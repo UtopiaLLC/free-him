@@ -265,13 +265,19 @@ public class GameController implements Screen {
 
         if(levelController.getLevelState() == LevelModel.LevelState.LOSE && !ended) {
             uiController.createDialogBox("YOU LOSE!");
-            ended = true;
-            //switchLevel(0);
+            //ended = true;
+            uiController.createDialogBox("You must now restart!");
+            loadLevel(currentLevel);
 
         } else if (levelController.getLevelState() == LevelModel.LevelState.WIN && !ended) {
             uiController.createDialogBox("You Win!");
-            ended = true;
-            //switchLevel(currentLevel+1);
+            //ended = true;
+            if(currentLevel+1 > levelControllers.size-1) {
+                uiController.createDialogBox("You beat all our levels!");
+            } else {
+                currentLevel = currentLevel+1;
+                loadLevel(currentLevel);
+            }
         }
 
 
