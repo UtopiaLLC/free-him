@@ -39,6 +39,10 @@ public class LevelModel {
     // Set of names of boss targets in the level
     private Set<String> bosses;
 
+    // Multiplier for suspicion spread from nonbosses to bosses
+    // Every nonboss adds (suspicion)*SUSPICION_SPREAD suspicion to every boss
+    private static double SUSPICION_SPREAD = 0.2;
+
     // Map of visible factnodes
     private Map<String, Array<String>> visibleFacts;
 
@@ -133,7 +137,7 @@ public class LevelModel {
             }
         }
 
-        if(json.get("bosses") != null)
+        if(json.get("bosses") != null || json.get("bosses").asStringArray().length > 0)
             bosses = new HashSet<>(Arrays.asList(json.get("bosses").asStringArray()));
         else bosses = new HashSet<>(targets.keySet());
 
@@ -255,7 +259,13 @@ public class LevelModel {
         n_days++;
         // Implements target trait : paranoiac
         // iterate over all targets to see if any is paranoiac
-        for (TargetModel t : targets.values()){
+        for (String targetname : targets.keySet()){
+            TargetModel t = targets.get(targetname);
+            if(!bosses.contains(targetname) && t.getState() != TargetModel.TargetState.DEFEATED){
+                for(String bossname : bosses){
+                    targets.get(bossname).addSuspicion((int)(t.getSuspicion() * SUSPICION_SPREAD));
+                }
+            }
             if (t.getTraits().is_paranoiac()){
                 //If a target is paranoiac and is alive and paranoiac_used is false, reduce paranoia of all targets in level by 1
                 if (t.getState() != TargetModel.TargetState.DEFEATED && t.get_paranoiac_used() == false){
