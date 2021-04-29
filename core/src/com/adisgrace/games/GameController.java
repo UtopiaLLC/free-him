@@ -81,7 +81,7 @@ public class GameController implements Screen {
     }
 
     private Array<String> levelJsons;
-    private Array<LevelController> levelControllers;
+    //private Array<LevelController> levelControllers;
 
     /** canvas is the primary view class of the game */
     private GameCanvas canvas;
@@ -200,11 +200,11 @@ public class GameController implements Screen {
         levelJsons.add("Tutorial2.json");
         levelJsons.add("Tutorial3.json");
         levelJsons.add("Tutorial4.json");
-        levelControllers = new Array<>();
+//        levelControllers = new Array<>();
 
-        for(String s : levelJsons) {
-            levelControllers.add(new LevelController(s));
-        }
+//        for(String s : levelJsons) {
+//            levelControllers.add(new LevelController(s));
+//        }
 
         skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
         uiController = new UIController(skin);
@@ -276,7 +276,7 @@ public class GameController implements Screen {
         } else if (levelController.getLevelState() == LevelModel.LevelState.WIN && !ended) {
             uiController.createDialogBox("You Win!");
             //ended = true;
-            if(currentLevel+1 > levelControllers.size-1) {
+            if(currentLevel+1 > levelJsons.size-1) {
                 uiController.createDialogBox("You beat all our levels!");
             } else {
                 currentLevel = currentLevel+1;
@@ -438,7 +438,7 @@ public class GameController implements Screen {
             currentLevel = currentLevel-1;
             loadLevel(currentLevel);
         } else if(ic.didRightArrow()) {
-            if(currentLevel+1 > levelControllers.size-1) {return;}
+            if(currentLevel+1 > levelJsons.size-1) {return;}
             currentLevel = currentLevel+1;
             loadLevel(currentLevel);
         }
@@ -449,7 +449,8 @@ public class GameController implements Screen {
      * @param newLevel the level that the game needs to be switched to
      */
     public void loadLevel(int newLevel) {
-        levelController = levelControllers.get(newLevel);
+        //levelController = levelControllers.get(newLevel);
+        levelController = new LevelController(levelJsons.get(newLevel));
 
         System.out.println("NEW LEVEL: " + newLevel);
         stage.clear();
@@ -877,14 +878,18 @@ public class GameController implements Screen {
                 if(success) {
                     button.changeState(Node.NodeState.SCANNED);
                     addConnections(nodeInfo[0], nodeInfo[1]);
-                    uiController.createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
+                    uiController.createDialogBox(
+                            levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1])+"\n\n"+
+                            levelController.viewFact(nodeInfo[0], nodeInfo[1]));
 
                 } else {
                     uiController.createDialogBox("Insufficient AP to scan this node.");
                 }
                 break;
             case 1://viewable
-                uiController.createDialogBox(levelController.viewFact(nodeInfo[0], nodeInfo[1]));
+                uiController.createDialogBox(
+                        levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1])+"\n\n"+
+                                levelController.viewFact(nodeInfo[0], nodeInfo[1]));
                 break;
         }
     }

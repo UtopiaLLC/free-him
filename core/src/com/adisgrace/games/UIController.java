@@ -192,8 +192,11 @@ public class UIController {
         dialog.getBackground().setMinHeight(500);
         Label l = new Label( s, skin, "dialog-box");
         l.setColor(Color.BLACK);
-        if(s.length() > 50) {
-            l.setFontScale(1.5f);
+        if(s.length() > 350) {
+            l.setFontScale(1.0f);
+        }
+        else if(s.length() > 75) {
+            l.setFontScale(1.25f);
         }else {
             l.setFontScale(2f);
         }
