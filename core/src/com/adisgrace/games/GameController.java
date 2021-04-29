@@ -119,7 +119,7 @@ public class GameController implements Screen {
     /** apImages is the images for ap shown on the right toolbar*/
     private Image[] apImages;
     /** current amount of AP displayed*/
-    private Table displayedAP;
+    private Image displayedAP;
     /** tStress is the dialog label for tStress */
     private Label tStress;
     /** tSusp is the dialog label for tSusp */
@@ -220,7 +220,6 @@ public class GameController implements Screen {
         loadLevel(0);
 
         cameraController = new CameraController(ic, canvas);
-        displayedAP = new Table();
         createToolbar();
         shapeRenderer = new ShapeRenderer();
 
@@ -713,13 +712,19 @@ public class GameController implements Screen {
         Table leftSide = createLeftsideTable(toolbar);
         Table skillBar = uiController.createSkillBarTable(toolbar);
         Table rightSide = createRightsideTable(toolbar, end, notebook, settings);
-        displayedAP.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
-        displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/55f).align(Align.center);
+
+//        displayedAP.setSize(toolbar.getWidth()*.05f, toolbar.getHeight()/8);
+//        displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/55f).align(Align.center);
 
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
         toolbar.add(skillBar).width(.67f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
         toolbar.add(rightSide).right().width(.10f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.topRight);
-        toolbar.add(displayedAP).right().width(.15f*toolbar.getWidth()).height(.20f*toolbar.getHeight()).align(Align.top);
+//        toolbar.add(displayedAP).right().width(.15f*toolbar.getWidth()).height(.20f*toolbar.getHeight()).align(Align.top);
+
+        displayedAP = apImages[levelController.getAP()];
+        displayedAP.setPosition(0,0);//SCREEN_WIDTH - displayedAP.getWidth(), 500);
+        toolbarStage.addActor(displayedAP);
+
 
         // Add menu back
         Image menuBack = new Image(TX_MENU_BACK);
@@ -1138,8 +1143,11 @@ public class GameController implements Screen {
         stressBar.setValue(levelController.getPlayerStress());
         bitecoinAmount.setText(Integer.toString((int)levelController.getPlayerCurrency()));
         ap.setText("AP: " + Integer.toString(levelController.getAP()));
-        displayedAP.reset();
-        displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
+        displayedAP.remove();
+        displayedAP = apImages[levelController.getAP()];
+        toolbarStage.addActor(displayedAP);
+        displayedAP.setPosition(SCREEN_WIDTH - displayedAP.getWidth(), 0);
+//        displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
     }
 
     public void playMusic() {
