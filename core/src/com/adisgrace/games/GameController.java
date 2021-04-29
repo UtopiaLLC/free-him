@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
@@ -157,6 +158,8 @@ public class GameController implements Screen {
     /** controller for input operations*/
     private InputController ic;
 
+    private Image menuBack;
+
     private Music music;
 
     /** The smallest width the game window can take */
@@ -189,7 +192,7 @@ public class GameController implements Screen {
             TX_MENU_BACK = new Texture(Gdx.files.internal("UI/MenuBack.png"));
     /** Constants for dimensions of screen */
     private static final int SCREEN_WIDTH = 1280, SCREEN_HEIGHT = 720;
-    private static final int RIGHT_SIDE_HEIGHT = 205;
+    private static final int RIGHT_SIDE_HEIGHT = 199;
 
 
 
@@ -724,7 +727,7 @@ public class GameController implements Screen {
 
 
         // Add menu back
-        Image menuBack = new Image(TX_MENU_BACK);
+        menuBack = new Image(TX_MENU_BACK);
         toolbarStage.addActor(menuBack);
         menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
 
@@ -1144,7 +1147,14 @@ public class GameController implements Screen {
         displayedAP.remove();
         displayedAP = apImages[levelController.getAP()];
         displayedAP.setPosition(SCREEN_WIDTH - displayedAP.getWidth(), RIGHT_SIDE_HEIGHT);
+        displayedAP.setTouchable(Touchable.disabled);
         toolbarStage.addActor(displayedAP);
+
+        menuBack.remove();
+        menuBack = new Image(TX_MENU_BACK);
+        menuBack.setTouchable(Touchable.disabled);
+        toolbarStage.addActor(menuBack);
+        menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
 
 //        displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
     }
