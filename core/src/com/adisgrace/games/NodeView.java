@@ -217,7 +217,7 @@ public class NodeView {
             lockedNodes.add(tRegion);
         }
 
-        System.out.println("Locked nodes done!");
+//        System.out.println("Locked nodes done!");
         // Unscanned Nodes
         unscannedNodes = new Array<>();
 
@@ -253,7 +253,7 @@ public class NodeView {
             unscannedNodes.add(spinAnimation);
             spinFrames = new TextureRegion[10];
         }
-        System.out.println("Unscanned nodes done!");
+//        System.out.println("Unscanned nodes done!");
         //Scanned Nodes!
         scannedNodes = new Array<>();
         node = new Texture("node/N_ScannedNode_2.png");
@@ -288,7 +288,7 @@ public class NodeView {
             spinFrames = new TextureRegion[10];
         }
 
-        System.out.println("Scanned nodes done!");
+//        System.out.println("Scanned nodes done!");
         // Targets
 
         targetNodes = new Array<>();
@@ -310,7 +310,7 @@ public class NodeView {
         }
 
 
-        System.out.println("Target nodes done!");
+//        System.out.println("Target nodes done!");
 
         nodeBases = new Array<>();
 
@@ -326,7 +326,7 @@ public class NodeView {
 
         }
 
-        System.out.println("Node Bases done!");
+//        System.out.println("Node Bases done!");
 
         targetBases = new Array<>();
 
@@ -342,7 +342,7 @@ public class NodeView {
 
         }
 
-        System.out.println("Target Bases done!");
+//        System.out.println("Target Bases done!");
 
     }
 

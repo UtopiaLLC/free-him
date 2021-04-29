@@ -339,8 +339,8 @@ public class GameController implements Screen {
                 imageNodes.get(target.getName()).changeColor(colorState);
                 targetStates.set(i, state);
 
-                System.out.println("CHANGE STATE");
-                System.out.println(state);
+//                System.out.println("CHANGE STATE");
+//                System.out.println(state);
 
             }
         }
@@ -486,7 +486,7 @@ public class GameController implements Screen {
         //levelController = levelControllers.get(newLevel);
         levelController = new LevelController(levelJsons.get(newLevel));
 
-        System.out.println("NEW LEVEL: " + newLevel);
+//        System.out.println("NEW LEVEL: " + newLevel);
         stage.clear();
         targetStates = new Array<>();
         activeVerb = ActiveVerb.NONE;
@@ -1033,30 +1033,30 @@ public class GameController implements Screen {
 
                 connectorCoords = isometricToWorld(connectorCoords);
                 if(connector.type.contains("E")) {
-                    System.out.println("East");
+//                    System.out.println("East");
                     ConnectorActor east = new ConnectorActor(EastConnectorAnimation, connectorCoords);
                     east.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(east);
                 }if(connector.type.contains("W")) {
-                    System.out.println("West");
+//                    System.out.println("West");
                     ConnectorActor west = new ConnectorActor(WestConnectorAnimation, connectorCoords);
                     west.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(west);
                 }
                 if(connector.type.contains("N")) {
-                    System.out.println("North");
+//                    System.out.println("North");
                     ConnectorActor north = new ConnectorActor(NorthConnectorAnimation, connectorCoords);
                     north.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(north);
                 }
                 if(connector.type.contains("S")) {
-                    System.out.println("South");
+//                    System.out.println("South");
                     ConnectorActor south = new ConnectorActor(SouthConnectorAnimation, connectorCoords);
                     south.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(south);
                 }
 
-                System.out.println("-------------");
+//                System.out.println("-------------");
 
             }
 

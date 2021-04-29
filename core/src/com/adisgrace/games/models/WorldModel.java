@@ -368,9 +368,9 @@ public class WorldModel {
 			throw new RuntimeException("Insufficient AP to hack");
 		player.hack(targets.get(targetname));  // pass target to playerModel since traits affect AP cost
 		if(rng.nextDouble() < 0.2){
-			System.out.println("Suspicion before " + targets.get(targetname).getSuspicion());
-			targets.get(targetname).addSuspicion(25);
-			System.out.println("Suspicion after " + targets.get(targetname).getSuspicion());
+//			System.out.println("Suspicion before " + targets.get(targetname).getSuspicion());
+			targets.get(targetname).addSuspicion(20);
+//			System.out.println("Suspicion after " + targets.get(targetname).getSuspicion());
 			return false;
 		}
 		hackednodes.get(targetname).add(fact);
