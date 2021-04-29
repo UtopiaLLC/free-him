@@ -1103,16 +1103,15 @@ public class GameController implements Screen {
             case "overwork":
                 success = levelController.overwork();
                 if(success) {
-                    uiController.createDialogBox("You overworked yourself and gained 2 AP at the cost of your sanity...");
+                    uiController.createDialogBox("You chug an energy drink and work yourself late into the night.");
                 } else {
                     uiController.createDialogBox("You cannot overwork anymore today!");
                 }
                 break;
             case "relax":
                 success = levelController.relax();
-
                 if(success) {
-                    uiController.createDialogBox("You relaxed for 1 AP and decreased your stress!");
+                    uiController.createDialogBox("You take some time to yourself listening to music and playing computer games.");
                 } else {
                     uiController.createDialogBox("Insufficient AP to relax.");
                 }
@@ -1121,7 +1120,7 @@ public class GameController implements Screen {
             case "otherJobs":
                 float money = levelController.otherJobs();
                 if(money != -1f) {
-                    uiController.createDialogBox("You did some other jobs and earned some " + Float.toString(money) +  " bitecoin for yourself!");
+                    uiController.createDialogBox("You did some other jobs and earned some " + Integer.toString((int)money) +  " bitecoin for yourself!");
                 } else {
                     uiController.createDialogBox("Insufficient AP to do other jobs");
                 }
