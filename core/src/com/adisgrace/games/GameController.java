@@ -179,7 +179,11 @@ public class GameController implements Screen {
     /** Assets for use in game */
     private static final Texture TX_END_DAY_LOW = new Texture(Gdx.files.internal("UI/UI_EndDayLow_1.png")),
             TX_NOTEBOOK_LOW = new Texture(Gdx.files.internal("UI/UI_NotebookLow_1.png")),
-            TX_SETTINGS_LOW = new Texture(Gdx.files.internal("UI/UI_SettingsLow_1.png"));
+            TX_SETTINGS_LOW = new Texture(Gdx.files.internal("UI/UI_SettingsLow_1.png")),
+            TX_MENU_BACK = new Texture(Gdx.files.internal("UI/MenuBack.png"));
+    /** Constants for dimensions of screen */
+    private static final int SCREEN_WIDTH = 1280, SCREEN_HEIGHT = 720;
+
 
 
     public GameController() {
@@ -658,6 +662,12 @@ public class GameController implements Screen {
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
         toolbar.add(skillBar).width(.6f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
         toolbar.add(rightSide).right().width(.15f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
+
+        // Add menu back
+        Image menuBack = new Image(TX_MENU_BACK);
+        toolbarStage.addActor(menuBack);
+        menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
+
         return toolbar;
     }
 
