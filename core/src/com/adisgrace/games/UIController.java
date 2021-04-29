@@ -76,7 +76,36 @@ public class UIController {
         overwork.setChecked(false);
         distract.setChecked(false);
         gaslight.setChecked(false);
+        relax.setChecked(false);
         GameController.activeVerb = GameController.ActiveVerb.NONE;
+    }
+
+    /**
+     * This helper method sets all buttons in toolbar to their correct states based on activeVerg
+     */
+    public void refreshButtons(){
+        harass.setChecked(false);
+        expose.setChecked(false);
+        otherJobs.setChecked(false);
+        overwork.setChecked(false);
+        distract.setChecked(false);
+        gaslight.setChecked(false);
+        relax.setChecked(false);
+        switch(GameController.activeVerb){
+            case GASLIGHT:
+                gaslight.setChecked(true);
+                break;
+            case DISTRACT:
+                distract.setChecked(true);
+                break;
+            case EXPOSE:
+                expose.setChecked(true);
+                break;
+            case HARASS:
+                harass.setChecked(true);
+                break;
+            default: break;
+        }
     }
 
     /**
@@ -95,13 +124,17 @@ public class UIController {
             case EXPOSE:
             case GASLIGHT:
             case DISTRACT:
-                if (!button.isChecked()){
-                    unCheck();
-                    GameController.activeVerb = av;
-                    button.setChecked(true);
-                }else{
-                    unCheck();
-                }
+                if(GameController.activeVerb == av)
+                    GameController.activeVerb = GameController.ActiveVerb.NONE;
+                else GameController.activeVerb = av;
+                refreshButtons();
+//                if (!button.isChecked()){
+//                    unCheck();
+//                    GameController.activeVerb = av;
+//                    button.setChecked(true);
+//                }else{
+//                    unCheck();
+//                }
                 break;
             case OVERWORK:
             case OTHER_JOBS:
