@@ -266,7 +266,7 @@ public class UIController {
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(DIALOG_WIDTH);
         dialog.getBackground().setMinHeight(DIALOG_HEIGHT);
-        dialog.setLayoutEnabled(false);
+//        dialog.setLayoutEnabled(false);
 
         Label title = new Label( s, skin, "dialog-box");
         title.setColor(Color.BLACK);
@@ -621,18 +621,14 @@ public class UIController {
         GameController.blackmailDialog.setBackground(drawable);
         GameController.blackmailDialog.getBackground().setMinWidth(DIALOG_WIDTH);
         GameController.blackmailDialog.getBackground().setMinHeight(DIALOG_HEIGHT);
-        Label l = new Label(s, skin, "dialog-box");
-        l.setColor(Color.BLACK);
-        //scale sizing based on the amount of text
-        if(s.length() > 50) {
-            l.setFontScale(1.5f);
-        }else {
-            l.setFontScale(2f);
-        }
-        l.setWrap( true );
+
+        Label title = new Label( s, skin, "dialog-box");
+        title.setColor(Color.BLACK);
+        title.setFontScale(1.5f);
+        GameController.blackmailDialog.addActor(title);
+        title.setPosition(50,DIALOG_HEIGHT-90);
+        title.setWrap(false);
         GameController.blackmailDialog.setMovable(true);
-        //Add the text to the center of the dialog box
-        GameController.blackmailDialog.getContentTable().add( l ).prefWidth( DIALOG_PREF_WIDTH );
         //Get all fact summaries that can potentially be displayed
         Map<String, String> factSummaries = levelController.getNotes(targetName);
         //This will store all mappings from summaries to a fact name
@@ -640,7 +636,6 @@ public class UIController {
         //This will store the fact ids of all the scanned facts
         final Array<String> scannedFacts = new Array<>();
 
-        Table table = GameController.blackmailDialog.getContentTable();
         if (factSummaries.keySet().size() == 0) {
             scannedFacts.add("No facts scanned yet!");
         }
@@ -650,10 +645,9 @@ public class UIController {
             //Add to both scannedFacts and summaryToFacts
             summaryToFacts.put(factSummaries.get(fact_), fact_);
         }
-        table.setFillParent(false);
-        table.row();
 
-        addEligibleBlackmailFacts(scannedFacts, summaryToFacts, targetName, table, levelController, factSummaries);
+
+        addEligibleBlackmailFacts(scannedFacts, summaryToFacts, targetName, levelController, factSummaries);
         float bottomPad = getDialogButtonBottomPadding(DIALOG_HEIGHT);
         GameController.blackmailDialog.button("Cancel", true).pad(0f,0f,bottomPad,0f);; //sends "true" as the result
         GameController.blackmailDialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
@@ -672,12 +666,11 @@ public class UIController {
      * @param scannedFacts array of fact summaries that were scanned
      * @param summaryToFacts map from fact summaries to fact id
      * @param targetName name of target
-     * @param table instance of Table used in blackmail notebook instance
      * @param levelController level controller instance
      * @param factSummaries map from fact name to fact summaries
      */
     private void addEligibleBlackmailFacts(Array<String> scannedFacts, Map<String, String> summaryToFacts,String targetName,
-                                           Table table, LevelController levelController, Map<String, String> factSummaries) {
+                                           LevelController levelController, Map<String, String> factSummaries) {
         //Now, parse through all scannedFacts to see which are eligible for display
         for (int i = 0; i < scannedFacts.size; i++) {
             final int temp_i = i;
@@ -703,15 +696,17 @@ public class UIController {
                     k = new Label(scannedFacts.get(i), skin);
                 }
             }
-            k.setWrap(true);
             //Add a listener that can be reachable via the name format "target_name,fact_id"
             if(factSummaries.keySet().size() != 0) {
                 k.setName(targetName + "," + summaryToFacts.get(scannedFacts.get(i)));
                 k.addListener(getBlackmailFactListener(levelController, factIDAndSummaryKey));
             }
             k.setColor(Color.BLACK);
-            table.add(k).prefWidth(DIALOG_PREF_WIDTH);
-            table.row();
+            k.setWrap(true);
+            k.setWidth(DIALOG_WIDTH-125);
+            k.setPosition(75, DIALOG_HEIGHT-90-(50*(temp_i+1)));
+            GameController.blackmailDialog.addActor(k);
+
         }
     }
 
