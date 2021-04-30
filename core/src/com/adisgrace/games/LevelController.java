@@ -121,7 +121,7 @@ public class LevelController {
         for(int i = 0; i < factsSize; i++) {
             String fact_ = facts_known.get(i);
             if (levelModel.getTargets().get(target).checkForCombo(fact_, facts_known)) {
-                System.out.println("combo activated");
+//                System.out.println("combo activated");
                 levelModel.getSummaries().get(target).put(fact_, levelModel.getTarget(target).getSummary(fact_));
                 levelModel.getContents().get(target).put(fact_, levelModel.getTarget(target).getContent(fact_));
             }
@@ -138,7 +138,7 @@ public class LevelController {
     public LevelModel.LevelState endDay() {
         player.nextTurn();
         for(TargetModel t : levelModel.getTargets().values()){
-            t.nextTurn();
+            System.out.println(t.nextTurn());
         }
         levelModel.nextDay();
         return levelModel.getLevelState();

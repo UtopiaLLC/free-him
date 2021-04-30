@@ -196,7 +196,7 @@ public class TargetModel {
 			// Construct and store combo
 			combo = new Combo(new Array<>(relatedFacts), node.getString("overwrite"),
 					node.getString("comboSummary"), node.getInt("comboStressDamage"));
-			System.out.println("Combo " + relatedFacts + " " + node.getString("overwrite"));
+			System.out.println("Read combo " + relatedFacts + " " + node.getString("overwrite"));
 			combos.add(combo);
 		}
 
@@ -469,7 +469,10 @@ public class TargetModel {
 	 * @param success Was the attempt successful?
 	 */
 	public void gaslight(boolean success) {
-		if (success) addSuspicion(-gaslight_reduction);
+		if (success){
+			addSuspicion(-gaslight_reduction);
+			if(state == TargetState.SUSPICIOUS) state = TargetState.UNAWARE;
+		}
 		else addSuspicion(gaslight_reduction/2);
 	}
 
@@ -763,7 +766,7 @@ public class TargetModel {
 			addStress(stressDmg);
 			// Move target to threatened
 			//TODO: threaten has become harass, and harass does not change target state
-			state = TargetState.THREATENED;
+//			state = TargetState.THREATENED;
 			// Reset countdown to next Paranoia check
 			countdown = paranoia;
 		}
