@@ -240,7 +240,46 @@ public class UIController {
             l.setFontScale(2f);
         }
         l.setWrap( true );
+        //Centers the dialog
         dialog.getContentTable().add( l ).prefWidth( DIALOG_PREF_WIDTH );
+
+        float bottomPad = getDialogButtonBottomPadding(DIALOG_HEIGHT);
+        dialog.button("Ok", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
+        dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
+        dialog.show(GameController.toolbarStage);
+        GameController.nodeFreeze = true;
+    }
+
+    /**
+     * Creates a dialog box with [s] at a reasonably-sized height and width
+     * @param s the title of the dialog box
+     * @param fact the description of the fact
+     */
+    public void createDialogBoxFact(String s, String fact) {
+        Dialog dialog = new Dialog("", skin) {
+            public void result(Object obj) {
+                GameController.nodeFreeze = false;
+            }
+        };
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+        dialog.setBackground(drawable);
+        dialog.getBackground().setMinWidth(DIALOG_WIDTH);
+        dialog.getBackground().setMinHeight(DIALOG_HEIGHT);
+
+        Label title = new Label( s, skin, "dialog-box");
+        title.setColor(Color.BLACK);
+        title.setFontScale(1.5f);
+        dialog.addActor(title);
+        title.setPosition(50,DIALOG_HEIGHT-90);
+        title.setWrap(false);
+
+        Label k = new Label(fact, skin, "dialog-box");
+        k.setWrap(true);
+        k.setWidth(DIALOG_WIDTH-125);
+        k.setPosition(75, DIALOG_HEIGHT-90-(100));
+        dialog.addActor(k);
+
 
         float bottomPad = getDialogButtonBottomPadding(DIALOG_HEIGHT);
         dialog.button("Ok", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
