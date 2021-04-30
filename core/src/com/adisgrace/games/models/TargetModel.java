@@ -196,7 +196,7 @@ public class TargetModel {
 			// Construct and store combo
 			combo = new Combo(new Array<>(relatedFacts), node.getString("overwrite"),
 					node.getString("comboSummary"), node.getInt("comboStressDamage"));
-			System.out.println("Combo " + relatedFacts);
+			System.out.println("Combo " + relatedFacts + " " + node.getString("overwrite"));
 			combos.add(combo);
 		}
 
@@ -884,6 +884,7 @@ public class TargetModel {
 			FactNode activated = getFactNode(overwrite);
 			activated.setSummary(comboSummary);
 			activated.setTargetStressDmg(comboStressDamage);
+			//activated.setContent(comboSummary);
 		}
 	}
 
@@ -903,7 +904,7 @@ public class TargetModel {
 	 * @param facts		Other given facts.
 	 */
 	public boolean checkForCombo(String name, Array<String> facts) {
-		System.out.println("Searching for " + name + ", total known " + facts);
+		//System.out.println("Searching for " + name + ", total known " + facts);
 		// Note that if a fact is in fact part of a combo, after replacing the fact's summary and stress
 		// damage with that of the combo, the combo should be deleted from this target. If there are multiple
 		// combos that contain the fact, all the combos that are the same length or less should be deleted.
@@ -929,21 +930,24 @@ public class TargetModel {
 			Combo longest = new Combo();
 			for (Combo combo: combos){
 				// Only checks combos whose overwrite = f
-				if (combo.getOverwrite() == f){
+//				System.out.println(combo.getOverwrite());
+//				System.out.println(f);
+//				System.out.println(f.equals(combo.getOverwrite()));
+				if (f.equals(combo.getOverwrite())){
 					boolean isCombo = true;
 					// Checks if all facts in a combo are included
 					for (String comboFact: combo.getFacts()){
-						if (!facts.contains(comboFact,true)) isCombo = false;
+						if (!facts.contains(comboFact,false)) isCombo = false;
 					}
 					// Removes shorter combos
 					if (isCombo){
 						if (combo.length > longest.length){
 							// longer combo which overwrites f found, replaces and removes shorter combo
-							combos.removeValue(longest,true);
+							combos.removeValue(longest,false);
 							longest = combo;
 						}else {
 							// longer combo which overwrites f already made, removes shorter combo
-							combos.removeValue(combo,true);
+							combos.removeValue(combo,false);
 						}
 					}
 				}
@@ -951,7 +955,7 @@ public class TargetModel {
 			// activates combo and sets flag to true if there exists a combo which activates f
 			if (longest.length >0){
 				longest.activate();
-				System.out.println(longest.comboSummary);
+				//System.out.println(longest.comboSummary);
 				flag = true;
 			}
 			// remove activated combo
