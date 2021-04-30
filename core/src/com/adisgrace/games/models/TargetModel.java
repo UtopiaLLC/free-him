@@ -167,14 +167,6 @@ public class TargetModel {
 			podDict.put(nodeName, fn);
 		}
 
-		// Get combos
-		// Initializations
-		combos = new Array<Combo>();
-		JsonValue combosArr = json.get("combos");
-		itr = combosArr.iterator();
-		Combo combo;
-		Array<String> relatedFacts = new Array<>();
-
 		// Get traits, UNCOMMENT when traits finished in json
 		Array<String> temp = new Array<String>();
 		JsonValue traitsArr = json.get("traits");
@@ -182,6 +174,13 @@ public class TargetModel {
 		while (itr.hasNext()){temp.add(itr.next().asString());}
 		traits = new TraitModel(temp);
 
+		// Get combos
+		// Initializations
+		combos = new Array<Combo>();
+		JsonValue combosArr = json.get("combos");
+		itr = combosArr.iterator();
+		Combo combo;
+		Array<String> relatedFacts = new Array<>();
 		// Iterate through combos, create each as a Combo, then add to array of combos
 		while (itr.hasNext()) {
 			node = itr.next();
