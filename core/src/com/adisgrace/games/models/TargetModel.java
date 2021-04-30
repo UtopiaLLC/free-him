@@ -183,6 +183,7 @@ public class TargetModel {
 		traits = new TraitModel(temp);
 
 		// Iterate through combos, create each as a Combo, then add to array of combos
+		itr = json.get("combos").iterator();
 		while (itr.hasNext()) {
 			node = itr.next();
 
@@ -196,6 +197,7 @@ public class TargetModel {
 			// Construct and store combo
 			combo = new Combo(new Array<>(relatedFacts), node.getString("overwrite"),
 					node.getString("comboSummary"), node.getInt("comboStressDamage"));
+			System.out.println("Combo damage " + node.getInt("comboStressDamage"));
 			combos.add(combo);
 		}
 
@@ -752,7 +754,7 @@ public class TargetModel {
 	public int harass(String fact) {
 		int stressDmg = getFactNode(fact).getTargetStressDmg();
 		//TODO: edit effectiveness of the stress damage to be scaled more than 2 in certain cases
-		getFactNode(fact).setTargetStressDmg(stressDmg-2);
+		getFactNode(fact).setTargetStressDmg(Math.max(stressDmg-2, 0));
 		// Increase target's suspicion by a low amount
 		suspicion += randInRange(SUSPICION_LOW, 25);
 		naturallySuspiciousCheck = true;
