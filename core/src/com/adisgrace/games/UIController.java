@@ -156,7 +156,7 @@ public class UIController {
     public void toolbarOnEnter(ImageButton button, Label buttonLabel,GameController.ActiveVerb av) {
         if(GameController.activeVerb != av){
             Vector2 zeroLoc = button.localToStageCoordinates(new Vector2(0, button.getHeight()));
-            System.out.println(buttonLabel.toString());
+//            System.out.println(buttonLabel.toString());
             buttonLabel.setX(zeroLoc.x);
             buttonLabel.setY(zeroLoc.y);
             GameController.toolbarStage.addActor(buttonLabel);
@@ -679,7 +679,7 @@ public class UIController {
             //this should ALWAYS be overwritten in the code underneath
             Label k = new Label("No facts", skin, "dialog-box");
             String factIDAndSummaryKey = summaryToFacts.get(scannedFacts.get(temp_i)) + scannedFacts.get(temp_i);
-            System.out.println("here: " + factIDAndSummaryKey);
+//            System.out.println("here: " + factIDAndSummaryKey);
             if(GameController.activeVerb == GameController.ActiveVerb.EXPOSE ){
                 //If a scanned fact has already been exposed, we can't expose it again
                 if (GameController.exposedFacts.contains(factIDAndSummaryKey, false) ) {
