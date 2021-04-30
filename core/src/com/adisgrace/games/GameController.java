@@ -229,7 +229,7 @@ public class GameController implements Screen {
 
         music = Gdx.audio.newMusic(Gdx.files.internal("music/Moonlit_Skyline.mp3"));
         music.setLooping(true);
-        setVolume(0.1f);
+        setVolume(0.05f);
         playMusic();
 
         NorthConnectorAnimation = connectorAnimation(Connector.TX_NORTH);

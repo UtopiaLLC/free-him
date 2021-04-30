@@ -182,6 +182,7 @@ public class TargetModel {
 		Combo combo;
 		Array<String> relatedFacts = new Array<>();
 		// Iterate through combos, create each as a Combo, then add to array of combos
+		itr = json.get("combos").iterator();
 		while (itr.hasNext()) {
 			node = itr.next();
 
@@ -195,6 +196,7 @@ public class TargetModel {
 			// Construct and store combo
 			combo = new Combo(new Array<>(relatedFacts), node.getString("overwrite"),
 					node.getString("comboSummary"), node.getInt("comboStressDamage"));
+			System.out.println("Combo " + relatedFacts);
 			combos.add(combo);
 		}
 
@@ -715,6 +717,10 @@ public class TargetModel {
 	 * Should be called whenever a node in the target's network is first scanned.
 	 */
 	public void scan() {
+		if(state == TargetState.SUSPICIOUS){
+			state = TargetState.PARANOID;
+			countdown = paranoia;
+		}
 		addSuspicion(randInRange(SUSPICION_LOW , 30));
 	}
 
@@ -724,6 +730,10 @@ public class TargetModel {
 	 * Should be called whenever a locked node in the target's network is first unlocked.
 	 */
 	public void unlock() {
+		if(state == TargetState.SUSPICIOUS){
+			state = TargetState.PARANOID;
+			countdown = paranoia;
+		}
 		addSuspicion(randInRange(SUSPICION_LOW , 50));
 	}
 
@@ -743,7 +753,7 @@ public class TargetModel {
 	public int harass(String fact) {
 		int stressDmg = getFactNode(fact).getTargetStressDmg();
 		//TODO: edit effectiveness of the stress damage to be scaled more than 2 in certain cases
-		getFactNode(fact).setTargetStressDmg(stressDmg-2);
+		getFactNode(fact).setTargetStressDmg(Math.max(stressDmg-2, 0));
 		// Increase target's suspicion by a low amount
 		suspicion += randInRange(SUSPICION_LOW, 25);
 		naturallySuspiciousCheck = true;
@@ -753,7 +763,7 @@ public class TargetModel {
 			addStress(stressDmg);
 			// Move target to threatened
 			//TODO: threaten has become harass, and harass does not change target state
-//			state = TargetState.THREATENED;
+			state = TargetState.THREATENED;
 			// Reset countdown to next Paranoia check
 			countdown = paranoia;
 		}
@@ -785,13 +795,14 @@ public class TargetModel {
 			addStress(stressDmg);
 			// Move target to Paranoid
 			//TODO: match to action outcomes
-			state = TargetState.PARANOID;
+			state = TargetState.THREATENED;
 			// Reset countdown to next Paranoia check
 			countdown = paranoia;
 		}
 		// Return amount of damage dealt, multiplied by expose multiplier
 		return (int)(stressDmg * EXPOSE_MULTIPLIER);
 	}
+
 
 	/************************************************* COMBO METHODS *************************************************/
 
@@ -892,6 +903,7 @@ public class TargetModel {
 	 * @param facts		Other given facts.
 	 */
 	public boolean checkForCombo(String name, Array<String> facts) {
+		System.out.println("Searching for " + name + ", total known " + facts);
 		// Note that if a fact is in fact part of a combo, after replacing the fact's summary and stress
 		// damage with that of the combo, the combo should be deleted from this target. If there are multiple
 		// combos that contain the fact, all the combos that are the same length or less should be deleted.
@@ -939,6 +951,7 @@ public class TargetModel {
 			// activates combo and sets flag to true if there exists a combo which activates f
 			if (longest.length >0){
 				longest.activate();
+				System.out.println(longest.comboSummary);
 				flag = true;
 			}
 			// remove activated combo
