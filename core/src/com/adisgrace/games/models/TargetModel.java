@@ -716,6 +716,10 @@ public class TargetModel {
 	 * Should be called whenever a node in the target's network is first scanned.
 	 */
 	public void scan() {
+		if(state == TargetState.SUSPICIOUS){
+			state = TargetState.PARANOID;
+			countdown = paranoia;
+		}
 		addSuspicion(randInRange(SUSPICION_LOW , 30));
 	}
 
@@ -725,6 +729,10 @@ public class TargetModel {
 	 * Should be called whenever a locked node in the target's network is first unlocked.
 	 */
 	public void unlock() {
+		if(state == TargetState.SUSPICIOUS){
+			state = TargetState.PARANOID;
+			countdown = paranoia;
+		}
 		addSuspicion(randInRange(SUSPICION_LOW , 50));
 	}
 
@@ -754,7 +762,7 @@ public class TargetModel {
 			addStress(stressDmg);
 			// Move target to threatened
 			//TODO: threaten has become harass, and harass does not change target state
-//			state = TargetState.THREATENED;
+			state = TargetState.THREATENED;
 			// Reset countdown to next Paranoia check
 			countdown = paranoia;
 		}
@@ -786,13 +794,14 @@ public class TargetModel {
 			addStress(stressDmg);
 			// Move target to Paranoid
 			//TODO: match to action outcomes
-			state = TargetState.PARANOID;
+			state = TargetState.THREATENED;
 			// Reset countdown to next Paranoia check
 			countdown = paranoia;
 		}
 		// Return amount of damage dealt, multiplied by expose multiplier
 		return (int)(stressDmg * EXPOSE_MULTIPLIER);
 	}
+
 
 	/************************************************* COMBO METHODS *************************************************/
 

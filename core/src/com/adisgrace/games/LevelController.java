@@ -89,6 +89,7 @@ public class LevelController {
             return -3;
         player.hack(levelModel.getTargets().get(target)); // pass target to playerModel since traits affect AP cost
 //        if(rng.nextDouble() < 0.2){
+        levelModel.getTarget(target).unlock();
         levelModel.getHackedFacts().get(target).add(fact);
         return 1;
     }
