@@ -20,12 +20,12 @@ public final class FormFactory {
     private static InputController input;
 
     /**
-     * Constructor for a FormFactory.
+     * Sets the input controller to ignore input from to the given input controller.
      *
-     * @param input     Input controller, for use in ignoring input when using a form entry
+     * @param input InputController to potentially ignore input from
      */
-    public FormFactory(InputController input) {
-        this.input = input;
+    public static void setInputController(InputController input) {
+        FormFactory.input = input;
     }
 
     /**
@@ -52,7 +52,7 @@ public final class FormFactory {
      * @param initialText       What to initially fill the field with
      * @param isArea            Whether the field should actually be a TextArea
      * @param doDisableInput    Whether or not to disable keyboard input when this text field/area is selected
-     * @return The constructed TextField or TextArea
+     * @return                  The constructed TextField or TextArea
      */
     private static TextField newTextFieldOrArea(String name, float height, float width, String initialText,
                                                 boolean isArea, boolean doDisableInput) {
@@ -75,11 +75,11 @@ public final class FormFactory {
     /**
      * Creates and returns a TextField with the given parameters.
      *
-     * @param name        Name of the field
-     * @param height      Height at which the field is placed on the screen
-     * @param width       Width of the field
-     * @param initialText What to initially fill the field with
-     * @return The constructed TextField
+     * @param name          Name of the field
+     * @param height        Height at which the field is placed on the screen
+     * @param width         Width of the field
+     * @param initialText   What to initially fill the field with
+     * @return              The constructed TextField
      */
     public static TextField newTextField(String name, float height, float width, String initialText) {
         return newTextFieldOrArea(name, height, width, initialText, false, true);
@@ -93,7 +93,7 @@ public final class FormFactory {
      * @param width             Width of the field
      * @param initialText       What to initially fill the field with
      * @param doDisableInput    Whether or not to disable keyboard input when this text field/area is selected
-     * @return The constructed TextField
+     * @return                  The constructed TextField
      */
     public static TextField newTextField(String name, float height, float width, String initialText,
                                          boolean doDisableInput) {
@@ -103,12 +103,12 @@ public final class FormFactory {
     /**
      * Creates and returns a TextArea with the given parameters.
      *
-     * @param name        Name of the field
-     * @param height      Height at which the field is placed on the screen
-     * @param width       Width of the field
-     * @param initialText What to initially fill the field with
-     * @param boxHeight   Height of the box itself
-     * @return The constructed TextArea
+     * @param name          Name of the field
+     * @param height        Height at which the field is placed on the screen
+     * @param width         Width of the field
+     * @param initialText   What to initially fill the field with
+     * @param boxHeight     Height of the box itself
+     * @return              The constructed TextArea
      */
     public static TextArea newTextArea(String name, float height, float width, String initialText, int boxHeight) {
         TextArea area = (TextArea) newTextFieldOrArea(name, height, width, initialText, true, true);
@@ -120,11 +120,11 @@ public final class FormFactory {
     /**
      * Creates and returns a SelectBox with the given parameters.
      *
-     * @param options  The backing array for the SelectBox, giving the options to select from
-     * @param height   Height at which the SelectBox is placed on the screen
-     * @param width    Width of the SelectBox
-     * @param selected Which of the given options is already selected, if any
-     * @return The constructed SelectBox
+     * @param options   The backing array for the SelectBox, giving the options to select from
+     * @param height    Height at which the SelectBox is placed on the screen
+     * @param width     Width of the SelectBox
+     * @param selected  Which of the given options is already selected, if any
+     * @return          The constructed SelectBox
      */
     public static SelectBox newSelectBox(Object[] options, float height, float width, Object selected) {
         SelectBox box = new SelectBox(skin);
@@ -146,11 +146,11 @@ public final class FormFactory {
      * <p>
      * This function in particular is only used to create the list to pick target traits from.
      *
-     * @param options  The backing array for the List, giving the options to select from
-     * @param height   Height at which the List is placed on the screen
-     * @param width    Width of the List
-     * @param selected Which of the given options is already selected, if any
-     * @return The constructed List
+     * @param options   The backing array for the List, giving the options to select from
+     * @param height    Height at which the List is placed on the screen
+     * @param width     Width of the List
+     * @param selected  Which of the given options is already selected, if any
+     * @return          The constructed List
      */
     public static List newListBox(Object[] options, float height, float width, Array<TraitModel.Trait> selected) {
         List box = new List(skin);
@@ -182,11 +182,24 @@ public final class FormFactory {
      *
      * @param labelName The text to write in the label
      * @param height    The vertical height at which to place the label
-     * @return The constructed Label
+     * @return          The constructed Label
      */
     public static Label newLabel(String labelName, float height) {
         Label label = new Label(labelName, skin);
         label.setPosition(FORM_X_OFFSET, height);
         return label;
+    }
+
+    /**
+     * Creates and returns a new CheckBox with the given parameters.
+     *
+     * @param name      The text to label the check box with
+     * @param height    The vertical height at which the place the check box
+     * @return          The constructed CheckBox
+     */
+    public static CheckBox newCheckBox(String name, float height) {
+        CheckBox checkBox = new CheckBox(name, skin);
+        checkBox.setPosition(FORM_X_OFFSET + 215, height-2);
+        return checkBox;
     }
 }

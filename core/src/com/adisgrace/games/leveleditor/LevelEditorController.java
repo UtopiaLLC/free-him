@@ -201,6 +201,8 @@ public class LevelEditorController implements Screen {
      * Initializes the UI and sets up the isometric grid.
      */
     private void initializeLevelEditor() {
+        // Set the input controller to be what to ignore input from when in forms
+        FormFactory.setInputController(input);
         // Set up camera
         ExtendViewport viewport = new ExtendViewport(canvas.getWidth(), canvas.getHeight());
         camera.setViewport(viewport);
@@ -739,10 +741,11 @@ public class LevelEditorController implements Screen {
      * This function takes in a target, which would be the selected node if the selected node is a target.
      * <p>
      * The entries include, for targets specifically:
-     * [2] A TextField to enter the target name.
-     * [4] A TextField to enter the target's paranoia stat.
-     * [6] A TextField to enter the target's maximum stress.
-     * [8] A SelectBox dropdown menu to select target traits (multiple options can be selected).
+     * [2] A CheckBox for whether or not the target is generic.
+     * [3] A TextField to enter the target name.
+     * [5] A TextField to enter the target's paranoia stat.
+     * [7] A TextField to enter the target's maximum stress.
+     * [9] A SelectBox dropdown menu to select target traits (multiple options can be selected).
      *
      * @param target The target that this form handles the information for
      * @param height Height of each entry in the form, in terms of pixels from the bottom
@@ -756,9 +759,9 @@ public class LevelEditorController implements Screen {
 
         // FORM LABEL
         targetForm.addActor(FormFactory.newLabel("TARGET DATA", height));
-        height -= FORM_GAP;
-
         // CHECKBOX FOR WHETHER TARGET IS GENERIC
+        targetForm.addActor(FormFactory.newCheckBox("Generic", height));
+        height -= FORM_GAP;
 
         // TARGET NAME
         targetForm.addActor(FormFactory.newLabel("Name", height));
@@ -797,11 +800,12 @@ public class LevelEditorController implements Screen {
      * Creates the forms for writing target/node information and places them in the toolStage.
      * <p>
      * These include, for nodes specifically:
-     * [2] A TextField to enter the node title.
-     * [4] A TextArea to write the node content (what's seen when scanned).
-     * [6] A TextArea to write the node summary (what goes into the notebook).
-     * [8] A SelectBox dropdown menu to select the node's target stress rating (only one option can be selected).
-     * [10] A SelectBox dropdown menu to select the node's player stress rating (only one option can be selected).
+     * [2] A CheckBox for whether or not the node is generic.
+     * [3] A TextField to enter the node title.
+     * [5] A TextArea to write the node content (what's seen when scanned).
+     * [7] A TextArea to write the node summary (what goes into the notebook).
+     * [9] A SelectBox dropdown menu to select the node's target stress rating (only one option can be selected).
+     * [11] A SelectBox dropdown menu to select the node's player stress rating (only one option can be selected).
      *
      * @param node   The node that this form handles the information for
      * @param height Height of each entry in the form, in terms of pixels from the bottom
@@ -813,7 +817,10 @@ public class LevelEditorController implements Screen {
         nodeForm.bottom();
         nodeForm.setSize(FORM_WIDTH * SCREEN_WIDTH, height);
 
+        // FORM LABEL
         nodeForm.addActor(FormFactory.newLabel("NODE DATA", height));
+        // CHECKBOX FOR WHETHER NODE IS GENERIC
+        nodeForm.addActor(FormFactory.newCheckBox("Generic", height));
         height -= FORM_GAP;
 
         // NODE TITLE
@@ -866,40 +873,40 @@ public class LevelEditorController implements Screen {
         // If node is a Target
         if (nodetype == 0) {
             // Save name
-            model.updateTargetName(im.getName(), ((TextField) form.getChild(2)).getText());
+            model.updateTargetName(im.getName(), ((TextField) form.getChild(3)).getText());
 
             // Save paranoia
             // If the field is empty, set the value to the default
-            String value = String.valueOf(((TextField) form.getChild(4)).getText());
+            String value = String.valueOf(((TextField) form.getChild(5)).getText());
             if (value.equals("")) model.updateTargetParanoia(im.getName(), DEFAULT_PARANOIA);
             else model.updateTargetParanoia(im.getName(), Integer.parseInt(value));
 
             // Save max stress
             // If the field is empty, set the value to the default
-            value = String.valueOf(((TextField) form.getChild(6)).getText());
+            value = String.valueOf(((TextField) form.getChild(7)).getText());
             if (value.equals("")) model.updateTargetMaxStress(im.getName(), DEFAULT_MAX_STRESS);
             else model.updateTargetMaxStress(im.getName(), Integer.parseInt(value));
 
             // Save traits
-            ArraySelection<TraitModel.Trait> selection = ((List) form.getChild(8)).getSelection();
+            ArraySelection selection = ((List) form.getChild(9)).getSelection();
             model.updateTargetTraits(im.getName(), selection.toArray());
         }
         // If node is Unlocked or Locked
         else if (nodetype == 1 || nodetype == 2) {
             // Save title (note that the title is different from the name)
-            model.updateNodeTitle(im.getName(), ((TextField) form.getChild(2)).getText());
+            model.updateNodeTitle(im.getName(), ((TextField) form.getChild(3)).getText());
 
             // Save content
-            model.updateNodeContent(im.getName(), ((TextField) form.getChild(4)).getText());
+            model.updateNodeContent(im.getName(), ((TextField) form.getChild(5)).getText());
 
             // Save summary
-            model.updateNodeSummary(im.getName(), ((TextField) form.getChild(6)).getText());
+            model.updateNodeSummary(im.getName(), ((TextField) form.getChild(7)).getText());
 
             // Save target stress rating
-            model.updateNodeTargetStressRating(im.getName(), (StressRating) ((SelectBox) form.getChild(8)).getSelected());
+            model.updateNodeTargetStressRating(im.getName(), (StressRating) ((SelectBox) form.getChild(9)).getSelected());
 
             // Save player stress rating
-            model.updateNodePlayerStressRating(im.getName(), (StressRating) ((SelectBox) form.getChild(10)).getSelected());
+            model.updateNodePlayerStressRating(im.getName(), (StressRating) ((SelectBox) form.getChild(11)).getSelected());
         }
     }
 

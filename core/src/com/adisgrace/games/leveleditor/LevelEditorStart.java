@@ -121,11 +121,12 @@ public class LevelEditorStart implements Screen {
 
         // Test parsing to see if the file exists
         String levelfile = levelToLoad;
+        String levelfolder = levelToLoad;
         // If levelfile is missing the .json file extension, add it
         if (!levelfile.contains(".json")) levelfile += ".json";
         // If successful, file exists
         try {
-            new JsonReader().parse(Gdx.files.internal("levels/" + levelfile));
+            new JsonReader().parse(Gdx.files.internal("levels/" + levelfolder + "/" + levelfile));
             return true;
         }
         // If unsuccessful, file doesn't exist

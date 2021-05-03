@@ -64,6 +64,27 @@ public class LevelEditorParser {
     }
 
     /**
+     * Helper function that converts a stress rating to a string that indicates its value.
+     *
+     * @param sr    Stress rating to convert
+     * @return      String indicator of the given stress rating
+     */
+    private String stressRatingToIndicator(StressRating sr){
+        switch (sr){
+            case NONE:
+                return "";
+            case LOW:
+                return "(+)";
+            case MED:
+                return "(++)";
+            case HIGH:
+                return "(+++)";
+            default:
+                throw new RuntimeException("Invalid StressRating passed " + sr.toString());
+        }
+    }
+
+    /**
      * Helper function that converts an integer to its stress rating equivalent.
      *
      * Just in case, this will accept ranges of integers for low/medium/high.
@@ -382,7 +403,15 @@ public class LevelEditorParser {
     public void make_level_json(String filename) throws IOException{
         System.out.println("started saving level");
         BufferedWriter out;
-        out = new BufferedWriter(new FileWriter("levels/" + filename + ".json"));
+
+        // Create folder for all of level contents
+        String path = "levels/" + filename;
+        File directory = new File(path);
+        // If folder does not already exist, create it
+        if (!directory.exists()) directory.mkdir();
+
+        // Create new file writer
+        out = new BufferedWriter(new FileWriter(path + "/" + filename + ".json"));
         String targetlist = "", targetpositions = "";
         for(TargetTile target : targets.values()) {
             targetlist += ", \"" + target.name.replaceAll(" ","") + ".json" + "\"";
@@ -396,10 +425,17 @@ public class LevelEditorParser {
                 "\t\"targets\": " + targetlist + ",\n" +
                 "\t\"targetLocs\": " + targetpositions + "\n}"
         );
+        // Finish writing level JSON
         out.flush();
         out.close();
+
+        // If folder for targets inside level folder doesn't exist, create it
+        path += "/targets";
+        directory = new File(path);
+        if (!directory.exists()) directory.mkdir();
+        // Create separate JSONs for each target
         for(String targetname : targets.keySet())
-            make_target_json(targetname);
+            make_target_json(targetname, path);
         System.out.println("finished saving level");
     }
 
@@ -432,15 +468,17 @@ public class LevelEditorParser {
     /**
      * Writes a target to a json
      * Output file has the same name as the target, ie John Smith -> JohnSmith.json
-     * @param targetName name of target to compile a json for
+     *
+     * @param targetName    Name of target to compile a json for
+     * @param path          Path to level folder to save targets to
      */
-    public void make_target_json(String targetName) throws IOException{
+    public void make_target_json(String targetName, String path) throws IOException{
         // Get actual target name, as opposed to the one used for internal referencing
         String realTargetName = targets.get(targetName).name;
 
         System.out.printf("started saving target " + realTargetName);
         BufferedWriter out;
-        out = new BufferedWriter(new FileWriter("levels/targets/" + realTargetName.replaceAll(" ","") + ".json"));
+        out = new BufferedWriter(new FileWriter(path + "/" + realTargetName.replaceAll(" ","") + ".json"));
         Array<NodeTile> childNodes = get_target_facts(targetName);
 
         int targetx = (int)((targets.get(targetName)).x);
@@ -477,15 +515,24 @@ public class LevelEditorParser {
             firstconnectiontypes = "[]";
         }
 
+        // Initialize strings for text fields so they can be modified for storage
+        String content, summary, title;
+
         String pod = "", nodeinfo, connections_, connectiontypes;
         for(NodeTile fact : childNodes){
+            // Replace things like quotes and newlines with the string equivalents in content and summary
+            content = fact.content.replaceAll("\n","\\\\n").replaceAll("\"","\\\\\"");
+            summary = fact.summary.replaceAll("\n","\\\\n").replaceAll("\"","\\\\\"");
+            // Replace quotes in title just to be safe
+            title = fact.title.replaceAll("\"","\\\\\"");
+
             nodeinfo = ",\n{\n" +
                     "\t\t\"nodeName\": \"" + fact.im.getName() + "\",\n" +
-                    "\t\t\"title\": \"" + fact.title + "\",\n" +
+                    "\t\t\"title\": \"" + title + "\",\n" +
                     "\t\t\"coords\": [" + (fact.x-targetx) + "," + (fact.y-targety) + "],\n" +
                     "\t\t\"locked\": " + fact.locked + ",\n" +
-                    "\t\t\"content\": \"" + fact.content + "\",\n" +
-                    "\t\t\"summary\": \"" + fact.summary + "\",\n";
+                    "\t\t\"content\": \"" + content + "\\n\\n" + stressRatingToIndicator(fact.targetSR) + "\",\n" +
+                    "\t\t\"summary\": \"" + summary + " " + stressRatingToIndicator(fact.targetSR) + "\",\n";
 
             strcache1 = "";
             if(connections.containsKey(fact.im.getName())) {
@@ -527,8 +574,9 @@ public class LevelEditorParser {
             pod = "\t[\n" + pod.substring(2) + "\n\t]";
         else pod = "\t[]";
 
+        // Replace quotes in target name with the correct character, just to be safe
         out.write("\t{\n" +
-                "\t\"targetName\": \"" + targets.get(targetName).name + "\",\n" +
+                "\t\"targetName\": \"" + targets.get(targetName).name.replaceAll("\"","\\\\\"") + "\",\n" +
                 "\t\"paranoia\": " + targets.get(targetName).paranoia + ",\n" +
                 "\t\"maxStress\": " + targets.get(targetName).maxStress + ",\n" +
                 "\t\"traits\": " + targets.get(targetName).traitsAsString() + ",\n" +
@@ -551,18 +599,20 @@ public class LevelEditorParser {
      *
      * The model is then displayed in the level editor for further editing.
      *
-     * @param levelfile The filename of the level to load into the level editor.
+     * @param levelname The filename of the level to load into the level editor.
      * @return          A LevelEditorModel of the level file.
      */
-    public LevelEditorModel loadLevel(String levelfile) {
-        // If levelfile is missing the .json file extension, add it
-        if (!levelfile.contains(".json")) levelfile += ".json";
+    public LevelEditorModel loadLevel(String levelname) {
+        // Get folder that level is stored in
+        String levelfolder = levelname;
+        // If level filename is missing the .json file extension, add it
+        if (!levelname.contains(".json")) levelname += ".json";
 
         // Initialize model for level that's being loaded
         LevelEditorModel model = new LevelEditorModel();
 
         // Create JSON reader to parse through the level JSON
-        JsonValue leveljson = new JsonReader().parse(Gdx.files.internal("levels/" + levelfile));
+        JsonValue leveljson = new JsonReader().parse(Gdx.files.internal("levels/" + levelfolder + "/" + levelname));
 
         // Get and store level name
         model.setLevelName(leveljson.get("name").asString());
@@ -582,7 +632,7 @@ public class LevelEditorParser {
             // Get location of target
             loc = itr.next().asIntArray();
             // Parse each target and load into level
-            model = parseTarget(loc[0], loc[1], targetfile, model);
+            model = parseTarget(loc[0], loc[1], targetfile, model, levelfolder);
         }
 
         // Return filled model
@@ -642,11 +692,12 @@ public class LevelEditorParser {
      * @param y             The y-coordinate of the target in the level.
      * @param targetfile    The name of the file that the target's data is stored in.
      * @param model         The model to store the parsed target data in.
+     * @param levelfolder   The name of the level that this target belongs to.
      * @return              The model with the target's data included.
      */
-    private LevelEditorModel parseTarget(int x, int y, String targetfile, LevelEditorModel model) {
+    private LevelEditorModel parseTarget(int x, int y, String targetfile, LevelEditorModel model, String levelfolder) {
         // Get parser for JSON
-        JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/targets/" + targetfile));
+        JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/" + levelfolder + "/targets/" + targetfile));
         // Initialize iterator for arrays
         JsonValue.JsonIterator itr;
 
