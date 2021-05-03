@@ -339,8 +339,8 @@ public class GameController implements Screen {
                 imageNodes.get(target.getName()).changeColor(colorState);
                 targetStates.set(i, state);
 
-                System.out.println("CHANGE STATE");
-                System.out.println(state);
+//                System.out.println("CHANGE STATE");
+//                System.out.println(state);
 
             }
         }
@@ -486,7 +486,7 @@ public class GameController implements Screen {
         //levelController = levelControllers.get(newLevel);
         levelController = new LevelController(levelJsons.get(newLevel));
 
-        System.out.println("NEW LEVEL: " + newLevel);
+//        System.out.println("NEW LEVEL: " + newLevel);
         stage.clear();
         targetStates = new Array<>();
         activeVerb = ActiveVerb.NONE;
@@ -1033,30 +1033,30 @@ public class GameController implements Screen {
 
                 connectorCoords = isometricToWorld(connectorCoords);
                 if(connector.type.contains("E")) {
-                    System.out.println("East");
+//                    System.out.println("East");
                     ConnectorActor east = new ConnectorActor(EastConnectorAnimation, connectorCoords);
                     east.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(east);
                 }if(connector.type.contains("W")) {
-                    System.out.println("West");
+//                    System.out.println("West");
                     ConnectorActor west = new ConnectorActor(WestConnectorAnimation, connectorCoords);
                     west.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(west);
                 }
                 if(connector.type.contains("N")) {
-                    System.out.println("North");
+//                    System.out.println("North");
                     ConnectorActor north = new ConnectorActor(NorthConnectorAnimation, connectorCoords);
                     north.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(north);
                 }
                 if(connector.type.contains("S")) {
-                    System.out.println("South");
+//                    System.out.println("South");
                     ConnectorActor south = new ConnectorActor(SouthConnectorAnimation, connectorCoords);
                     south.setPosition(connectorCoords.x, connectorCoords.y);
                     stage.addActor(south);
                 }
 
-                System.out.println("-------------");
+//                System.out.println("-------------");
 
             }
 
@@ -1103,16 +1103,15 @@ public class GameController implements Screen {
             case "overwork":
                 success = levelController.overwork();
                 if(success) {
-                    uiController.createDialogBox("You overworked yourself and gained 2 AP at the cost of your sanity...");
+                    uiController.createDialogBox("You chug an energy drink and work yourself late into the night.");
                 } else {
                     uiController.createDialogBox("You cannot overwork anymore today!");
                 }
                 break;
             case "relax":
                 success = levelController.relax();
-
                 if(success) {
-                    uiController.createDialogBox("You relaxed for 1 AP and decreased your stress!");
+                    uiController.createDialogBox("You take some time to yourself listening to music and playing computer games.");
                 } else {
                     uiController.createDialogBox("Insufficient AP to relax.");
                 }
@@ -1121,7 +1120,7 @@ public class GameController implements Screen {
             case "otherJobs":
                 float money = levelController.otherJobs();
                 if(money != -1f) {
-                    uiController.createDialogBox("You did some other jobs and earned some " + Float.toString(money) +  " bitecoin for yourself!");
+                    uiController.createDialogBox("You did some other jobs and earned some " + Integer.toString((int)money) +  " bitecoin for yourself!");
                 } else {
                     uiController.createDialogBox("Insufficient AP to do other jobs");
                 }

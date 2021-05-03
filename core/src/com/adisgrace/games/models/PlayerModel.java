@@ -215,8 +215,7 @@ public class PlayerModel {
 	public void relax(int action_points) {
 		if(action_points > this.action_points)
 			throw new RuntimeException("Insufficient AP");
-		this.decrementStress((float)(action_points * RELAX_STRESS_MEAN
-			+ rng.nextGaussian() * RELAX_STRESS_STDEV / action_points));
+		this.decrementStress(rng.nextInt(6)+5);
 		this.decrementAP(action_points);
 	}
 

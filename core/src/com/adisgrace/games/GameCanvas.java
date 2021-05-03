@@ -1252,7 +1252,7 @@ public class GameCanvas {
 		setWidth((int)((Math.sqrt(3)/2)*hypoteneuse*(rows + cols)));
 		setHeight((int)((0.5)*hypoteneuse*(rows + cols)));
 
-		System.out.println(getWidth() + ", " + getHeight());
+//		System.out.println(getWidth() + ", " + getHeight());
 	}
 
 	public static Texture combineTextures(TextureRegion textureRegion1, TextureRegion textureRegion2) {
