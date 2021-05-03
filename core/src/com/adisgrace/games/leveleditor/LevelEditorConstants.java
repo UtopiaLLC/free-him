@@ -10,6 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
+import java.io.File;
+
 /**
  * Static file of constants, including assets, for the level editor, stored separately for convenience.
  */
@@ -122,6 +124,9 @@ public final class LevelEditorConstants {
     /** Default values for certain stats */
     public static final int DEFAULT_PARANOIA = 3;
     public static final int DEFAULT_MAX_STRESS = 50;
+
+    /** Directory where levels are stored */
+    public static final File levelsPath = new File("levels/");
 
     /*************************************************** FUNCTIONS ****************************************************/
     /**

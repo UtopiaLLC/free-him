@@ -152,7 +152,7 @@ public final class FormFactory {
      * @param selected  Which of the given options is already selected, if any
      * @return          The constructed List
      */
-    public static List newListBox(Object[] options, float height, float width, Array<TraitModel.Trait> selected) {
+    public static <T> List newListBox(Object[] options, float height, float width, Array<T> selected) {
         List box = new List(skin);
         box.setItems(options);
         box.setPosition(FORM_X_OFFSET, height);

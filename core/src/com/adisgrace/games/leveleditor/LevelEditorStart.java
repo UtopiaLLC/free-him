@@ -11,15 +11,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.JsonReader;
-import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 /**
@@ -37,12 +30,8 @@ public class LevelEditorStart implements Screen {
     /** Stage to set up main menu UI */
     Stage stage;
 
-    /** Text field where the name of the level to load should be entered */
-    TextField levelToLoadField;
     /** If a level is to be loaded, store the name here */
     String levelToLoad;
-    /** Label stating that the level does not exist */
-    Label errorlabel;
 
     /** Assets for the main menu */
     private static final Texture TITLE_ASSET = new Texture(Gdx.files.internal("mainmenu/MM_Title_1.png"));
@@ -82,59 +71,24 @@ public class LevelEditorStart implements Screen {
             }
         });
 
+        // Create dropdown menu of available levels to load in
+        final SelectBox selectBox = FormFactory.newSelectBox(levelsPath.list(),270,200,null);
+        selectBox.setX((SCREEN_WIDTH / 2f) + (newLevel.getWidth() / 2));
+        selectBox.setMaxListCount(10);
+        stage.addActor(selectBox);
+
         // Load Level button
         TextButton loadLevel = new TextButton("LOAD SAVED LEVEL", skin);
         loadLevel.setPosition((SCREEN_WIDTH / 2f) + (newLevel.getWidth() / 2), 300);
         stage.addActor(loadLevel);
-        // Exit with exit code 1
         loadLevel.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                // Only exit if level to load is successfully stored, meaning it's a valid level that exists
-                if (storeLevelToLoad()) exit(1);
+                // Store level that is to be loaded, then exit
+                levelToLoad = (String) selectBox.getSelected();
+                exit(1);
             }
         });
-
-        // TextField to put in name of level to load
-        levelToLoadField = FormFactory.newTextField("Name of Level to Load", 225, 250,
-                "",false);
-        levelToLoadField.setX((SCREEN_WIDTH / 2f) - (levelToLoadField.getWidth() / 2));
-        levelToLoadField.setAlignment(1);
-        stage.addActor(levelToLoadField);
-
-        // Label that lets the user know if the input level doesn't exist
-        errorlabel = FormFactory.newLabel("Error: level does not exist", levelToLoadField.getY() + 30);
-        errorlabel.setX((SCREEN_WIDTH / 2f) - (errorlabel.getWidth() / 2));
-        // Keep it hidden until the user tries to load a level that doesn't exist
-        errorlabel.setVisible(false);
-        stage.addActor(errorlabel);
-    }
-
-    /**
-     * Stores the name of the level to load written in the text field, and returns whether or not it is
-     * a valid level.
-     *
-     * @return  Whether the currently-entered level exists.
-     */
-    private boolean storeLevelToLoad() {
-        levelToLoad = levelToLoadField.getText();
-
-        // Test parsing to see if the file exists
-        String levelfile = levelToLoad;
-        String levelfolder = levelToLoad;
-        // If levelfile is missing the .json file extension, add it
-        if (!levelfile.contains(".json")) levelfile += ".json";
-        // If successful, file exists
-        try {
-            new JsonReader().parse(Gdx.files.internal("levels/" + levelfolder + "/" + levelfile));
-            return true;
-        }
-        // If unsuccessful, file doesn't exist
-        catch (SerializationException se) {
-            // Make error message visible
-            errorlabel.setVisible(true);
-            return false;
-        }
     }
 
     /**
