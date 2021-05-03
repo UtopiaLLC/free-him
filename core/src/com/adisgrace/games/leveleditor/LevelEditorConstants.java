@@ -5,6 +5,8 @@ import com.adisgrace.games.models.TraitModel.Trait;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
@@ -121,6 +123,69 @@ public final class LevelEditorConstants {
     public static final int DEFAULT_PARANOIA = 3;
     public static final int DEFAULT_MAX_STRESS = 50;
 
+    /*************************************************** FUNCTIONS ****************************************************/
+    /**
+     * Helper function that compares equality between two "nodes," represented as named images. Returns
+     * if the nodes are not equal.
+     *
+     * Two nodes are equal if they are both null or if both aren't null and their names are the same.
+     * Otherwise, they are not equal.
+     *
+     * @param im1 First node to compare equality of
+     * @param im2 Second node to compare equality of
+     * @return Whether or not the two nodes are not equal
+     */
+    public static boolean nodeNotEquals(Image im1, Image im2) {
+        // Not equal if only one is null, or if both aren't null and the names aren't equal
+        return (im1 != null && im2 == null) || (im1 == null && im2 != null) ||
+                ((im1 != null && im2 != null) && !im1.getName().equals(im2.getName()));
+    }
+
+    /********************************************* ISOMETRIC CONVERSIONS **********************************************/
+    /**
+     * Helper function that converts coordinates from world space to isometric space.
+     *
+     * @param coords Coordinates in world space to transform
+     */
+    public static void worldToIsometric(Vector2 coords) {
+        float tempx = coords.x;
+        float tempy = coords.y;
+        coords.x = 0.57735f * tempx - tempy;
+        coords.y = 0.57735f * tempx + tempy;
+    }
+
+    /**
+     * Helper function that converts coordinates from isometric space to world space.
+     *
+     * @param coords Coordinates in isometric space to transform
+     */
+    public static void isometricToWorld(Vector2 coords) {
+        float tempx = coords.x;
+        float tempy = coords.y;
+        coords.x = tempx * (0.5f * TILE_WIDTH) + tempy * (0.5f * TILE_WIDTH);
+        coords.y = -tempx * (0.5f * TILE_HEIGHT) + tempy * (0.5f * TILE_HEIGHT);
+    }
+
+    /**
+     * Helper function that gets the center of an isometric grid tile nearest to the given coordinates.
+     * Returns the vector of the nearest isometric grid tile in isometric space.
+     *
+     * Called when snapping an image to the center of a grid tile.
+     *
+     * @param coords    World coordinates of the location we want to find the nearest isometric center to
+     * @return          Isometric coordinate of nearest isometric grid tile
+     */
+    public static void nearestIsoCenter(Vector2 coords) {
+        // Transform world coordinates to isometric space
+        worldToIsometric(coords);
+
+        // Find the nearest isometric center and return in isometric space
+        // I don't know why you divide x by the height and not the width, but for some reason it
+        // works and dividing x by width doesn't
+        coords.set(Math.round(coords.x / TILE_HEIGHT), Math.round(coords.y / TILE_HEIGHT));
+    }
+
+    /********************************************** ARRAY ORDER FINDING ***********************************************/
     /**
      * Finds the index of a value in the array.
      *
@@ -137,5 +202,29 @@ public final class LevelEditorConstants {
         }
         // Return -1 if value was not found
         return -1;
+    }
+
+    /**
+     * Helper function that returns the index to the next value in the array.
+     * <p>
+     * When called with an array of connector types as input, it returns the character representing
+     * the connector to rotate to next. The order goes from North -> East -> South -> West -> North.
+     * <p>
+     * When called with an array of node stress rating button types as input, it returns the name of
+     * the next button type. The order goes from None -> Low -> Med -> High -> None.
+     *
+     * @param curr  Current entry in the array.
+     * @param order Array of objects representing the order.
+     * @return Index of the entry that is next in the array order
+     */
+    public static <T> int nextEntry(T curr, T[] order) {
+        // Find current entry's index
+        int k = find(curr, order);
+        // Raise exception if not found
+        if (k < 0) {
+            throw new RuntimeException("Entry is not in array");
+        }
+        // Return index of next entry in order
+        return (find(curr, order) + 1) % order.length;
     }
 }
