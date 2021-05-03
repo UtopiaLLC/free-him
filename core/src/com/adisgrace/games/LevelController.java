@@ -86,7 +86,8 @@ public class LevelController {
         if(!player.canHack(levelModel.getTargets().get(target))) // pass target to playerModel since traits affect AP cost
             return -3;
         player.hack(levelModel.getTargets().get(target)); // pass target to playerModel since traits affect AP cost
-
+//        if(rng.nextDouble() < 0.2){
+        levelModel.getTarget(target).unlock();
         levelModel.getHackedFacts().get(target).add(fact);
 
         // Increase target suspicion accordingly
@@ -113,15 +114,17 @@ public class LevelController {
         // combo checking
         //Array<String> facts_known = new Array<String>((String[]) levelModel.getSummaries().keySet().toArray());
         Array<String> facts_known = new Array<String>();
-        for(String key : levelModel.getSummaries().keySet()) {
+//        System.out.println(levelModel.getSummaries().get(target).keySet());
+        for(String key : levelModel.getSummaries().get(target).keySet()) {
             facts_known.add(key);
         }
         int factsSize = facts_known.size;
         for(int i = 0; i < factsSize; i++) {
             String fact_ = facts_known.get(i);
             if (levelModel.getTargets().get(target).checkForCombo(fact_, facts_known)) {
-                levelModel.getSummaries().get(target).put(fact, levelModel.getTargets().get(target).getSummary(fact_));
-                levelModel.getContents().get(target).put(fact, levelModel.getTargets().get(target).getContent(fact_));
+//                System.out.println("combo activated");
+                levelModel.getSummaries().get(target).put(fact_, levelModel.getTarget(target).getSummary(fact_));
+                levelModel.getContents().get(target).put(fact_, levelModel.getTarget(target).getContent(fact_));
             }
         }
         levelModel.getExposableFacts().get(target).add(fact);
@@ -139,7 +142,7 @@ public class LevelController {
     public LevelModel.LevelState endDay() {
         player.nextTurn();
         for(TargetModel t : levelModel.getTargets().values()){
-            t.nextTurn();
+            System.out.println(t.nextTurn());
         }
         levelModel.nextDay();
         return levelModel.getLevelState();

@@ -229,7 +229,7 @@ public class GameController implements Screen {
 
         music = Gdx.audio.newMusic(Gdx.files.internal("music/Moonlit_Skyline.mp3"));
         music.setLooping(true);
-        setVolume(0.1f);
+        setVolume(0.05f);
         playMusic();
 
         NorthConnectorAnimation = connectorAnimation(Connector.TX_NORTH);
@@ -935,18 +935,26 @@ public class GameController implements Screen {
                 if(success) {
                     button.changeState(Node.NodeState.SCANNED);
                     addConnections(nodeInfo[0], nodeInfo[1]);
-                    uiController.createDialogBox(
-                            levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1])+"\n\n"+
+                    uiController.createDialogBoxFact(
+                            levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]),
                             levelController.viewFact(nodeInfo[0], nodeInfo[1]));
+
+//                    uiController.createDialogBox(
+//                            levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1])+"\n\n"+
+//                            levelController.viewFact(nodeInfo[0], nodeInfo[1]));
 
                 } else {
                     uiController.createDialogBox("Insufficient AP to scan this node.");
                 }
                 break;
             case 1://viewable
-                uiController.createDialogBox(
-                        levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1])+"\n\n"+
-                                levelController.viewFact(nodeInfo[0], nodeInfo[1]));
+                uiController.createDialogBoxFact(
+                        levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]),
+                        levelController.viewFact(nodeInfo[0], nodeInfo[1]));
+
+//                uiController.createDialogBox(
+//                        levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1])+"\n\n"+
+//                                levelController.viewFact(nodeInfo[0], nodeInfo[1]));
                 break;
         }
     }
