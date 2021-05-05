@@ -1,4 +1,4 @@
-package com.adisgrace.games;
+package com.adisgrace.games.util;
 
 public class GameConstants {
     /* Predefined stress levels for FactNodes */
