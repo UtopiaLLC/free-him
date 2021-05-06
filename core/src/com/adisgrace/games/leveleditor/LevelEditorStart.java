@@ -100,12 +100,14 @@ public class LevelEditorStart implements Screen {
         Table levelOptions = new Table();
         // Set window in which things will be visible (anything outside will scroll)
         levelOptions.setHeight(7.5f * FORM_GAP);
-        // Set width to match that of the load level button
-        levelOptions.setWidth(loadLevel.getWidth());
+        // Set width to be 1.5 times that of the load level button
+        levelOptions.setWidth(loadLevel.getWidth() * 1.5f);
         // Set the level list to be aligned near load level button
-        levelOptions.setPosition(loadLevel.getX(), loadLevel.getY() - levelOptions.getHeight() + loadLevel.getHeight()/2);
+        levelOptions.align(2);
+        levelOptions.setPosition(loadLevel.getX() - (levelOptions.getWidth() - loadLevel.getWidth())/2,
+                loadLevel.getY() - 3*levelsScroll.getHeight()/2);
         // Add scroll to level options table, AFTER formatting the containing table
-        levelOptions.add(levelsScroll);
+        levelOptions.add(levelsScroll).width(loadLevel.getWidth() * 1.5f);
 
         // Add level options menu to stage first so that it's tucked behind the load level button
         stage.addActor(levelOptions);
