@@ -21,7 +21,8 @@ public class LevelModel {
     public enum LevelState{
         ONGOING,
         WIN,
-        LOSE
+        LOSE,
+        TIMEOUT
     }
 
     // Name of the Level
@@ -242,7 +243,7 @@ public class LevelModel {
     public LevelState getLevelState(){
         // check if player lost by running out of time
         if (daysLeft <= 0)
-            return LevelState.LOSE;
+            return LevelState.TIMEOUT;
 
         if(!player.isLiving())
             return LevelState.LOSE;

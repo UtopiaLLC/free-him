@@ -283,6 +283,11 @@ public class GameController implements Screen {
             uiController.createDialogBox("You must now restart!");
             loadLevel(currentLevel);
 
+        } else if (levelController.getLevelState() == LevelModel.LevelState.TIMEOUT && !ended){
+            uiController.createDialogBox("You must now restart!");
+            //ended = true;
+            uiController.createDialogBox("YOU RAN OUT OF TIME!");
+            loadLevel(currentLevel);
         } else if (levelController.getLevelState() == LevelModel.LevelState.WIN && !ended) {
             uiController.createDialogBox("You Win!");
             //ended = true;
