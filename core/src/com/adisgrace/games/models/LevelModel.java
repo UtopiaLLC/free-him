@@ -97,6 +97,9 @@ public class LevelModel {
 
     /**
      * Constructs a LevelModel from a list of targets.
+     *
+     * INVARIANT: Assumes that the levelJson string is in the form of levels/level/levelJson,
+     * where the targets are stored in the separate folder levels/level/targets
      * @param levelJson Array of target json filenames
      */
     public LevelModel(String levelJson) {
@@ -110,7 +113,7 @@ public class LevelModel {
         contents = new HashMap<String, Map<String, String>>();
 //        TargetModel target;
 
-        JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/" + levelJson));
+        JsonValue json = new JsonReader().parse(Gdx.files.internal(levelJson));
         String[] targetJsons = json.get("targets").asStringArray();
         name = json.get("name").asString();
         // TODO: Uncomment this line, and change "daysLeft" to whatever it is in the level json
@@ -132,9 +135,12 @@ public class LevelModel {
 
         //binds each target string to a targetModel
         //This for loop assumes that there is an equal amount of targets and targetLocations
+
+        //splits the level json path into its components so that we can reconstruct it for targets
+        String[] splitBySlash = levelJson.split("/");
         for(String targetJson: targetJsons){
 //            targets.put(t.getName(), t);
-            TargetModel t = addTarget(targetJson);
+            TargetModel t = addTarget(splitBySlash[0] + "/" + splitBySlash[1] + "/" + "targets/" + targetJson);
             targetLocs.put(t.getName(), itr.next().asIntArray());
             for(String fact: t.getNodes()) {
                 if(!t.getLocked(fact)) {

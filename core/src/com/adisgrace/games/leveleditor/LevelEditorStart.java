@@ -11,15 +11,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.JsonReader;
-import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 /**
@@ -37,12 +30,8 @@ public class LevelEditorStart implements Screen {
     /** Stage to set up main menu UI */
     Stage stage;
 
-    /** Text field where the name of the level to load should be entered */
-    TextField levelToLoadField;
     /** If a level is to be loaded, store the name here */
     String levelToLoad;
-    /** Label stating that the level does not exist */
-    Label errorlabel;
 
     /** Assets for the main menu */
     private static final Texture TITLE_ASSET = new Texture(Gdx.files.internal("mainmenu/MM_Title_1.png"));
@@ -72,6 +61,7 @@ public class LevelEditorStart implements Screen {
 
         // New Level button
         TextButton newLevel = new TextButton("CREATE NEW LEVEL", skin);
+        newLevel.setWidth(200);
         newLevel.setPosition((SCREEN_WIDTH / 2f) - (3 * newLevel.getWidth() / 2), 300);
         stage.addActor(newLevel);
         // Exit with exit code 0
@@ -84,56 +74,54 @@ public class LevelEditorStart implements Screen {
 
         // Load Level button
         TextButton loadLevel = new TextButton("LOAD SAVED LEVEL", skin);
-        loadLevel.setPosition((SCREEN_WIDTH / 2f) + (newLevel.getWidth() / 2), 300);
+        loadLevel.setWidth(200);
+        loadLevel.setPosition((SCREEN_WIDTH / 2f) + (loadLevel.getWidth() / 2), 300);
+
+        /**
+        // Create dropdown menu of available levels to load in
+        final SelectBox selectBox = FormFactory.newSelectBox(LEVEL_DIRECTORY.list(),250,200,null);
+        selectBox.setX((SCREEN_WIDTH / 2f) + (newLevel.getWidth() / 2) + loadLevel.getWidth());
+        selectBox.setMaxListCount(10);
+        stage.addActor(selectBox);
+         */
+        // Create list (lets you select one of a list of options) with the levels as options
+        // Must be final so can be used in the load level listener
+        final List levelsList = new List(skin);
+        levelsList.setItems(LEVEL_DIRECTORY.list());
+
+        // Create scroll pane to ensure list will be scrollable
+        ScrollPane levelsScroll = new ScrollPane(levelsList);
+        // Disable flick (click and drag) scroll
+        levelsScroll.setFlickScroll(false);
+        // Lock scrolling to only in y-direction
+        levelsScroll.setScrollingDisabled(true, false);
+
+        // Create table to hold scroll pane and list
+        Table levelOptions = new Table();
+        // Set window in which things will be visible (anything outside will scroll)
+        levelOptions.setHeight(7.5f * FORM_GAP);
+        // Set width to be 1.5 times that of the load level button
+        levelOptions.setWidth(loadLevel.getWidth() * 1.5f);
+        // Set the level list to be aligned near load level button
+        levelOptions.align(2);
+        levelOptions.setPosition(loadLevel.getX() - (levelOptions.getWidth() - loadLevel.getWidth())/2,
+                loadLevel.getY() - 3*levelsScroll.getHeight()/2);
+        // Add scroll to level options table, AFTER formatting the containing table
+        levelOptions.add(levelsScroll).width(loadLevel.getWidth() * 1.5f);
+
+        // Add level options menu to stage first so that it's tucked behind the load level button
+        stage.addActor(levelOptions);
         stage.addActor(loadLevel);
-        // Exit with exit code 1
+
+        // Add listener to load level button to load in selected level when this button is clicked
         loadLevel.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                // Only exit if level to load is successfully stored, meaning it's a valid level that exists
-                if (storeLevelToLoad()) exit(1);
+                // Store level that is to be loaded, then exit
+                levelToLoad = (String) levelsList.getSelected();
+                exit(1);
             }
         });
-
-        // TextField to put in name of level to load
-        levelToLoadField = FormFactory.newTextField("Name of Level to Load", 225, 250,
-                "",false);
-        levelToLoadField.setX((SCREEN_WIDTH / 2f) - (levelToLoadField.getWidth() / 2));
-        levelToLoadField.setAlignment(1);
-        stage.addActor(levelToLoadField);
-
-        // Label that lets the user know if the input level doesn't exist
-        errorlabel = FormFactory.newLabel("Error: level does not exist", levelToLoadField.getY() + 30);
-        errorlabel.setX((SCREEN_WIDTH / 2f) - (errorlabel.getWidth() / 2));
-        // Keep it hidden until the user tries to load a level that doesn't exist
-        errorlabel.setVisible(false);
-        stage.addActor(errorlabel);
-    }
-
-    /**
-     * Stores the name of the level to load written in the text field, and returns whether or not it is
-     * a valid level.
-     *
-     * @return  Whether the currently-entered level exists.
-     */
-    private boolean storeLevelToLoad() {
-        levelToLoad = levelToLoadField.getText();
-
-        // Test parsing to see if the file exists
-        String levelfile = levelToLoad;
-        // If levelfile is missing the .json file extension, add it
-        if (!levelfile.contains(".json")) levelfile += ".json";
-        // If successful, file exists
-        try {
-            new JsonReader().parse(Gdx.files.internal("levels/" + levelfile));
-            return true;
-        }
-        // If unsuccessful, file doesn't exist
-        catch (SerializationException se) {
-            // Make error message visible
-            errorlabel.setVisible(true);
-            return false;
-        }
     }
 
     /**
