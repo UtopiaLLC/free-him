@@ -61,6 +61,7 @@ public class LevelEditorStart implements Screen {
 
         // New Level button
         TextButton newLevel = new TextButton("CREATE NEW LEVEL", skin);
+        newLevel.setWidth(200);
         newLevel.setPosition((SCREEN_WIDTH / 2f) - (3 * newLevel.getWidth() / 2), 300);
         stage.addActor(newLevel);
         // Exit with exit code 0
@@ -71,21 +72,51 @@ public class LevelEditorStart implements Screen {
             }
         });
 
-        // Create dropdown menu of available levels to load in
-        final SelectBox selectBox = FormFactory.newSelectBox(levelsPath.list(),270,200,null);
-        selectBox.setX((SCREEN_WIDTH / 2f) + (newLevel.getWidth() / 2));
-        selectBox.setMaxListCount(10);
-        stage.addActor(selectBox);
-
         // Load Level button
         TextButton loadLevel = new TextButton("LOAD SAVED LEVEL", skin);
-        loadLevel.setPosition((SCREEN_WIDTH / 2f) + (newLevel.getWidth() / 2), 300);
+        loadLevel.setWidth(200);
+        loadLevel.setPosition((SCREEN_WIDTH / 2f) + (loadLevel.getWidth() / 2), 300);
+
+        /**
+        // Create dropdown menu of available levels to load in
+        final SelectBox selectBox = FormFactory.newSelectBox(LEVEL_DIRECTORY.list(),250,200,null);
+        selectBox.setX((SCREEN_WIDTH / 2f) + (newLevel.getWidth() / 2) + loadLevel.getWidth());
+        selectBox.setMaxListCount(10);
+        stage.addActor(selectBox);
+         */
+        // Create list (lets you select one of a list of options) with the levels as options
+        // Must be final so can be used in the load level listener
+        final List levelsList = new List(skin);
+        levelsList.setItems(LEVEL_DIRECTORY.list());
+
+        // Create scroll pane to ensure list will be scrollable
+        ScrollPane levelsScroll = new ScrollPane(levelsList);
+        // Disable flick (click and drag) scroll
+        levelsScroll.setFlickScroll(false);
+        // Lock scrolling to only in y-direction
+        levelsScroll.setScrollingDisabled(true, false);
+
+        // Create table to hold scroll pane and list
+        Table levelOptions = new Table();
+        // Set window in which things will be visible (anything outside will scroll)
+        levelOptions.setHeight(7.5f * FORM_GAP);
+        // Set width to match that of the load level button
+        levelOptions.setWidth(loadLevel.getWidth());
+        // Set the level list to be aligned near load level button
+        levelOptions.setPosition(loadLevel.getX(), loadLevel.getY() - levelOptions.getHeight() + loadLevel.getHeight()/2);
+        // Add scroll to level options table, AFTER formatting the containing table
+        levelOptions.add(levelsScroll);
+
+        // Add level options menu to stage first so that it's tucked behind the load level button
+        stage.addActor(levelOptions);
         stage.addActor(loadLevel);
+
+        // Add listener to load level button to load in selected level when this button is clicked
         loadLevel.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 // Store level that is to be loaded, then exit
-                levelToLoad = (String) selectBox.getSelected();
+                levelToLoad = (String) levelsList.getSelected();
                 exit(1);
             }
         });

@@ -1,6 +1,7 @@
 package com.adisgrace.games.leveleditor;
 
 import com.adisgrace.games.util.Connector;
+import static com.adisgrace.games.util.GameConstants.*;
 import com.adisgrace.games.models.TraitModel.Trait;
 
 import com.badlogic.gdx.Gdx;
@@ -62,11 +63,6 @@ public final class LevelEditorConstants {
             new TextureRegionDrawable(new Texture(Gdx.files.internal("leveleditor/buttons/LE_SaveLevel_1.png")))
     };
 
-    /** Predefined stress levels for FactNodes */
-    public enum StressRating {
-        NONE, LOW, MED, HIGH
-    }
-
     /** Order of stress rating buttons (None, Low, Medium, High) */
     public static final StressRating[] SR_ORDER = {StressRating.NONE, StressRating.LOW, StressRating.MED, StressRating.HIGH};
     public static final String[] SR_NAME_ORDER = {"None", "Low", "Medium", "High"};
@@ -113,10 +109,6 @@ public final class LevelEditorConstants {
     public static final Trait[] TRAIT_OPTIONS = {Trait.PARANOIAC, Trait.THERAPIST, Trait.GOSSIP,
             Trait.OFF_PUTTING, Trait.NATURALLY_SUSPICIOUS, Trait.RICH, Trait.TECHNOLOGICALLY_LITERATE,
             Trait.BAD_CONNECTION, Trait.TECHNOLOGICALLY_ILLITERATE, Trait.SENSITIVE};
-    /** Array of stress ratings available as options */
-    public static final StressRating[] SR = {StressRating.NONE, StressRating.LOW, StressRating.MED, StressRating.HIGH};
-    /** Constants for stress rating values */
-    public static final int SR_NONE = 0, SR_LOW = 5, SR_MED = 10, SR_HIGH = 20;
 
     /** Width of a target/node form, in terms of percentage of screen width */
     public static final float FORM_WIDTH = 0.23f;
@@ -126,7 +118,17 @@ public final class LevelEditorConstants {
     public static final int DEFAULT_MAX_STRESS = 50;
 
     /** Directory where levels are stored */
-    public static final File levelsPath = new File("levels/");
+    public static final File LEVEL_DIRECTORY = new File("levels/");
+
+    /** Generic messages for title/content/summary of generic nodes */
+    public static final String GENERIC_TITLE = "Generic Node";
+    public static final String[] GENERIC_CONTENT = {
+        "There's nothing of use here... you'll have to keep digging.",
+        "You find some information that might be a little bit useful.",
+        "You find some information that you think will be relatively useful.",
+        "You find a bombshell that you're certain was meant to stay secret. You can definitely use this."
+    };
+    public static final String[] GENERIC_SUMMARIES = {"", "Minor Secret", "Medium Secret", "Major Secret"};
 
     /*************************************************** FUNCTIONS ****************************************************/
     /**
@@ -144,6 +146,26 @@ public final class LevelEditorConstants {
         // Not equal if only one is null, or if both aren't null and the names aren't equal
         return (im1 != null && im2 == null) || (im1 == null && im2 != null) ||
                 ((im1 != null && im2 != null) && !im1.getName().equals(im2.getName()));
+    }
+
+    /**
+     * Returns the generic node content for a given target stress rating.
+     *
+     * @param targetSR  The target stress rating of the node
+     * @return          The generic node content for the given target stress rating
+     */
+    public static String getGenericContent(StressRating targetSR) {
+        return GENERIC_CONTENT[find(targetSR, SR_ORDER)];
+    }
+
+    /**
+     * Returns the generic node summary for a given target stress rating.
+     *
+     * @param targetSR  The target stress rating of the node
+     * @return          The generic node summary for the given target stress rating
+     */
+    public static String getGenericSummary(StressRating targetSR) {
+        return GENERIC_SUMMARIES[find(targetSR, SR_ORDER)];
     }
 
     /********************************************* ISOMETRIC CONVERSIONS **********************************************/

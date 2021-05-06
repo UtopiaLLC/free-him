@@ -1,10 +1,8 @@
 package com.adisgrace.games.leveleditor;
 
-import com.adisgrace.games.models.FactNode;
-import com.adisgrace.games.models.TargetModel;
 import com.adisgrace.games.util.Connector;
 import com.adisgrace.games.util.Connector.Direction;
-import static com.adisgrace.games.leveleditor.LevelEditorConstants.*;
+import static com.adisgrace.games.util.GameConstants.*;
 import com.adisgrace.games.leveleditor.LevelEditorModel.*;
 
 import com.badlogic.gdx.Gdx;
@@ -41,71 +39,6 @@ public class LevelEditorParser {
     private Array<String> discoveredNodes;
     /** Array of locations that have been visited, for use in making connections */
     private Array<Vector2> visited;
-
-    /**
-     * Helper function that converts a stress rating to its integer equivalent.
-     *
-     * @param sr    Stress rating to convert
-     * @return      Integer value of the given stress rating
-     */
-    private int stressRatingToInt(StressRating sr){
-        switch (sr){
-            case NONE:
-                return SR_NONE;
-            case LOW:
-                return SR_LOW;
-            case MED:
-                return SR_MED;
-            case HIGH:
-                return SR_HIGH;
-            default:
-                throw new RuntimeException("Invalid StressRating passed " + sr.toString());
-        }
-    }
-
-    /**
-     * Helper function that converts a stress rating to a string that indicates its value.
-     *
-     * @param sr    Stress rating to convert
-     * @return      String indicator of the given stress rating
-     */
-    private String stressRatingToIndicator(StressRating sr){
-        switch (sr){
-            case NONE:
-                return "";
-            case LOW:
-                return "(+)";
-            case MED:
-                return "(++)";
-            case HIGH:
-                return "(+++)";
-            default:
-                throw new RuntimeException("Invalid StressRating passed " + sr.toString());
-        }
-    }
-
-    /**
-     * Helper function that converts an integer to its stress rating equivalent.
-     *
-     * Just in case, this will accept ranges of integers for low/medium/high.
-     *
-     * @param stress    Integer value to convert
-     * @return          Stress rating of the given integer value
-     */
-    private StressRating intToStressRating(int stress){
-        // If out of range
-        if (stress < 0 || stress > ((SR_HIGH - SR_MED) / 2) + SR_HIGH) {
-            throw new RuntimeException("Invalid stress value " + stress + " passed");
-        }
-        // stress = 0, so stress rating of NONE
-        else if (stress == 0) {return StressRating.NONE;}
-        // 0 < stress < halfway between LOW and MED, so stress rating of LOW
-        else if (stress < (SR_LOW + SR_MED) / 2) {return StressRating.LOW;}
-        // Halfway between LOW and MED < stress < halfway between MED and HIGH, so stress rating of MED
-        else if (stress < (SR_MED + SR_HIGH) / 2) {return StressRating.MED;}
-        // Anything else as long as it's not out of range, so stress rating of HIGH
-        else {return StressRating.HIGH;}
-    }
 
     /**
      * Constructor for a LevelEditorParser.
@@ -182,10 +115,17 @@ public class LevelEditorParser {
                         nodes.put(nt.im.getName(), nt);
                         nodesAtCoords.put(pos, nt);
                         break;
-                    default: // CONNECTOR
+                    case "N":
+                    case "E":
+                    case "S":
+                    case "W": // CONNECTOR
                         // Add the direction to the connector string
                         connector += c;
                         break;
+                    default:
+                        // Should never get to here, as that would mean something is stored that isn't
+                        // a node, target, or connector
+                        throw new RuntimeException("Error: only targets, nodes, and connectors can be stored");
                 }
             }
             // Store new connector in array of connectors
@@ -476,14 +416,18 @@ public class LevelEditorParser {
         // Get actual target name, as opposed to the one used for internal referencing
         String realTargetName = targets.get(targetName).name;
 
-        System.out.printf("started saving target " + realTargetName);
+        // Create file writer for target JSON
         BufferedWriter out;
         out = new BufferedWriter(new FileWriter(path + "/" + realTargetName.replaceAll(" ","") + ".json"));
         Array<NodeTile> childNodes = get_target_facts(targetName);
 
+        // Get target location
         int targetx = (int)((targets.get(targetName)).x);
         int targety = (int)((targets.get(targetName)).y);
+        // Get whether or not target is generic
+        boolean isGeneric = targets.get(targetName).isGeneric;
 
+        // Construct first nodes in pod
         String firstnodes = "";
         if(connections.containsKey(targetName)) {
             for (String child : connections.get(targetName).keySet()) {
@@ -494,7 +438,7 @@ public class LevelEditorParser {
 
         String firstconnections = "";
         String firstconnectiontypes = "";
-        String strcache1 = "", strcache2 = "";
+        String strcache1, strcache2;
         Array<Connector> connection;
         if(connections.containsKey(targetName)) {
             for (String child : connections.get(targetName).keySet()) {
@@ -515,24 +459,16 @@ public class LevelEditorParser {
             firstconnectiontypes = "[]";
         }
 
-        // Initialize strings for text fields so they can be modified for storage
-        String content, summary, title;
-
         String pod = "", nodeinfo, connections_, connectiontypes;
         for(NodeTile fact : childNodes){
-            // Replace things like quotes and newlines with the string equivalents in content and summary
-            content = fact.content.replaceAll("\n","\\\\n").replaceAll("\"","\\\\\"");
-            summary = fact.summary.replaceAll("\n","\\\\n").replaceAll("\"","\\\\\"");
-            // Replace quotes in title just to be safe
-            title = fact.title.replaceAll("\"","\\\\\"");
-
-            nodeinfo = ",\n{\n" +
-                    "\t\t\"nodeName\": \"" + fact.im.getName() + "\",\n" +
-                    "\t\t\"title\": \"" + title + "\",\n" +
-                    "\t\t\"coords\": [" + (fact.x-targetx) + "," + (fact.y-targety) + "],\n" +
-                    "\t\t\"locked\": " + fact.locked + ",\n" +
-                    "\t\t\"content\": \"" + content + "\\n\\n" + stressRatingToIndicator(fact.targetSR) + "\",\n" +
-                    "\t\t\"summary\": \"" + summary + " " + stressRatingToIndicator(fact.targetSR) + "\",\n";
+            // Write node information to JSON
+            nodeinfo = ",\n\t\t{\n" +
+                    "\t\t\t\"nodeName\": \"" + fact.im.getName() + "\",\n" +
+                    "\t\t\t\"title\": \"" + fact.getTitle(true, isGeneric) + "\",\n" +
+                    "\t\t\t\"coords\": [" + (fact.x-targetx) + "," + (fact.y-targety) + "],\n" +
+                    "\t\t\t\"locked\": " + fact.locked + ",\n" +
+                    "\t\t\t\"content\": \"" + fact.getContent(true, isGeneric) + "\",\n" +
+                    "\t\t\t\"summary\": \"" + fact.getSummary(true, isGeneric) + "\",\n";
 
             strcache1 = "";
             if(connections.containsKey(fact.im.getName())) {
@@ -541,9 +477,9 @@ public class LevelEditorParser {
                 }
                 strcache1 = "[" + strcache1.substring(2) + "]";
             } else strcache1 = "[]";
-            nodeinfo += "\t\t\"children\": " + strcache1 + ",\n" +
-                    "\t\t\"targetStressDamage\": " + stressRatingToInt(fact.targetSR) + ",\n" +
-                    "\t\t\"playerStressDamage\": " + stressRatingToInt(fact.playerSR) + ",\n";
+            nodeinfo += "\t\t\t\"children\": " + strcache1 + ",\n" +
+                    "\t\t\t\"targetStressDamage\": " + stressRatingToInt(fact.targetSR) + ",\n" +
+                    "\t\t\t\"playerStressDamage\": " + stressRatingToInt(fact.playerSR) + ",\n";
 
             connections_ = "";
             connectiontypes = "";
@@ -565,8 +501,8 @@ public class LevelEditorParser {
                 connectiontypes = "[]";
             }
 
-            nodeinfo += "\t\t\"connectorCoords\": " + connections_ + ",\n" +
-                    "\t\t\"connectorTypes\": " + connectiontypes + "\n\t}";
+            nodeinfo += "\t\t\t\"connectorCoords\": " + connections_ + ",\n" +
+                    "\t\t\t\"connectorTypes\": " + connectiontypes + "\n\t\t}";
 
             pod += nodeinfo;
         }
@@ -574,9 +510,14 @@ public class LevelEditorParser {
             pod = "\t[\n" + pod.substring(2) + "\n\t]";
         else pod = "\t[]";
 
+        // TODO: make sure it doesn't always default to male
+
+        // Write general target information
         // Replace quotes in target name with the correct character, just to be safe
-        out.write("\t{\n" +
+        out.write("{\n" +
                 "\t\"targetName\": \"" + targets.get(targetName).name.replaceAll("\"","\\\\\"") + "\",\n" +
+                "\t\"isMale\": " + true + ",\n" +
+                "\t\"isGeneric\": " + isGeneric + ",\n" +
                 "\t\"paranoia\": " + targets.get(targetName).paranoia + ",\n" +
                 "\t\"maxStress\": " + targets.get(targetName).maxStress + ",\n" +
                 "\t\"traits\": " + targets.get(targetName).traitsAsString() + ",\n" +
@@ -701,8 +642,12 @@ public class LevelEditorParser {
         // Initialize iterator for arrays
         JsonValue.JsonIterator itr;
 
+        // Get whether target, and therefore its network, is generic
+        boolean isGeneric = json.getBoolean("isGeneric");
+
         // Get main properties of target and load into the level editor
-        model.loadTarget(x, y, json.getString("targetName"), json.getInt("paranoia"), json.getInt("maxStress"));
+        model.loadTarget(x, y, json.getString("targetName"), json.getInt("paranoia"),
+                json.getInt("maxStress"), isGeneric, json.getBoolean("isMale"));
 
         // Load first connectors of this target into the level editor
         model = parseConnectors(x, y, json.get("firstConnectors"), json.get("firstConnectorTypes"), model);
@@ -724,10 +669,10 @@ public class LevelEditorParser {
             // Get coordinates
             loc = node.get("coords").asIntArray();
             // Load node into level
-            model.loadNode(loc[0]+x, loc[1]+y, node.getString("nodeName"), node.getString("title"),
-                    node.getBoolean("locked"), node.getString("content"), node.getString("summary"),
+            model.loadNode(loc[0]+x, loc[1]+y, node.getString("title"), node.getBoolean("locked"),
+                    node.getString("content"), node.getString("summary"),
                     intToStressRating(node.getInt("targetStressDamage")),
-                    intToStressRating(node.getInt("playerStressDamage")));
+                    intToStressRating(node.getInt("playerStressDamage")), isGeneric);
 
             // Now, need to handle connectors that are the children of this node
             model = parseConnectors(x, y, node.get("connectorCoords"), node.get("connectorTypes"), model);

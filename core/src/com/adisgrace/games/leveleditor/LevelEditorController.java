@@ -1,10 +1,10 @@
 package com.adisgrace.games.leveleditor;
 
 import com.adisgrace.games.*;
-import com.adisgrace.games.models.TraitModel;
 import com.adisgrace.games.util.Connector;
 import com.adisgrace.games.util.Connector.*;
 import static com.adisgrace.games.leveleditor.LevelEditorConstants.*;
+import static com.adisgrace.games.util.GameConstants.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -92,6 +92,9 @@ public class LevelEditorController implements Screen {
      * If the form background was clicked
      */
     private boolean wasFormBGClicked = false;
+    /** If the most recent node was set to generic/not generic. Checking off one target/node as generic should
+     * then make all subsequent nodes created generic, and vice versa for not generic. */
+    private boolean wasLastGeneric = true;
 
     /**
      * Current mode of the level editor, initialized as Move mode
@@ -548,7 +551,7 @@ public class LevelEditorController implements Screen {
         im.setOrigin(0, 0);
 
         // If node is new, add it to the model
-        if (isNew) model.addToLevel(im, 0, 0);
+        if (isNew) model.addToLevel(im, 0, 0, wasLastGeneric);
 
         // Get node type
         int nodeType = Character.getNumericValue(im.getName().charAt(0));
@@ -642,7 +645,7 @@ public class LevelEditorController implements Screen {
      */
     private void addConnector(float x, float y) {
         // Create connector image, defaulting to the North connector
-        final Image im = new Image(Connector.getTexture(Direction.N));
+        Image im = new Image(Connector.getTexture(Direction.N));
         // Set scale
         im.setScale(0.5f);
         // Set name of connector, which defaults to "N". The first letter is the connector, the second
@@ -693,6 +696,9 @@ public class LevelEditorController implements Screen {
         // Add to stage
         nodeStage.addActor(im);
 
+        // If connector is new, add it to the model
+        if (isNew) model.addToLevel(im, x, y);
+
         // Convert to world space
         vec.set(x, y + 1); // Don't know why it needs to be y+1, but it does
         isometricToWorld(vec);
@@ -702,9 +708,6 @@ public class LevelEditorController implements Screen {
         // Place connector at nearest isometric center
         im.setPosition(x - (TILE_WIDTH / 4), y - (TILE_HEIGHT / 4));
         im.setOrigin(0, 0);
-
-        // If connector is new, add it to the model
-        if (isNew) model.addToLevel(im, x, y);
 
         // Add listeners, which change their behavior depending on the editor mode
         // Add click listener that does something when the connector is left-clicked
@@ -741,7 +744,7 @@ public class LevelEditorController implements Screen {
      * This function takes in a target, which would be the selected node if the selected node is a target.
      * <p>
      * The entries include, for targets specifically:
-     * [2] A CheckBox for whether or not the target is generic.
+     * [1] A CheckBox for whether or not the target is generic.
      * [3] A TextField to enter the target name.
      * [5] A TextField to enter the target's paranoia stat.
      * [7] A TextField to enter the target's maximum stress.
@@ -752,6 +755,9 @@ public class LevelEditorController implements Screen {
      * @param width  Width of each entry in the form
      */
     private void createTargetForm(Image target, float height, float width) {
+        // Get TargetTile for target this form is for
+        LevelEditorModel.TargetTile tt = model.getTargetTile(target.getName());
+
         // Place table to contain target form entries
         targetForm.left();
         targetForm.bottom();
@@ -760,47 +766,48 @@ public class LevelEditorController implements Screen {
         // FORM LABEL
         targetForm.addActor(FormFactory.newLabel("TARGET DATA", height));
         // CHECKBOX FOR WHETHER TARGET IS GENERIC
-        targetForm.addActor(FormFactory.newCheckBox("Generic", height));
+        final CheckBox generic = FormFactory.newCheckBox("Generic", height, tt.isGeneric);
+        targetForm.addActor(generic);
         height -= FORM_GAP;
+        // Listener for what to do when checkbox is changed
+        generic.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                // Set global generic setting based on what was checked last
+                wasLastGeneric = generic.isChecked();
+            }});
 
         // TARGET NAME
         targetForm.addActor(FormFactory.newLabel("Name", height));
         height -= FORM_GAP;
-        targetForm.addActor(FormFactory.newTextField("Target Name", height, width,
-                String.valueOf(model.getTargetTile(target.getName()).name)));
+        targetForm.addActor(FormFactory.newTextField("Target Name", height, width, tt.name));
         height -= FORM_GAP;
 
         // TARGET PARANOIA
         targetForm.addActor(FormFactory.newLabel("Paranoia", height));
         height -= FORM_GAP;
-        targetForm.addActor(
-                FormFactory.newTextField("Target Paranoia", height, width,
-                        String.valueOf(model.getTargetTile(target.getName()).paranoia))
-        );
+        targetForm.addActor(FormFactory.newTextField("Target Paranoia", height, width, String.valueOf(tt.paranoia)));
         height -= FORM_GAP;
 
         // TARGET MAX STRESS
         targetForm.addActor(FormFactory.newLabel("Max Stress", height));
         height -= FORM_GAP;
         targetForm.addActor(
-                FormFactory.newTextField("Target Max Stress", height, width,
-                        String.valueOf(model.getTargetTile(target.getName()).maxStress))
-        );
+                FormFactory.newTextField("Target Max Stress", height, width, String.valueOf(tt.maxStress)));
         height -= FORM_GAP;
 
         // TARGET TRAITS
         targetForm.addActor(FormFactory.newLabel("Traits (hold CTRL to deselect)", height));
         height -= 8 * FORM_GAP;
         // Set selected target traits to be what's already selected
-        targetForm.addActor(FormFactory.newListBox(TRAIT_OPTIONS, height, width,
-                model.getTargetTile(target.getName()).traits));
+        targetForm.addActor(FormFactory.newListBox(TRAIT_OPTIONS, height, width, tt.traits));
     }
 
     /**
      * Creates the forms for writing target/node information and places them in the toolStage.
      * <p>
      * These include, for nodes specifically:
-     * [2] A CheckBox for whether or not the node is generic.
+     * [1] A CheckBox for whether or not the node is generic.
      * [3] A TextField to enter the node title.
      * [5] A TextArea to write the node content (what's seen when scanned).
      * [7] A TextArea to write the node summary (what goes into the notebook).
@@ -812,6 +819,9 @@ public class LevelEditorController implements Screen {
      * @param width  Width of each entry in the form
      */
     private void createNodeForm(Image node, float height, float width) {
+        // Get NodeTile for node this form is for
+        LevelEditorModel.NodeTile nt = model.getNodeTile(node.getName());
+
         // Place table to contain node form entries
         nodeForm.left();
         nodeForm.bottom();
@@ -819,42 +829,97 @@ public class LevelEditorController implements Screen {
 
         // FORM LABEL
         nodeForm.addActor(FormFactory.newLabel("NODE DATA", height));
+
         // CHECKBOX FOR WHETHER NODE IS GENERIC
-        nodeForm.addActor(FormFactory.newCheckBox("Generic", height));
+        final CheckBox generic = FormFactory.newCheckBox("Generic", height, nt.isGeneric);
+        nodeForm.addActor(generic);
+
         height -= FORM_GAP;
 
         // NODE TITLE
         nodeForm.addActor(FormFactory.newLabel("Title", height));
         height -= FORM_GAP;
-        nodeForm.addActor(FormFactory.newTextField("Node Title", height, width,
-                String.valueOf(model.getNodeTile(node.getName()).title)));
+        final TextField title = FormFactory.newTextField("Node Title", height, width, nt.getTitle());
+        nodeForm.addActor(title);
         height -= FORM_GAP;
 
         // NODE CONTENT
         nodeForm.addActor(FormFactory.newLabel("Content", height));
         height -= 3 * FORM_GAP + 10;
-        nodeForm.addActor(FormFactory.newTextArea("Node Content", height, width,
-                String.valueOf(model.getNodeTile(node.getName()).content), 3));
+        final TextArea content = FormFactory.newTextArea("Node Content", height, width, nt.getContent(), 3);
+        nodeForm.addActor(content);
         height -= FORM_GAP;
 
         // NODE SUMMARY
         nodeForm.addActor(FormFactory.newLabel("Summary", height));
         height -= 2 * FORM_GAP + 10;
-        nodeForm.addActor(FormFactory.newTextArea("Node Summary", height, width,
-                String.valueOf(model.getNodeTile(node.getName()).summary), 2));
+        final TextArea summary = FormFactory.newTextArea("Node Summary", height, width, nt.getSummary(), 2);
+        nodeForm.addActor(summary);
         height -= FORM_GAP;
 
         // NODE TARGET STRESS RATING
         nodeForm.addActor(FormFactory.newLabel("Target Stress Rating", height));
         height -= 1.5f * FORM_GAP;
-        nodeForm.addActor(FormFactory.newSelectBox(SR, height, width, model.getNodeTile(node.getName()).targetSR));
+        final SelectBox targetSR = FormFactory.newSelectBox(SR_ORDER, height, width, nt.targetSR);
+        nodeForm.addActor(targetSR);
         height -= FORM_GAP;
 
         // NODE PLAYER STRESS RATING
         nodeForm.addActor(FormFactory.newLabel("Player Stress Rating", height));
         height -= 1.5f * FORM_GAP;
-        nodeForm.addActor(FormFactory.newSelectBox(SR, height, width, model.getNodeTile(node.getName()).playerSR));
+        nodeForm.addActor(FormFactory.newSelectBox(SR_ORDER, height, width, nt.playerSR));
+
+
+        // Handle behavior of form when generic checkbox is checked off (down here so as to be able to access other
+        // parts of the form)
+
+        // Node name as a final
+        final String nodeName = node.getName();
+
+        // Listener for what to do when generic checkbox is changed
+        generic.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                boolean isGeneric = generic.isChecked();
+                // Set global generic setting based on what was checked last
+                wasLastGeneric = isGeneric;
+
+                // Set content, summary, and title to be disabled if generic, or enabled otherwise
+                title.setDisabled(isGeneric);
+                content.setDisabled(isGeneric);
+                summary.setDisabled(isGeneric);
+
+                // If went from not generic to generic, save any previously-entered data
+                if (isGeneric) {
+                    model.updateNodeTitle(nodeName, title.getText());
+                    model.updateNodeContent(nodeName, content.getText());
+                    model.updateNodeSummary(nodeName, summary.getText());
+                }
+
+                // If it is generic, display a generic message that indicates stress rating rather
+                // than custom content/summary. If not, set it to the stored text.
+                LevelEditorModel.NodeTile nt = model.getNodeTile(nodeName);
+                StressRating sr = (StressRating) targetSR.getSelected();
+                content.setText(isGeneric ? getGenericContent(sr) : nt.content);
+                summary.setText(isGeneric ? getGenericSummary(sr) : nt.summary);
+                // Same for title, except title is always the same and doesn't depend on stress rating for generics
+                title.setText(isGeneric ? GENERIC_TITLE : nt.title);
+            }
+        });
+
+        // Listener for what to do when target stress rating is changed
+        targetSR.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                boolean isGeneric = generic.isChecked();
+                // If node is generic, update content/summary each time the stress rating changes
+                StressRating sr = (StressRating) targetSR.getSelected();
+                content.setText(isGeneric ? getGenericContent(sr) : model.getNodeTile(nodeName).content);
+                summary.setText(isGeneric ? getGenericSummary(sr) : model.getNodeTile(nodeName).summary);
+            }
+        });
     }
+
 
     /**
      * Saves the information in the given form as that of the given target/node.
@@ -868,45 +933,46 @@ public class LevelEditorController implements Screen {
      * @param im   The Image of the target/node.
      */
     private void saveForm(Table form, Image im) {
-        int nodetype = Character.getNumericValue(im.getName().charAt(0));
+        String name = im.getName();
+        int nodetype = Character.getNumericValue(name.charAt(0));
 
         // If node is a Target
         if (nodetype == 0) {
+            // Save whether or not target is generic
+            model.updateTargetIsGeneric(name, ((CheckBox) form.getChild(1)).isChecked());
+
             // Save name
-            model.updateTargetName(im.getName(), ((TextField) form.getChild(3)).getText());
+            model.updateTargetName(name, ((TextField) form.getChild(3)).getText());
 
             // Save paranoia
-            // If the field is empty, set the value to the default
-            String value = String.valueOf(((TextField) form.getChild(5)).getText());
-            if (value.equals("")) model.updateTargetParanoia(im.getName(), DEFAULT_PARANOIA);
-            else model.updateTargetParanoia(im.getName(), Integer.parseInt(value));
+            model.updateTargetParanoia(name, String.valueOf(((TextField) form.getChild(5)).getText()));
 
             // Save max stress
-            // If the field is empty, set the value to the default
-            value = String.valueOf(((TextField) form.getChild(7)).getText());
-            if (value.equals("")) model.updateTargetMaxStress(im.getName(), DEFAULT_MAX_STRESS);
-            else model.updateTargetMaxStress(im.getName(), Integer.parseInt(value));
+            model.updateTargetMaxStress(name, String.valueOf(((TextField) form.getChild(7)).getText()));
 
             // Save traits
             ArraySelection selection = ((List) form.getChild(9)).getSelection();
-            model.updateTargetTraits(im.getName(), selection.toArray());
+            model.updateTargetTraits(name, selection.toArray());
         }
         // If node is Unlocked or Locked
         else if (nodetype == 1 || nodetype == 2) {
+            // Save whether or not node is generic
+            model.updateNodeIsGeneric(name, ((CheckBox) form.getChild(1)).isChecked());
+
             // Save title (note that the title is different from the name)
-            model.updateNodeTitle(im.getName(), ((TextField) form.getChild(3)).getText());
+            model.updateNodeTitle(name, ((TextField) form.getChild(3)).getText());
 
             // Save content
-            model.updateNodeContent(im.getName(), ((TextField) form.getChild(5)).getText());
+            model.updateNodeContent(name, ((TextField) form.getChild(5)).getText());
 
             // Save summary
-            model.updateNodeSummary(im.getName(), ((TextField) form.getChild(7)).getText());
+            model.updateNodeSummary(name, ((TextField) form.getChild(7)).getText());
 
             // Save target stress rating
-            model.updateNodeTargetStressRating(im.getName(), (StressRating) ((SelectBox) form.getChild(9)).getSelected());
+            model.updateNodeTargetStressRating(name, (StressRating) ((SelectBox) form.getChild(9)).getSelected());
 
             // Save player stress rating
-            model.updateNodePlayerStressRating(im.getName(), (StressRating) ((SelectBox) form.getChild(11)).getSelected());
+            model.updateNodePlayerStressRating(name, (StressRating) ((SelectBox) form.getChild(11)).getSelected());
         }
     }
 

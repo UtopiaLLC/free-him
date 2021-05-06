@@ -6,6 +6,7 @@ import static com.adisgrace.games.leveleditor.LevelEditorConstants.*;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.Array;
 
@@ -38,7 +39,12 @@ public final class FormFactory {
         return new FocusListener() {
             public void keyboardFocusChanged(FocusListener.FocusEvent event, Actor actor, boolean focused) {
                 // Ignores keyboard input for camera control when typing in a text box
-                input.shouldIgnoreInput(focused);
+                try {
+                    input.shouldIgnoreInput(focused);
+                }
+                catch (NullPointerException npe) {
+                    throw new RuntimeException("FormFactory.newIgnoreInputFocusListener: input controller can't be null");
+                }
             }
         };
     }
@@ -164,8 +170,10 @@ public final class FormFactory {
         // Clear the default selection
         box.getSelection().clear();
 
-        // Select the previously-selected options
-        box.getSelection().addAll(selected);
+        // Only set previously-selected options as selected if something has been selected
+        if (selected != null) {
+            box.getSelection().addAll(selected);
+        }
 
         // Ensure multiple options can be selected
         box.getSelection().setMultiple(true);
@@ -195,11 +203,14 @@ public final class FormFactory {
      *
      * @param name      The text to label the check box with
      * @param height    The vertical height at which the place the check box
+     * @param checked   Whether the check box is initially checked when created
      * @return          The constructed CheckBox
      */
-    public static CheckBox newCheckBox(String name, float height) {
+    public static CheckBox newCheckBox(String name, float height, boolean checked) {
         CheckBox checkBox = new CheckBox(name, skin);
         checkBox.setPosition(FORM_X_OFFSET + 215, height-2);
+        checkBox.setChecked(checked);
+
         return checkBox;
     }
 }
