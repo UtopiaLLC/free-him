@@ -27,6 +27,9 @@ public class LevelModel {
     // Name of the Level
     private String name;
 
+    /** How many days can this level last, loses the game if days run out */
+    private int daysLeft = 10; // needs to be properly initialized
+
     // Player object
     private PlayerModel player;
 
@@ -109,6 +112,8 @@ public class LevelModel {
         JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/" + levelJson));
         String[] targetJsons = json.get("targets").asStringArray();
         name = json.get("name").asString();
+        // TODO: Uncomment this line, and change "daysLeft" to whatever it is in the level json
+        //daysLeft = json.get("daysLeft").asInt();
 
         if (json.get("dims") != null) {
             int[] dims = json.get("dims").asIntArray();
@@ -235,6 +240,10 @@ public class LevelModel {
      */
 
     public LevelState getLevelState(){
+        // check if player lost by running out of time
+        if (daysLeft <= 0)
+            return LevelState.LOSE;
+
         if(!player.isLiving())
             return LevelState.LOSE;
 
@@ -257,6 +266,8 @@ public class LevelModel {
 
     public void nextDay(){
         n_days++;
+        // reduce time left by 1 day
+        daysLeft--;
         // Implements target trait : paranoiac
         // iterate over all targets to see if any is paranoiac
         for (String targetname : targets.keySet()){
