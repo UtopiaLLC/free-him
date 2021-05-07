@@ -2,9 +2,23 @@ package com.adisgrace.games.util;
 
 public final class GameConstants {
 
+    /************************************************* UIController **************************************************/
+
     public static final int DIALOG_WIDTH = 890;
     public static final int DIALOG_HEIGHT = 500;
     public static final int DIALOG_PREF_WIDTH = 350;
+
+    /************************************************* GameController **************************************************/
+
+    public static final int NODE_WORLD_WIDTH = 30;
+    public static final int NODE_WORLD_HEIGHT = 30;
+
+    /** Dimensions of map tile */
+    public static final int TILE_HEIGHT = 256;
+    public static final int TILE_WIDTH = 444;
+
+    public static final int SCREEN_WIDTH = 1280, SCREEN_HEIGHT = 720;
+    public static final int RIGHT_SIDE_HEIGHT = 199;
 
     /************************************************* STRESS RATING **************************************************/
 

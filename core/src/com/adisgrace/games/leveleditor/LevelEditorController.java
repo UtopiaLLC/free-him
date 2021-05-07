@@ -6,6 +6,7 @@ import com.adisgrace.games.util.Connector.*;
 import static com.adisgrace.games.leveleditor.LevelEditorConstants.*;
 import static com.adisgrace.games.util.GameConstants.*;
 
+import com.adisgrace.games.util.GameConstants;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
@@ -254,7 +255,7 @@ public class LevelEditorController implements Screen {
         // Add text field for level name at the bottom of the screen
         levelName = FormFactory.newTextField("Level Name", 10 + FORM_GAP,
                 FORM_WIDTH * canvas.getWidth(), "My Level");
-        levelName.setX((SCREEN_WIDTH / 2f) - 0.5f * levelName.getWidth());
+        levelName.setX((GameConstants.SCREEN_WIDTH / 2f) - 0.5f * levelName.getWidth());
         // Align text to center
         levelName.setAlignment(1);
         toolStage.addActor(levelName);
@@ -274,19 +275,19 @@ public class LevelEditorController implements Screen {
         toolStage.addActor(levelDimYLabel);
 
         // Place at bottom of screen
-        levelDimX.setX((SCREEN_WIDTH / 2f) - levelDimX.getWidth());
-        levelDimY.setX((SCREEN_WIDTH / 2f) + levelDimX.getWidth());
+        levelDimX.setX((GameConstants.SCREEN_WIDTH / 2f) - levelDimX.getWidth());
+        levelDimY.setX((GameConstants.SCREEN_WIDTH / 2f) + levelDimX.getWidth());
         // Align to center
         levelDimX.setAlignment(1);
         levelDimY.setAlignment(1);
         // Place labels next to the relevant fields
-        levelDimXLabel.setPosition((SCREEN_WIDTH / 2f) - 1.5f * levelDimX.getWidth() - levelDimXLabel.getWidth() / 2, 15);
-        levelDimYLabel.setPosition((SCREEN_WIDTH / 2f) + 0.5f * levelDimY.getWidth() - levelDimYLabel.getWidth() / 2, 15);
+        levelDimXLabel.setPosition((GameConstants.SCREEN_WIDTH / 2f) - 1.5f * levelDimX.getWidth() - levelDimXLabel.getWidth() / 2, 15);
+        levelDimYLabel.setPosition((GameConstants.SCREEN_WIDTH / 2f) + 0.5f * levelDimY.getWidth() - levelDimYLabel.getWidth() / 2, 15);
 
         // Add label indicating what the current editor mode is
-        editorModeLabel = FormFactory.newLabel("MOVE MODE", SCREEN_HEIGHT - 40);
+        editorModeLabel = FormFactory.newLabel("MOVE MODE", GameConstants.SCREEN_HEIGHT - 40);
         editorModeLabel.setAlignment(1);
-        editorModeLabel.setX((SCREEN_WIDTH / 2f) - editorModeLabel.getWidth()/2);
+        editorModeLabel.setX((GameConstants.SCREEN_WIDTH / 2f) - editorModeLabel.getWidth()/2);
         toolStage.addActor(editorModeLabel);
     }
 
@@ -544,8 +545,8 @@ public class LevelEditorController implements Screen {
         x = (int)vec.x;
         y = (int)vec.y;
         // Account for difference between tile width and sprite width
-        x -= (im.getWidth() - TILE_WIDTH) / 2;
-        y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+        x -= (im.getWidth() - GameConstants.TILE_WIDTH) / 2;
+        y += ((GameConstants.TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
         // Place node
         im.setPosition(x,y);
         im.setOrigin(0, 0);
@@ -599,8 +600,8 @@ public class LevelEditorController implements Screen {
                     newX = vec.x;
                     newY = vec.y;
                     // Account for difference between tile width and sprite width
-                    newX -= (im.getWidth() - TILE_WIDTH) / 2;
-                    newY += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+                    newX -= (im.getWidth() - GameConstants.TILE_WIDTH) / 2;
+                    newY += ((GameConstants.TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
                     im.setPosition(newX, newY);
                     // Change back to low version of asset
                     im.setDrawable(nodeLow);
@@ -706,7 +707,7 @@ public class LevelEditorController implements Screen {
         x = vec.x;
         y = vec.y;
         // Place connector at nearest isometric center
-        im.setPosition(x - (TILE_WIDTH / 4), y - (TILE_HEIGHT / 4));
+        im.setPosition(x - (GameConstants.TILE_WIDTH / 4), y - (GameConstants.TILE_HEIGHT / 4));
         im.setOrigin(0, 0);
 
         // Add listeners, which change their behavior depending on the editor mode
@@ -761,7 +762,7 @@ public class LevelEditorController implements Screen {
         // Place table to contain target form entries
         targetForm.left();
         targetForm.bottom();
-        targetForm.setSize(FORM_WIDTH * SCREEN_WIDTH, height);
+        targetForm.setSize(FORM_WIDTH * GameConstants.SCREEN_WIDTH, height);
 
         // FORM LABEL
         targetForm.addActor(FormFactory.newLabel("TARGET DATA", height));
@@ -825,7 +826,7 @@ public class LevelEditorController implements Screen {
         // Place table to contain node form entries
         nodeForm.left();
         nodeForm.bottom();
-        nodeForm.setSize(FORM_WIDTH * SCREEN_WIDTH, height);
+        nodeForm.setSize(FORM_WIDTH * GameConstants.SCREEN_WIDTH, height);
 
         // FORM LABEL
         nodeForm.addActor(FormFactory.newLabel("NODE DATA", height));
@@ -1052,9 +1053,9 @@ public class LevelEditorController implements Screen {
             // If a node is actually going to be selected next, create a form for it
             if (newSelectedNode != null) {
                 // Initialize variable for height of each entry in the form
-                float height = SCREEN_HEIGHT - FORM_Y_OFFSET;
+                float height = GameConstants.SCREEN_HEIGHT - FORM_Y_OFFSET;
                 // Initialize variable for width of each entry in the form
-                float width = FORM_WIDTH * SCREEN_WIDTH;
+                float width = FORM_WIDTH * GameConstants.SCREEN_WIDTH;
 
                 // Align and show background
                 formBG.setSize(width + FORM_X_OFFSET, height + FORM_GAP);
