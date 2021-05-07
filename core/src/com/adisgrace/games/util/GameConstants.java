@@ -2,6 +2,10 @@ package com.adisgrace.games.util;
 
 public final class GameConstants {
 
+    public static final int DIALOG_WIDTH = 890;
+    public static final int DIALOG_HEIGHT = 500;
+    public static final int DIALOG_PREF_WIDTH = 350;
+
     /************************************************* STRESS RATING **************************************************/
 
     /* Predefined stress ratings for FactNodes */

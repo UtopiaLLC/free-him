@@ -1,0 +1,6 @@
+{
+	"name": "simple_level_1",
+	"dims": [0, 0],
+	"targets": ["InnocuousHightSchoolBoy.json"],
+	"targetLocs": [[2, 1]]
+}

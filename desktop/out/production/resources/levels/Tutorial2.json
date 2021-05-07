@@ -1,0 +1,6 @@
+{
+	"name": "Tutorial2",
+	"dims": [20, 20],
+	"targets": ["JasonHolger.json"],
+	"targetLocs": [[0, -2]]
+}
