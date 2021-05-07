@@ -3,6 +3,7 @@ package com.adisgrace.games.leveleditor;
 import com.adisgrace.games.util.Connector;
 import com.adisgrace.games.util.Connector.Direction;
 import static com.adisgrace.games.leveleditor.LevelEditorConstants.*;
+import static com.adisgrace.games.util.GameConstants.*;
 import com.adisgrace.games.models.TraitModel.Trait;
 
 import com.badlogic.gdx.math.Vector2;
@@ -64,6 +65,10 @@ public class LevelEditorModel {
         int maxStress = DEFAULT_MAX_STRESS;
         /** Traits of the target */
         Array<Trait> traits = new Array<>();
+        /** Whether or not the target is generic */
+        boolean isGeneric = true;
+        /** Whether or not the target is male (true) or female (false) */
+        boolean isMale;
 
         /**
          * Constructor for a Target with the specified attributes.
@@ -90,13 +95,17 @@ public class LevelEditorModel {
          * @param name          Target's name
          * @param paranoia      Target's paranoia stat
          * @param maxStress     Target's max stress
+         * @param isGeneric     Whether the target is generic
+         * @param isMale        Whether the target is male
          */
-        TargetTile(float x, float y, String name, int paranoia, int maxStress) {
+        TargetTile(float x, float y, String name, int paranoia, int maxStress, boolean isGeneric, boolean isMale) {
             this.x = x;
             this.y = y;
             this.name = name;
             this.paranoia = paranoia;
             this.maxStress = maxStress;
+            this.isGeneric = isGeneric;
+            this.isMale = isMale;
 
             // Set target image to the default target image
             im = new Image(NODE_TEXTURES[TARGET_LOW]);
@@ -130,7 +139,7 @@ public class LevelEditorModel {
         /** Title of the node */
         String title = "";
         /** Whether or not node is locked */
-        boolean locked = false;
+        boolean locked;
         /** Content of the node */
         String content = "";
         /** Summary of the node */
@@ -139,6 +148,8 @@ public class LevelEditorModel {
         StressRating targetSR = StressRating.NONE;
         /** Player stress rating of the node, representing player stress damage */
         StressRating playerSR = StressRating.NONE;
+        /** Whether or not the node is generic */
+        boolean isGeneric = true;
 
         /**
          * Constructor for a NodeTile with the specified attributes.
@@ -160,21 +171,40 @@ public class LevelEditorModel {
         /**
          * Constructor for a NodeTile with the specified attributes.
          *
-         * Note that we know the node name will be unique among all nodes in the level
-         * because it had to be when the level was first created.
+         * @param x             x-coordinate of node in isometric space
+         * @param y             y-coordinate of node in isometric space
+         * @param im            Node image
+         * @param locked        Whether or not this node is locked
+         * @param isGeneric     Whether or not this node is generic
+         */
+        NodeTile(float x, float y, Image im, boolean locked, boolean isGeneric) {
+            this.x = x;
+            this.y = y;
+            this.im = im;
+            this.locked = locked;
+            this.isGeneric = isGeneric;
+
+            tileType = TileType.NODE;
+        }
+
+        /**
+         * Constructor for a NodeTile with the specified attributes.
+         *
+         * Note that we do not reuse the name, in case targets from different levels are combined
+         * and their networks have nodes that share the same names.
          *
          * @param x             x-coordinate of node in isometric space
          * @param y             y-coordinate of node in isometric space
-         * @param name          Node name, as in its unique identifier in the level
          * @param title         Title of the node
          * @param locked        Whether or not this node is locked
          * @param content       Content of the node
          * @param summary       Summary of the node
          * @param targetSR      Target stress rating of node
          * @param playerSR      Player stress rating of node
+         * @param isGeneric     Whether or not this node is generic
          */
-        NodeTile(float x, float y, String name, String title, boolean locked, String content, String summary,
-                 StressRating targetSR, StressRating playerSR) {
+        NodeTile(float x, float y, String title, boolean locked, String content, String summary,
+                 StressRating targetSR, StressRating playerSR, boolean isGeneric) {
             this.x = x;
             this.y = y;
             this.title = title;
@@ -183,13 +213,108 @@ public class LevelEditorModel {
             this.summary = summary;
             this.targetSR = targetSR;
             this.playerSR = playerSR;
+            this.isGeneric = isGeneric;
 
             // Set image to the default image for the relevant node
             im = new Image(NODE_TEXTURES[locked ? LOCKED_LOW : UNLOCKED_LOW]);
-            // Set image name to be node name plus unique identifier
-            im.setName(name + imgCount);
+            // Set image name to be the node type, the string "Node," and a unique number
+            // Can't reuse the old name in case multiple targets have nodes with the same name
+            im.setName((locked ? 2 : 1) + "Node" + imgCount);
 
             tileType = TileType.NODE;
+        }
+
+        /**
+         * Returns the title of the node, accounting for whether or not it's generic.
+         *
+         * If the node is generic, returns the relevant generic title rather than the saved custom title.
+         *
+         * @return  The title of this node
+         */
+        public String getTitle() {
+            return getTitle(false, this.isGeneric);
+        }
+
+        /**
+         * Returns the title of the node, accounting for whether or not it's generic and whether the output
+         * will be written to a JSON.
+         *
+         * If the node is generic, returns the relevant generic title rather than the saved custom title.
+         *
+         * If this function is being called to write to the saved JSON, makes it JSON-friendly first.
+         *
+         * @param forSave   Whether this function is being called so the string can be written to a JSON.
+         * @param isGeneric Whether this node is generic (based on whether the parent target is)
+         * @return          The title of this node
+         */
+        public String getTitle(boolean forSave, boolean isGeneric) {
+            String tempTitle = title;
+            // Format quotes correctly if it's being returned to write to the JSON
+            if (forSave) tempTitle.replaceAll("\"", "\\\\\"");
+            return isGeneric ? GENERIC_TITLE : tempTitle;
+        }
+
+        /**
+         * Returns the content of the node, accounting for whether or not it's generic.
+         *
+         * If the node is generic, returns the relevant generic content rather than the saved custom content.
+         *
+         * @return  The content of this node
+         */
+        public String getContent() {
+            return getContent(false, this.isGeneric);
+        }
+
+        /**
+         * Returns the content of the node, accounting for whether or not it's generic and whether the output
+         * will be written to a JSON.
+         *
+         * If the node is generic, returns the relevant generic content rather than the saved custom content.
+         *
+         * If this function is being called to write to the saved JSON, makes it JSON-friendly first.
+         *
+         * @param forSave   Whether this function is being called so the string can be written to a JSON.
+         * @param isGeneric Whether this node is generic (based on whether the parent target is)
+         * @return          The content of this node
+         */
+        public String getContent(boolean forSave, boolean isGeneric) {
+            String tempContent = content;
+            // Formats newlines and quotes correctly for the JSON
+            if (forSave) {
+                tempContent.replaceAll("\r\n", System.lineSeparator()).replaceAll("\n", System.lineSeparator()).
+                        replaceAll("\"", "\\\\\"");
+            }
+            return isGeneric ? getGenericContent(targetSR) : tempContent;
+        }
+
+        /**
+         * Returns the summary of the node, accounting for whether or not it's generic.
+         *
+         * If the node is generic, returns the relevant generic summary rather than the saved custom summary.
+         *
+         * @return  The summary of this node
+         */
+        public String getSummary() {
+            return getSummary(false, this.isGeneric);
+        }
+
+        /**
+         * Returns the summary of the node, accounting for whether or not it's generic and whether the output
+         * will be written to a JSON.
+         *
+         * If the node is generic, returns the relevant generic summary rather than the saved custom summary.
+         *
+         * If this function is being called to write to the saved JSON, makes it JSON-friendly first.
+         *
+         * @param forSave   Whether this function is being called so the string can be written to a JSON.
+         * @param isGeneric Whether this node is generic (based on whether the parent target is)
+         * @return          The summary of this node
+         */
+        public String getSummary(boolean forSave, boolean isGeneric) {
+            String tempSummary = summary;
+            // Formats newlines and quotes correctly for the JSON
+            if (forSave) tempSummary.replaceAll("\n", "\\\\n").replaceAll("\"", "\\\\\"");
+            return isGeneric ? getGenericSummary(targetSR) : tempSummary;
         }
     }
 
@@ -247,10 +372,12 @@ public class LevelEditorModel {
      * @param name      Name of the target to load into level
      * @param paranoia  Paranoia stat of target to load into level
      * @param maxStress Max stress of target to load into level
+     * @param isGeneric Whether the target is generic
+     * @param isMale    Whether the target is male (true) or female (false)
      */
-    public void loadTarget(int x, int y, String name, int paranoia, int maxStress) {
+    public void loadTarget(int x, int y, String name, int paranoia, int maxStress, boolean isGeneric, boolean isMale) {
         // Create the TargetTile and add to the level
-        addToLevel(new TargetTile(x, y, name, paranoia, maxStress));
+        addToLevel(new TargetTile(x, y, name, paranoia, maxStress, isGeneric, isMale));
     }
 
     /**
@@ -261,18 +388,18 @@ public class LevelEditorModel {
      *
      * @param x             x-coordinate of node in isometric space
      * @param y             y-coordinate of node in isometric space
-     * @param name          Name of the node to load into level
      * @param title         Title of the node to load into level
      * @param locked        Whether or not this node is locked
      * @param content       Content of the node to load into level
      * @param summary       Summary of the node to load into level
      * @param targetSR      Target stress rating of node to load into level
      * @param playerSR      Player stress rating of node to load into level
+     * @param isGeneric     Whether the node is generic
      */
-    public void loadNode(int x, int y, String name, String title, boolean locked, String content, String summary,
-                         StressRating targetSR, StressRating playerSR) {
+    public void loadNode(int x, int y, String title, boolean locked, String content, String summary,
+                         StressRating targetSR, StressRating playerSR, boolean isGeneric) {
         // Create the NodeTile and add to the level
-        addToLevel(new NodeTile(x, y, name, title, locked, content, summary, targetSR, playerSR));
+        addToLevel(new NodeTile(x, y, title, locked, content, summary, targetSR, playerSR, isGeneric));
     }
 
     /**
@@ -430,11 +557,28 @@ public class LevelEditorModel {
      *
      * This adds the tile to levelTiles and levelMap.
      *
+     * If it's a target/node, will default to generic.
+     *
      * @param im    Image representing the tile's appearance.
      * @param x     x-coordinate of location to add tile at.
      * @param y     y-coordinate of location to add tile at.
      */
     public void addToLevel(Image im, float x, float y) {
+        addToLevel(im,x,y,true);
+    }
+
+    /**
+     * Adds the tile with the given properties to the given location in the level.
+     * Given location is in isometric space.
+     *
+     * This adds the tile to levelTiles and levelMap.
+     *
+     * @param im        Image representing the tile's appearance.
+     * @param x         x-coordinate of location to add tile at.
+     * @param y         y-coordinate of location to add tile at.
+     * @param isGeneric Whether this node/target should be generic.
+     */
+    public void addToLevel(Image im, float x, float y, boolean isGeneric) {
         // Initialize level tile
         LevelTile lt;
         // Get identifier that can be used to identify type of tile
@@ -448,11 +592,11 @@ public class LevelEditorModel {
                 break;
             case "1": // UNLOCKED NODE
                 // Make unlocked node accordingly
-                lt = new NodeTile(x,y,im,false);
+                lt = new NodeTile(x,y,im,false, isGeneric);
                 break;
             case "2": // LOCKED NODE
                 // Make locked node accordingly
-                lt = new NodeTile(x,y,im,true);
+                lt = new NodeTile(x,y,im,true, isGeneric);
                 break;
             default: // CONNECTOR
                 // Make connector accordingly (first character is direction)
@@ -495,6 +639,20 @@ public class LevelEditorModel {
     /*********************************************** MODIFY LEVEL ***********************************************/
 
     /**
+     * Updates the LevelTile with the given name to have a new name.
+     *
+     * @param name      Name of LevelTile to modify.
+     * @param newName   Name to change the LevelTile's name to.
+     */
+    public void updateLevelTileName(String name, String newName) {
+        // Rename tile in levelMap
+        removeFromMap(name);
+        addToMap(newName,levelTiles.get(name).x,levelTiles.get(name).y);
+        // Rename tile in levelTiles
+        levelTiles.setKey(levelTiles.indexOfKey(name), newName);
+    }
+
+    /**
      * Updates the levelTile with the given name so that it is moved to the given location.
      *
      * Given coordinates must be in isometric space.
@@ -515,124 +673,71 @@ public class LevelEditorModel {
         levelTiles.put(name,lt);
     }
 
-    /**
-     * Updates the target stress rating of the node with the given name.
-     *
-     * Must be a valid node name.
-     *
-     * @param name      Name of LevelTile to modify.
-     * @param targetSR  StressRating to change the node's target stress rating to.
-     */
-    public void updateNodeTargetStressRating(String name, StressRating targetSR) {
-        NodeTile lt = (NodeTile) levelTiles.get(name);
-        lt.targetSR = targetSR;
-        levelTiles.put(name,lt);
-    }
-
-    /**
-     * Updates the player stress rating of the node with the given name.
-     *
-     * Must be a valid node name.
-     *
-     * @param name      Name of LevelTile to modify.
-     * @param playerSR  StressRating to change the node's player stress rating to.
-     */
-    public void updateNodePlayerStressRating(String name, StressRating playerSR) {
-        NodeTile lt = (NodeTile) levelTiles.get(name);
-        lt.playerSR = playerSR;
-        levelTiles.put(name,lt);
-    }
+    /*********************************************** UPDATE TARGET ***********************************************/
 
     /**
      * Updates the name of the target with the given name.
      *
      * Must be a valid target name.
      *
-     * @param name      Name of LevelTile to modify.
+     * @param name      Name of target to modify.
      * @param tname     Name to change the target's name to.
      */
     public void updateTargetName(String name, String tname) {
         TargetTile tt = (TargetTile) levelTiles.get(name);
         tt.name = tname;
-        levelTiles.put(name,tt);
     }
 
     /**
-     * Updates the Target Paranoia of the node with the given name.
+     * Updates the Paranoia of the target with the given name.
      *
-     * Must be a valid node name.
+     * Takes in a String value for paranoia and handles accordingly if the string is empty.
      *
-     * @param name      Name of LevelTile to modify.
-     * @param targetParanoia  targetParanoia to change the target's targetParanoia to.
+     * Must be a valid target name.
+     *
+     * @param name              Name of target to modify.
+     * @param targetParanoia    targetParanoia to change the target's targetParanoia to, as a string.
      */
-    public void updateTargetParanoia(String name, int targetParanoia) {
+    public void updateTargetParanoia(String name, String targetParanoia) {
+        // Initialize integer value for paranoia
+        int paranoia;
+        // If field was empty, set paranoia to default
+        if (targetParanoia.equals("")) paranoia = DEFAULT_PARANOIA;
+        // Otherwise, convert to int and use that
+        else paranoia = Integer.parseInt(targetParanoia);
+
         TargetTile lt = (TargetTile) levelTiles.get(name);
-        lt.paranoia = targetParanoia;
-        levelTiles.put(name,lt);
+        lt.paranoia = paranoia;
     }
 
     /**
-     * Updates the Target MaxStress of the node with the given name.
+     * Updates the MaxStress of the target with the given name.
      *
-     * Must be a valid node name.
+     * Takes in a String for max stress and handles accordingly if the string is empty.
      *
-     * @param name      Name of LevelTile to modify.
-     * @param targetMaxStress  targetMaxStress to change the target's targetMaxStress to.
+     * Must be a valid target name.
+     *
+     * @param name              Name of target to modify.
+     * @param targetMaxStress   targetMaxStress to change the target's targetMaxStress to, as a string.
      */
-    public void updateTargetMaxStress(String name, int targetMaxStress) {
+    public void updateTargetMaxStress(String name, String targetMaxStress) {
+        // Initialize integer value for max stress
+        int maxStress;
+        // If field was empty, set max stress to default
+        if (targetMaxStress.equals("")) maxStress = DEFAULT_MAX_STRESS;
+        // Otherwise, convert to int and use that
+        else maxStress = Integer.parseInt(targetMaxStress);
+
         TargetTile lt = (TargetTile) levelTiles.get(name);
-        lt.maxStress = targetMaxStress;
-        levelTiles.put(name,lt);
+        lt.maxStress = maxStress;
     }
 
     /**
-     * Updates the title of the node with the given name.
+     * Updates the Traits of the target with the given name.
      *
-     * Must be a valid node name.
+     * Must be a valid target name.
      *
-     * @param name      Name of LevelTile to modify.
-     * @param title     Title to change the node's title to.
-     */
-    public void updateNodeTitle(String name, String title) {
-        NodeTile lt = (NodeTile) levelTiles.get(name);
-        lt.title = title;
-        levelTiles.put(name,lt);
-    }
-
-    /**
-     * Updates the content of the node with the given name.
-     *
-     * Must be a valid node name.
-     *
-     * @param name      Name of LevelTile to modify.
-     * @param content  content to change the Node's content to.
-     */
-    public void updateNodeContent(String name, String content) {
-        NodeTile lt = (NodeTile) levelTiles.get(name);
-        lt.content = content;
-        levelTiles.put(name,lt);
-    }
-
-    /**
-     * Updates the summary of the node with the given name.
-     *
-     * Must be a valid node name.
-     *
-     * @param name      Name of LevelTile to modify.
-     * @param summary  summary to change the Node's summary to.
-     */
-    public void updateNodeSummary(String name, String summary) {
-        NodeTile lt = (NodeTile) levelTiles.get(name);
-        lt.summary = summary;
-        levelTiles.put(name,lt);
-    }
-
-    /**
-     * Updates the Target Traits of the node with the given name.
-     *
-     * Must be a valid node name.
-     *
-     * @param name      Name of LevelTile to modify.
+     * @param name          Name of target to modify.
      * @param targetTraits  targetTraits to change the target's Traits to.
      */
     public void updateTargetTraits(String name, Array targetTraits) {
@@ -644,21 +749,118 @@ public class LevelEditorModel {
         else {
             lt.traits = targetTraits;
         }
-        levelTiles.put(name,lt);
     }
 
     /**
-     * Updates the LevelTile with the given name to have a new name.
+     * Updates the generic status of the target with the given name.
      *
-     * @param name      Name of LevelTile to modify.
-     * @param newName   Name to change the LevelTile's name to.
+     * Must be a valid target name.
+     *
+     * @param name      Name of target to modify.
+     * @param isGeneric Whether the given target is generic or not.
      */
-    public void updateLevelTileName(String name, String newName) {
-        // Rename tile in levelMap
-        removeFromMap(name);
-        addToMap(newName,levelTiles.get(name).x,levelTiles.get(name).y);
-        // Rename tile in levelTiles
-        levelTiles.setKey(levelTiles.indexOfKey(name), newName);
+    public void updateTargetIsGeneric(String name, boolean isGeneric) {
+        TargetTile lt = (TargetTile) levelTiles.get(name);
+        lt.isGeneric = isGeneric;
+    }
+
+    /*********************************************** UPDATE NODE ***********************************************/
+
+    /**
+     * Updates the title of the node with the given name.
+     *
+     * Must be a valid node name.
+     *
+     * @param name      Name of node to modify.
+     * @param title     Title to change the node's title to.
+     */
+    public void updateNodeTitle(String name, String title) {
+        NodeTile nt = (NodeTile) levelTiles.get(name);
+        nt.title = title;
+    }
+
+    /**
+     * Updates the locked status of the node with the given value.
+     *
+     * Must be a valid node name.
+     *
+     * @param name      Name of node to modify.
+     * @param locked    Whether this node is locked.
+     */
+    public void updateNodeLocked(String name, boolean locked) {
+        NodeTile nt = (NodeTile) levelTiles.get(name);
+        nt.locked = locked;
+    }
+
+    /**
+     * Updates the content of the node with the given name.
+     *
+     * If the node is generic, does not overwrite what is currently saved.
+     *
+     * Must be a valid node name.
+     *
+     * @param name      Name of node to modify.
+     * @param content   content to change the Node's content to.
+     */
+    public void updateNodeContent(String name, String content) {
+        NodeTile nt = (NodeTile) levelTiles.get(name);
+        if (nt.isGeneric) return;
+        nt.content = content;
+    }
+
+    /**
+     * Updates the summary of the node with the given name.
+     *
+     * If the node is generic, does not overwrite what is currently saved.
+     *
+     * Must be a valid node name.
+     *
+     * @param name      Name of node to modify.
+     * @param summary   Summary to change the Node's summary to.
+     */
+    public void updateNodeSummary(String name, String summary) {
+        NodeTile nt = (NodeTile) levelTiles.get(name);
+        if (nt.isGeneric) return;
+        nt.summary = summary;
+    }
+
+    /**
+     * Updates the target stress rating of the node with the given name.
+     *
+     * Must be a valid node name.
+     *
+     * @param name      Name of node to modify.
+     * @param targetSR  StressRating to change the node's target stress rating to.
+     */
+    public void updateNodeTargetStressRating(String name, StressRating targetSR) {
+        NodeTile nt = (NodeTile) levelTiles.get(name);
+        nt.targetSR = targetSR;
+    }
+
+    /**
+     * Updates the player stress rating of the node with the given name.
+     *
+     * Must be a valid node name.
+     *
+     * @param name      Name of node to modify.
+     * @param playerSR  StressRating to change the node's player stress rating to.
+     */
+    public void updateNodePlayerStressRating(String name, StressRating playerSR) {
+        NodeTile nt = (NodeTile) levelTiles.get(name);
+        nt.playerSR = playerSR;
+    }
+
+    /**
+     * Updates the generic status of the node with the given name.
+     *
+     * Must be a valid node name.
+     *
+     * @param name      Name of node to modify.
+     * @param isGeneric Whether the given node is generic or not.
+     */
+    public void updateNodeIsGeneric(String name, boolean isGeneric) {
+        NodeTile nt = (NodeTile) levelTiles.get(name);
+        nt.isGeneric = isGeneric;
     }
 
     /*********************************************** CLEAR AND UNDO ***********************************************/

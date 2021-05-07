@@ -21,11 +21,15 @@ public class LevelModel {
     public enum LevelState{
         ONGOING,
         WIN,
-        LOSE
+        LOSE,
+        TIMEOUT
     }
 
     // Name of the Level
     private String name;
+
+    /** How many days can this level last, loses the game if days run out */
+    private int daysLeft = 10; // needs to be properly initialized
 
     // Player object
     private PlayerModel player;
@@ -93,6 +97,9 @@ public class LevelModel {
 
     /**
      * Constructs a LevelModel from a list of targets.
+     *
+     * INVARIANT: Assumes that the levelJson string is in the form of levels/level/levelJson,
+     * where the targets are stored in the separate folder levels/level/targets
      * @param levelJson Array of target json filenames
      */
     public LevelModel(String levelJson) {
@@ -106,9 +113,11 @@ public class LevelModel {
         contents = new HashMap<String, Map<String, String>>();
 //        TargetModel target;
 
-        JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/" + levelJson));
+        JsonValue json = new JsonReader().parse(Gdx.files.internal(levelJson));
         String[] targetJsons = json.get("targets").asStringArray();
         name = json.get("name").asString();
+        // TODO: Uncomment this line, and change "daysLeft" to whatever it is in the level json
+        //daysLeft = json.get("daysLeft").asInt();
 
         if (json.get("dims") != null) {
             int[] dims = json.get("dims").asIntArray();
@@ -126,9 +135,12 @@ public class LevelModel {
 
         //binds each target string to a targetModel
         //This for loop assumes that there is an equal amount of targets and targetLocations
+
+        //splits the level json path into its components so that we can reconstruct it for targets
+        String[] splitBySlash = levelJson.split("/");
         for(String targetJson: targetJsons){
 //            targets.put(t.getName(), t);
-            TargetModel t = addTarget(targetJson);
+            TargetModel t = addTarget(splitBySlash[0] + "/" + splitBySlash[1] + "/" + "targets/" + targetJson);
             targetLocs.put(t.getName(), itr.next().asIntArray());
             for(String fact: t.getNodes()) {
                 if(!t.getLocked(fact)) {
@@ -235,6 +247,10 @@ public class LevelModel {
      */
 
     public LevelState getLevelState(){
+        // check if player lost by running out of time
+        if (daysLeft <= 0)
+            return LevelState.TIMEOUT;
+
         if(!player.isLiving())
             return LevelState.LOSE;
 
@@ -257,6 +273,8 @@ public class LevelModel {
 
     public void nextDay(){
         n_days++;
+        // reduce time left by 1 day
+        daysLeft--;
         // Implements target trait : paranoiac
         // iterate over all targets to see if any is paranoiac
         for (String targetname : targets.keySet()){

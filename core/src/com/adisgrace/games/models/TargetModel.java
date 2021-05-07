@@ -54,7 +54,10 @@ public class TargetModel {
 	private ArrayMap<String, Array<Connector>> firstNodes;
 	/** Array of Target combos */
 	private Array<Combo> combos;
-
+	/** Whether this target is generic or not*/
+	private boolean isGeneric;
+	/** Whether this target is male or not*/
+	private boolean isMale;
 	/** Target's current stress level */
 	private int stress;
 	/** Target's current suspicion (maxes out at 100) */
@@ -103,12 +106,14 @@ public class TargetModel {
 	 */
 	public TargetModel(String targetJson) {
 		// Get parser for JSON
-		JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/targets/" + targetJson));
+		JsonValue json = new JsonReader().parse(Gdx.files.internal(targetJson));
 
 		// Get main properties of target
 		name = json.getString("targetName");
 		paranoia = json.getInt("paranoia");
 		maxStress = json.getInt("maxStress");
+		isGeneric = json.getBoolean("isGeneric");
+		isMale = json.getBoolean("isMale");
 
 		gaslight_reduction = json.getInt("gaslightReduction", 8);
 
@@ -363,6 +368,22 @@ public class TargetModel {
 	 */
 	public TargetState getState(){
 		return this.state;
+	}
+
+	/**
+	 * Returns whether the target is male or not
+	 * @return true if target is male, false if target is female
+	 */
+	public boolean isMale(){
+		return isMale;
+	}
+
+	/**
+	 * Returns whether the target is generic or not
+	 * @return true if target is generic, false if not
+	 */
+	public boolean isGeneric(){
+		return isGeneric;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

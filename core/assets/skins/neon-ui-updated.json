@@ -15,6 +15,9 @@ com.badlogic.gdx.graphics.g2d.BitmapFont: {
 	VT323-Regular: {
 		file: VT323-Regular.fnt
 	}
+	VT323-Regular_White: {
+		file: VT323-Regular_White.fnt
+	}
 }
 com.badlogic.gdx.graphics.Color: {
 	Black: {
@@ -348,6 +351,15 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	dialog-box: {
 		font: VT323-Regular
 		fontColor: Black
+	}
+	hover-gray: {
+		font: VT323-Regular_White
+		fontColor: White
+		background: UI_HoverBox
+	}
+	hover-text: {
+		font: VT323-Regular_White
+		fontColor: White
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
