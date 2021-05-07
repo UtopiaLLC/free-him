@@ -1769,6 +1769,25 @@ atlasData: {
 			type: TEXTURE
 			hidden: false
 		}
+		{
+			file: D:/faris/Documents/College Stuff/Semester Folders/SP21/Classes/Game Dev/Actual Game/Game-Code/free-him/core/assets/skins/Skin_Composer/Skin_data/UI_HoverBox.png
+			bgColor: {
+				r: 0
+				g: 0
+				b: 0
+				a: 1
+			}
+			tint: null
+			tintName: null
+			name: UI_HoverBox
+			tiled: false
+			minWidth: -1
+			minHeight: -1
+			customized: false
+			tenPatchData: null
+			type: TEXTURE
+			hidden: false
+		}
 	]
 	fontDrawables: [
 		{
@@ -1858,6 +1877,25 @@ atlasData: {
 			tint: null
 			tintName: null
 			name: VT323-Regular
+			tiled: false
+			minWidth: -1
+			minHeight: -1
+			customized: false
+			tenPatchData: null
+			type: FONT
+			hidden: false
+		}
+		{
+			file: D:/faris/Documents/College Stuff/Semester Folders/SP21/Classes/Game Dev/Actual Game/Game-Code/free-him/core/assets/skins/Skin_Composer/Skin_data/VT323-Regular_White.png
+			bgColor: {
+				r: 0
+				g: 0
+				b: 0
+				a: 1
+			}
+			tint: null
+			tintName: null
+			name: VT323-Regular_White
 			tiled: false
 			minWidth: -1
 			minHeight: -1
@@ -1976,6 +2014,11 @@ jsonData: {
 			class: com.ray3k.skincomposer.data.FontData
 			name: VT323-Regular
 			file: D:/faris/Documents/College Stuff/Semester Folders/SP21/Classes/Game Dev/Actual Game/Game-Code/free-him/core/assets/skins/Skin_Composer/Skin_data/VT323-Regular.fnt
+		}
+		{
+			class: com.ray3k.skincomposer.data.FontData
+			name: VT323-Regular_White
+			file: D:/faris/Documents/College Stuff/Semester Folders/SP21/Classes/Game Dev/Actual Game/Game-Code/free-him/core/assets/skins/Skin_Composer/Skin_data/VT323-Regular_White.fnt
 		}
 	]
 	freeTypeFonts: []
@@ -2805,6 +2848,60 @@ jsonData: {
 						name: fontColor
 						optional: true
 						value: Black
+					}
+					background: {
+						type: com.badlogic.gdx.scenes.scene2d.utils.Drawable
+						name: background
+						optional: true
+						value: null
+					}
+				}
+				deletable: true
+				parent: null
+			}
+			{
+				class: com.ray3k.skincomposer.data.StyleData
+				name: hover-gray
+				clazz: com.badlogic.gdx.scenes.scene2d.ui.Label
+				properties: {
+					font: {
+						type: com.badlogic.gdx.graphics.g2d.BitmapFont
+						name: font
+						optional: false
+						value: VT323-Regular_White
+					}
+					fontColor: {
+						type: com.badlogic.gdx.graphics.Color
+						name: fontColor
+						optional: true
+						value: White
+					}
+					background: {
+						type: com.badlogic.gdx.scenes.scene2d.utils.Drawable
+						name: background
+						optional: true
+						value: UI_HoverBox
+					}
+				}
+				deletable: true
+				parent: null
+			}
+			{
+				class: com.ray3k.skincomposer.data.StyleData
+				name: hover-text
+				clazz: com.badlogic.gdx.scenes.scene2d.ui.Label
+				properties: {
+					font: {
+						type: com.badlogic.gdx.graphics.g2d.BitmapFont
+						name: font
+						optional: false
+						value: VT323-Regular_White
+					}
+					fontColor: {
+						type: com.badlogic.gdx.graphics.Color
+						name: fontColor
+						optional: true
+						value: White
 					}
 					background: {
 						type: com.badlogic.gdx.scenes.scene2d.utils.Drawable

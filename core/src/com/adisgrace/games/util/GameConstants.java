@@ -1,6 +1,6 @@
 package com.adisgrace.games.util;
 
-public class GameConstants {
+public final class GameConstants {
     /* Predefined stress levels for FactNodes */
     public enum StressRating {
         NONE, LOW, MED, HIGH
