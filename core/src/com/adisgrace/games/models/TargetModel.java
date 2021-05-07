@@ -43,7 +43,7 @@ public class TargetModel {
 	/** The target's location in isometric space */
 	private int locX, locY;
 	/** The target's traits */
-	private TraitModel traits = new TraitModel();
+	private TraitModel traits;
 	/** Target's maximum stress level (when stress reaches that point, target has been revenged) */
 	private int maxStress;
 	/** Turns before the target makes a Paranoia check. Possible values are from 0 to INV_PARANOIA_CONSTANT. */
@@ -82,7 +82,7 @@ public class TargetModel {
 	private Random rand;
 
 	/** Constant for inverse Paranoia check, made every (INV_PARANOIA_CONSTANT - paranoia) turns */
-	private static final int INV_PARANOIA_CONSTANT = 5;
+	private static final int INV_PARANOIA_CONSTANT = 7;
 	/** Constants for low/medium/high suspicion */
 	private static final int SUSPICION_LOW = 15;
 	private static final int SUSPICION_MED = 25;
@@ -536,6 +536,15 @@ public class TargetModel {
 		//unfreezes traits that were frozen upon a successful distract
 		traits.unfreeze();
 
+		// SUSPICION CHECK: only performed when target is Unaware
+		// Roll against suspicion, and if roll succeeds and target is Unaware, target becomes Suspicious
+		if (state == TargetState.UNAWARE && rand.nextInt(100) < suspicion) {
+			// If suspicion check succeeds, move target to Suspicious
+			state = TargetState.SUSPICIOUS;
+			// Set countdown for inverse paranoia, as a more paranoid target would remain suspicious longer
+			countdown = INV_PARANOIA_CONSTANT - paranoia;
+		}
+
 		countdown--;
 		// If not time for next Paranoia check, return
 		if (countdown != 0) {return state;}
@@ -548,13 +557,8 @@ public class TargetModel {
 		// Otherwise, handle Paranoia check depending on state
 		switch(state) {
 			case UNAWARE:
-				// Roll against suspicion
-				if (rand.nextInt(100) < suspicion) {
-					// If suspicion check succeeds, move target to Suspicious
-					state = TargetState.SUSPICIOUS;
-				}
-				// Reset countdown for inverse Paranoia check
-				countdown = INV_PARANOIA_CONSTANT - paranoia;
+				// Suspicion check is performed every turn when unaware, so nothing
+				// specific happens for a Paranoia check while Unaware
 				break;
 			case SUSPICIOUS:
 				// Move back to Unaware
