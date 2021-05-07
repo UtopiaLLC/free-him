@@ -1,0 +1,79 @@
+{
+	"targetName": "Darrell Rivera",
+	"isMale": true,
+	"isGeneric": false,
+	"paranoia": 1,
+	"maxStress": 50,
+	"traits": [],
+	"firstNodes": ["1Node477"],
+	"firstConnectors": [[[0,0], [-1,0], [-2,0], [-2,-1]]],
+	"firstConnectorTypes": [["W", "EW", "ES", "N"]],
+	"pod": 	[
+		{
+			"nodeName": "1Node477",
+			"title": "Social Media",
+			"coords": [-2.0,-1.0],
+			"locked": false,
+			"content": "Darrell is extremely active on social media, and it looks like he's a huge gossip, too. He also appears to be close friends with William Macintyre.\n\nBe careful - things that happen to Darrell tend to spread to everyone around him.",
+			"summary": "",
+			"children": ["1Node5427", "1Node5620"],
+			"targetStressDamage": 0,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[-2,-1], [-2,-2], [-2,-3], [-3,-3]], [[-2,-1], [-2,-2], [-1,-2], [0,-2]]],
+			"connectorTypes": [["S", "NS", "NW", "E"], ["S", "NE", "WE", "W"]]
+		},
+		{
+			"nodeName": "1Node5427",
+			"title": "Reverse Image Search: Darrell's Photo",
+			"coords": [-3.0,-3.0],
+			"locked": false,
+			"content": "It looks like Darrell was previously employed at a well-known fast food chain as a janitor, which makes sense, because the photo you're using is an image of Darrell dressed in his new janitor uniform on his first day of work at Torchlight. He really does post everything on social media.",
+			"summary": "Darrell used to work as a janitor at a fast food chain and now works as a janitor at Torchlight.",
+			"children": [],
+			"targetStressDamage": 0,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "1Node5620",
+			"title": "Personal Email",
+			"coords": [0.0,-2.0],
+			"locked": false,
+			"content": "Darrell recently purchased a copy of the Anarchist's Cookbook on Kindle, then forwarded the confirmation email to his friend William with the subject line \"lmao look this sum spicy sh*t.\" You also find copies of his bank account statements forwarded to his email, but they'll take time to read through.",
+			"summary": "Darrell recently bought a copy of the Anarchist's Cookbook on Kindle.",
+			"children": ["1Node8128"],
+			"targetStressDamage": 0,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[0,-2], [0,-3], [0,-4], [-1,-4]]],
+			"connectorTypes": [["S", "NS", "NW", "E"]]
+		},
+		{
+			"nodeName": "1Node8128",
+			"title": "Bank Account Statements",
+			"coords": [-1.0,-4.0],
+			"locked": false,
+			"content": "Turns out Darrell has spent a LOT of money on strange eBook purchases. You check and find that he's posted about each one on social media, including the Anarchist's Cookbook, and his reviews seem to be a source of internet infamy. Unfortunately, that cat is out of the bag already.\n\nThere are also regular charges for a website domain, the URL for which is listed in the charge descriptions. But when you visit the website, it's hidden behind a password. This is the one thing there's no mention of on his social media... what's he hiding?",
+			"summary": "Darrell seems to pay for the maintenance of a website domain, one that is locked and not mentioned at all on his social media.",
+			"children": ["2Node5535"],
+			"targetStressDamage": 5,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[-1,-4], [-1,-5], [-2,-5], [-3,-5]]],
+			"connectorTypes": [["S", "NW", "EW", "E"]]
+		},
+		{
+			"nodeName": "2Node5535",
+			"title": "Locked Website",
+			"coords": [-3.0,-5.0],
+			"locked": true,
+			"content": "No wonder he wanted to keep this hidden - it's a website dedicated purely to mocking other Torchlight employees. Although Darrell appears to be the administrator, there is a sizable community, although everyone else is anonymous. The things Darrell says here about his coworkers and bosses are pretty terrible - definitely the kind of thing he wouldn't want to see the light of day.",
+			"summary": "Darrell runs a website dedicated to mocking fellow Torchlight employees and is very active on it.",
+			"children": [],
+			"targetStressDamage": 20,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}

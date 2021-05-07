@@ -1,0 +1,27 @@
+{
+	"targetName": "Harvey Tennison",
+	"isMale": true,
+	"isGeneric": false,
+	"paranoia": 3,
+	"maxStress": 150,
+	"traits": [],
+	"firstNodes": ["1Node5"],
+	"firstConnectors": [[[0,0], [0,1], [0,2]]],
+	"firstConnectorTypes": [["N", "SN", "S"]],
+	"pod": 	[
+		{
+			"nodeName": "1Node5",
+			"title": "Online Search",
+			"coords": [0.0,2.0],
+			"locked": false,
+			"content": "Harvey's online presence is... well, nonexistent. It seems like he's extremely conscientious about personal security - you'll probably have to find another way to get to him. His wife, Caroline Tennison, isn't a Torchlight employee, but you can't afford to be picky when she looks like your only way in.",
+			"summary": "",
+			"children": [],
+			"targetStressDamage": 0,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}
