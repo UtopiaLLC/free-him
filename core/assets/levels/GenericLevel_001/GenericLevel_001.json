@@ -1,0 +1,6 @@
+{
+	"name": "GenericLevel_001",
+	"dims": [40, 40],
+	"targets": ["GradIan.json", "AdaGrad.json", "AdamNestrov.json"],
+	"targetLocs": [[-4, 0], [4, 0], [0, -2]]
+}
