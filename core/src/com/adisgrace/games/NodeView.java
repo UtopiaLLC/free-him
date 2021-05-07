@@ -221,7 +221,7 @@ public class NodeView {
         // Unscanned Nodes
         unscannedNodes = new Array<>();
 
-        Texture node = new Texture("node/N_UnscannedNode_1.png");
+        Texture node = new Texture("node/N_UnscannedNodeLow_1.png");
         regions = new TextureRegion(node).split(
                 node.getWidth() / 10,
                 node.getHeight() / 6);
@@ -256,7 +256,7 @@ public class NodeView {
 //        System.out.println("Unscanned nodes done!");
         //Scanned Nodes!
         scannedNodes = new Array<>();
-        node = new Texture("node/N_ScannedNode_2.png");
+        node = new Texture("node/N_ScannedNodeLow_1.png");
         regions = new TextureRegion(node).split(
                 node.getWidth() / 10,
                 node.getHeight() / 6);
