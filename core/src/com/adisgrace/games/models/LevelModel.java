@@ -2,6 +2,7 @@ package com.adisgrace.games.models;
 
 import java.util.*;
 
+import com.adisgrace.games.util.GameConstants;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -76,7 +77,7 @@ public class LevelModel {
 
     // Dimensions of level grid
     private int n_rows, n_cols;
-    private static final int DEFAULT_LEVEL_DIM = 20;
+
 
     /** Enumeration representing the game's current state */
     protected enum GAMESTATE{
@@ -124,8 +125,8 @@ public class LevelModel {
             n_cols = dims[0];
             n_rows = dims[1];
         } else {
-            n_cols = DEFAULT_LEVEL_DIM;
-            n_rows = DEFAULT_LEVEL_DIM;
+            n_cols = GameConstants.DEFAULT_LEVEL_DIM;
+            n_rows = GameConstants.DEFAULT_LEVEL_DIM;
         }
 
         //binds each target string to a location in the level

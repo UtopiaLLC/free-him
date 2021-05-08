@@ -1,0 +1,64 @@
+	{
+	"targetName": "Adam",
+	"paranoia": 3,
+	"maxStress": 50,
+	"traits": [],
+	"firstNodes": ["2Node5", "2Node4", "1Node8", "2Node3"],
+	"firstConnectors": [[[0,0], [0,1], [0,2], [0,3], [0,4], [1,4], [2,4], [3,4], [3,5]], [[0,0], [0,1], [0,2], [0,3], [0,4], [-1,4], [-2,4], [-3,4], [-3,5]], [[0,0], [0,-1], [0,-2]], [[0,0], [0,1], [0,2], [0,3], [0,4], [0,5]]],
+	"firstConnectorTypes": [["N", "SN", "SN", "SN", "SE", "WE", "WE", "WN", "S"], ["N", "SN", "SN", "SN", "SW", "EW", "EW", "EN", "S"], ["S", "NS", "N"], ["N", "SN", "SN", "SN", "SN", "S"]],
+	"pod": 	[
+{
+		"nodeName": "2Node5",
+		"title": "",
+		"coords": [3.0,5.0],
+		"locked": true,
+		"content": "",
+		"summary": "",
+		"children": [],
+		"targetStressDamage": 0,
+		"playerStressDamage": 0,
+		"connectorCoords": [],
+		"connectorTypes": []
+	},
+{
+		"nodeName": "2Node4",
+		"title": "",
+		"coords": [-3.0,5.0],
+		"locked": true,
+		"content": "",
+		"summary": "",
+		"children": [],
+		"targetStressDamage": 0,
+		"playerStressDamage": 0,
+		"connectorCoords": [],
+		"connectorTypes": []
+	},
+{
+		"nodeName": "1Node8",
+		"title": "Public Available Fact",
+		"coords": [0.0,-2.0],
+		"locked": false,
+		"content": "",
+		"summary": "",
+		"children": [],
+		"targetStressDamage": 0,
+		"playerStressDamage": 0,
+		"connectorCoords": [],
+		"connectorTypes": []
+	},
+{
+		"nodeName": "2Node3",
+		"title": "",
+		"coords": [0.0,5.0],
+		"locked": true,
+		"content": "",
+		"summary": "",
+		"children": [],
+		"targetStressDamage": 0,
+		"playerStressDamage": 0,
+		"connectorCoords": [],
+		"connectorTypes": []
+	}
+	],
+	"combos": []
+}

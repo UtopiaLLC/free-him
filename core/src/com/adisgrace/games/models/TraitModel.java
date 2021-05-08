@@ -58,16 +58,6 @@ public class TraitModel {
         // Implemented by Tony Zhang
     }
 
-    /** How much stress the therapist heals */
-    public static final int HEALING_CONST = 3;
-    /** What percentage stress is being spread by the target */
-    public static final float GOSSIP_CONST = .30f;
-    /** How much stress off-putting targets deal*/
-    public static final float OFF_PUTTING_CONST = 5;
-    /** How much suspicion a target goes up by every turn for naturally suspicious*/
-    public static final float NATURALLY_SUSPICIOUS_CONST = 5;
-    /** Stress multiplier for sensitive targets*/
-    public static final float SENSITIVE_MULTIPLIER = 1.15f;
     /** Traits of a target, stored as an arrayList of Traits */
     private ArrayList<Trait> traits;
     /** Whether this target's traits are frozen or not. When frozen none of the traits are effective*/
