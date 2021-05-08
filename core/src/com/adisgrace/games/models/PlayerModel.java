@@ -4,7 +4,6 @@ import java.lang.annotation.Target;
 import java.util.Random;
 
 public class PlayerModel {
-
 	//TODO: balancing
 	private final int DAILY_AP = 6;
 
@@ -17,8 +16,8 @@ public class PlayerModel {
 	public static final int GASLIGHT_AP_COST = 2;
 	public static final int DISTRACT_AP_COST = 2;
 
-	private final float STARTING_STRESS = 15;
-	private final float MAX_STRESS = 100;
+	public static final float STARTING_STRESS = 15;
+	public static final float MAX_STRESS = 100;
 	private final float DREAM_STRESS_STDEV = 5;
 
 	private final float STARTING_BITECOIN = 30;
@@ -176,7 +175,7 @@ public class PlayerModel {
 	 */
 	public boolean nextTurn() {
 		this.overworked_today = false;
-		this.action_points = Math.max(DAILY_AP, action_points);
+		this.action_points = DAILY_AP;
 		this.decrementBitecoin(DAILY_BITECOIN_COST);
 		this.incrementStress((float)rng.nextGaussian() * DREAM_STRESS_STDEV);
 		this.stress = Math.max(0f, this.stress);

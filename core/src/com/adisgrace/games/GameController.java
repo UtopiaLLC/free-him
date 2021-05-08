@@ -146,7 +146,8 @@ public class GameController implements Screen {
     /** dialog box for blackmail commands*/
     public static Dialog blackmailDialog;
     /** progress bar that tracks the stress level of players*/
-    private ProgressBar stressBar;
+//    private ProgressBar stressBar;
+    private FillBar stressBar;
     /** label for the amount of bitecoin a player has*/
     private Label bitecoinAmount;
     /** shapeRenderer for grid lines, may not be needed anymore*/
@@ -682,8 +683,15 @@ public class GameController implements Screen {
         inputMultiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(inputMultiplexer);
 
-        stressBar = new ProgressBar(0f, 100f, 1f, true, skin, "synthwave");
-        stressBar.setValue(levelController.getPlayerStress());
+//        stressBar = new ProgressBar(0f, 100f, 1f, true, skin, "synthwave");
+        stressBar = new FillBar(
+                new Texture(Gdx.files.internal("UI/UI_StressBar_2.png")),
+                new Texture(Gdx.files.internal("UI/StressBarFill.png")),
+                true, 7, 7
+        );
+//        stressBar.setValue(levelController.getPlayerStress());
+//        stressBar.setFillAmount(levelController.getPlayerStress()/100f);
+//        stressBar.setFillAmount(1f);
 
         uiController.createExpose(ic, createConfirmRunnable("expose"));
         uiController.createRelax(ic, createConfirmRunnable("relax"));
@@ -701,6 +709,7 @@ public class GameController implements Screen {
         Table toolbar = createToolbarTable(end, settings, notebook);
         toolbarStage.addActor(toolbar);
         toolbarStage.addActor(createStats());
+        toolbarStage.addActor(stressBar);
     }
 
     /**
@@ -768,7 +777,9 @@ public class GameController implements Screen {
     private Table createLeftsideTable(Table toolbar) {
         Table leftSide = new Table();
         leftSide.setSize(toolbar.getWidth()*.25f, toolbar.getHeight());
-        leftSide.add(stressBar).left().width(75).height(244);
+//        leftSide.add(stressBar).left().width(75).height(244);
+//        leftSide.add(stressBar).left();
+        leftSide.add(new Image()).left().width(100).height(244);
         leftSide.add(createBitecoinStack());
         return leftSide;
     }
@@ -1154,7 +1165,9 @@ public class GameController implements Screen {
      * Updates the stats HUD with current values
      */
     public void updateStats(){
-        stressBar.setValue(levelController.getPlayerStress());
+//        stressBar.setValue(levelController.getPlayerStress());
+        stressBar.setFillAmount(levelController.getPlayerStress()/PlayerModel.MAX_STRESS);
+//        stressBar.setFillAmount(1f);
         bitecoinAmount.setText(Integer.toString((int)levelController.getPlayerCurrency()));
 //        ap.setText("AP: " + Integer.toString(levelController.getAP()));
         displayedAP.remove();
