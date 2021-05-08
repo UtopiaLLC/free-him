@@ -16,7 +16,7 @@ public class PlayerModel {
 	public static final int GASLIGHT_AP_COST = 2;
 	public static final int DISTRACT_AP_COST = 2;
 
-	public static final float STARTING_STRESS = 99;
+	public static final float STARTING_STRESS = 15;
 	public static final float MAX_STRESS = 100;
 	private final float DREAM_STRESS_STDEV = 5;
 

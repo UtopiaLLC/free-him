@@ -47,20 +47,12 @@ public class FillBar extends Group {
         super();
         this.empty_border = bottom;
         this.full_border = offsets ? top : fill.getHeight() - top;
-        System.out.println("Empty at " + this.empty_border + ", full at " + this.full_border);
         this.fill_amount = fill_amount;
-//        this.fill_asset = new TextureRegionDrawable(new TextureRegion(fill, fill.getWidth(),
-//                empty_pix + (int)(this.fill_amount * (this.full_pix - this.empty_pix))));
         int empty = full_border + (int)((1 - this.fill_amount) * (fill.getHeight() - this.full_border - this.empty_border));
-//        empty = full_border;
-//        System.out.println((fill.getHeight() - this.full_border - this.empty_border));
-//        this.fill_asset = new TextureRegionDrawable(new TextureRegion(fill, 0,-empty,
-//                fill.getWidth(), fill.getHeight()+empty));
         this.fill_asset = new TextureRegionDrawable(new TextureRegion(fill, 0, empty,
                 fill.getWidth(), fill.getHeight()));
         this.fill = new Image(this.fill_asset);
         this.fill.setY(-empty);
-//        this.fill = new Image(fill);
         this.outline = new Image(new TextureRegion(outline));
         this.addActor(this.fill);
         this.addActor(this.outline);
@@ -72,15 +64,9 @@ public class FillBar extends Group {
 
     public void setFillAmount(float fill_amount) {
         this.fill_amount = fill_amount;
-        System.out.println(fill_amount);
-//        this.fill_asset.getRegion().setRegionHeight((int)(this.fill_amount * (this.full_pix - this.empty_pix)));
         int empty = full_border + (int)((1 - this.fill_amount) * (fill.getHeight() - this.full_border - this.empty_border));
-//        empty = full_border;
-//        fill_asset.getRegion().setRegion(0, -empty, (int)fill.getWidth(), (int)fill.getHeight()+empty);
         fill_asset.getRegion().setRegion(0, empty, (int)fill.getWidth(), (int)fill.getHeight());
-        this.fill.setDrawable(fill_asset);
+//        this.fill.setDrawable(fill_asset);
         this.fill.setY(-empty);
-//        System.out.println("Fill height " + this.fill_asset.getRegion().getRegionHeight());
-//        System.out.println(empty+" empty");
     }
 }
