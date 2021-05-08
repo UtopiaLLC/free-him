@@ -1165,7 +1165,7 @@ public class GameController implements Screen {
      */
     public void updateStats(){
 //        stressBar.setValue(levelController.getPlayerStress());
-        stressBar.setFillAmount(levelController.getPlayerStress()/PlayerModel.MAX_STRESS);
+        stressBar.setFillAmount(1-levelController.getPlayerStress()/PlayerModel.MAX_STRESS);
 //        stressBar.setFillAmount(1f);
         bitecoinAmount.setText(Integer.toString((int)levelController.getPlayerCurrency()));
 //        ap.setText("AP: " + Integer.toString(levelController.getAP()));
