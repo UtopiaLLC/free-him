@@ -1,6 +1,7 @@
 package com.adisgrace.games;
 
 import com.adisgrace.games.models.TargetModel;
+import com.adisgrace.games.util.GameConstants;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -28,10 +29,6 @@ public class NodeView {
      */
     private Map<String, Node> imageNodes;
 
-    /** Dimensions of map tile */
-    private static final int TILE_HEIGHT = 256;
-    private static final int TILE_WIDTH = 444;
-
     /** Array of sprites for locked nodes*/
     public static Array<TextureRegion> lockedNodes;
     /** Array of sprites for unscanned nodes*/
@@ -44,11 +41,6 @@ public class NodeView {
     public static Array<TextureRegion> nodeBases;
     /** Array of sprites for target bases */
     public static Array<TextureRegion> targetBases;
-
-    private static final float ADD = 0;
-    private static final float SCALE_X = 444;
-    private static final float SCALE_Y = 256;
-    private static final float LOCKED_OFFSET = 114.8725f;
 
     public NodeView(Stage stage, TargetModel target, Array<String> targetNodes, Vector2 targetCoords,
                     Array<Boolean> locked) {
@@ -119,8 +111,8 @@ public class NodeView {
             //ImageButton button = new ImageButton(NodeView.getLockedNode(0)); //Set the button up
             Vector2 pos = isometricToWorld(nodeCoords.get(i));
             // Account for difference between tile width and sprite width
-            pos.x -= (NodeView.getLockedNode(0).getRegionWidth() - TILE_WIDTH) / 2;
-            pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+            pos.x -= (NodeView.getLockedNode(0).getRegionWidth() - GameConstants.TILE_WIDTH) / 2;
+            pos.y += ((GameConstants.TILE_HEIGHT / 2) - GameConstants.LOCKED_OFFSET) * 2;
 
             Node.NodeState state;
             if(lockedNodes.get(i)) {
@@ -136,8 +128,8 @@ public class NodeView {
 
         //ImageButton button = new ImageButton(NodeView.getTargetNode(0)); //Set the button up
         Vector2 pos = isometricToWorld(targetCoords);
-        pos.x -= (NodeView.getTargetBase(0).getRegionWidth() - TILE_WIDTH) / 2;
-        pos.y += ((TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+        pos.x -= (NodeView.getTargetBase(0).getRegionWidth() - GameConstants.TILE_WIDTH) / 2;
+        pos.y += ((GameConstants.TILE_HEIGHT / 2) - GameConstants.LOCKED_OFFSET) * 2;
 
 
         Node targetNode = new Node(pos.x, pos.y, target.getName(), 1, Node.NodeState.TARGET);
@@ -155,8 +147,8 @@ public class NodeView {
     private Vector2 isometricToWorld(Vector2 coords) {
         float tempx = coords.x;
         float tempy = coords.y;
-        coords.x = tempx * (0.5f * TILE_WIDTH) + tempy * (0.5f * TILE_WIDTH);
-        coords.y = -tempx * (0.5f * TILE_HEIGHT) + tempy * (0.5f * TILE_HEIGHT);
+        coords.x = tempx * (0.5f * GameConstants.TILE_WIDTH) + tempy * (0.5f * GameConstants.TILE_WIDTH);
+        coords.y = -tempx * (0.5f * GameConstants.TILE_HEIGHT) + tempy * (0.5f * GameConstants.TILE_HEIGHT);
 
         return coords;
     }
@@ -179,12 +171,12 @@ public class NodeView {
         y = vec.y;
 
         // Find the nearest isometric center
-        x = Math.round(x / TILE_HEIGHT);
-        y = Math.round(y / TILE_HEIGHT);
+        x = Math.round(x / GameConstants.TILE_HEIGHT);
+        y = Math.round(y / GameConstants.TILE_HEIGHT);
 
         // Transform back to world space
-        vec.set(x * (0.5f * TILE_WIDTH) + y * (0.5f * TILE_WIDTH),
-                -x * (0.5f * TILE_HEIGHT) + y * (0.5f * TILE_HEIGHT));
+        vec.set(x * (0.5f * GameConstants.TILE_WIDTH) + y * (0.5f * GameConstants.TILE_WIDTH),
+                -x * (0.5f * GameConstants.TILE_HEIGHT) + y * (0.5f * GameConstants.TILE_HEIGHT));
 
         return vec;
     }

@@ -1,42 +1,13 @@
 package com.adisgrace.games.models;
 
+import com.adisgrace.games.util.GameConstants;
+
 import java.lang.annotation.Target;
 import java.util.Random;
 
 public class PlayerModel {
 
 	//TODO: balancing
-	private final int DAILY_AP = 6;
-
-	public static final int HACK_AP_COST = 2;
-	public static final int SCAN_AP_COST = 2;
-	public static final int THREATEN_AP_COST = 2;
-	public static final int COERCE_AP_COST = 2;
-	public static final int HARASS_AP_COST = 2;
-	public static final int EXPOSE_AP_COST = 3;
-	public static final int GASLIGHT_AP_COST = 2;
-	public static final int DISTRACT_AP_COST = 2;
-
-	private final float STARTING_STRESS = 15;
-	private final float MAX_STRESS = 100;
-	private final float DREAM_STRESS_STDEV = 5;
-
-	private final float STARTING_BITECOIN = 30;
-	private final float DAILY_BITECOIN_COST = 10;
-	private final float SCAN_BITECOIN_CHANCE = 10;
-	private final float SCAN_BITECOIN = 10;
-
-	private final int OVERWORK_AP = 2;
-	private final float OVERWORK_STRESS_MEAN = 15;
-	private final float OVERWORK_STRESS_STDEV = 3;
-
-	private final float RELAX_STRESS_MEAN = 6;
-	private final float RELAX_STRESS_STDEV = 2;
-
-	private final float VTUBE_INCOME_MEAN = 20;
-	private final float VTUBE_INCOME_STDEV = 5;
-	private final int VTUBE_AP_COST = 3;
-
 	private int action_points;
 	private float stress;
 	private float bitecoin;
@@ -45,9 +16,9 @@ public class PlayerModel {
 	private boolean overworked_today;
 
 	public PlayerModel() {
-		this.action_points = DAILY_AP;
-		this.stress = STARTING_STRESS;
-		this.bitecoin = STARTING_BITECOIN;
+		this.action_points = GameConstants.DAILY_AP;
+		this.stress = GameConstants.STARTING_STRESS;
+		this.bitecoin = GameConstants.STARTING_BITECOIN;
 		this.rng = new Random();
 
 		this.overworked_today = false;
@@ -75,7 +46,7 @@ public class PlayerModel {
 		Reset action points to daily amount
 	*/
 	public void resetAP() {
-		this.action_points = DAILY_AP;
+		this.action_points = GameConstants.DAILY_AP;
 	}
 
 	/**
@@ -119,7 +90,7 @@ public class PlayerModel {
 	*/
 	public boolean incrementStress(float increment) {
 		this.stress += increment;
-		return (this.stress < MAX_STRESS);
+		return (this.stress < GameConstants.MAX_STRESS);
 	}
 
 	/**
@@ -167,7 +138,7 @@ public class PlayerModel {
 		@return is the player alive
 	*/
 	public boolean isLiving() {
-		return (this.stress < MAX_STRESS) && ((int)this.bitecoin > 0);
+		return (this.stress < GameConstants.MAX_STRESS) && ((int)this.bitecoin > 0);
 	}
 
 	/**
@@ -176,9 +147,9 @@ public class PlayerModel {
 	 */
 	public boolean nextTurn() {
 		this.overworked_today = false;
-		this.action_points = Math.max(DAILY_AP, action_points);
-		this.decrementBitecoin(DAILY_BITECOIN_COST);
-		this.incrementStress((float)rng.nextGaussian() * DREAM_STRESS_STDEV);
+		this.action_points = Math.max(GameConstants.DAILY_AP, action_points);
+		this.decrementBitecoin(GameConstants.DAILY_BITECOIN_COST);
+		this.incrementStress((float)rng.nextGaussian() * GameConstants.DREAM_STRESS_STDEV);
 		this.stress = Math.max(0f, this.stress);
 		return this.isLiving();
 	}
@@ -194,8 +165,8 @@ public class PlayerModel {
 		if(overworked_today)
 			throw new RuntimeException("Already overworked today");
 		overworked_today = true;
-		this.action_points += OVERWORK_AP;
-		return this.incrementStress((float)Math.max(OVERWORK_STRESS_MEAN + rng.nextGaussian() * OVERWORK_STRESS_STDEV, 0));
+		this.action_points += GameConstants.OVERWORK_AP;
+		return this.incrementStress((float)Math.max(GameConstants.OVERWORK_STRESS_MEAN + rng.nextGaussian() * GameConstants.OVERWORK_STRESS_STDEV, 0));
 	}
 
 	/**
@@ -229,9 +200,9 @@ public class PlayerModel {
 	 * @return the amount of currency earned
 	 */
 	public float vtube(){
-		float amount = (float)(VTUBE_INCOME_MEAN + rng.nextGaussian() * VTUBE_INCOME_STDEV);
+		float amount = (float)(GameConstants.VTUBE_INCOME_MEAN + rng.nextGaussian() * GameConstants.VTUBE_INCOME_STDEV);
 		this.incrementBitecoin(amount);
-		this.decrementAP(VTUBE_AP_COST);
+		this.decrementAP(GameConstants.VTUBE_AP_COST);
 		return amount;
 	}
 
@@ -239,7 +210,7 @@ public class PlayerModel {
 	 * @return can the player vtube
 	 */
 	public boolean canVtube() {
-		return this.action_points >= VTUBE_AP_COST;
+		return this.action_points >= GameConstants.VTUBE_AP_COST;
 	}
 
 	/**
@@ -250,9 +221,9 @@ public class PlayerModel {
 	public void hack(TargetModel t) {
 		if (t.getTraits().is_technologically_illiterate()){
 			// costs 1 less AP if is_technologically_illiterate
-			this.decrementAP(HACK_AP_COST - 1);
+			this.decrementAP(GameConstants.HACK_AP_COST - 1);
 		}else{
-			this.decrementAP(HACK_AP_COST);
+			this.decrementAP(GameConstants.HACK_AP_COST);
 		}
 	}
 
@@ -264,9 +235,9 @@ public class PlayerModel {
 	public boolean canHack(TargetModel t) {
 		if (t.getTraits().is_technologically_illiterate()){
 			// costs 1 less AP if is_technologically_illiterate
-			return this.action_points >= (HACK_AP_COST - 1);
+			return this.action_points >= (GameConstants.HACK_AP_COST - 1);
 		}else {
-			return this.action_points >= HACK_AP_COST;
+			return this.action_points >= GameConstants.HACK_AP_COST;
 		}
 	}
 
@@ -279,14 +250,14 @@ public class PlayerModel {
 	public boolean scan(float san_cost, TargetModel t){
 		if (t.getTraits().is_technologically_illiterate()){
 			// costs 1 less AP if is_technologically_illiterate
-			this.decrementAP(SCAN_AP_COST - 1);
+			this.decrementAP(GameConstants.SCAN_AP_COST - 1);
 		}else {
-			this.decrementAP(SCAN_AP_COST);
+			this.decrementAP(GameConstants.SCAN_AP_COST);
 		}
-		if(rng.nextInt(100) < SCAN_BITECOIN_CHANCE){
+		if(rng.nextInt(100) < GameConstants.SCAN_BITECOIN_CHANCE){
 			if(t.getTraits().is_rich())
-				this.incrementBitecoin(SCAN_BITECOIN * 2);
-			else this.incrementBitecoin(SCAN_BITECOIN);
+				this.incrementBitecoin(GameConstants.SCAN_BITECOIN * 2);
+			else this.incrementBitecoin(GameConstants.SCAN_BITECOIN);
 		}
 		return this.incrementStress(san_cost);
 	}
@@ -299,9 +270,9 @@ public class PlayerModel {
 	public boolean canScan(TargetModel t) {
 		if (t.getTraits().is_technologically_illiterate()){
 			// costs 1 less AP if is_technologically_illiterate
-			return this.action_points >= (SCAN_AP_COST - 1);
+			return this.action_points >= (GameConstants.SCAN_AP_COST - 1);
 		}else {
-			return this.action_points >= SCAN_AP_COST;
+			return this.action_points >= GameConstants.SCAN_AP_COST;
 		}
 	}
 
@@ -313,9 +284,9 @@ public class PlayerModel {
 	public void coerce(TargetModel t) {
 		if (t.getTraits().is_bad_connection()){
 			// Costs 1 more AP if target is bad_connection
-			this.decrementAP(COERCE_AP_COST + 1);
+			this.decrementAP(GameConstants.COERCE_AP_COST + 1);
 		}else{
-			this.decrementAP(COERCE_AP_COST);
+			this.decrementAP(GameConstants.COERCE_AP_COST);
 		}
 	}
 
@@ -327,9 +298,9 @@ public class PlayerModel {
 	public boolean canCoerce(TargetModel t) {
 		if (t.getTraits().is_bad_connection()){
 			// Costs 1 more AP if target is bad_connection
-			return this.action_points >= (COERCE_AP_COST + 1);
+			return this.action_points >= (GameConstants.COERCE_AP_COST + 1);
 		}else{
-			return this.action_points >= COERCE_AP_COST;
+			return this.action_points >= GameConstants.COERCE_AP_COST;
 		}
 	}
 
@@ -341,14 +312,14 @@ public class PlayerModel {
 	public void harass(TargetModel t) {
 		if (t.getTraits().is_bad_connection()){
 			// Costs 1 more AP if target is bad_connection
-			this.decrementAP(HARASS_AP_COST + 1);
+			this.decrementAP(GameConstants.HARASS_AP_COST + 1);
 		}else{
-			this.decrementAP(HARASS_AP_COST);
+			this.decrementAP(GameConstants.HARASS_AP_COST);
 		}
 
 		//If off-putting, increase player stress by a random amount
 		if(t.getTraits().is_off_putting()){
-			this.incrementStress(TraitModel.OFF_PUTTING_CONST);
+			this.incrementStress(GameConstants.OFF_PUTTING_CONST);
 		}
 	}
 
@@ -359,10 +330,10 @@ public class PlayerModel {
 	 */
 	public boolean canHarass(TargetModel t) {
 		if (t.getTraits().is_bad_connection()){
-			return this.action_points >= (HARASS_AP_COST + 1);
+			return this.action_points >= (GameConstants.HARASS_AP_COST + 1);
 			// Costs 1 more AP if target is bad_connection
 		}else{
-			return this.action_points >= HARASS_AP_COST;
+			return this.action_points >= GameConstants.HARASS_AP_COST;
 		}
 	}
 
@@ -374,9 +345,9 @@ public class PlayerModel {
 	public void threaten(TargetModel t) {
 		if (t.getTraits().is_bad_connection()){
 			// Costs 1 more AP if target is bad_connection
-			this.decrementAP(THREATEN_AP_COST + 1);
+			this.decrementAP(GameConstants.THREATEN_AP_COST + 1);
 		}else{
-			this.decrementAP(THREATEN_AP_COST);
+			this.decrementAP(GameConstants.THREATEN_AP_COST);
 		}
 	}
 
@@ -388,9 +359,9 @@ public class PlayerModel {
 	public boolean canThreaten(TargetModel t) {
 		if (t.getTraits().is_bad_connection()){
 			// Costs 1 more AP if target is bad_connection
-			return this.action_points >= (THREATEN_AP_COST + 1);
+			return this.action_points >= (GameConstants.THREATEN_AP_COST + 1);
 		}else{
-			return this.action_points >= THREATEN_AP_COST;
+			return this.action_points >= GameConstants.THREATEN_AP_COST;
 		}
 	}
 
@@ -402,9 +373,9 @@ public class PlayerModel {
 	public void expose(TargetModel t) {
 		if (t.getTraits().is_bad_connection()){
 			// Costs 1 more AP if target is bad_connection
-			this.decrementAP(EXPOSE_AP_COST + 1);
+			this.decrementAP(GameConstants.EXPOSE_AP_COST + 1);
 		}else {
-			this.decrementAP(EXPOSE_AP_COST);
+			this.decrementAP(GameConstants.EXPOSE_AP_COST);
 		}
 	}
 
@@ -416,15 +387,15 @@ public class PlayerModel {
 	public boolean canExpose(TargetModel t) {
 		if (t.getTraits().is_bad_connection()){
 			// Costs 1 more AP if target is bad_connection
-			return this.action_points >= (EXPOSE_AP_COST + 1);
+			return this.action_points >= (GameConstants.EXPOSE_AP_COST + 1);
 		}else {
-			return this.action_points >= EXPOSE_AP_COST;
+			return this.action_points >= GameConstants.EXPOSE_AP_COST;
 		}
 	}
 
 	public void gaslight(TargetModel t){
-		if(t.getTraits().is_bad_connection()) this.decrementAP(GASLIGHT_AP_COST + 1);
-		else this.decrementAP(GASLIGHT_AP_COST);
+		if(t.getTraits().is_bad_connection()) this.decrementAP(GameConstants.GASLIGHT_AP_COST + 1);
+		else this.decrementAP(GameConstants.GASLIGHT_AP_COST);
 	}
 
 	/**
@@ -435,16 +406,16 @@ public class PlayerModel {
 	public boolean canGaslight(TargetModel t) {
 		if (t.getTraits().is_bad_connection()){
 			// Costs 1 more AP if target is bad_connection
-			return this.action_points >= (GASLIGHT_AP_COST + 1);
+			return this.action_points >= (GameConstants.GASLIGHT_AP_COST + 1);
 		}else {
-			return this.action_points >= GASLIGHT_AP_COST;
+			return this.action_points >= GameConstants.GASLIGHT_AP_COST;
 		}
 	}
 
 
 	public void distract(TargetModel t){
-		if(t.getTraits().is_bad_connection()) this.decrementAP(DISTRACT_AP_COST + 1);
-		else this.decrementAP(DISTRACT_AP_COST);
+		if(t.getTraits().is_bad_connection()) this.decrementAP(GameConstants.DISTRACT_AP_COST + 1);
+		else this.decrementAP(GameConstants.DISTRACT_AP_COST);
 	}
 
 	/**
@@ -455,9 +426,9 @@ public class PlayerModel {
 	public boolean canDistract(TargetModel t) {
 		if (t.getTraits().is_bad_connection()){
 			// Costs 1 more AP if target is bad_connection
-			return this.action_points >= (DISTRACT_AP_COST + 1);
+			return this.action_points >= (GameConstants.DISTRACT_AP_COST + 1);
 		}else {
-			return this.action_points >= DISTRACT_AP_COST;
+			return this.action_points >= GameConstants.DISTRACT_AP_COST;
 		}
 	}
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 import com.adisgrace.games.util.Connector;
+import com.adisgrace.games.util.GameConstants;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -81,14 +82,6 @@ public class TargetModel {
 	/** Instance of Random class, to be used whenever a random number is needed */
 	private Random rand;
 
-	/** Constant for inverse Paranoia check, made every (INV_PARANOIA_CONSTANT - paranoia) turns */
-	private static final int INV_PARANOIA_CONSTANT = 7;
-	/** Constants for low/medium/high suspicion */
-	private static final int SUSPICION_LOW = 15;
-	private static final int SUSPICION_MED = 25;
-	private static final int SUSPICION_HIGH = 35;
-	/** Constant for multiplier that stress damage is multiplied by for expose */
-	private static final float EXPOSE_MULTIPLIER = 2.5f;
 
 	/************************************************* TARGET CONSTRUCTOR *************************************************/
 
@@ -429,7 +422,7 @@ public class TargetModel {
 	 * Reduce the stress of a target by a certain amount with therapy
 	 * */
 	public void therapy(){
-		stress -= TraitModel.HEALING_CONST;
+		stress -= GameConstants.HEALING_CONST;
 		if (stress < 0) stress = 0;
 	}
 
@@ -437,7 +430,7 @@ public class TargetModel {
 	 * The amount of suspicion give to other targets from this target, at least 1
 	 * */
 	public int spread_gossip(){
-		return Math.max((int)(suspicion*TraitModel.GOSSIP_CONST), 1);
+		return Math.max((int)(suspicion*GameConstants.GOSSIP_CONST), 1);
 	}
 
 	/**
@@ -461,7 +454,7 @@ public class TargetModel {
 	 */
 	public boolean addStress(int s) {
 		//multiplies stress if target is sensitive
-		stress += (this.traits.is_sensitive()?TraitModel.SENSITIVE_MULTIPLIER:1)*s;
+		stress += (this.traits.is_sensitive()?GameConstants.SENSITIVE_MULTIPLIER:1)*s;
 		// If target's stress reaches or passes their maxStress, they're defeated
 		if (stress >= maxStress) {
 			state = TargetState.DEFEATED;
@@ -509,7 +502,7 @@ public class TargetModel {
 			traits.freeze();
 			distractedTurns = paranoia;
 		}else{
-			addSuspicion(SUSPICION_LOW);
+			addSuspicion(GameConstants.SUSPICION_LOW);
 		}
 		return success;
 	}
@@ -542,7 +535,7 @@ public class TargetModel {
 			// If suspicion check succeeds, move target to Suspicious
 			state = TargetState.SUSPICIOUS;
 			// Set countdown for inverse paranoia, as a more paranoid target would remain suspicious longer
-			countdown = INV_PARANOIA_CONSTANT - paranoia;
+			countdown = GameConstants.INV_PARANOIA_CONSTANT - paranoia;
 		}
 
 		countdown--;
@@ -551,7 +544,7 @@ public class TargetModel {
 
 		//if target is naturally suspicious and has raised suspicion before, increase suspicion
 		if(this.getTraits().is_naturally_suspicious() && naturallySuspiciousCheck){
-			addSuspicion((int)TraitModel.NATURALLY_SUSPICIOUS_CONST);
+			addSuspicion((int)GameConstants.NATURALLY_SUSPICIOUS_CONST);
 		}
 
 		// Otherwise, handle Paranoia check depending on state
@@ -751,7 +744,7 @@ public class TargetModel {
 			state = TargetState.PARANOID;
 			countdown = paranoia;
 		}
-		addSuspicion(randInRange(SUSPICION_LOW , 30));
+		addSuspicion(randInRange(GameConstants.SUSPICION_LOW , 30));
 	}
 
 	/**
@@ -764,7 +757,7 @@ public class TargetModel {
 			state = TargetState.PARANOID;
 			countdown = paranoia;
 		}
-		addSuspicion(randInRange(SUSPICION_LOW , 50));
+		addSuspicion(randInRange(GameConstants.SUSPICION_LOW , 50));
 	}
 
 	/**
@@ -785,7 +778,7 @@ public class TargetModel {
 		//TODO: edit effectiveness of the stress damage to be scaled more than 2 in certain cases
 		getFactNode(fact).setTargetStressDmg(Math.max(stressDmg-2, 0));
 		// Increase target's suspicion by a low amount
-		addSuspicion(randInRange(SUSPICION_LOW, 25));
+		addSuspicion(randInRange(GameConstants.SUSPICION_LOW, 25));
 		naturallySuspiciousCheck = true;
 		// If fact deals threaten damage above a critical threshold
 		if (stressDmg > 5) {
@@ -817,7 +810,7 @@ public class TargetModel {
 		FactNode factNode = getFactNode(fact);
 		int stressDmg = factNode.getTargetStressDmg();
 		// Increase target's suspicion by a medium amount
-		addSuspicion(randInRange(SUSPICION_MED, 25));
+		addSuspicion(randInRange(GameConstants.SUSPICION_MED, 25));
 		naturallySuspiciousCheck = true;
 		// If exposing deals nonzero damage
 		if (stressDmg != 0) {
@@ -830,7 +823,7 @@ public class TargetModel {
 			countdown = paranoia;
 		}
 		// Return amount of damage dealt, multiplied by expose multiplier
-		return (int)(stressDmg * EXPOSE_MULTIPLIER);
+		return (int)(stressDmg * GameConstants.EXPOSE_MULTIPLIER);
 	}
 
 

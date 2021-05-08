@@ -1,6 +1,84 @@
 package com.adisgrace.games.util;
 
 public final class GameConstants {
+    /************************************************* LevelModel **************************************************/
+
+    public static final int DEFAULT_LEVEL_DIM = 20;
+
+    /************************************************* TraitModel **************************************************/
+
+    /** How much stress the therapist heals */
+    public static final int HEALING_CONST = 3;
+    /** What percentage stress is being spread by the target */
+    public static final float GOSSIP_CONST = .30f;
+    /** How much stress off-putting targets deal*/
+    public static final float OFF_PUTTING_CONST = 5;
+    /** How much suspicion a target goes up by every turn for naturally suspicious*/
+    public static final float NATURALLY_SUSPICIOUS_CONST = 5;
+    /** Stress multiplier for sensitive targets*/
+    public static final float SENSITIVE_MULTIPLIER = 1.15f;
+
+    /************************************************* TargetModel **************************************************/
+
+    /** Constant for inverse Paranoia check, made every (INV_PARANOIA_CONSTANT - paranoia) turns */
+    public static final int INV_PARANOIA_CONSTANT = 7;
+    /** Constants for low/medium/high suspicion */
+    public static final int SUSPICION_LOW = 15;
+    public static final int SUSPICION_MED = 25;
+    public static final int SUSPICION_HIGH = 35;
+    /** Constant for multiplier that stress damage is multiplied by for expose */
+    public static final float EXPOSE_MULTIPLIER = 2.5f;
+
+    /************************************************* NodeView **************************************************/
+
+    /** Dimensions of map tile */
+    public static final int TILE_HEIGHT = 256;
+    public static final int TILE_WIDTH = 444;
+
+    public static final float ADD = 0;
+    public static final float SCALE_X = 444;
+    public static final float SCALE_Y = 256;
+    public static final float LOCKED_OFFSET = 114.8725f;
+
+    /************************************************* PlayerModel **************************************************/
+
+    public static final int DAILY_AP = 6;
+    public static final int HACK_AP_COST = 2;
+    public static final int SCAN_AP_COST = 2;
+    public static final int THREATEN_AP_COST = 2;
+    public static final int COERCE_AP_COST = 2;
+    public static final int HARASS_AP_COST = 2;
+    public static final int EXPOSE_AP_COST = 3;
+    public static final int GASLIGHT_AP_COST = 2;
+    public static final int DISTRACT_AP_COST = 2;
+
+    public static final float STARTING_STRESS = 15;
+    public static final float MAX_STRESS = 100;
+    public static final float DREAM_STRESS_STDEV = 5;
+
+    public static final float STARTING_BITECOIN = 30;
+    public static final float DAILY_BITECOIN_COST = 10;
+    public static final float SCAN_BITECOIN_CHANCE = 10;
+    public static final float SCAN_BITECOIN = 10;
+
+    public static final int OVERWORK_AP = 2;
+    public static final float OVERWORK_STRESS_MEAN = 15;
+    public static final float OVERWORK_STRESS_STDEV = 3;
+
+    public static final float RELAX_STRESS_MEAN = 6;
+    public static final float RELAX_STRESS_STDEV = 2;
+
+    public static final float VTUBE_INCOME_MEAN = 20;
+    public static final float VTUBE_INCOME_STDEV = 5;
+    public static final int VTUBE_AP_COST = 3;
+
+    /************************************************* MainMenu **************************************************/
+
+    /** Constants for locations of buttons */
+    /** Height of top of menu, relative to canvas height */
+    public static final float MENU_HEIGHT = 0.37f;
+    /** Button scale */
+    public static final float BUTTON_SCALE = 0.8f;
 
     /************************************************* UIController **************************************************/
 
@@ -12,10 +90,6 @@ public final class GameConstants {
 
     public static final int NODE_WORLD_WIDTH = 30;
     public static final int NODE_WORLD_HEIGHT = 30;
-
-    /** Dimensions of map tile */
-    public static final int TILE_HEIGHT = 256;
-    public static final int TILE_WIDTH = 444;
 
     public static final int SCREEN_WIDTH = 1280, SCREEN_HEIGHT = 720;
     public static final int RIGHT_SIDE_HEIGHT = 199;

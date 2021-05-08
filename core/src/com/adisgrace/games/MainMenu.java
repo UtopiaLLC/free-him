@@ -1,5 +1,6 @@
 package com.adisgrace.games;
 
+import com.adisgrace.games.util.GameConstants;
 import com.adisgrace.games.util.ScreenListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -39,12 +40,6 @@ public class MainMenu implements Screen {
             new Texture(Gdx.files.internal("mainmenu/MM_Credits_1.jpg"))
     };
 
-    /** Constants for locations of buttons */
-    /** Height of top of menu, relative to canvas height */
-    private static final float MENU_HEIGHT = 0.37f;
-    /** Button scale */
-    private static final float BUTTON_SCALE = 0.8f;
-
     /*********************************************** CONSTRUCTOR ***********************************************/
     /**
      * Constructor for a main menu.
@@ -66,16 +61,16 @@ public class MainMenu implements Screen {
         // Place buttons
         // Initialize variables to use
         ImageButton button;
-        float height = MENU_HEIGHT;
+        float height = GameConstants.MENU_HEIGHT;
 
         // Go through array of assets for menu buttons and create a button for each
         for (Texture buttonTex : MENU_BUTTON_ASSETS) {
             button = new ImageButton(new TextureRegionDrawable(buttonTex));
             // Set button position to be halfway across the screen horizontally
-            button.setPosition(0.5f * canvas.getWidth() - (buttonTex.getWidth() * BUTTON_SCALE/ 2),
+            button.setPosition(0.5f * canvas.getWidth() - (buttonTex.getWidth() * GameConstants.BUTTON_SCALE/ 2),
                     height * canvas.getHeight());
             button.setTransform(true);
-            button.setScale(BUTTON_SCALE);
+            button.setScale(GameConstants.BUTTON_SCALE);
             stage.addActor(button);
             menuButtons.add(button);
 

@@ -403,7 +403,7 @@ public class LevelEditorController implements Screen {
                 drawable = ADD_NODE_TRD_ORDER[k];
                 button = new ImageButton(drawable);
                 button.setTransform(true);
-                button.setScale(BUTTON_SCALE);
+                button.setScale(GameConstants.BUTTON_SCALE);
                 button.setPosition(TOOLBAR_X_OFFSET, height);
 
                 // Set node type that this button will create
@@ -425,7 +425,7 @@ public class LevelEditorController implements Screen {
             drawable = CHANGE_MODE_TRD_ORDER[k];
             button = new ImageButton(drawable);
             button.setTransform(true);
-            button.setScale(BUTTON_SCALE);
+            button.setScale(GameConstants.BUTTON_SCALE);
             button.setPosition(xlocMode, height);
 
             // For the actual mode creation buttons, do that
@@ -546,7 +546,7 @@ public class LevelEditorController implements Screen {
         y = (int)vec.y;
         // Account for difference between tile width and sprite width
         x -= (im.getWidth() - GameConstants.TILE_WIDTH) / 2;
-        y += ((GameConstants.TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+        y += ((GameConstants.TILE_HEIGHT / 2) - GameConstants.LOCKED_OFFSET) * 2;
         // Place node
         im.setPosition(x,y);
         im.setOrigin(0, 0);
@@ -601,7 +601,7 @@ public class LevelEditorController implements Screen {
                     newY = vec.y;
                     // Account for difference between tile width and sprite width
                     newX -= (im.getWidth() - GameConstants.TILE_WIDTH) / 2;
-                    newY += ((GameConstants.TILE_HEIGHT / 2) - LOCKED_OFFSET) * 2;
+                    newY += ((GameConstants.TILE_HEIGHT / 2) - GameConstants.LOCKED_OFFSET) * 2;
                     im.setPosition(newX, newY);
                     // Change back to low version of asset
                     im.setDrawable(nodeLow);
