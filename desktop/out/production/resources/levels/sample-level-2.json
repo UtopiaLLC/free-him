@@ -1,0 +1,6 @@
+{
+	"name": "sample-level-2",
+	"dims": [0, 0],
+	"targets": ["TargetB.json", "TargetA.json"],
+	"targetLocs": [[-1, 2], [-1, -4]]
+}

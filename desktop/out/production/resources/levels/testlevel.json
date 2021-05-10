@@ -1,6 +1,0 @@
-{
-  "name": "testlevel",
-  "dims": [0, 0],
-  "targets": ["TorchlightEmployee2.json", "TorchlightEmployee1.json"],
-  "targetLocs": [[0, 3], [0, 0]]
-}

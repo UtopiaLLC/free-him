@@ -2,6 +2,7 @@ package com.adisgrace.games;
 
 import com.adisgrace.games.models.TargetModel;
 import com.adisgrace.games.util.ButtonFactory;
+import com.adisgrace.games.util.GameConstants;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -38,9 +39,7 @@ public class UIController {
     /** The ImageButton for relax, to be initialized with given texture */
     private ImageButton relax;
 
-    private static final int DIALOG_WIDTH = 890;
-    private static final int DIALOG_HEIGHT = 500;
-    private static final int DIALOG_PREF_WIDTH = 350;
+
 
 
     public UIController(Skin skin) {
@@ -227,8 +226,8 @@ public class UIController {
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         dialog.setBackground(drawable);
 //        dialog.setLayoutEnabled(false);
-        dialog.getBackground().setMinWidth(DIALOG_WIDTH);
-        dialog.getBackground().setMinHeight(DIALOG_HEIGHT);
+        dialog.getBackground().setMinWidth(GameConstants.DIALOG_WIDTH);
+        dialog.getBackground().setMinHeight(GameConstants.DIALOG_HEIGHT);
         Label l = new Label( s, skin, "dialog-box");
         l.setColor(Color.BLACK);
         if(s.length() > 350) {
@@ -241,9 +240,9 @@ public class UIController {
         }
         l.setWrap( true );
         //Centers the dialog
-        dialog.getContentTable().add( l ).prefWidth( DIALOG_PREF_WIDTH );
+        dialog.getContentTable().add( l ).prefWidth( GameConstants.DIALOG_PREF_WIDTH );
 
-        float bottomPad = getDialogButtonBottomPadding(DIALOG_HEIGHT);
+        float bottomPad = getDialogButtonBottomPadding(GameConstants.DIALOG_HEIGHT);
         dialog.button("Ok", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
         dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         dialog.show(GameController.toolbarStage);
@@ -264,24 +263,24 @@ public class UIController {
         TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         dialog.setBackground(drawable);
-        dialog.getBackground().setMinWidth(DIALOG_WIDTH);
-        dialog.getBackground().setMinHeight(DIALOG_HEIGHT);
+        dialog.getBackground().setMinWidth(GameConstants.DIALOG_WIDTH);
+        dialog.getBackground().setMinHeight(GameConstants.DIALOG_HEIGHT);
 
         Label title = new Label( s, skin, "dialog-box");
         title.setColor(Color.BLACK);
         title.setFontScale(1.5f);
         dialog.addActor(title);
-        title.setPosition(50,DIALOG_HEIGHT-90);
+        title.setPosition(50,GameConstants.DIALOG_HEIGHT-90);
         title.setWrap(false);
 
         Label k = new Label(fact, skin, "dialog-box");
         k.setWrap(true);
-        k.setWidth(DIALOG_WIDTH-125);
-        k.setPosition(75, DIALOG_HEIGHT-90-(100));
+        k.setWidth(GameConstants.DIALOG_WIDTH-125);
+        k.setPosition(75, GameConstants.DIALOG_HEIGHT-90-(100));
         dialog.addActor(k);
 
 
-        float bottomPad = getDialogButtonBottomPadding(DIALOG_HEIGHT);
+        float bottomPad = getDialogButtonBottomPadding(GameConstants.DIALOG_HEIGHT);
         dialog.button("Ok", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
         dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         dialog.show(GameController.toolbarStage);
@@ -303,15 +302,15 @@ public class UIController {
         TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         dialog.setBackground(drawable);
-        dialog.getBackground().setMinWidth(DIALOG_WIDTH);
-        dialog.getBackground().setMinHeight(DIALOG_HEIGHT);
+        dialog.getBackground().setMinWidth(GameConstants.DIALOG_WIDTH);
+        dialog.getBackground().setMinHeight(GameConstants.DIALOG_HEIGHT);
 //        dialog.setLayoutEnabled(false);
 
         Label title = new Label( s, skin, "dialog-box");
         title.setColor(Color.BLACK);
         title.setFontScale(1.5f);
         dialog.addActor(title);
-        title.setPosition(50,DIALOG_HEIGHT-90);
+        title.setPosition(50,GameConstants.DIALOG_HEIGHT-90);
         dialog.setMovable(true);
 
         //Get all fact summaries that can potentially be displayed
@@ -330,13 +329,13 @@ public class UIController {
         for (int i = 0; i < scannedFacts.size; i++) {
             Label k = new Label(scannedFacts.get(i), skin, "dialog-box");
             k.setWrap(true);
-            k.setWidth(DIALOG_WIDTH-125);
-            k.setPosition(75, DIALOG_HEIGHT-90-(50*(i+1)));
+            k.setWidth(GameConstants.DIALOG_WIDTH-125);
+            k.setPosition(75, GameConstants.DIALOG_HEIGHT-90-(50*(i+1)));
             dialog.addActor(k);
         }
 //        ScrollPane scrollPane = new ScrollPane(dialog, skin);
 //        dialog.addActor(scrollPane);
-        float bottomPad = getDialogButtonBottomPadding(DIALOG_HEIGHT);
+        float bottomPad = getDialogButtonBottomPadding(GameConstants.DIALOG_HEIGHT);
         dialog.setLayoutEnabled(true);
         dialog.button("Ok", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
         dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
@@ -368,8 +367,8 @@ public class UIController {
         TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         dialog.setBackground(drawable);
-        dialog.getBackground().setMinWidth(DIALOG_WIDTH);
-        dialog.getBackground().setMinHeight(DIALOG_HEIGHT);
+        dialog.getBackground().setMinWidth(GameConstants.DIALOG_WIDTH);
+        dialog.getBackground().setMinHeight(GameConstants.DIALOG_HEIGHT);
         Label l = new Label( s, skin, "dialog-box");
         l.setColor(Color.BLACK);
         if(s.length() > 50) {
@@ -378,14 +377,14 @@ public class UIController {
             l.setFontScale(2f);
         }
         l.setWrap( true );
-        dialog.getContentTable().add( l ).prefWidth( DIALOG_PREF_WIDTH );
+        dialog.getContentTable().add( l ).prefWidth( GameConstants.DIALOG_PREF_WIDTH );
         dialog.setMovable(true);
 
-        float bottomPad = getDialogButtonBottomPadding(DIALOG_HEIGHT);
+        float bottomPad = getDialogButtonBottomPadding(GameConstants.DIALOG_HEIGHT);
         for(int i = 0; i < targets.size; i++) {
             dialog.button(targets.get(i).getName(), i).pad(0f,0f,bottomPad,0f);
         }
-        dialog.button("Cancel", true).pad(0f,0f,bottomPad,0f);; //sends "true" as the result
+        dialog.button("Cancel", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
         dialog.show(GameController.toolbarStage);
     }
 
@@ -658,14 +657,14 @@ public class UIController {
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
 
         GameController.blackmailDialog.setBackground(drawable);
-        GameController.blackmailDialog.getBackground().setMinWidth(DIALOG_WIDTH);
-        GameController.blackmailDialog.getBackground().setMinHeight(DIALOG_HEIGHT);
+        GameController.blackmailDialog.getBackground().setMinWidth(GameConstants.DIALOG_WIDTH);
+        GameController.blackmailDialog.getBackground().setMinHeight(GameConstants.DIALOG_HEIGHT);
 
         Label title = new Label( s, skin, "dialog-box");
         title.setColor(Color.BLACK);
         title.setFontScale(1.5f);
         GameController.blackmailDialog.addActor(title);
-        title.setPosition(50,DIALOG_HEIGHT-90);
+        title.setPosition(50,GameConstants.DIALOG_HEIGHT-90);
         title.setWrap(false);
         GameController.blackmailDialog.setMovable(true);
         //Get all fact summaries that can potentially be displayed
@@ -687,7 +686,7 @@ public class UIController {
 
 
         addEligibleBlackmailFacts(scannedFacts, summaryToFacts, targetName, levelController, factSummaries);
-        float bottomPad = getDialogButtonBottomPadding(DIALOG_HEIGHT);
+        float bottomPad = getDialogButtonBottomPadding(GameConstants.DIALOG_HEIGHT);
         GameController.blackmailDialog.button("Cancel", true).pad(0f,0f,bottomPad,0f);; //sends "true" as the result
         GameController.blackmailDialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
         GameController.blackmailDialog.show(GameController.toolbarStage);
@@ -742,8 +741,8 @@ public class UIController {
             }
             k.setColor(Color.BLACK);
             k.setWrap(true);
-            k.setWidth(DIALOG_WIDTH-125);
-            k.setPosition(75, DIALOG_HEIGHT-90-(50*(temp_i+1)));
+            k.setWidth(GameConstants.DIALOG_WIDTH-125);
+            k.setPosition(75, GameConstants.DIALOG_HEIGHT-90-(50*(temp_i+1)));
             GameController.blackmailDialog.addActor(k);
 
         }

@@ -2,6 +2,7 @@ package com.adisgrace.games;
 
 import com.adisgrace.games.models.*;
 import com.adisgrace.games.util.Connector;
+import com.adisgrace.games.util.GameConstants;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
@@ -163,17 +164,7 @@ public class GameController implements Screen {
 
     private Music music;
 
-    /** The smallest width the game window can take */
-    private static final float MINWORLDWIDTH = 1280;
-    /** The smallest height the game window can take */
-    private static final float MINWORLDHEIGHT = 720;
 
-    private static final int nodeWorldWidth = 30;
-    private static final int nodeWorldHeight = 30;
-
-    /** Dimensions of map tile */
-    private static final int TILE_HEIGHT = 256;
-    private static final int TILE_WIDTH = 444;
 
     public int currentLevel;
 
@@ -192,8 +183,7 @@ public class GameController implements Screen {
             TX_SETTINGS_LOW = new Texture(Gdx.files.internal("UI/UI_SettingsLow_1.png")),
             TX_MENU_BACK = new Texture(Gdx.files.internal("UI/MenuBack.png"));
     /** Constants for dimensions of screen */
-    private static final int SCREEN_WIDTH = 1280, SCREEN_HEIGHT = 720;
-    private static final int RIGHT_SIDE_HEIGHT = 199;
+
 
 
 
@@ -271,7 +261,7 @@ public class GameController implements Screen {
         updateNodeColors();
         updateStats();
 
-        canvas.drawIsometricGrid(nodeWorldWidth,nodeWorldHeight);
+        canvas.drawIsometricGrid(GameConstants.NODE_WORLD_WIDTH,GameConstants.NODE_WORLD_HEIGHT);
         stage.getViewport().apply();
         stage.draw();
         toolbarStage.getViewport().apply();
@@ -508,7 +498,7 @@ public class GameController implements Screen {
         threatenedFacts = new Array<>();
         exposedFacts = new Array<>();
         canvas.beginDebug();
-        canvas.drawIsometricGrid(nodeWorldWidth, nodeWorldHeight);
+        canvas.drawIsometricGrid(GameConstants.NODE_WORLD_WIDTH, GameConstants.NODE_WORLD_HEIGHT);
         canvas.endDebug();
 
         // Creating Nodes
@@ -737,14 +727,14 @@ public class GameController implements Screen {
         toolbar.add(rightSide).right().width(.10f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.topRight);
 
         displayedAP = apImages[levelController.getAP()];
-        displayedAP.setPosition(SCREEN_WIDTH - displayedAP.getWidth(), RIGHT_SIDE_HEIGHT);
+        displayedAP.setPosition(GameConstants.SCREEN_WIDTH - displayedAP.getWidth(), GameConstants.RIGHT_SIDE_HEIGHT);
         toolbarStage.addActor(displayedAP);
 
 
         // Add menu back
         menuBack = new Image(TX_MENU_BACK);
         toolbarStage.addActor(menuBack);
-        menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
+        menuBack.setPosition(GameConstants.SCREEN_WIDTH - menuBack.getWidth(), 0);
 
         return toolbar;
     }
@@ -824,8 +814,8 @@ public class GameController implements Screen {
     private Vector2 isometricToWorld(Vector2 coords) {
         float tempx = coords.x;
         float tempy = coords.y;
-        coords.x = tempx * (0.5f * TILE_WIDTH) + tempy * (0.5f * TILE_WIDTH);
-        coords.y = -tempx * (0.5f * TILE_HEIGHT) + tempy * (0.5f * TILE_HEIGHT);
+        coords.x = tempx * (0.5f * GameConstants.TILE_WIDTH) + tempy * (0.5f * GameConstants.TILE_WIDTH);
+        coords.y = -tempx * (0.5f * GameConstants.TILE_HEIGHT) + tempy * (0.5f * GameConstants.TILE_HEIGHT);
 
         return coords;
     }
@@ -848,12 +838,12 @@ public class GameController implements Screen {
         y = vec.y;
 
         // Find the nearest isometric center
-        x = Math.round(x / TILE_HEIGHT);
-        y = Math.round(y / TILE_HEIGHT);
+        x = Math.round(x / GameConstants.TILE_HEIGHT);
+        y = Math.round(y / GameConstants.TILE_HEIGHT);
 
         // Transform back to world space
-        vec.set(x * (0.5f * TILE_WIDTH) + y * (0.5f * TILE_WIDTH),
-                -x * (0.5f * TILE_HEIGHT) + y * (0.5f * TILE_HEIGHT));
+        vec.set(x * (0.5f * GameConstants.TILE_WIDTH) + y * (0.5f * GameConstants.TILE_WIDTH),
+                -x * (0.5f * GameConstants.TILE_HEIGHT) + y * (0.5f * GameConstants.TILE_HEIGHT));
 
         return vec;
     }
@@ -1172,7 +1162,7 @@ public class GameController implements Screen {
 //        ap.setText("AP: " + Integer.toString(levelController.getAP()));
         displayedAP.remove();
         displayedAP = apImages[levelController.getAP()];
-        displayedAP.setPosition(SCREEN_WIDTH - displayedAP.getWidth(), RIGHT_SIDE_HEIGHT);
+        displayedAP.setPosition(GameConstants.SCREEN_WIDTH - displayedAP.getWidth(), GameConstants.RIGHT_SIDE_HEIGHT);
         displayedAP.setTouchable(Touchable.disabled);
         toolbarStage.addActor(displayedAP);
 
@@ -1180,7 +1170,7 @@ public class GameController implements Screen {
         menuBack = new Image(TX_MENU_BACK);
         menuBack.setTouchable(Touchable.disabled);
         toolbarStage.addActor(menuBack);
-        menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
+        menuBack.setPosition(GameConstants.SCREEN_WIDTH - menuBack.getWidth(), 0);
 
 //        displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
     }
