@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -533,12 +534,13 @@ public class GameController implements Screen {
             );
             targetCoords = levelController.getTargetPos(target.getName());
 //            targetCoords.add(0.5f,0.5f);
-            System.out.println("target at " + targetCoords);
+//            System.out.println("target at " + targetCoords);
             Vector2 pos = new Vector2(targetCoords.x-0.2f, targetCoords.y-0.4f+1f);
             pos = NodeView.isometricToWorld(pos);
             stressBar_.setPosition(pos.x, pos.y);
-            System.out.println("stress bar " + stressBar_.getX() + ", " + stressBar_.getY());
+//            System.out.println("stress bar " + stressBar_.getX() + ", " + stressBar_.getY());
             bars.add(stressBar_);
+//            stressBar_.toFront();
             stage.addActor(stressBar_);
             FillBar susBar_ = new FillBar(
                     new Texture(Gdx.files.internal("UI/UI_TargetBarOutline_1.png")),
@@ -549,8 +551,9 @@ public class GameController implements Screen {
             pos.set(targetCoords.x-0.2f, targetCoords.y+0.55f+1f);
             pos = NodeView.isometricToWorld(pos);
             susBar_.setPosition(pos.x, pos.y);
-            System.out.println("susp bar " + susBar_.getX() + ", " + susBar_.getY());
+//            System.out.println("susp bar " + susBar_.getX() + ", " + susBar_.getY());
             bars.add(susBar_);
+//            susBar_.toFront();
             stage.addActor(susBar_);
             targetBars.put(target.getName(), bars);
         }
@@ -597,6 +600,11 @@ public class GameController implements Screen {
                 stage.addActor(imageNodes.get(target.getName()+","+fact));
             }
             stage.addActor(imageNodes.get(target.getName()));
+        }
+
+        for(Array<FillBar> targetBars : targetBars.values()){
+            targetBars.get(0).toFront();
+            targetBars.get(1).toFront();
         }
     }
 
