@@ -144,7 +144,7 @@ public class NodeView {
      *
      * @param coords   Coordinates in isometric space to transform
      */
-    private Vector2 isometricToWorld(Vector2 coords) {
+    public static Vector2 isometricToWorld(Vector2 coords) {
         float tempx = coords.x;
         float tempy = coords.y;
         coords.x = tempx * (0.5f * GameConstants.TILE_WIDTH) + tempy * (0.5f * GameConstants.TILE_WIDTH);
