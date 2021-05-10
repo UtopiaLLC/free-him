@@ -1,6 +1,7 @@
 package com.adisgrace.games.models;
 
 import com.adisgrace.games.util.Connector;
+import com.adisgrace.games.util.GameConstants;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
@@ -31,6 +32,15 @@ public class FactNode {
 	/** X- and Y-coordinates of this FactNode relative to the target */
 	private int nodeX;
 	private int nodeY;
+
+	/** stress rating of this specific fact node*/
+	private GameConstants.StressRating stressRating;
+
+	/** represents the amount of {NONE, LOW, MED, HIGH} stress ratings that belong in a subtree where this node is the top*/
+	private int[] stressRatingsInSubTree = {0, 0, 0, 0};
+
+	/** true if stressRatingsInSubTree accurately represents the contents of the entire subtree, false if not*/
+	private boolean subTreeProcessed;
 
 	/** Boolean representing whether or not the node is locked. */
 	private boolean locked;
@@ -69,6 +79,25 @@ public class FactNode {
 		this.locked = locked;
 		targetStressDmg = tsDmg;
 		playerStressDmg = psDmg;
+
+		//reads targetstressdmg and assigns the corresponding stress rating, and then tallies itself in the subtree ratings
+		if(targetStressDmg < 5){
+			stressRating = GameConstants.StressRating.NONE;
+			stressRatingsInSubTree[0]++;
+		}else if(targetStressDmg < 10){
+			stressRating = GameConstants.StressRating.LOW;
+			stressRatingsInSubTree[1]++;
+		}else if(targetStressDmg < 15){
+			stressRating = GameConstants.StressRating.MED;
+			stressRatingsInSubTree[2]++;
+		}else{
+			stressRating = GameConstants.StressRating.HIGH;
+			stressRatingsInSubTree[3]++;
+		}
+
+		//if there are no children, then stressRatingsInSubTree already full represents this subtree
+		subTreeProcessed = children.isEmpty();
+
 	}
 
 	/************************************************* GETTERS/SETTERS *************************************************/
@@ -193,6 +222,30 @@ public class FactNode {
 	 */
 	public void setTargetStressDmg(int dmg){
 		targetStressDmg = dmg;
+	}
+
+	/**
+	 * Returns the stress rating of the Factnode
+	 * @return the stress rating for damange that would be dealt to the target
+	 */
+	public GameConstants.StressRating getStressRating(){
+		return stressRating;
+	}
+
+	/**
+	 * Returns the number of each stress rating that exists within this subtree
+	 * @return {NONE, LOW, MED, HIGH}
+	 */
+	public int[] getSubTreeStressRatings(){
+		return stressRatingsInSubTree;
+	}
+
+	/**
+	 * Returns whether this subtree of nodes has been processed to have the correct set of stress ratings
+	 * @return true if the subtree is processed
+	 */
+	public boolean isSubTreeProcessed(){
+		return subTreeProcessed;
 	}
 
 }

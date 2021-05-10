@@ -511,4 +511,14 @@ public class LevelModel {
     public void coerce(String targetname, String fact){
         return;
     }
+
+    /**
+     * the total amount of stress rating types within the entire subtree where fact is the parent
+     * @param target Name of the target
+     * @param fact Name of the fact that belongs to the target
+     * @return {NONE, LOW, MED, HIGH}
+     */
+    public int[] getStressRatings(String target, String fact){
+        return targets.get(target).getStressRatings(fact);
+    }
 }
