@@ -438,6 +438,16 @@ public class LevelController {
      */
     public ArrayList<TraitModel.Trait> getTargetTraits(String target){return levelModel.getTarget(target).getTraits().get_traits();}
 
+    /**
+     * the total amount of stress rating types within the entire subtree where fact is the parent
+     * @param target Name of the target
+     * @param fact Name of the fact that belongs to the target
+     * @return {NONE, LOW, MED, HIGH}
+     */
+    public int[] getStressRatings(String target, String fact){
+        return levelModel.getStressRatings(target, fact);
+    }
+
 
 
 

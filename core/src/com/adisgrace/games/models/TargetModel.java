@@ -163,6 +163,7 @@ public class TargetModel {
 
 			// Store FactNode in podDict, mapped to name
 			podDict.put(nodeName, fn);
+
 		}
 
 		// Get traits, UNCOMMENT when traits finished in json
@@ -171,6 +172,9 @@ public class TargetModel {
 		itr = traitsArr.iterator();
 		while (itr.hasNext()){temp.add(itr.next().asString());}
 		traits = new TraitModel(temp);
+
+		//processes the node tree and gives each node information about its subtree in terms of stress ratings
+		processSubTrees(firstNodes);
 
 		// Get combos
 		// Initializations
@@ -207,6 +211,30 @@ public class TargetModel {
 		distractFailChance = 0;
 		countdown = paranoia;
 		rand = new Random();
+	}
+
+	/**
+	 * helper function that processes the array of nodes and assigns subtree stress rating values to the array of nodes and all its children
+	 * @param nodes the array of nodes to update. Namely firstNodes
+	 */
+	private void processSubTrees(ArrayMap<String, ?> nodes){
+		//loops over all nodes given
+		for(int i = 0; i < nodes.size; i++){
+			FactNode fact = podDict.get(nodes.getKeyAt(i));
+			if(!fact.isSubTreeProcessed()){
+				processSubTrees(fact.getChildren());
+			}
+
+			//loops over all children belonging to fact and adds the children's subtree values to fact
+			for(int j = 0; j < fact.getChildren().size; j++){
+				FactNode childFact = podDict.get(fact.getChildren().getKeyAt(j));
+
+				//updates fact's subtree stress ratings with all of its children's subtree stress ratings
+				for(int k = 0; k < 4; k++){
+					fact.getSubTreeStressRatings()[k] += childFact.getSubTreeStressRatings()[k];
+				}
+			}
+		}
 	}
 
 	/**
@@ -702,6 +730,7 @@ public class TargetModel {
 		return getFactNode(name).getPlayerStressDmg();
 	}
 
+
 	/**
 	 * Returns hashmap of names of child nodes for the given node, mapped to the paths from the given
 	 * node to them.
@@ -826,6 +855,14 @@ public class TargetModel {
 		return (int)(stressDmg * GameConstants.EXPOSE_MULTIPLIER);
 	}
 
+	/**
+	 * the total amount of stress rating types within the entire subtree where fact is the parent
+	 * @param fact name of the fact
+	 * @return {NONE, LOW, MED, HIGH}
+	 */
+	public int[] getStressRatings(String fact) {
+		return podDict.get(fact).getSubTreeStressRatings();
+	}
 
 	/************************************************* COMBO METHODS *************************************************/
 

@@ -228,7 +228,7 @@ public class UIController {
 //        dialog.setLayoutEnabled(false);
         dialog.getBackground().setMinWidth(GameConstants.DIALOG_WIDTH);
         dialog.getBackground().setMinHeight(GameConstants.DIALOG_HEIGHT);
-        Label l = new Label( s, skin, "dialog-box");
+        Label l = new Label( s, skin, "hover-text");
         l.setColor(Color.BLACK);
         if(s.length() > 350) {
             l.setFontScale(1.0f);
@@ -593,7 +593,7 @@ public class UIController {
     }
 
     public Label createHoverLabel(String s) {
-        Label l = new Label(s, skin, "win-95");
+        Label l = new Label(s, skin, "hover-gray");
         l.setWrap(true);
         l.setHeight(70);
         return l;
