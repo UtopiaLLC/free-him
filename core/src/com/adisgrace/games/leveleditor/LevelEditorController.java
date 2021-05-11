@@ -403,7 +403,7 @@ public class LevelEditorController implements Screen {
                 drawable = ADD_NODE_TRD_ORDER[k];
                 button = new ImageButton(drawable);
                 button.setTransform(true);
-                button.setScale(GameConstants.BUTTON_SCALE);
+                button.setScale(LevelEditorConstants.BUTTON_SCALE);
                 button.setPosition(TOOLBAR_X_OFFSET, height);
 
                 // Set node type that this button will create
@@ -425,7 +425,7 @@ public class LevelEditorController implements Screen {
             drawable = CHANGE_MODE_TRD_ORDER[k];
             button = new ImageButton(drawable);
             button.setTransform(true);
-            button.setScale(GameConstants.BUTTON_SCALE);
+            button.setScale(LevelEditorConstants.BUTTON_SCALE);
             button.setPosition(xlocMode, height);
 
             // For the actual mode creation buttons, do that
