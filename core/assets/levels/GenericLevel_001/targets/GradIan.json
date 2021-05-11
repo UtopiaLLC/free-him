@@ -5,10 +5,23 @@
 	"paranoia": 3,
 	"maxStress": 100,
 	"traits": [],
-	"firstNodes": ["2Node27", "2Node28", "1Node42", "2Node35"],
-	"firstConnectors": [[[0,0], [-1,0], [-2,0], [-3,0]], [[0,0], [0,-1], [0,-2], [0,-3]], [[0,0], [1,0], [2,0]], [[0,0], [-1,0], [-2,0], [-2,1], [-2,2], [-2,3]]],
-	"firstConnectorTypes": [["W", "EW", "EW", "E"], ["S", "NS", "NS", "N"], ["E", "WE", "W"], ["W", "EW", "EN", "SN", "SN", "S"]],
+	"firstNodes": ["1Node35", "2Node27", "2Node28", "2Node36"],
+	"firstConnectors": [[[0,0], [1,0], [2,0]], [[0,0], [-1,0], [-2,0], [-3,0]], [[0,0], [0,-1], [0,-2], [0,-3]], [[0,0], [-1,0], [-2,0], [-2,1], [-2,2], [-2,3]]],
+	"firstConnectorTypes": [["E", "WE", "W"], ["W", "EW", "EW", "E"], ["S", "NS", "NS", "N"], ["W", "EW", "EN", "SN", "SN", "S"]],
 	"pod": 	[
+		{
+			"nodeName": "1Node35",
+			"title": "Generic Node",
+			"coords": [2.0,0.0],
+			"locked": false,
+			"content": "There's nothing of use here... you'll have to keep digging.",
+			"summary": "",
+			"children": [],
+			"targetStressDamage": 0,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
 		{
 			"nodeName": "2Node27",
 			"title": "Generic Node",
@@ -36,20 +49,7 @@
 			"connectorTypes": [["S", "NS", "NS", "N"]]
 		},
 		{
-			"nodeName": "1Node42",
-			"title": "Generic Node",
-			"coords": [2.0,0.0],
-			"locked": false,
-			"content": "There's nothing of use here... you'll have to keep digging.",
-			"summary": "",
-			"children": [],
-			"targetStressDamage": 0,
-			"playerStressDamage": 0,
-			"connectorCoords": [],
-			"connectorTypes": []
-		},
-		{
-			"nodeName": "2Node35",
+			"nodeName": "2Node36",
 			"title": "Generic Node",
 			"coords": [-2.0,3.0],
 			"locked": true,

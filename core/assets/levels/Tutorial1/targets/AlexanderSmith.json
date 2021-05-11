@@ -5,12 +5,12 @@
 	"paranoia": 7,
 	"maxStress": 5,
 	"traits": [],
-	"firstNodes": ["1Node6"],
+	"firstNodes": ["1Node5"],
 	"firstConnectors": [[[0,0], [0,-1], [0,-2]]],
 	"firstConnectorTypes": [["S", "NS", "N"]],
 	"pod": 	[
 		{
-			"nodeName": "1Node6",
+			"nodeName": "1Node5",
 			"title": "Personal Phone",
 			"coords": [0.0,-2.0],
 			"locked": false,

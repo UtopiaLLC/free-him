@@ -2,5 +2,6 @@
 	"name": "Tutorial1",
 	"dims": [10, 10],
 	"targets": ["AlexanderSmith.json"],
-	"targetLocs": [[0, -1]]
+	"targetLocs": [[0, -1]],
+	"timeLimit": 20
 }
