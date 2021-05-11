@@ -14,9 +14,7 @@
 			"title": "Social Media",
 			"coords": [-2.0,-1.0],
 			"locked": false,
-			"content": "Darrell is extremely active on social media, and it looks like he's a huge gossip, too. He also appears to be close friends with William Macintyre.
-
-Be careful - things that happen to Darrell tend to spread to everyone around him.",
+			"content": "Darrell is extremely active on social media, and it looks like he's a huge gossip, too. He also appears to be close friends with William Macintyre.\n\nBe careful - things that happen to Darrell tend to spread to everyone around him.",
 			"summary": "",
 			"children": ["1Node21", "1Node20"],
 			"targetStressDamage": 0,
@@ -29,7 +27,7 @@ Be careful - things that happen to Darrell tend to spread to everyone around him
 			"title": "Personal Email",
 			"coords": [0.0,-2.0],
 			"locked": false,
-			"content": "Darrell recently purchased a copy of the Anarchist's Cookbook on Kindle, then forwarded the confirmation email to his friend William with the subject line "lmao look this sum spicy sh*t." You also find copies of his bank account statements forwarded to his email, but they'll take time to read through.",
+			"content": "Darrell recently purchased a copy of the Anarchist's Cookbook on Kindle, then forwarded the confirmation email to his friend William with the subject line \"lmao look this sum spicy sh*t.\" You also find copies of his bank account statements forwarded to his email, but they'll take time to read through.",
 			"summary": "Darrell recently bought a copy of the Anarchist's Cookbook on Kindle.",
 			"children": ["1Node28"],
 			"targetStressDamage": 0,
@@ -55,9 +53,7 @@ Be careful - things that happen to Darrell tend to spread to everyone around him
 			"title": "Bank Account Statements",
 			"coords": [-1.0,-4.0],
 			"locked": false,
-			"content": "Turns out Darrell has spent a LOT of money on strange eBook purchases. You check and find that he's posted about each one on social media, including the Anarchist's Cookbook, and his reviews seem to be a source of internet infamy. Unfortunately, that cat is out of the bag already.
-
-There are also regular charges for a website domain, the URL for which is listed in the charge descriptions. But when you visit the website, it's hidden behind a password. This is the one thing there's no mention of on his social media... what's he hiding?",
+			"content": "Turns out Darrell has spent a LOT of money on strange eBook purchases. You check and find that he's posted about each one on social media, including the Anarchist's Cookbook, and his reviews seem to be a source of internet infamy. Unfortunately, that cat is out of the bag already.\n\nThere are also regular charges for a website domain, the URL for which is listed in the charge descriptions. But when you visit the website, it's hidden behind a password. This is the one thing there's no mention of on his social media... what's he hiding?",
 			"summary": "Darrell seems to pay for the maintenance of a website domain, one that is locked and not mentioned at all on his social media.",
 			"children": ["2Node35"],
 			"targetStressDamage": 5,
