@@ -117,8 +117,8 @@ public class LevelModel {
         JsonValue json = new JsonReader().parse(Gdx.files.internal(levelJson));
         String[] targetJsons = json.get("targets").asStringArray();
         name = json.get("name").asString();
-        // TODO: Uncomment this line, and change "daysLeft" to whatever it is in the level json
-        //daysLeft = json.get("daysLeft").asInt();
+
+        daysLeft = json.get("timeLimit").asInt();
 
         if (json.get("dims") != null) {
             int[] dims = json.get("dims").asIntArray();
