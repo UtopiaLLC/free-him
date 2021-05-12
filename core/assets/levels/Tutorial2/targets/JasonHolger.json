@@ -5,12 +5,12 @@
 	"paranoia": 7,
 	"maxStress": 30,
 	"traits": [],
-	"firstNodes": ["1Node3", "2Node1"],
+	"firstNodes": ["1Node13", "2Node14"],
 	"firstConnectors": [[[0,0], [1,0], [2,0], [2,1]], [[0,0], [-1,0], [-1,-1], [-2,-1]]],
 	"firstConnectorTypes": [["E", "WE", "WN", "S"], ["W", "ES", "NW", "E"]],
 	"pod": 	[
 		{
-			"nodeName": "1Node3",
+			"nodeName": "1Node13",
 			"title": "Personal Phone",
 			"coords": [2.0,1.0],
 			"locked": false,
@@ -23,20 +23,20 @@
 			"connectorTypes": []
 		},
 		{
-			"nodeName": "2Node1",
+			"nodeName": "2Node14",
 			"title": "Work Phone",
 			"coords": [-2.0,-1.0],
 			"locked": true,
 			"content": "It seems like Jason has recently started using his work phone for more personal endeavors after losing his personal phone. He seems to be texting one number a lot, talking about buying \"party supplies\" in the parking lot of a nearby Party City. You might be able to learn more by looking into the number he's texting.",
 			"summary": "Jason often texts a specific number about buying \"party supplies\" in a local parking lot.",
-			"children": ["1Node2"],
+			"children": ["1Node19"],
 			"targetStressDamage": 0,
 			"playerStressDamage": 0,
 			"connectorCoords": [[[-2,-1], [-2,-2], [-2,-3]]],
 			"connectorTypes": [["S", "NS", "N"]]
 		},
 		{
-			"nodeName": "1Node2",
+			"nodeName": "1Node19",
 			"title": "Whitepages: \"Party Supplies\" Seller",
 			"coords": [-2.0,-3.0],
 			"locked": false,

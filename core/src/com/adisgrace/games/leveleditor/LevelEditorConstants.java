@@ -80,15 +80,13 @@ public final class LevelEditorConstants {
     /** Dimensions of map tile */
     public static final float TILE_HEIGHT = 256.0f;
     public static final float TILE_WIDTH = 444.0f;
-    /** Constant for the y-offset for different node types */
-    public static final float LOCKED_OFFSET = 114.8725f;
 
     /** Scale of the buttons in the toolbar */
-    public static final float BUTTON_SCALE = 0.5f;
+    public static final float TOOLBAR_BUTTON_SCALE = 0.5f;
     /** Width of buttons in the toolbar in pixels */
-    public static final int BUTTON_WIDTH = 100;
+    public static final int TOOLBAR_BUTTON_WIDTH = 100;
     /** Gap between two buttons in pixels */
-    public static final int BUTTON_GAP = 60;
+    public static final int TOOLBAR_BUTTON_GAP = 60;
     /** How far to the right the toolbar should be offset from the left edge of the screen, in pixels */
     public static final int TOOLBAR_X_OFFSET = 10;
     /** How far down the toolbar should be offset from the top edge of the screen, in pixels */

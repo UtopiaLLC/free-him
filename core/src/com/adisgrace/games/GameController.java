@@ -204,6 +204,7 @@ public class GameController implements Screen {
         levelJsons.add("levels/Tutorial3/Tutorial3.json");
         levelJsons.add("levels/Tutorial4/Tutorial4.json");
         levelJsons.add("levels/GenericLevel_001/GenericLevel_001.json");
+        levelJsons.add("levels/Trial_Level_7_targets/Trial_Level_7_targets.json");
 //        levelControllers = new Array<>();
 
 //        for(String s : levelJsons) {
