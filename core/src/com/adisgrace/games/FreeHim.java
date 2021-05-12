@@ -11,6 +11,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 //THIS IS GDXROOT
 public class FreeHim extends Game implements ScreenListener {
+
+	/** Player mode for the loading screen (CONTROLLER CLASS) */
+	private LoadingMode loading;
+
 	/** Player mode for the main menu screen (CONTROLLER CLASS) */
 	private MainMenu mainmenu;
 	/** Primary game controller for the game (CONTROLLER CLASS) */
@@ -19,9 +23,12 @@ public class FreeHim extends Game implements ScreenListener {
 	@Override
 	public void create () {
 		// Create main menu and set as starting screen
-		mainmenu = new MainMenu();
-		mainmenu.setScreenListener(this);
-		setScreen(mainmenu);
+		loading = new LoadingMode();
+		loading.setScreenListener(this);
+		setScreen(loading);
+//		mainmenu = new MainMenu();
+//		mainmenu.setScreenListener(this);
+//		setScreen(mainmenu);
 	}
 
 	@Override
@@ -40,6 +47,14 @@ public class FreeHim extends Game implements ScreenListener {
 	public void exitScreen(Screen screen, int exitCode) {
 		// If the current screen is the main menu and exitScreen is
 		// called, start the game
+		if(screen == loading) {
+			mainmenu = new MainMenu();
+			mainmenu.setScreenListener(this);
+			setScreen(mainmenu);
+
+			loading.dispose();
+			loading = null;
+		}
 		if (screen == mainmenu) {
 			// Create primary game controller
 			game = new GameController();
