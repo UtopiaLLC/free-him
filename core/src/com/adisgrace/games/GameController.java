@@ -3,6 +3,7 @@ package com.adisgrace.games;
 import com.adisgrace.games.models.*;
 import com.adisgrace.games.util.Connector;
 import com.adisgrace.games.util.GameConstants;
+import com.adisgrace.games.util.ScreenListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
@@ -33,7 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-public class GameController implements Screen {
+public class GameController implements Screen{
 
     /** Enumeration representing the active verb applied via toolbar */
     public enum ActiveVerb {
@@ -164,8 +165,7 @@ public class GameController implements Screen {
 
     private Music music;
 
-
-
+    private ScreenListener listener;
     public int currentLevel;
 
     private Animation<TextureRegion> NorthConnectorAnimation;
@@ -1185,5 +1185,23 @@ public class GameController implements Screen {
 
     public void setVolume(float volume) {
         music.setVolume(volume);
+    }
+
+    public void setScreenListener(ScreenListener listener) {
+        this.listener = listener;
+    }
+
+    /**
+     * Exits the screen
+     * 1 is to main menu, 2 is to next level screen.
+     * @param exitcode refer to above
+     */
+    public void exit(int exitcode) {
+        stopMusic();
+        if(exitcode == 1) {
+
+        } else if(exitcode == 2) {
+
+        }
     }
 }
