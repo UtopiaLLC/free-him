@@ -160,6 +160,8 @@ public class GameController implements Screen {
     /** controller for input operations*/
     private InputController ic;
 
+    private Vector2 gridSize;
+
     private Image menuBack;
 
     private Music music;
@@ -261,7 +263,7 @@ public class GameController implements Screen {
         updateNodeColors();
         updateStats();
 
-        canvas.drawIsometricGrid(GameConstants.NODE_WORLD_WIDTH,GameConstants.NODE_WORLD_HEIGHT);
+        canvas.drawIsometricGrid((int)gridSize.x, (int)gridSize.y);
         stage.getViewport().apply();
         stage.draw();
         toolbarStage.getViewport().apply();
@@ -498,7 +500,8 @@ public class GameController implements Screen {
         threatenedFacts = new Array<>();
         exposedFacts = new Array<>();
         canvas.beginDebug();
-        canvas.drawIsometricGrid(GameConstants.NODE_WORLD_WIDTH, GameConstants.NODE_WORLD_HEIGHT);
+        gridSize = new Vector2(levelController.getWidth(), levelController.getHeight());
+        canvas.drawIsometricGrid((int)gridSize.x, (int)gridSize.y);
         canvas.endDebug();
 
         // Creating Nodes
