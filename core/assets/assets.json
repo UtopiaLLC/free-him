@@ -1,0 +1,39 @@
+{
+  "textures": {
+    "UI:AP": "UI/APCounter.png",
+    "UI:BitcoinCounter": "UI/BitecoinCounter.png",
+    "UI:MenuBack": "UI/MenuBack.png",
+    "UI:SkillBar": "UI/SkillBar_2.png",
+    "UI:StressBarFill": "UI/StressBarFill.png",
+    "UI:EndDayLow": "UI/UI_EndDayLow_1.png",
+    "UI:HoverBox": "UI/UI_HoverBox.png",
+    "UI:NotebookLow": "UI/UI_NotebookLow_1.png",
+    "UI:SettingsLow": "UI/UI_SettingsLow_1.png",
+    "UI:StressBar": "UI/UI_StressBar_2.png",
+
+    "Skills:DistractDown": "skills/distract_down.png",
+    "Skills:DistractSelect": "skills/distract_select.png",
+    "Skills:DistractUp": "skills/distract_up.png",
+
+    "Skills:ExposeDown": "skills/expose_down.png",
+    "Skills:ExposeSelect": "skills/expose_select.png",
+    "Skills:ExposeUp": "skills/expose_up.png",
+
+    "Skills:GaslightDown": "skills/gaslight_down.png",
+    "Skills:GaslightSelect": "skills/gaslight_select.png",
+    "Skills:GaslightUp": "skills/gaslight_up.png",
+
+    "Skills:HarassDown": "skills/harass_down.png",
+    "Skills:HarassSelect": "skills/harass_select.png",
+    "Skills:HarassUp": "skills/harass_up.png",
+
+  },
+  "sounds" : {
+  },
+  "music" : {
+    "music:game" : "music/Moonlit_Skyline.mp3"
+  },
+  "fonts": {
+
+  }
+}
