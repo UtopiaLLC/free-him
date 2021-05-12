@@ -1,0 +1,7 @@
+{
+  "textures": {
+    "background": "background/B_BlackBoxBorder.jpg",
+    "play": "mainmenu/MM_Play_1.jpg"
+    }
+  }
+}
