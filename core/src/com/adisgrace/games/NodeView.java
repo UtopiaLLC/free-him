@@ -123,6 +123,7 @@ public class NodeView {
             Node node = new Node(pos.x, pos.y, target.getName()+","+targetNodes.get(i), 1, state);
             imageNodes.put(target.getName()+","+targetNodes.get(i), node);
 
+            
             stage.addActor(node);
         }
 
