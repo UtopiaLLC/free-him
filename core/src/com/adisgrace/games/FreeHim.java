@@ -63,5 +63,12 @@ public class FreeHim extends Game implements ScreenListener {
 			mainmenu.dispose();
 			mainmenu = null;
 		}
+		if (screen == game) {
+			if(exitCode == 1) {
+
+			} else if(exitCode == 2){
+
+			}
+		}
 	}
 }
