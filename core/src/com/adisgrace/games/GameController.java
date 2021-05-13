@@ -329,7 +329,19 @@ public class GameController implements Screen{
 
 
         if(levelController.getLevelState() == LevelModel.LevelState.LOSE && !ended) {
-            uiController.createDialogBox("YOU LOSE!");
+//            uiController.createDialogBox("YOU LOSE!");
+            uiController.createSettingsSelector("YOU LOSE!", new Runnable() {
+                @Override
+                public void run() {
+                    exitScreen(1);
+                }
+            }, new Runnable() {
+                @Override
+                public void run() {
+                    loadLevel(currentLevel);
+                }
+            });
+
             ended = true;
             //uiController.createDialogBox("You must now restart!");
             //loadLevel(currentLevel);
@@ -337,10 +349,53 @@ public class GameController implements Screen{
         } else if (levelController.getLevelState() == LevelModel.LevelState.TIMEOUT && !ended){
             //uiController.createDialogBox("You must now restart!");
             ended = true;
-            uiController.createDialogBox("YOU RAN OUT OF TIME!");
+//            uiController.createDialogBox("YOU RAN OUT OF TIME!");
+            uiController.createSettingsSelector("YOU RAN OUT OF TIME!", new Runnable() {
+                @Override
+                public void run() {
+                    exitScreen(1);
+                }
+            }, new Runnable() {
+                @Override
+                public void run() {
+                    loadLevel(currentLevel);
+                }
+            });
             //loadLevel(currentLevel);
         } else if (levelController.getLevelState() == LevelModel.LevelState.WIN && !ended) {
-            uiController.createDialogBox("You Win!");
+            if (isLastLevel(currentLevel)){
+                uiController.createSettingsSelector("YOU WON THE LAST LEVEL!", new Runnable() {
+                    @Override
+                    public void run() {
+                        exitScreen(1);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        loadLevel(currentLevel);
+                    }
+                });
+            } else {
+                uiController.createWinLevelSelector("YOU WON THE LAST LEVEL!", new Runnable() {
+                    @Override
+                    public void run() {
+                        exitScreen(1);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        loadLevel(currentLevel);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        currentLevel= currentLevel + 1;
+                        loadLevel(currentLevel);
+                    }
+                });
+
+            }
+
             ended = true;
 //            if(currentLevel+1 > levelJsons.size-1) {
 //                uiController.createDialogBox("You beat all our levels!");
@@ -538,6 +593,13 @@ public class GameController implements Screen{
             currentLevel = currentLevel+1;
             loadLevel(currentLevel);
         }
+    }
+
+    public boolean isLastLevel(int level){
+        if (level+1 > levelJsons.size-1) {
+            return true;
+        }
+        return false;
     }
 
     /**

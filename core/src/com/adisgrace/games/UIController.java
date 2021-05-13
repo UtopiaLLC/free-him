@@ -353,6 +353,57 @@ public class UIController {
      * @param goToMainMenu
      * @param restartLevel
      */
+    public void createWinLevelSelector(String s, final Runnable goToMainMenu,
+                                       final Runnable restartLevel,
+                                       final Runnable nextLevel) {
+        Dialog dialog = new Dialog("", skin) {
+            public void result(Object obj) {
+                GameController.nodeFreeze = false;
+
+                if(obj.getClass() == Boolean.class) {
+                    return;
+                }
+
+                if ((int)obj == 1){
+                    goToMainMenu.run();
+                } else if ((int)obj == 2) {
+                    restartLevel.run();
+                } else if ((int)obj == 3) {
+                    nextLevel.run();
+                }
+            }
+        };
+
+        TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
+        dialog.setBackground(drawable);
+        dialog.getBackground().setMinWidth(GameConstants.DIALOG_WIDTH);
+        dialog.getBackground().setMinHeight(GameConstants.DIALOG_HEIGHT);
+        Label l = new Label( s, skin, "dialog-box");
+        l.setColor(Color.BLACK);
+        if(s.length() > 50) {
+            l.setFontScale(1.5f);
+        }else {
+            l.setFontScale(2f);
+        }
+        l.setWrap( true );
+        dialog.getContentTable().add( l ).prefWidth( GameConstants.DIALOG_PREF_WIDTH );
+        dialog.setMovable(true);
+
+        float bottomPad = getDialogButtonBottomPadding(GameConstants.DIALOG_HEIGHT);
+
+        dialog.button("Main Menu", 1).pad(0f,0f,bottomPad,0f);
+        dialog.button("Restart Level", 2).pad(0f,0f,bottomPad,0f);
+        dialog.button("Next Level", 3).pad(0f,0f,bottomPad,0f); //sends "true" as the result
+        dialog.show(GameController.toolbarStage);
+    }
+
+    /**
+     * This method adds a dialog to the stage that allows a user to select a setting action
+     * @param s
+     * @param goToMainMenu
+     * @param restartLevel
+     */
     public void createSettingsSelector(String s, final Runnable goToMainMenu,
                                        final Runnable restartLevel) {
         Dialog dialog = new Dialog("", skin) {
@@ -365,12 +416,9 @@ public class UIController {
 
                 if ((int)obj == 1){
                     goToMainMenu.run();
-//                    GameController.exit(1);
                 } else if ((int)obj == 2) {
                     restartLevel.run();
-//                    loadLevel(currentLevel);
                 }
-//                createNotebookDialog("Notebook:", targets.get((int)obj).getName(), levelController);
             }
         };
 
