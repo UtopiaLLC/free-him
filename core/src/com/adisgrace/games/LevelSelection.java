@@ -13,6 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 /**
@@ -81,8 +84,7 @@ public class LevelSelection implements Screen {
 
         // Create list (lets you select one of a list of options) with the levels as options
         // Must be final so can be used in the load level listener
-        final List levelsList = new List(GameConstants.SELECTION_SKIN);
-        levelsList.setItems(GameConstants.LEVEL_DIRECTORY.list());
+        final List levelsList = readJson();
 
         // Create scroll pane to ensure list will be scrollable
         ScrollPane levelsScroll = new ScrollPane(levelsList);
@@ -128,6 +130,20 @@ public class LevelSelection implements Screen {
      * @return  The name of the level to load into the level editor.
      */
     public String getLevelToLoad() {return levelToLoad;}
+
+    public List readJson() {
+
+        JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/level_order.json"));
+
+        Array<String> temp = new Array<String>();
+        JsonValue levelsArr = json.get("names");
+        JsonValue.JsonIterator itr = levelsArr.iterator();
+        while (itr.hasNext()){temp.add(itr.next().asString());}
+        List list = new List(GameConstants.SELECTION_SKIN);
+        list.setItems(temp);
+
+        return list;
+    }
 
     /*********************************************** EXIT METHODS ***********************************************/
 

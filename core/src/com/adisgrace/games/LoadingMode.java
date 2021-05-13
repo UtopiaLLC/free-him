@@ -80,7 +80,7 @@ public class LoadingMode implements Screen {
         playButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(
                 internal.getEntry("play", Texture.class))));
         playButton.setPosition(Gdx.graphics.getWidth()/2 - internal.getEntry("play", Texture.class).getWidth()/2,
-                Gdx.graphics.getHeight()*.35f- internal.getEntry("play", Texture.class).getHeight()/2);
+                Gdx.graphics.getHeight()*.4f- internal.getEntry("play", Texture.class).getHeight()/2);
 
         playButton.addListener(new ClickListener() {
             @Override
@@ -160,7 +160,7 @@ public class LoadingMode implements Screen {
     private void draw() {
         canvas.clear();
         canvas.begin();
-        //canvas.draw(background, 0, 0);
+        canvas.draw(background, 0, 0);
         drawTorch(canvas);
         canvas.end();
 

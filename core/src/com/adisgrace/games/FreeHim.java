@@ -83,7 +83,7 @@ public class FreeHim extends Game implements ScreenListener {
 			// Create primary game controller
 			game = new GameController(directory);
 			if (exitCode > 0) {
-				game.loadLevel(exitCode);
+				game.loadLevel(exitCode-1);
 			}
 
 			setScreen(game);
