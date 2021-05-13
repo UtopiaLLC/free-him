@@ -24,7 +24,7 @@ public class MainMenu implements Screen {
     /** Listener that will update the player mode when we are done */
     private ScreenListener listener;
     /** Canvas is the primary view class of the game */
-    private final GameCanvas canvas = new GameCanvas();
+    private GameCanvas canvas = new GameCanvas();
     /** Stage to set up main menu UI */
     Stage stage;
     /** Table for main menu buttons */

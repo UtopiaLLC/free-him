@@ -1,8 +1,7 @@
 package com.adisgrace.games;
 
 import com.adisgrace.games.GameCanvas;
-import static com.adisgrace.games.leveleditor.LevelEditorConstants.*;
-
+import com.adisgrace.games.util.GameConstants;
 import com.adisgrace.games.leveleditor.FormFactory;
 import com.adisgrace.games.util.ScreenListener;
 import com.badlogic.gdx.Gdx;
@@ -55,15 +54,15 @@ public class LevelSelection implements Screen {
         inputMultiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(inputMultiplexer);
 
-        // Label saying that this is the level editor
-        Label label = FormFactory.newLabel("(THE LEVEL EDITOR)", 465f);
-        label.setX((SCREEN_WIDTH / 2f) - (label.getWidth() / 2));
-        stage.addActor(label);
+//        // Label saying that this is the level editor
+//        Label label = FormFactory.newLabel("(THE LEVEL EDITOR)", 465f);
+//        label.setX((GameConstants.SCREEN_WIDTH / 2f) - (label.getWidth() / 2));
+//        stage.addActor(label);
 
         // New Level button
-        TextButton newLevel = new TextButton("CREATE NEW LEVEL", skin);
+        TextButton newLevel = new TextButton("CREATE NEW LEVEL", GameConstants.SELECTION_SKIN);
         newLevel.setWidth(200);
-        newLevel.setPosition((SCREEN_WIDTH / 2f) - (3 * newLevel.getWidth() / 2), 300);
+        newLevel.setPosition((GameConstants.SCREEN_WIDTH / 2f) - (3 * newLevel.getWidth() / 2), 300);
         stage.addActor(newLevel);
         // Exit with exit code 0
         newLevel.addListener(new ChangeListener() {
@@ -74,14 +73,14 @@ public class LevelSelection implements Screen {
         });
 
         // Load Level button
-        TextButton loadLevel = new TextButton("LOAD SAVED LEVEL", skin);
+        TextButton loadLevel = new TextButton("LOAD SAVED LEVEL", GameConstants.SELECTION_SKIN);
         loadLevel.setWidth(200);
-        loadLevel.setPosition((SCREEN_WIDTH / 2f) + (loadLevel.getWidth() / 2), 300);
+        loadLevel.setPosition((GameConstants.SCREEN_WIDTH / 2f) + (loadLevel.getWidth() / 2), 300);
 
         // Create list (lets you select one of a list of options) with the levels as options
         // Must be final so can be used in the load level listener
-        final List levelsList = new List(skin);
-        levelsList.setItems(LEVEL_DIRECTORY.list());
+        final List levelsList = new List(GameConstants.SELECTION_SKIN);
+        levelsList.setItems(GameConstants.LEVEL_DIRECTORY.list());
 
         // Create scroll pane to ensure list will be scrollable
         ScrollPane levelsScroll = new ScrollPane(levelsList);
@@ -93,7 +92,7 @@ public class LevelSelection implements Screen {
         // Create table to hold scroll pane and list
         Table levelOptions = new Table();
         // Set window in which things will be visible (anything outside will scroll)
-        levelOptions.setHeight(7.5f * FORM_GAP);
+        levelOptions.setHeight(7.5f * GameConstants.GC_FORM_GAP);
         // Set width to be 1.5 times that of the load level button
         levelOptions.setWidth(loadLevel.getWidth() * 1.5f);
         // Set the level list to be aligned near load level button
@@ -158,7 +157,7 @@ public class LevelSelection implements Screen {
 
         // Draw background image
         canvas.begin();
-        canvas.draw(TITLE_ASSET, -20, 0, SCREEN_WIDTH+20, SCREEN_HEIGHT);
+        canvas.draw(TITLE_ASSET, -20, 0, GameConstants.SCREEN_WIDTH+20, GameConstants.SCREEN_HEIGHT);
         canvas.end();
 
         // Draw buttons
