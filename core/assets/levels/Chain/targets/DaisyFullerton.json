@@ -1,0 +1,53 @@
+{
+	"targetName": "Daisy Fullerton",
+	"isMale": true,
+	"isGeneric": true,
+	"paranoia": 3,
+	"maxStress": 50,
+	"traits": [],
+	"firstNodes": ["2Node13", "1Node18"],
+	"firstConnectors": [[[0,0], [0,-1], [1,-1], [2,-1]], [[0,0], [0,1], [-1,1], [-2,1]]],
+	"firstConnectorTypes": [["S", "NE", "WE", "W"], ["N", "SW", "EW", "E"]],
+	"pod": 	[
+		{
+			"nodeName": "2Node13",
+			"title": "Generic Node",
+			"coords": [2.0,-1.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret",
+			"children": ["2Node19"],
+			"targetStressDamage": 5,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[2,-1], [2,-2], [2,-3]]],
+			"connectorTypes": [["S", "NS", "N"]]
+		},
+		{
+			"nodeName": "1Node18",
+			"title": "Generic Node",
+			"coords": [-2.0,1.0],
+			"locked": false,
+			"content": "There's nothing of use here... you'll have to keep digging.",
+			"summary": "",
+			"children": [],
+			"targetStressDamage": 0,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node19",
+			"title": "Generic Node",
+			"coords": [2.0,-3.0],
+			"locked": true,
+			"content": "You find a bombshell that you're certain was meant to stay secret. You can definitely use this.",
+			"summary": "Major Secret",
+			"children": [],
+			"targetStressDamage": 20,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}

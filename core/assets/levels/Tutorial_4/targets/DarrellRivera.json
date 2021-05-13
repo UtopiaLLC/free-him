@@ -4,7 +4,7 @@
 	"isGeneric": false,
 	"paranoia": 1,
 	"maxStress": 50,
-	"traits": [],
+	"traits": ["gossip"],
 	"firstNodes": ["1Node7"],
 	"firstConnectors": [[[0,0], [-1,0], [-2,0], [-2,-1]]],
 	"firstConnectorTypes": [["W", "EW", "ES", "N"]],

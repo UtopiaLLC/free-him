@@ -40,9 +40,7 @@
 			"title": "???",
 			"coords": [-2.0,-1.0],
 			"locked": true,
-			"content": "You try to get into the strange, flickering device you sometimes see connected to Jamie's network. After about ten minutes, the signal disappears, and you give up... but somehow, it's two hours after you started, and there's a sheet of paper covered in your illegible scrawl that you don't remember writing.
-
-You feel sick. Maybe he had this locked for a reason.",
+			"content": "You try to get into the strange, flickering device you sometimes see connected to Jamie's network. After about ten minutes, the signal disappears, and you give up... but somehow, it's two hours after you started, and there's a sheet of paper covered in your illegible scrawl that you don't remember writing.\n\nYou feel sick. Maybe he had this locked for a reason.",
 			"summary": "",
 			"children": [],
 			"targetStressDamage": 0,
