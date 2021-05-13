@@ -460,6 +460,7 @@ public class UIController {
                                              final LevelController levelController) {
         Dialog dialog = new Dialog("", skin) {
             public void result(Object obj) {
+                GameConstants.CLICK_ON.play();
                 GameController.nodeFreeze = false;
 
                 if(obj.getClass() == Boolean.class) {
@@ -511,6 +512,7 @@ public class UIController {
                 new Runnable() {
                     @Override
                     public void run() {
+                        GameConstants.SKILL_ACTIVE.play();
                         toolbarOnClick(harass, s, GameController.ActiveVerb.HARASS, confirmFunction);
                     }
                 }, new Runnable() {
@@ -545,6 +547,7 @@ public class UIController {
                 new Runnable() {
                     @Override
                     public void run() {
+                        GameConstants.SKILL_ACTIVE.play();
                         toolbarOnClick(expose, s, GameController.ActiveVerb.EXPOSE,  confirmFunction);
                     }
                 }, new Runnable() {
@@ -579,6 +582,7 @@ public class UIController {
                 new Runnable() {
                     @Override
                     public void run() {
+                        GameConstants.SKILL_ACTIVE.play();
                         toolbarOnClick(distract, s, GameController.ActiveVerb.DISTRACT,  confirmFunction);
                     }
                 }, new Runnable() {
@@ -613,6 +617,7 @@ public class UIController {
                 new Runnable() {
                     @Override
                     public void run() {
+                        GameConstants.SKILL_ACTIVE.play();
                         toolbarOnClick(gaslight, s, GameController.ActiveVerb.GASLIGHT,  confirmFunction);
                     }
                 }, new Runnable() {

@@ -270,6 +270,9 @@ public class GameController implements Screen{
         EastConnectorAnimation = connectorAnimation(Connector.TX_EAST);
         WestConnectorAnimation = connectorAnimation(Connector.TX_WEST);
 
+        // Fixing volume for sfx
+
+
     }
 
     public Array<String> readJson() {
@@ -460,6 +463,8 @@ public class GameController implements Screen{
                 }
 //                System.out.println("CHANGE STATE");
 //                System.out.println(state);
+
+                GameConstants.TARGET_STATE_CHANGE.play(.5f);
 
             }
         }
@@ -764,7 +769,7 @@ public class GameController implements Screen{
             {
                 uiController.createDialogBox("You end the day after a long battle of psychological warfare.");
                 levelController.endDay();
-                GameConstants.END_DAY.play();
+                GameConstants.END_DAY.play(.5f);
             }
         });
         return end;
@@ -1201,6 +1206,7 @@ public class GameController implements Screen{
         if(levelController.canHarass(targetName)) {
             uiController.getBlackmailFact("Select a fact to threaten the target with.", targetName,
                     levelController);
+            GameConstants.TARGET_CLICKED.play(0.5f);
         }
         else {
             uiController.createDialogBox("Insufficient AP to threaten the target.");
@@ -1216,6 +1222,7 @@ public class GameController implements Screen{
         if(levelController.canExpose(targetName)) {
             uiController.getBlackmailFact("Select a fact to expose the target with.", targetName,
                     levelController);
+            GameConstants.TARGET_CLICKED.play(0.5f);
         }
         else {
             uiController.createDialogBox("Insufficient AP to expose the target.");
@@ -1229,10 +1236,15 @@ public class GameController implements Screen{
      */
     private void gaslight(String targetName){
         if(levelController.canGaslight(targetName)) {
-            if(levelController.gaslight(targetName))
+            if(levelController.gaslight(targetName)){
                 uiController.createDialogBox("You manage to convince them that you're a figment of their imagination.");
-            else
+                GameConstants.TARGET_CLICKED.play(0.5f);
+            }
+
+            else {
                 uiController.createDialogBox("You fail to gaslight them, and only further arouse their suspicions.");
+                GameConstants.TARGET_CLICKED.play(0.5f);
+            }
         }
         else {
             uiController.createDialogBox("Insufficient AP to gaslight the target.");
@@ -1248,6 +1260,7 @@ public class GameController implements Screen{
         if(levelController.canDistract(targetName)){
             if(levelController.distract(targetName)){
                 uiController.createDialogBox("You manage to distract your target. They won't have time to deal with you for a while.");
+                GameConstants.TARGET_CLICKED.play(0.5f);
             }else{
                 uiController.createDialogBox("You fail to distract them, and only further arouse their suspicions.");
             }
