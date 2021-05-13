@@ -82,6 +82,9 @@ public class TargetModel {
 	/** Instance of Random class, to be used whenever a random number is needed */
 	private Random rand;
 
+	/** Message to display when the target is defeated */
+	private String defeatMessage;
+
 
 	/************************************************* TARGET CONSTRUCTOR *************************************************/
 
@@ -203,8 +206,9 @@ public class TargetModel {
 		}
 
 		// Initialize other values
-		stress = 0;
-		suspicion = 0;
+		stress = json.getInt("startingStress", 0);
+		suspicion = json.getInt("startingSuspicion", 0);
+		defeatMessage = json.getString("defeatMessage", name + " breaks under the pressure.");
 		naturallySuspiciousCheck = false;
 		state = TargetState.UNAWARE;
 		distractedTurns = 0;
@@ -405,6 +409,13 @@ public class TargetModel {
 	 */
 	public boolean isGeneric(){
 		return isGeneric;
+	}
+
+	/**
+	 * Returns message to show on target defeat
+	 */
+	public String getDefeatMessage() {
+		return defeatMessage;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

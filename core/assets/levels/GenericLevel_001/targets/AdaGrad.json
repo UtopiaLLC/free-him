@@ -5,7 +5,7 @@
 	"paranoia": 3,
 	"maxStress": 100,
 	"traits": [],
-	"firstNodes": ["2Node92", "2Node93", "2Node101", "1Node100"],
+	"firstNodes": ["2Node92", "2Node93", "2Node100", "1Node107"],
 	"firstConnectors": [[[0,0], [1,0], [2,0], [3,0]], [[0,0], [0,-1], [0,-2], [0,-3]], [[0,0], [1,0], [2,0], [2,1], [2,2], [2,3]], [[0,0], [-1,0], [-2,0]]],
 	"firstConnectorTypes": [["E", "WE", "WE", "W"], ["S", "NS", "NS", "N"], ["E", "WE", "WN", "SN", "SN", "S"], ["W", "EW", "E"]],
 	"pod": 	[
@@ -36,7 +36,7 @@
 			"connectorTypes": [["S", "NS", "NS", "N"]]
 		},
 		{
-			"nodeName": "2Node101",
+			"nodeName": "2Node100",
 			"title": "Generic Node",
 			"coords": [2.0,3.0],
 			"locked": true,
@@ -49,7 +49,7 @@
 			"connectorTypes": [["N", "SN", "SN", "S"]]
 		},
 		{
-			"nodeName": "1Node100",
+			"nodeName": "1Node107",
 			"title": "Generic Node",
 			"coords": [-2.0,0.0],
 			"locked": false,

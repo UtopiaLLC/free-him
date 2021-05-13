@@ -22,8 +22,6 @@ import java.util.*;
  * JSON and construct the corresponding level.
  */
 public class LevelEditorParser {
-    /** Level dimensions */
-    private int level_width, level_height;
     /** Map from target names to the TargetTiles  */
     private Map<String, TargetTile> targets;
     private Map<String, NodeTile> nodes;
@@ -79,8 +77,6 @@ public class LevelEditorParser {
         // Get relevant data from the model
         ArrayMap<String, LevelTile> levelTiles = model.getLevelTiles();
         ArrayMap<Vector2, Array<String>> levelMap = model.getLevelMap();
-        level_width = model.getLevelWidth();
-        level_height = model.getLevelHeight();
 
         // Go through each grid tile that contains LevelTiles
         String c;
@@ -136,8 +132,7 @@ public class LevelEditorParser {
 
         // Make JSON
         try {
-            // Don't need to include ".json"
-            make_level_json(model.getLevelName());
+            make_level_json(model);
             System.out.println("Level " + model.getLevelName() + " Save Complete");
             return true;
         }
@@ -336,13 +331,17 @@ public class LevelEditorParser {
     /******************************************** JSON PARSING: SAVE LEVEL ********************************************/
 
     /**
-     * Writes level to a json with the given filename
+     * Writes level stored in the given model to a file with the same name as the level
      * Targets are written to jsons named after their names, ie John Smith -> JohnSmith.json
-     * @param filename name of level file (not including .json file extension)
+     *
+     * @param model Model that level data is stored in
      */
-    public void make_level_json(String filename) throws IOException{
+    public void make_level_json(LevelEditorModel model) throws IOException{
         System.out.println("started saving level");
         BufferedWriter out;
+
+        // Filename doesn't have the .json extension
+        String filename = model.getLevelName();
 
         // Create folder for all of level contents
         String path = "levels/" + filename;
@@ -361,9 +360,10 @@ public class LevelEditorParser {
         targetpositions = "[" + targetpositions.substring(2) + "]";
         out.write("{\n" +
                 "\t\"name\": \"" + filename + "\",\n" +
-                "\t\"dims\": [" + level_width + ", " + level_height + "],\n" +
+                "\t\"dims\": [" + model.getLevelWidth() + ", " + model.getLevelHeight() + "],\n" +
                 "\t\"targets\": " + targetlist + ",\n" +
-                "\t\"targetLocs\": " + targetpositions + "\n}"
+                "\t\"targetLocs\": " + targetpositions + ",\n" +
+                "\t\"timeLimit\": " + model.getLevelTimeLimit() + "\n}"
         );
         // Finish writing level JSON
         out.flush();
@@ -560,6 +560,8 @@ public class LevelEditorParser {
         // Get and store level dimensions
         int[] dims = leveljson.get("dims").asIntArray();
         model.setLevelDimensions(dims[0], dims[1]);
+        // Get and store level time limit
+        model.setLevelTimeLimit(leveljson.getInt("timeLimit"));
 
         // Get iterator for locations of targets in level
         JsonValue locations = leveljson.get("targetLocs");

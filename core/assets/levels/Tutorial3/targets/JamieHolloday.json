@@ -5,12 +5,12 @@
 	"paranoia": 3,
 	"maxStress": 50,
 	"traits": [],
-	"firstNodes": ["1Node56", "1Node11", "2Node1"],
+	"firstNodes": ["1Node21", "1Node22", "2Node35"],
 	"firstConnectors": [[[0,0], [0,1], [-1,1], [-1,2], [-2,2]], [[0,0], [0,1], [1,1], [2,1]], [[0,0], [0,-1], [-1,-1], [-2,-1]]],
 	"firstConnectorTypes": [["N", "SW", "EN", "SW", "E"], ["N", "SE", "WE", "W"], ["S", "NW", "EW", "E"]],
 	"pod": 	[
 		{
-			"nodeName": "1Node56",
+			"nodeName": "1Node21",
 			"title": "Torchlight Employee File",
 			"coords": [-2.0,2.0],
 			"locked": false,
@@ -23,24 +23,26 @@
 			"connectorTypes": []
 		},
 		{
-			"nodeName": "1Node11",
+			"nodeName": "1Node22",
 			"title": "Personal Email",
 			"coords": [2.0,1.0],
 			"locked": false,
 			"content": "It seems like Jamie has missed a recent appointment with his parole officer. He was profusely apologetic in  his response and his PO let it go, but it seems like his crime was bad enough that they're keeping a close eye on him.",
 			"summary": "Jamie recently missed an appointment with his parole officer. He may have been incarcerated for a pretty bad crime.",
-			"children": ["1Node43", "1Node42"],
+			"children": ["1Node36", "1Node37"],
 			"targetStressDamage": 5,
 			"playerStressDamage": 0,
 			"connectorCoords": [[[2,1], [2,2], [2,3]], [[2,1], [2,0], [2,-1], [3,-1], [4,-1]]],
 			"connectorTypes": [["N", "SN", "S"], ["S", "NS", "NE", "WE", "W"]]
 		},
 		{
-			"nodeName": "2Node1",
+			"nodeName": "2Node35",
 			"title": "???",
 			"coords": [-2.0,-1.0],
 			"locked": true,
-			"content": "You try to get into the strange, flickering device you sometimes see connected to Jamie's network. After about ten minutes, the signal disappears, and you give up... but somehow, it's two hours after you started, and there's a sheet of paper covered in your illegible scrawl that you don't remember writing.\n\nYou feel sick. Maybe he had this locked for a reason.",
+			"content": "You try to get into the strange, flickering device you sometimes see connected to Jamie's network. After about ten minutes, the signal disappears, and you give up... but somehow, it's two hours after you started, and there's a sheet of paper covered in your illegible scrawl that you don't remember writing.
+
+You feel sick. Maybe he had this locked for a reason.",
 			"summary": "",
 			"children": [],
 			"targetStressDamage": 0,
@@ -49,7 +51,7 @@
 			"connectorTypes": []
 		},
 		{
-			"nodeName": "1Node43",
+			"nodeName": "1Node36",
 			"title": "Court Records",
 			"coords": [2.0,3.0],
 			"locked": false,
@@ -62,7 +64,7 @@
 			"connectorTypes": []
 		},
 		{
-			"nodeName": "1Node42",
+			"nodeName": "1Node37",
 			"title": "Social Media",
 			"coords": [4.0,-1.0],
 			"locked": false,
@@ -75,36 +77,5 @@
 			"connectorTypes": []
 		}
 	],
-	"combos": [
-		{
-			"relatedFacts": ["1Node56","1Node43"],
-			"overwrite": "1Node56",
-			"comboSummary": "Two months ago, Jamie was hired by Carol Fernandez at Torchlight after passing a background check that he should've failed, considering his history of violent assault.",
-			"comboStressDamage": 20
-		},
-		{
-			"relatedFacts": ["1Node56","1Node11"],
-			"overwrite": "1Node56",
-			"comboSummary": "Two months ago, Jamie was hired by Carol Fernandez at Torchlight after passing a background check that he should've failed, considering he must've done something in order to have a parole officer.",
-			"comboStressDamage": 15
-		},
-		{
-			"relatedFacts": ["1Node56","1Node11","1Node43"],
-			"overwrite": "1Node56",
-			"comboSummary": "Two months ago, Jamie was hired by Carol Fernandez at Torchlight after passing a background check that he should've failed, considering his history of violent assault.",
-			"comboStressDamage": 20
-		},
-		{
-			"relatedFacts": ["1Node56","1Node42"],
-			"overwrite": "1Node42",
-			"comboSummary": "Jamie's only social media is a fake account. He added Carol Fernandez as a friend a year ago, ten months before she hired him at Torchlight. Why the subterfuge with the fake account?",
-			"comboStressDamage": 15
-		},
-		{
-			"relatedFacts": ["1Node56","1Node11","1Node43","1Node42"],
-			"overwrite": "1Node56",
-			"comboSummary": "Two months ago, Jamie was hired by Carol Fernandez at Torchlight after passing a background check that he should've failed, considering his history of violent assault. The fact that he knew Carol ten months before she hired him may have had something to do with it.",
-			"comboStressDamage": 30
-		}
-	]
+	"combos": []
 }
