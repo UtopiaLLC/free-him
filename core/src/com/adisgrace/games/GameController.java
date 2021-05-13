@@ -149,6 +149,10 @@ public class GameController implements Screen{
     private FillBar stressBar;
     /** label for the amount of bitecoin a player has*/
     private Label bitecoinAmount;
+    /** Group for the days left in level*/
+    private Group daysGroup;
+    /** label for the days left in level*/
+    private Label daysLeft;
     /** shapeRenderer for grid lines, may not be needed anymore*/
     private ShapeRenderer shapeRenderer;
     /** controller for camera operations*/
@@ -819,6 +823,9 @@ public class GameController implements Screen{
         toolbarStage.addActor(toolbar);
         toolbarStage.addActor(createStats());
         toolbarStage.addActor(stressBar);
+
+        createDayGroup();
+        toolbarStage.addActor(daysGroup);
     }
 
     /**
@@ -903,7 +910,6 @@ public class GameController implements Screen{
         Image bitecoinCounter = new Image(new TextureRegionDrawable(new TextureRegion(
                 new Texture("UI/BitecoinCounter.png"))));
 
-        System.out.println(bitecoinCounter.getWidth() + " . " + bitecoinCounter.getHeight());
         bitecoinAmount = new Label(Integer.toString((int)levelController.getPlayerCurrency()), skin, "bitcoin");
 
         bitecoinGroup.addActor(bitecoinCounter);
@@ -913,6 +919,24 @@ public class GameController implements Screen{
 
         bitecoinGroup.setSize(bitecoinCounter.getWidth(), bitecoinCounter.getHeight());
         return bitecoinGroup;
+
+    }
+
+    private void createDayGroup() {
+
+        daysGroup = new Group();
+        Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth() * .80f, Gdx.graphics.getHeight() * .90f);
+        daysGroup.setPosition(zeroLoc.x, zeroLoc.y);
+
+        Label daysText = new Label("Days Left: ", skin, "pink");
+
+        daysGroup.addActor(daysText);
+        daysLeft = new Label(Integer.toString((int)levelController.getDaysLeft()), skin, "bitcoin");
+
+        daysGroup.addActor(daysLeft);
+        daysLeft.setPosition(daysText.getWidth()-10, -20);
+
+
 
     }
 
@@ -1283,7 +1307,12 @@ public class GameController implements Screen{
 //        stressBar.setValue(levelController.getPlayerStress());
         stressBar.setFillAmount(1-levelController.getPlayerStress()/ GameConstants.MAX_STRESS);
 //        stressBar.setFillAmount(1f);
-        bitecoinAmount.setText(Integer.toString((int)levelController.getPlayerCurrency()));
+        float bitecoinNum = levelController.getPlayerCurrency();
+        if(bitecoinNum < 0) {
+            bitecoinNum = 0;
+        }
+        String bitecoinAmt = Integer.toString((int) bitecoinNum);
+        bitecoinAmount.setText(bitecoinAmt);
 //        ap.setText("AP: " + Integer.toString(levelController.getAP()));
         displayedAP.remove();
         displayedAP = apImages[levelController.getAP()];
@@ -1296,6 +1325,7 @@ public class GameController implements Screen{
         menuBack.setTouchable(Touchable.disabled);
         toolbarStage.addActor(menuBack);
         menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
+        daysLeft.setText(Integer.toString((int)levelController.getDaysLeft()));
 
 //        displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
     }

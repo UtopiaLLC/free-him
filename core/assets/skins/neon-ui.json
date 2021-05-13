@@ -375,6 +375,10 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 		font: VCR_Big
 		fontColor: White
 	}
+	pink: {
+		font: VT323-Regular_White_2
+		fontColor: Neon_purple
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
 	default: {
