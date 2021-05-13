@@ -4,5 +4,5 @@
 	"targets": ["DarrellRivera.json", "WilliamMacintyre.json"],
 	"targetLocs": [[4, -1], [-4, -1]],
 	"timeLimit": 20,
-	"tutorialText": "Stuff"
+	"tutorialText": "That's not quite what I'd expected from him, but it doesn't entirely surprise me either. Suspicious things have been happening recently. Your payment should arrive soon.\n\nYour next job is a pair of old friends, Darrell and William. Be careful what you say around Darrell; he likes to mouth off around the water cooler."
 }

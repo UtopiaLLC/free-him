@@ -21,7 +21,7 @@ import java.util.logging.Level;
 
 public class LevelController {
 
-    public static int MINION_DAMAGE = 5;
+    public static double MINION_DAMAGE = 0.2;
 
     private LevelModel levelModel;
     private PlayerModel player;
@@ -209,7 +209,7 @@ public class LevelController {
         levelModel.getTargets().get(target).addStress(stressDamage);
         if(!levelModel.isBoss(target) && levelModel.getTarget(target).getState() == TargetModel.TargetState.DEFEATED){
             for(String boss : levelModel.getBosses())
-                levelModel.getTarget(boss).addStress(MINION_DAMAGE * levelModel.getTarget(target).getMaxStress());
+                levelModel.getTarget(boss).addStress((int)(MINION_DAMAGE * levelModel.getTarget(target).getMaxStress()));
         }
         return levelModel.getLevelState();
     }
@@ -243,7 +243,7 @@ public class LevelController {
             levelModel.getTargets().get(target).addStress(stressDamage);
             if(!levelModel.isBoss(target) && levelModel.getTarget(target).getState() == TargetModel.TargetState.DEFEATED){
                 for(String boss : levelModel.getBosses())
-                    levelModel.getTarget(boss).addStress(MINION_DAMAGE * levelModel.getTarget(target).getMaxStress());
+                    levelModel.getTarget(boss).addStress((int)(MINION_DAMAGE * levelModel.getTarget(target).getMaxStress()));
             }
         }
         return stressDamage;
