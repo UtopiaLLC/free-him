@@ -174,10 +174,6 @@ public class LoadingMode implements Screen {
         stateTime += Gdx.graphics.getDeltaTime();
         reg = torchAnimation.getKeyFrame(stateTime, true);
 
-        //Color tint = (pressState == 1 ? Color.GRAY: Color.WHITE);
-//        canvas.draw(reg,Gdx.graphics.getWidth()/2, Gdx.graphics.getWidth() * .75,
-//                reg.getWidth()/2, reg.getHeight()/2,
-//                , 0, 1, 1, 0);
         canvas.getSpriteBatch().draw(reg,Gdx.graphics.getWidth()/2 - reg.getRegionWidth()/2,
                 Gdx.graphics.getHeight() * .75f - reg.getRegionHeight()/2, reg.getRegionWidth()/2,
                 reg.getRegionHeight() / 2, reg.getRegionWidth(), reg.getRegionHeight(), .75f, .75f, 0);

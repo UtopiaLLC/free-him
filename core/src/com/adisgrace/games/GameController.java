@@ -16,10 +16,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
@@ -836,24 +833,30 @@ public class GameController implements Screen{
 //        leftSide.add(stressBar).left().width(75).height(244);
 //        leftSide.add(stressBar).left();
         leftSide.add(new Image()).left().width(100).height(244);
-        leftSide.add(createBitecoinStack());
+        leftSide.add(createBitecoinGroup());
         return leftSide;
     }
 
     /**
-     * This method creates a Stack UI element that has the bitecoin numbers and the UI drawable
-     * @return the bitecoin stack
+     * This method creates a Group UI element that has the bitecoin numbers and the UI drawable
+     * @return the bitecoin group
      */
-    private Stack createBitecoinStack(){
-        Stack bitecoinStack = new Stack();
+    private Group createBitecoinGroup(){
+        Group bitecoinGroup = new Group();
 
         Image bitecoinCounter = new Image(new TextureRegionDrawable(new TextureRegion(
                 new Texture("UI/BitecoinCounter.png"))));
+
+        System.out.println(bitecoinCounter.getWidth() + " . " + bitecoinCounter.getHeight());
         bitecoinAmount = new Label(Integer.toString((int)levelController.getPlayerCurrency()), skin, "bitcoin");
 
-        bitecoinStack.add(bitecoinCounter);
-        bitecoinStack.add(bitecoinAmount);
-        return bitecoinStack;
+        bitecoinGroup.addActor(bitecoinCounter);
+        bitecoinGroup.addActor(bitecoinAmount);
+
+        bitecoinAmount.setPosition(bitecoinCounter.getWidth()*.25f, bitecoinCounter.getHeight()*.35f);
+
+        bitecoinGroup.setSize(bitecoinCounter.getWidth(), bitecoinCounter.getHeight());
+        return bitecoinGroup;
 
     }
 
