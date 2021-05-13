@@ -39,6 +39,7 @@ public class Node extends Group {
     
     private float stateTime;
     private TextureRegion reg;
+    private boolean isFemale;
 
 
     private int colorBoi = 0;
@@ -52,6 +53,7 @@ public class Node extends Group {
 
         nodeType = type;
         nodeState = state;
+        isFemale = false;
 
         changeTextures(nodeState, nodeType);
 
@@ -63,6 +65,11 @@ public class Node extends Group {
         counter = 0;
         up = true;
         reg = nodeBaseReg;
+    }
+
+    public void isFemale(boolean female) {
+        isFemale = female;
+        changeTextures(nodeState, nodeType);
     }
 
     public void changeColor(int type) {
@@ -101,7 +108,11 @@ public class Node extends Group {
             case TARGET:
                 //topAnimation = NodeView.getTargetNode(nodeType);
                 topAnimation = null;
-                topRegion = NodeView.getTargetNode(nodeType);
+                if(isFemale) {
+                    topRegion = NodeView.getTargetFemaleNode(nodeType);
+                } else {
+                    topRegion = NodeView.getTargetNode(nodeType);
+                }
                 nodeBaseReg = NodeView.getTargetBase(nodeType);
                 break;
         }

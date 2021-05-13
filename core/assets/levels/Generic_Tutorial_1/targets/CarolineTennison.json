@@ -1,6 +1,6 @@
 {
 	"targetName": "Caroline Tennison",
-	"isMale": true,
+	"isMale": false,
 	"isGeneric": true,
 	"paranoia": 5,
 	"maxStress": 80,

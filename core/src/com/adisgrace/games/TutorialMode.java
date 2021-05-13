@@ -101,8 +101,11 @@ public class TutorialMode implements Screen {
         background = directory.getEntry("background", Texture.class);
 
         Label tutorialTex = new Label(tutorialText, GameConstants.SELECTION_SKIN, "tutorial-text");
+        if(tutorialText.length() > 30) {
+            tutorialTex.setWidth(600);
+        }
         tutorialTex.setWrap(true);
-        tutorialTex.setPosition(Gdx.graphics.getWidth() / 2 - tutorialTex.getWidth(), Gdx.graphics.getHeight()*.5f - tutorialTex.getHeight());
+        tutorialTex.setPosition(Gdx.graphics.getWidth() / 2 - tutorialTex.getWidth()/2, Gdx.graphics.getHeight()*.5f - tutorialTex.getHeight());
         stage.addActor(tutorialTex);
         //Gdx.input.setInputProcessor();
 

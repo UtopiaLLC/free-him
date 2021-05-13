@@ -103,6 +103,7 @@ public class FreeHim extends Game implements ScreenListener {
 
 			}
 		} else if (screen == tutorialMode) {
+			game.resetInputProcessor();
 			setScreen(game);
 
 			tutorialMode.dispose();

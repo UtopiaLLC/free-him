@@ -186,8 +186,12 @@ public class GameController implements Screen{
     private static Texture TX_MENU_BACK;
     /** Constants for dimensions of screen */
 
+    /** Used for the loading of levels */
     private String tutorialText;
     private boolean init;
+
+    /** Used to clear the toolbar after a Win or Loss */
+    private boolean cleared;
 
 
     public GameController(AssetDirectory directory) {
@@ -287,12 +291,15 @@ public class GameController implements Screen{
             uiController.unCheck();
         }
 
-        if(!ended) {
-            cameraController.moveCamera();
-            toolbarStage.act(delta);
-            if(!nodeFreeze) {
-                stage.act(delta);
-            }
+        if(levelController.getLevelState() != LevelModel.LevelState.ONGOING && !cleared) {
+            toolbarStage.clear();
+            createToolbar();
+            cleared = true;
+        }
+        cameraController.moveCamera();
+        toolbarStage.act(delta);
+        if(!nodeFreeze) {
+            stage.act(delta);
         }
         updateNodeColors();
         updateStats();
@@ -307,24 +314,24 @@ public class GameController implements Screen{
 
         if(levelController.getLevelState() == LevelModel.LevelState.LOSE && !ended) {
             uiController.createDialogBox("YOU LOSE!");
-            //ended = true;
-            uiController.createDialogBox("You must now restart!");
-            loadLevel(currentLevel);
+            ended = true;
+            //uiController.createDialogBox("You must now restart!");
+            //loadLevel(currentLevel);
 
         } else if (levelController.getLevelState() == LevelModel.LevelState.TIMEOUT && !ended){
-            uiController.createDialogBox("You must now restart!");
-            //ended = true;
+            //uiController.createDialogBox("You must now restart!");
+            ended = true;
             uiController.createDialogBox("YOU RAN OUT OF TIME!");
-            loadLevel(currentLevel);
+            //loadLevel(currentLevel);
         } else if (levelController.getLevelState() == LevelModel.LevelState.WIN && !ended) {
             uiController.createDialogBox("You Win!");
-            //ended = true;
-            if(currentLevel+1 > levelJsons.size-1) {
-                uiController.createDialogBox("You beat all our levels!");
-            } else {
-                currentLevel = currentLevel+1;
-                loadLevel(currentLevel);
-            }
+            ended = true;
+//            if(currentLevel+1 > levelJsons.size-1) {
+//                uiController.createDialogBox("You beat all our levels!");
+//            } else {
+//                currentLevel = currentLevel+1;
+//                loadLevel(currentLevel);
+//            }
         }
 
 
@@ -371,7 +378,9 @@ public class GameController implements Screen{
                 }
                 imageNodes.get(target.getName()).changeColor(colorState);
                 targetStates.set(i, state);
-
+                if(state == TargetModel.TargetState.DEFEATED) {
+                    uiController.createDialogBox(target.getDefeatMessage());
+                }
 //                System.out.println("CHANGE STATE");
 //                System.out.println(state);
 
@@ -526,9 +535,12 @@ public class GameController implements Screen{
             init = !init;
         }
 
+
+
         stage.clear();
         targetStates = new Array<>();
         activeVerb = ActiveVerb.NONE;
+        cleared = false;
 
         targets = new Array<>();
         for (TargetModel t: levelController.getTargetModels().values()){
@@ -605,6 +617,13 @@ public class GameController implements Screen{
     
     public String getTutorialText() {
         return tutorialText;
+    }
+
+    public void resetInputProcessor() {
+        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(toolbarStage);
+        inputMultiplexer.addProcessor(stage);
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     /**
