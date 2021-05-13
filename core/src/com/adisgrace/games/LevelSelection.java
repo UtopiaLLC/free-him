@@ -60,17 +60,17 @@ public class LevelSelection implements Screen {
 //        stage.addActor(label);
 
         // New Level button
-        TextButton newLevel = new TextButton("CREATE NEW LEVEL", GameConstants.SELECTION_SKIN);
-        newLevel.setWidth(200);
-        newLevel.setPosition((GameConstants.SCREEN_WIDTH / 2f) - (3 * newLevel.getWidth() / 2), 300);
-        stage.addActor(newLevel);
-        // Exit with exit code 0
-        newLevel.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                exit(0);
-            }
-        });
+//        TextButton newLevel = new TextButton("CREATE NEW LEVEL", GameConstants.SELECTION_SKIN);
+//        newLevel.setWidth(200);
+//        newLevel.setPosition((GameConstants.SCREEN_WIDTH / 2f) - (3 * newLevel.getWidth() / 2), 300);
+//        stage.addActor(newLevel);
+//        // Exit with exit code 0
+//        newLevel.addListener(new ChangeListener() {
+//            @Override
+//            public void changed(ChangeEvent event, Actor actor) {
+//                exit(0);
+//            }
+//        });
 
         // Load Level button
         TextButton loadLevel = new TextButton("LOAD SAVED LEVEL", GameConstants.SELECTION_SKIN);
@@ -112,7 +112,9 @@ public class LevelSelection implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 // Store level that is to be loaded, then exit
                 levelToLoad = (String) levelsList.getSelected();
-                exit(1);
+                int level = levelsList.getSelectedIndex()+1;
+                exit(level);
+
             }
         });
     }
