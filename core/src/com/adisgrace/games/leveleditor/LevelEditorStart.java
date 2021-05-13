@@ -77,13 +77,6 @@ public class LevelEditorStart implements Screen {
         loadLevel.setWidth(200);
         loadLevel.setPosition((SCREEN_WIDTH / 2f) + (loadLevel.getWidth() / 2), 300);
 
-        /**
-        // Create dropdown menu of available levels to load in
-        final SelectBox selectBox = FormFactory.newSelectBox(LEVEL_DIRECTORY.list(),250,200,null);
-        selectBox.setX((SCREEN_WIDTH / 2f) + (newLevel.getWidth() / 2) + loadLevel.getWidth());
-        selectBox.setMaxListCount(10);
-        stage.addActor(selectBox);
-         */
         // Create list (lets you select one of a list of options) with the levels as options
         // Must be final so can be used in the load level listener
         final List levelsList = new List(skin);

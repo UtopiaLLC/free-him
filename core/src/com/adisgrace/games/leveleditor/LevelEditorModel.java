@@ -22,6 +22,8 @@ public class LevelEditorModel {
     private String levelName;
     /** Dimensions of the level */
     public int levelWidth, levelHeight;
+    /** Time limit of level */
+    private int timeLimit;
     /** Hashmap of target/node names to their LevelTiles */
     private ArrayMap<String, LevelTile> levelTiles = new ArrayMap<>();
     /** Hashmap of coordinates and the names of the objects at that location */
@@ -496,6 +498,24 @@ public class LevelEditorModel {
      * @return  Height of the level.
      */
     public int getLevelHeight() {return levelHeight;}
+
+    /**
+     * Returns the time limit of the level.
+     *
+     * @return  Time limit of the level.
+     */
+    public int getLevelTimeLimit() {
+        return timeLimit;
+    }
+
+    /**
+     * Sets the level time limit to the given time limit.
+     *
+     * @param timeLimit  Time limit to set the level's time limit to.
+     */
+    public void setLevelTimeLimit(int timeLimit) {
+        this.timeLimit = timeLimit;
+    }
 
     /**
      * Sets the dimensions of the level to the given dimensions.

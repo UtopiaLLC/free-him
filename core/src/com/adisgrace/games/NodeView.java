@@ -14,6 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 import javax.swing.plaf.TextUI;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +39,10 @@ public class NodeView {
     public static Array<Animation> scannedNodes;
     /** Array of sprites for target nodes*/
     public static Array<TextureRegion> targetNodes;
+    /** Array of sprites for target nodes*/
+    public static Array<TextureRegion> targetFemaleNodes;
+    /** Array of sprites for target nodes*/
+    public static Array<TextureRegion> targetBossNodes;
     /** Array of sprites for node bases*/
     public static Array<TextureRegion> nodeBases;
     /** Array of sprites for target bases */
@@ -123,6 +129,7 @@ public class NodeView {
             Node node = new Node(pos.x, pos.y, target.getName()+","+targetNodes.get(i), 1, state);
             imageNodes.put(target.getName()+","+targetNodes.get(i), node);
 
+            
             stage.addActor(node);
         }
 
@@ -133,6 +140,8 @@ public class NodeView {
 
 
         Node targetNode = new Node(pos.x, pos.y, target.getName(), 1, Node.NodeState.TARGET);
+        targetNode.isBoss(!target.isGeneric());
+        targetNode.isFemale(!target.isMale());
         imageNodes.put(target.getName(), targetNode);
         stage.addActor(targetNode);
 
@@ -218,6 +227,11 @@ public class NodeView {
                 node.getWidth() / 10,
                 node.getHeight() / 6);
 
+        node = new Texture("node/N_UnscannedNodeHigh_1.png");
+        TextureRegion [][] high_regions = new TextureRegion(node).split(
+                node.getWidth() / 10,
+                node.getHeight() / 6);
+
 
         Texture combined;
         TextureRegion[] spinFrames = new TextureRegion[10];
@@ -226,7 +240,7 @@ public class NodeView {
             for (int i = 0; i < 10; i++) {
                 //combined = GameCanvas.combineTextures(regions[j][i], node_regions[0][j]);
                 //spinFrames[i] = new TextureRegion(combined);
-                spinFrames[i] = new TextureRegion(regions[j][i]);
+                spinFrames[i] = new TextureRegion(high_regions[j][i]);
             }
 
             Animation<TextureRegion> spinAnimation = new Animation<TextureRegion>(0.025f, spinFrames);
@@ -253,6 +267,12 @@ public class NodeView {
                 node.getWidth() / 10,
                 node.getHeight() / 6);
 
+        node = new Texture("node/N_ScannedNodeHigh_1.png");
+        high_regions = new TextureRegion(node).split(
+                node.getWidth() / 10,
+                node.getHeight() / 6);
+
+
         spinFrames = new TextureRegion[10];
 
         for(int j = 0; j < 6; j++) {
@@ -260,7 +280,7 @@ public class NodeView {
             for (int i = 0; i < 10; i++) {
                 //combined = GameCanvas.combineTextures(regions[j][i], node_regions[0][j]);
                 //spinFrames[i] = new TextureRegion(combined);
-                spinFrames[i] = new TextureRegion(regions[j][i]);
+                spinFrames[i] = new TextureRegion(high_regions[j][i]);
             }
 
             Animation<TextureRegion> spinAnimation = new Animation<TextureRegion>(0.025f, spinFrames);
@@ -298,6 +318,42 @@ public class NodeView {
             //combined = GameCanvas.combineTextures(regions[1][i], node_regions[1][i]);
             //drawable = new TextureRegionDrawable(new TextureRegion(combined));
             targetNodes.add(new TextureRegion(regions[1][i]));
+
+        }
+
+        targetFemaleNodes = new Array<>();
+
+        target_Look = new Texture("node/N_TargetFemale_1.png");
+        regions = new TextureRegion(target_Look).split(
+                target_Look.getWidth() / 6,
+                target_Look.getHeight() / 2);
+
+        for(int i = 0; i < 6; i++) {
+            //combined = GameCanvas.combineTextures(regions[0][i], node_regions[0][i]);
+            //drawable = new TextureRegionDrawable(new TextureRegion(combined));
+            targetFemaleNodes.add(new TextureRegion(regions[0][i]));
+
+            //combined = GameCanvas.combineTextures(regions[1][i], node_regions[1][i]);
+            //drawable = new TextureRegionDrawable(new TextureRegion(combined));
+            targetFemaleNodes.add(new TextureRegion(regions[1][i]));
+
+        }
+
+        targetBossNodes = new Array<>();
+
+        target_Look = new Texture("node/N_TargetBoss_1.png");
+        regions = new TextureRegion(target_Look).split(
+                target_Look.getWidth() / 6,
+                target_Look.getHeight() / 2);
+
+        for(int i = 0; i < 6; i++) {
+            //combined = GameCanvas.combineTextures(regions[0][i], node_regions[0][i]);
+            //drawable = new TextureRegionDrawable(new TextureRegion(combined));
+            targetBossNodes.add(new TextureRegion(regions[0][i]));
+
+            //combined = GameCanvas.combineTextures(regions[1][i], node_regions[1][i]);
+            //drawable = new TextureRegionDrawable(new TextureRegion(combined));
+            targetBossNodes.add(new TextureRegion(regions[1][i]));
 
         }
 
@@ -424,6 +480,50 @@ public class NodeView {
      */
     public static TextureRegion getTargetNode(int type) {
         return targetNodes.get(type);
+    }
+
+    /**
+     *
+     * @param type where:
+     *             0 = Green, Litup
+     *             1 = Green, Dimmed
+     *             2 = Yellow, Litup
+     *             3 = Yellow, Dimmed
+     *             4 = Red, Litup
+     *             5 = Red, Dimmed
+     *             6 = Orange, Litup
+     *             7 = Orange, Dimmed
+     *             8 = Purple, Litup
+     *             9 = Purple, Dimmed
+     *             10 = Grey, Litup
+     *             11 = Grey, Dimmed
+     *
+     * @return Returns the node drawable based on the type specified
+     */
+    public static TextureRegion getTargetFemaleNode(int type) {
+        return targetFemaleNodes.get(type);
+    }
+
+    /**
+     *
+     * @param type where:
+     *             0 = Green, Litup
+     *             1 = Green, Dimmed
+     *             2 = Yellow, Litup
+     *             3 = Yellow, Dimmed
+     *             4 = Red, Litup
+     *             5 = Red, Dimmed
+     *             6 = Orange, Litup
+     *             7 = Orange, Dimmed
+     *             8 = Purple, Litup
+     *             9 = Purple, Dimmed
+     *             10 = Grey, Litup
+     *             11 = Grey, Dimmed
+     *
+     * @return Returns the node drawable based on the type specified
+     */
+    public static TextureRegion getTargetBossNode(int type) {
+        return targetBossNodes.get(type);
     }
 
     /**

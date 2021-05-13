@@ -32,6 +32,9 @@ public class LevelModel {
     /** How many days can this level last, loses the game if days run out */
     private int daysLeft = 10; // needs to be properly initialized
 
+    /** String of text show when switching levels */
+    private String tutorialText;
+
     // Player object
     private PlayerModel player;
 
@@ -117,8 +120,9 @@ public class LevelModel {
         JsonValue json = new JsonReader().parse(Gdx.files.internal(levelJson));
         String[] targetJsons = json.get("targets").asStringArray();
         name = json.get("name").asString();
-        // TODO: Uncomment this line, and change "daysLeft" to whatever it is in the level json
-        //daysLeft = json.get("daysLeft").asInt();
+
+        daysLeft = json.get("timeLimit").asInt();
+        tutorialText = json.get("tutorialText").asString();
 
         if (json.get("dims") != null) {
             int[] dims = json.get("dims").asIntArray();
@@ -337,6 +341,14 @@ public class LevelModel {
      */
     public Set<String> getExposableFacts(String targetName){
         return exposableFacts.keySet();
+    }
+
+    public int getDaysLeft() {
+        return daysLeft;
+    }
+
+    public String getTutorialText() {
+        return tutorialText;
     }
 
 

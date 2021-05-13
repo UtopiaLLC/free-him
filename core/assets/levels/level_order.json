@@ -1,0 +1,24 @@
+{
+  "levels": [
+    "Tutorial_1",
+    "Tutorial_2",
+    "Tutorial_3",
+    "Tutorial_4",
+    "Generic_Tutorial_1",
+    "TforThrees",
+    "Twins",
+    "Square",
+    "HexagonalForces"
+  ],
+  "names": [
+    "Level 1",
+    "Level 2",
+    "Level 3",
+    "Level 4",
+    "Level 5",
+    "TforThrees",
+    "Level 7",
+    "Square",
+    "Hexagonal Forces"
+  ]
+}

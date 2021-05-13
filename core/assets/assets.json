@@ -1,0 +1,75 @@
+{
+  "textures": {
+    "UI:AP": "UI/APCounter.png",
+    "UI:BitcoinCounter": "UI/BitecoinCounter.png",
+    "UI:MenuBack": "UI/MenuBack.png",
+    "UI:SkillBar": "UI/SkillBar_2.png",
+    "UI:StressBarFill": "UI/StressBarFill.png",
+    "UI:EndDayLow": "UI/UI_EndDayLow_1.png",
+    "UI:HoverBox": "UI/UI_HoverBox.png",
+    "UI:NotebookLow": "UI/UI_NotebookLow_1.png",
+    "UI:SettingsLow": "UI/UI_SettingsLow_1.png",
+    "UI:StressBar": "UI/UI_StressBar_2.png",
+
+    "Skills:DistractDown": "skills/distract_down.png",
+    "Skills:DistractSelect": "skills/distract_select.png",
+    "Skills:DistractUp": "skills/distract_up.png",
+
+    "Skills:ExposeDown": "skills/expose_down.png",
+    "Skills:ExposeSelect": "skills/expose_select.png",
+    "Skills:ExposeUp": "skills/expose_up.png",
+
+    "Skills:GaslightDown": "skills/gaslight_down.png",
+    "Skills:GaslightSelect": "skills/gaslight_select.png",
+    "Skills:GaslightUp": "skills/gaslight_up.png",
+
+    "Skills:HarassDown": "skills/harass_down.png",
+    "Skills:HarassSelect": "skills/harass_select.png",
+    "Skills:HarassUp": "skills/harass_up.png",
+
+    "Skills:OtherJobsDown": "skills/otherjobs_down.png",
+    "Skills:OtherJobsSelect": "skills/otherjobs_select.png",
+    "Skills:OtherJobsUp": "skills/otherjobs_up.png",
+
+    "Skills:OverworkDown": "skills/overwork_down.png",
+    "Skills:OverworkSelect": "skills/overwork_select.png",
+    "Skills:OverworkUp": "skills/overwork_up.png",
+
+    "Skills:RelaxDown": "skills/relax_down.png",
+    "Skills:RelaxSelect": "skills/relax_select.png",
+    "Skills:RelaxUp": "skills/relax_up.png",
+
+    "Skills:ThreatenDown": "skills/threaten_down.png",
+    "Skills:ThreatenSelect": "skills/threaten_select.png",
+    "Skills:ThreatenUp": "skills/threaten_up.png",
+
+    "Node:Locked": "node/N_LockedNode_1.png",
+    "Node:Base": "node/N_NodeBase_1.png",
+    "Node:ScannedHigh": "node/N_ScannedNodeHigh_1.png",
+    "Node:ScannedLow": "node/N_ScannedNodeLow_1.png",
+    "Node:UnscannedHigh": "node/N_UnscannedNodeHigh_1.png",
+    "Node:UnscannedLow": "node/N_UnscannedNodeLow_1.png",
+    "Node:TargetBase": "node/N_TargetBase_1.png",
+    "Node:TargetBoss": "node/N_TargetBoss_1.png",
+    "Node:TargetFemale": "node/N_TargetFemale_1.png",
+    "Node:TargetMale": "node/N_TargetMale_1.png",
+
+    "MainMenu:Credits": "mainmenu/MM_Credits_1.jpg",
+    "MainMenu:Play": "mainmenu/MM_Play_1.jpg",
+    "MainMenu:Settings": "mainmenu/MM_Settings_1.jpg",
+    "MainMenu:Title": "mainmenu/MM_Title_1.png",
+    "MainMenu:CreditsScreen": "mainmenu/MM_CreditsScreen_1.png",
+    "MainMenu:Back": "mainmenu/MM_Back_1.png",
+
+    "Background:Gradient": "background/B_Gradient_2.png",
+    "Background:MapTile": "background/B_MapTileBG_4.png",
+
+    "background": "loading/L_Background_1.png",
+    "torch": "loading/L_TorchlightLoading_2.png"
+  },
+  "sounds" : {
+  },
+  "fonts": {
+
+  }
+}

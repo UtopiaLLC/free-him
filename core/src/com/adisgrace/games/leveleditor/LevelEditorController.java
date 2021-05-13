@@ -123,6 +123,8 @@ public class LevelEditorController implements Screen {
      */
     private TextField levelDimX;
     private TextField levelDimY;
+    /** TextField that holds the time limit for the level */
+    private TextField levelTimeLimit;
 
     /************************************************* CONSTRUCTOR *************************************************/
 
@@ -195,10 +197,11 @@ public class LevelEditorController implements Screen {
             }
         }
 
-        // Set the level name and dimensions to what was read
+        // Set the level name, dimensions, and time limit to what was read
         levelName.setText(model.getLevelName());
         levelDimX.setText(String.valueOf(model.getLevelWidth()));
         levelDimY.setText(String.valueOf(model.getLevelHeight()));
+        levelTimeLimit.setText(String.valueOf(model.getLevelTimeLimit()));
     }
 
     /**
@@ -262,27 +265,40 @@ public class LevelEditorController implements Screen {
 
         // Right below, put two text fields for dimensions of the screen
         levelDimX = FormFactory.newTextField("Level Width", 10,
-                FORM_WIDTH * canvas.getWidth() / 4, "20");
+                FORM_WIDTH * canvas.getWidth() / 8, "20");
         levelDimY = FormFactory.newTextField("Level Height", 10,
-                FORM_WIDTH * canvas.getWidth() / 4, "20");
+                FORM_WIDTH * canvas.getWidth() / 8, "20");
+        // Align to center
+        levelDimX.setAlignment(1);
+        levelDimY.setAlignment(1);
         // Add to stage
         toolStage.addActor(levelDimX);
         toolStage.addActor(levelDimY);
+
         // Create labels for what these text fields are and add to stage
         Label levelDimXLabel = new Label("Width", skin);
         Label levelDimYLabel = new Label("Height", skin);
         toolStage.addActor(levelDimXLabel);
         toolStage.addActor(levelDimYLabel);
 
-        // Place at bottom of screen
-        levelDimX.setX((GameConstants.SCREEN_WIDTH / 2f) - levelDimX.getWidth());
-        levelDimY.setX((GameConstants.SCREEN_WIDTH / 2f) + levelDimX.getWidth());
+        // Place width label and text field
+        levelDimXLabel.setPosition((GameConstants.SCREEN_WIDTH / 2f) - levelName.getWidth() * 0.5f, 15);
+        levelDimX.setX(levelDimXLabel.getX() + levelDimXLabel.getWidth());
+        // Place height label and text field next to width label/field
+        levelDimYLabel.setPosition(levelDimX.getX() + levelDimX.getWidth(), 15);
+        levelDimY.setX(levelDimYLabel.getX() + levelDimYLabel.getWidth());
+
+        // Create and place label and text field for level time limit
+        Label levelTimeLimitLabel = new Label("Time Limit", skin);
+        toolStage.addActor(levelTimeLimitLabel);
+        levelTimeLimit = FormFactory.newTextField("Time Limit", 10,
+                FORM_WIDTH * canvas.getWidth() / 5, "20");
+        toolStage.addActor(levelTimeLimit);
         // Align to center
-        levelDimX.setAlignment(1);
-        levelDimY.setAlignment(1);
-        // Place labels next to the relevant fields
-        levelDimXLabel.setPosition((GameConstants.SCREEN_WIDTH / 2f) - 1.5f * levelDimX.getWidth() - levelDimXLabel.getWidth() / 2, 15);
-        levelDimYLabel.setPosition((GameConstants.SCREEN_WIDTH / 2f) + 0.5f * levelDimY.getWidth() - levelDimYLabel.getWidth() / 2, 15);
+        levelTimeLimit.setAlignment(1);
+        // Place next to width/height labels/fields
+        levelTimeLimitLabel.setPosition(levelDimY.getX() + levelDimY.getWidth(), 15);
+        levelTimeLimit.setX(levelTimeLimitLabel.getX() + levelTimeLimitLabel.getWidth());
 
         // Add label indicating what the current editor mode is
         editorModeLabel = FormFactory.newLabel("MOVE MODE", GameConstants.SCREEN_HEIGHT - 40);
@@ -390,7 +406,7 @@ public class LevelEditorController implements Screen {
         // Height of first button
         int height = (int) camera.getHeight() - TOOLBAR_Y_OFFSET;
         // Right offset of mode buttons
-        int xlocMode = canvas.getWidth() - TOOLBAR_X_OFFSET - BUTTON_WIDTH;
+        int xlocMode = canvas.getWidth() - TOOLBAR_X_OFFSET - TOOLBAR_BUTTON_WIDTH;
         // Initialize other variables for button creation
         Drawable drawable;
         ImageButton button;
@@ -403,7 +419,7 @@ public class LevelEditorController implements Screen {
                 drawable = ADD_NODE_TRD_ORDER[k];
                 button = new ImageButton(drawable);
                 button.setTransform(true);
-                button.setScale(GameConstants.BUTTON_SCALE);
+                button.setScale(TOOLBAR_BUTTON_SCALE);
                 button.setPosition(TOOLBAR_X_OFFSET, height);
 
                 // Set node type that this button will create
@@ -425,7 +441,7 @@ public class LevelEditorController implements Screen {
             drawable = CHANGE_MODE_TRD_ORDER[k];
             button = new ImageButton(drawable);
             button.setTransform(true);
-            button.setScale(GameConstants.BUTTON_SCALE);
+            button.setScale(TOOLBAR_BUTTON_SCALE);
             button.setPosition(xlocMode, height);
 
             // For the actual mode creation buttons, do that
@@ -446,19 +462,38 @@ public class LevelEditorController implements Screen {
                 button.addListener(new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
-                        // Get level name from relevant text box
-                        model.setLevelName(levelName.getText());
-
                         // If any forms are open, save and clear those
                         saveAndClearForm(targetForm);
                         saveAndClearForm(nodeForm);
                         // Hide form background
                         formBG.setVisible(false);
 
-                        // Save the level
-                        boolean didLevelSave = parser.saveLevel(model);
+                        // Get level name from relevant text box
+                        model.setLevelName(levelName.getText());
+
+                        // Whether level save was successful
+                        boolean didLevelSave;
+                        // Level save failure message
+                        String levelSaveFailMsg = "Level Save Failed: ";
+
+                        // Try to get time limit from text field
+                        try {
+                            // Get level time limit from relevant text box
+                            model.setLevelTimeLimit(Integer.parseInt(levelTimeLimit.getText()));
+                            // Save the level
+                            didLevelSave = parser.saveLevel(model);
+                            // If level save failed, use this message
+                            levelSaveFailMsg += "parsing failed";
+                        }
+                        // If not a text field, fail to save level
+                        catch (NumberFormatException nfe) {
+                            didLevelSave = false;
+                            // If level save failed, use this message
+                            levelSaveFailMsg += "time limit must be an integer";
+                        }
+
                         // Set label to indicate whether or not level save was successful
-                        editorModeLabel.setText(didLevelSave ? "Level Saved Successfully" : "Failed to Save Level");
+                        editorModeLabel.setText(didLevelSave ? "Level Saved Successfully" : levelSaveFailMsg);
                     }
                 });
             }
@@ -466,7 +501,7 @@ public class LevelEditorController implements Screen {
             // Add button to stage
             toolStage.addActor(button);
             // Increment height
-            height -= BUTTON_GAP;
+            height -= TOOLBAR_BUTTON_GAP;
         }
     }
 
