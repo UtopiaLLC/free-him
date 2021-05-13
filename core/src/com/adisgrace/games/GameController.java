@@ -6,7 +6,6 @@ import com.adisgrace.games.util.Connector;
 import com.adisgrace.games.util.GameConstants;
 import com.adisgrace.games.util.ScreenListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
@@ -16,22 +15,19 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import org.w3c.dom.ls.LSOutput;
 
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
 
 public class GameController implements Screen{
 
@@ -167,6 +163,18 @@ public class GameController implements Screen{
 
     private Music music;
 
+    /** The smallest width the game window can take */
+    private static final float MINWORLDWIDTH = 1280;
+    /** The smallest height the game window can take */
+    private static final float MINWORLDHEIGHT = 720;
+
+    private static final int nodeWorldWidth = 30;
+    private static final int nodeWorldHeight = 30;
+
+    /** Dimensions of map tile */
+    private static final int TILE_HEIGHT = 256;
+    private static final int TILE_WIDTH = 444;
+
     private ScreenListener listener;
     public int currentLevel;
 
@@ -185,7 +193,10 @@ public class GameController implements Screen{
     private static Texture TX_SETTINGS_LOW;
     private static Texture TX_MENU_BACK;
     /** Constants for dimensions of screen */
+    private static final int SCREEN_WIDTH = 1280, SCREEN_HEIGHT = 720;
+    private static final int RIGHT_SIDE_HEIGHT = 199;
 
+    private Map<String, Array<FillBar>> targetBars;
     /** Used for the loading of levels */
     private String tutorialText;
     private boolean init;
@@ -253,7 +264,6 @@ public class GameController implements Screen{
         EastConnectorAnimation = connectorAnimation(Connector.TX_EAST);
         WestConnectorAnimation = connectorAnimation(Connector.TX_WEST);
 
-
     }
 
     public Array<String> readJson() {
@@ -304,6 +314,7 @@ public class GameController implements Screen{
         updateNodeColors();
         updateStats();
 
+        canvas.drawIsometricGrid(nodeWorldWidth,nodeWorldHeight);
         canvas.drawIsometricGrid((int)gridSize.x, (int)gridSize.y);
         stage.getViewport().apply();
         stage.draw();
@@ -367,8 +378,12 @@ public class GameController implements Screen{
 
     public void updateNodeColors() {
         for(int i = 0; i < targets.size; i++) {
+            TargetModel target = targets.get(i);
+            String name = targets.get(i).getName();
+            targetBars.get(name).get(0).setFillAmount(((float)target.getStress())/target.getMaxStress());
+//            System.out.println("Stress fill amount " + (target.getStress()/target.getMaxStress()));
+            targetBars.get(name).get(1).setFillAmount(target.getSuspicion()/100f);
             if(targets.get(i).getState() != targetStates.get(i)) {
-                TargetModel target = targets.get(i);
                 TargetModel.TargetState state = target.getState();
                 int colorState = getColorTypeFromState(state);
 
@@ -498,8 +513,8 @@ public class GameController implements Screen{
                         @Override
                         public void run() {
                             uiController.nodeOnExit(
-                                        getColorTypeFromState(lc.getTargetModels().get(nodeInfo[0]).getState()),
-                                        nodeLabel, b);
+                                    getColorTypeFromState(lc.getTargetModels().get(nodeInfo[0]).getState()),
+                                    nodeLabel, b);
                         }
                     }));
             //Adds enter and exit listeners to each node button
@@ -540,6 +555,7 @@ public class GameController implements Screen{
         stage.clear();
         targetStates = new Array<>();
         activeVerb = ActiveVerb.NONE;
+        targetBars = new HashMap<String, Array<FillBar>>();
         cleared = false;
 
         targets = new Array<>();
@@ -568,6 +584,37 @@ public class GameController implements Screen{
             }
             nodeView = new NodeView(stage, target, targetNodes, targetCoords, lockedNodes);
             imageNodes.putAll(nodeView.getImageNodes());
+
+            Array<FillBar> bars = new Array<>();
+            FillBar stressBar_ = new FillBar(
+                    new Texture(Gdx.files.internal("UI/UI_TargetBarOutline_1.png")),
+                    new Texture(Gdx.files.internal("UI/UI_TargetStressFill_1.png")),
+                    true, 5, 5
+            );
+            targetCoords = levelController.getTargetPos(target.getName());
+//            targetCoords.add(0.5f,0.5f);
+//            System.out.println("target at " + targetCoords);
+            Vector2 pos = new Vector2(targetCoords.x-0.2f, targetCoords.y-0.4f+1f);
+            pos = NodeView.isometricToWorld(pos);
+            stressBar_.setPosition(pos.x, pos.y);
+//            System.out.println("stress bar " + stressBar_.getX() + ", " + stressBar_.getY());
+            bars.add(stressBar_);
+//            stressBar_.toFront();
+            stage.addActor(stressBar_);
+            FillBar susBar_ = new FillBar(
+                    new Texture(Gdx.files.internal("UI/UI_TargetBarOutline_1.png")),
+                    new Texture(Gdx.files.internal("UI/UI_TargetSuspicionFill_1.png")),
+                    true, 5, 5
+            );
+            targetCoords = levelController.getTargetPos(target.getName());
+            pos.set(targetCoords.x-0.2f, targetCoords.y+0.55f+1f);
+            pos = NodeView.isometricToWorld(pos);
+            susBar_.setPosition(pos.x, pos.y);
+//            System.out.println("susp bar " + susBar_.getX() + ", " + susBar_.getY());
+            bars.add(susBar_);
+//            susBar_.toFront();
+            stage.addActor(susBar_);
+            targetBars.put(target.getName(), bars);
         }
 
         addNodeListeners(imageNodes);
@@ -612,6 +659,11 @@ public class GameController implements Screen{
                 stage.addActor(imageNodes.get(target.getName()+","+fact));
             }
             stage.addActor(imageNodes.get(target.getName()));
+        }
+
+        for(Array<FillBar> targetBars : targetBars.values()){
+            targetBars.get(0).toFront();
+            targetBars.get(1).toFront();
         }
     }
     
@@ -793,14 +845,14 @@ public class GameController implements Screen{
         toolbar.add(rightSide).right().width(.10f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.topRight);
 
         displayedAP = apImages[levelController.getAP()];
-        displayedAP.setPosition(GameConstants.SCREEN_WIDTH - displayedAP.getWidth(), GameConstants.RIGHT_SIDE_HEIGHT);
+        displayedAP.setPosition(SCREEN_WIDTH - displayedAP.getWidth(), RIGHT_SIDE_HEIGHT);
         toolbarStage.addActor(displayedAP);
 
 
         // Add menu back
         menuBack = new Image(TX_MENU_BACK);
         toolbarStage.addActor(menuBack);
-        menuBack.setPosition(GameConstants.SCREEN_WIDTH - menuBack.getWidth(), 0);
+        menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
 
         return toolbar;
     }
@@ -880,8 +932,8 @@ public class GameController implements Screen{
     private Vector2 isometricToWorld(Vector2 coords) {
         float tempx = coords.x;
         float tempy = coords.y;
-        coords.x = tempx * (0.5f * GameConstants.TILE_WIDTH) + tempy * (0.5f * GameConstants.TILE_WIDTH);
-        coords.y = -tempx * (0.5f * GameConstants.TILE_HEIGHT) + tempy * (0.5f * GameConstants.TILE_HEIGHT);
+        coords.x = tempx * (0.5f * TILE_WIDTH) + tempy * (0.5f * TILE_WIDTH);
+        coords.y = -tempx * (0.5f * TILE_HEIGHT) + tempy * (0.5f * TILE_HEIGHT);
 
         return coords;
     }
@@ -904,12 +956,12 @@ public class GameController implements Screen{
         y = vec.y;
 
         // Find the nearest isometric center
-        x = Math.round(x / GameConstants.TILE_HEIGHT);
-        y = Math.round(y / GameConstants.TILE_HEIGHT);
+        x = Math.round(x / TILE_HEIGHT);
+        y = Math.round(y / TILE_HEIGHT);
 
         // Transform back to world space
-        vec.set(x * (0.5f * GameConstants.TILE_WIDTH) + y * (0.5f * GameConstants.TILE_WIDTH),
-                -x * (0.5f * GameConstants.TILE_HEIGHT) + y * (0.5f * GameConstants.TILE_HEIGHT));
+        vec.set(x * (0.5f * TILE_WIDTH) + y * (0.5f * TILE_WIDTH),
+                -x * (0.5f * TILE_HEIGHT) + y * (0.5f * TILE_HEIGHT));
 
         return vec;
     }
@@ -951,8 +1003,8 @@ public class GameController implements Screen{
         switch (activeVerb) {
             case NONE:
                 if(!isTarget) {
-                         hackScanView( button, nodeInfo);
-                    }
+                    hackScanView( button, nodeInfo);
+                }
                 break;
             case HARASS:
             case THREATEN:
@@ -1222,13 +1274,13 @@ public class GameController implements Screen{
      */
     public void updateStats(){
 //        stressBar.setValue(levelController.getPlayerStress());
-        stressBar.setFillAmount(1-levelController.getPlayerStress()/GameConstants.MAX_STRESS);
+        stressBar.setFillAmount(1-levelController.getPlayerStress()/ GameConstants.MAX_STRESS);
 //        stressBar.setFillAmount(1f);
         bitecoinAmount.setText(Integer.toString((int)levelController.getPlayerCurrency()));
 //        ap.setText("AP: " + Integer.toString(levelController.getAP()));
         displayedAP.remove();
         displayedAP = apImages[levelController.getAP()];
-        displayedAP.setPosition(GameConstants.SCREEN_WIDTH - displayedAP.getWidth(), GameConstants.RIGHT_SIDE_HEIGHT);
+        displayedAP.setPosition(SCREEN_WIDTH - displayedAP.getWidth(), RIGHT_SIDE_HEIGHT);
         displayedAP.setTouchable(Touchable.disabled);
         toolbarStage.addActor(displayedAP);
 
@@ -1236,7 +1288,7 @@ public class GameController implements Screen{
         menuBack = new Image(TX_MENU_BACK);
         menuBack.setTouchable(Touchable.disabled);
         toolbarStage.addActor(menuBack);
-        menuBack.setPosition(GameConstants.SCREEN_WIDTH - menuBack.getWidth(), 0);
+        menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
 
 //        displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);
     }
