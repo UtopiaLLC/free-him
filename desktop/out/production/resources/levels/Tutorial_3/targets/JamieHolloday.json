@@ -1,0 +1,79 @@
+{
+	"targetName": "Jamie Holloday",
+	"isMale": true,
+	"isGeneric": false,
+	"paranoia": 3,
+	"maxStress": 50,
+	"traits": [],
+	"firstNodes": ["1Node21", "1Node22", "2Node35"],
+	"firstConnectors": [[[0,0], [0,1], [-1,1], [-1,2], [-2,2]], [[0,0], [0,1], [1,1], [2,1]], [[0,0], [0,-1], [-1,-1], [-2,-1]]],
+	"firstConnectorTypes": [["N", "SW", "EN", "SW", "E"], ["N", "SE", "WE", "W"], ["S", "NW", "EW", "E"]],
+	"pod": 	[
+		{
+			"nodeName": "1Node21",
+			"title": "Torchlight Employee File",
+			"coords": [-2.0,2.0],
+			"locked": false,
+			"content": "Jamie was only just hired at Torchlight two months ago. His file states that he passed the background check with flying colors and has no criminal record. The hiring manager listed is a Carol Gonzalez.",
+			"summary": "Two months ago, Jamie was hired by Carol Fernandez at Torchlight after passing a background check.",
+			"children": [],
+			"targetStressDamage": 0,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "1Node22",
+			"title": "Personal Email",
+			"coords": [2.0,1.0],
+			"locked": false,
+			"content": "It seems like Jamie has missed a recent appointment with his parole officer. He was profusely apologetic in  his response and his PO let it go, but it seems like his crime was bad enough that they're keeping a close eye on him.",
+			"summary": "Jamie recently missed an appointment with his parole officer. He may have been incarcerated for a pretty bad crime.",
+			"children": ["1Node36", "1Node37"],
+			"targetStressDamage": 5,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[2,1], [2,2], [2,3]], [[2,1], [2,0], [2,-1], [3,-1], [4,-1]]],
+			"connectorTypes": [["N", "SN", "S"], ["S", "NS", "NE", "WE", "W"]]
+		},
+		{
+			"nodeName": "2Node35",
+			"title": "???",
+			"coords": [-2.0,-1.0],
+			"locked": true,
+			"content": "You try to get into the strange, flickering device you sometimes see connected to Jamie's network. After about ten minutes, the signal disappears, and you give up... but somehow, it's two hours after you started, and there's a sheet of paper covered in your illegible scrawl that you don't remember writing.\n\nYou feel sick. Maybe he had this locked for a reason.",
+			"summary": "",
+			"children": [],
+			"targetStressDamage": 0,
+			"playerStressDamage": 10,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "1Node36",
+			"title": "Court Records",
+			"coords": [2.0,3.0],
+			"locked": false,
+			"content": "Jamie has assaulted sixteen different people over the course of his lifetime. He's recently been released on parole and is in court-ordered anger management classes.",
+			"summary": "Jamie has a history of violent assault and has recently been released on parole.",
+			"children": [],
+			"targetStressDamage": 5,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "1Node37",
+			"title": "Social Media",
+			"coords": [4.0,-1.0],
+			"locked": false,
+			"content": "Jamie has no apparent social media presence, but with his email you're able to find an account under a fake name. He has only one friend added - a Carol Fernandez, whom he added a year ago.",
+			"summary": "Jamie's only social media is a fake account. He added Carol Fernandez as a friend a year ago.",
+			"children": [],
+			"targetStressDamage": 5,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}

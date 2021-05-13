@@ -1,0 +1,66 @@
+{
+	"targetName": "B",
+	"isMale": true,
+	"isGeneric": false,
+	"paranoia": 3,
+	"maxStress": 50,
+	"traits": ["gossip", "off_putting", "naturally_suspicious"],
+	"firstNodes": ["2Node92", "1Node3"],
+	"firstConnectors": [[[0,0], [0,1], [0,2]], [[0,0], [-1,0], [-2,0]]],
+	"firstConnectorTypes": [["N", "SN", "S"], ["W", "EW", "E"]],
+	"pod": 	[
+		{
+			"nodeName": "2Node92",
+			"title": "Email",
+			"coords": [0.0,2.0],
+			"locked": true,
+			"content": "You were able to access B's Email.",
+			"summary": "",
+			"children": ["1Node4"],
+			"targetStressDamage": 0,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[0,2], [-1,2], [-2,2]]],
+			"connectorTypes": [["W", "EW", "E"]]
+		},
+		{
+			"nodeName": "1Node3",
+			"title": "Phone",
+			"coords": [-2.0,0.0],
+			"locked": false,
+			"content": "You were able to access B's phone. It's completely empty.",
+			"summary": "",
+			"children": [],
+			"targetStressDamage": 0,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "1Node4",
+			"title": "Email",
+			"coords": [-2.0,2.0],
+			"locked": false,
+			"content": "",
+			"summary": "",
+			"children": ["2Node14"],
+			"targetStressDamage": 0,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[-2,2], [-2,3], [-2,4]]],
+			"connectorTypes": [["N", "SN", "S"]]
+		},
+		{
+			"nodeName": "2Node14",
+			"title": "Contact With A",
+			"coords": [-2.0,4.0],
+			"locked": true,
+			"content": "",
+			"summary": "",
+			"children": [],
+			"targetStressDamage": 10,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}

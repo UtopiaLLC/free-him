@@ -911,7 +911,7 @@ public class UIController {
 
         node.changeColor(colorState-1);
 
-        GameConstants.NODE_HOVER.play();
+        GameConstants.NODE_HOVER.play(.25f);
     }
 
     public void nodeOnExit(int colorState, Label buttonLabel, Node node) {
