@@ -4,5 +4,5 @@
 	"targets": ["JasonHolger.json"],
 	"targetLocs": [[0, -2]],
 	"timeLimit": 20,
-	"tutorialText": "You did well. How he fumes! You will receive your payment shortly. \n\nBut Alexander was a soft target. Your next target will require you to be able to put two and two together. I eagerly await your results."
+	"tutorialText": "You did well. How he fumes! You will receive your payment shortly. \n\nBut Alexander was a soft target. Your next target will require you to be able to put two and two together. I eagerly await your results. \n\nIn this level you will see a different kind of node. These nodes are locked and must be hacked before scanning. Click on a locked node to hack it. This is also the first level you may run out of action points, or AP, indicated by the clock on the right toolbar. Click the moon icon to sleep until the next day to refresh your AP."
 }
