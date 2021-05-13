@@ -1,5 +1,5 @@
 {
-	"name": "Trial_Level_5_Targets",
+	"name": "Square",
 	"dims": [40, 40],
 	"targets": ["EliseElsevier.json", "ClaudiaCracker.json", "BengioBuzzard.json", "DennisTurrent.json", "AlanSergey.json"],
 	"targetLocs": [[-1, 3], [-1, -5], [3, -1], [-5, -1], [-1, -1]],

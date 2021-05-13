@@ -3,7 +3,7 @@
 	"isMale": true,
 	"isGeneric": false,
 	"paranoia": 1,
-	"maxStress": 400,
+	"maxStress": 300,
 	"traits": ["rich"],
 	"firstNodes": ["2Node10"],
 	"firstConnectors": [[[0,0], [0,1], [1,1]]],
