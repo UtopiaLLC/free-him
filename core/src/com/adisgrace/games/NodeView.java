@@ -140,6 +140,7 @@ public class NodeView {
 
 
         Node targetNode = new Node(pos.x, pos.y, target.getName(), 1, Node.NodeState.TARGET);
+        targetNode.isBoss(!target.isGeneric());
         targetNode.isFemale(!target.isMale());
         imageNodes.put(target.getName(), targetNode);
         stage.addActor(targetNode);
@@ -501,6 +502,28 @@ public class NodeView {
      */
     public static TextureRegion getTargetFemaleNode(int type) {
         return targetFemaleNodes.get(type);
+    }
+
+    /**
+     *
+     * @param type where:
+     *             0 = Green, Litup
+     *             1 = Green, Dimmed
+     *             2 = Yellow, Litup
+     *             3 = Yellow, Dimmed
+     *             4 = Red, Litup
+     *             5 = Red, Dimmed
+     *             6 = Orange, Litup
+     *             7 = Orange, Dimmed
+     *             8 = Purple, Litup
+     *             9 = Purple, Dimmed
+     *             10 = Grey, Litup
+     *             11 = Grey, Dimmed
+     *
+     * @return Returns the node drawable based on the type specified
+     */
+    public static TextureRegion getTargetBossNode(int type) {
+        return targetBossNodes.get(type);
     }
 
     /**
