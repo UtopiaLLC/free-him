@@ -377,7 +377,7 @@ public class GameController implements Screen{
                     }
                 });
             } else {
-                uiController.createWinLevelSelector("YOU WON THE LAST LEVEL!", new Runnable() {
+                uiController.createWinLevelSelector("YOU WIN!", new Runnable() {
                     @Override
                     public void run() {
                         exitScreen(1);
