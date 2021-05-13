@@ -1,0 +1,7 @@
+{
+	"name": "Office 1",
+	"dims": [26, 26],
+	"targets": ["B.json", "A.json", "C.json"],
+	"targetLocs": [[-2, 1], [-2, -2], [1, 1]],
+	"timeLimit": 23
+}

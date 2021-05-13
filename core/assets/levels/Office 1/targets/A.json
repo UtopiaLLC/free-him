@@ -1,0 +1,53 @@
+{
+	"targetName": "A",
+	"isMale": true,
+	"isGeneric": false,
+	"paranoia": 3,
+	"maxStress": 50,
+	"traits": ["naturally_suspicious", "sensitive"],
+	"firstNodes": ["2Node9", "2Node13"],
+	"firstConnectors": [[[0,0], [-1,0], [-2,0]], [[0,0], [0,-1], [0,-2]]],
+	"firstConnectorTypes": [["W", "EW", "E"], ["S", "NS", "N"]],
+	"pod": 	[
+		{
+			"nodeName": "2Node9",
+			"title": "Personal Email",
+			"coords": [-2.0,0.0],
+			"locked": true,
+			"content": "You were able to access A's Email.",
+			"summary": "",
+			"children": ["1Node6"],
+			"targetStressDamage": 0,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[-2,0], [-3,0], [-4,0]]],
+			"connectorTypes": [["W", "EW", "E"]]
+		},
+		{
+			"nodeName": "2Node13",
+			"title": "Phone",
+			"coords": [0.0,-2.0],
+			"locked": true,
+			"content": "You were able to access A's phone.",
+			"summary": "",
+			"children": [],
+			"targetStressDamage": 0,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "1Node6",
+			"title": "Conversation with C",
+			"coords": [-4.0,0.0],
+			"locked": false,
+			"content": ""I told the guy he could have a discount. God knows we don't wouldn't want to get on the bad side of those people. They want you to send it to this address. Make sure you're not seen, they want to keep this deal under the table." ",
+			"summary": "It seems like A is making deals with some very dangerous people.",
+			"children": [],
+			"targetStressDamage": 10,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}
