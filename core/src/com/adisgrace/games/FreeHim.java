@@ -63,6 +63,7 @@ public class FreeHim extends Game implements ScreenListener {
 	public void exitScreen(Screen screen, int exitCode) {
 		// If the current screen is the main menu and exitScreen is
 		// called, start the game
+		System.out.println("Screen: "+screen.toString()+", Exit Code: "+exitCode );
 		if(screen == loading) {
 			directory = loading.getAssets();
 			mainmenu = new MainMenu(directory);

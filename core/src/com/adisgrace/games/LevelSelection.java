@@ -76,7 +76,7 @@ public class LevelSelection implements Screen {
 //        });
 
         // Load Level button
-        TextButton loadLevel = new TextButton("LOAD SAVED LEVEL", GameConstants.SELECTION_SKIN);
+        TextButton loadLevel = new TextButton("LOAD LEVEL", GameConstants.SELECTION_SKIN);
         loadLevel.setWidth(200);
         loadLevel.setPosition((GameConstants.SCREEN_WIDTH / 2f) + (loadLevel.getWidth() / 2), 300);
 

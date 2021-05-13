@@ -550,7 +550,7 @@ public class GameController implements Screen{
         tutorialText = levelController.getTutorialText();
 
         if(!init) {
-            exit(2);
+            exitScreen(2);
         } else {
             init = !init;
         }
@@ -665,7 +665,7 @@ public class GameController implements Screen{
             }
             stage.addActor(imageNodes.get(target.getName()));
         }
-
+        currentLevel = newLevel;
         for(Array<FillBar> targetBars : targetBars.values()){
             targetBars.get(0).toFront();
             targetBars.get(1).toFront();
@@ -720,7 +720,18 @@ public class GameController implements Screen{
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-                uiController.createDialogBox("You clicked something that hasn't been implemented yet.");
+                uiController.createSettingsSelector("Please choose what you would like to do.", new Runnable() {
+                    @Override
+                    public void run() {
+                        exitScreen(1);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        loadLevel(currentLevel);
+                    }
+                });
+//                uiController.createDialogBox("You clicked something that hasn't been implemented yet.");
             }
         });
         return settings;
@@ -1351,7 +1362,7 @@ public class GameController implements Screen{
      * 1 is to main menu, 2 is to level screen.
      * @param exitcode refer to above
      */
-    public void exit(int exitcode) {
+    public void exitScreen(int exitcode) {
         stopMusic();
         if(exitcode == 1) {
             listener.exitScreen(this, 1);

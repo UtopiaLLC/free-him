@@ -262,7 +262,10 @@ public class MainMenu implements Screen {
 
     @Override
     public void show() {
-
+        // Handle inputs with a Multiplexer
+        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(stage);
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     @Override
