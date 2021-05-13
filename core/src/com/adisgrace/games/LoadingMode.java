@@ -115,6 +115,10 @@ public class LoadingMode implements Screen {
 
     }
 
+    public AssetDirectory getAssets() {
+        return assets;
+    }
+
     public void exitLoad(){
         listener.exitScreen(this, 0);
     }

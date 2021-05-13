@@ -1,5 +1,6 @@
 package com.adisgrace.games;
 
+import com.adisgrace.games.util.AssetDirectory;
 import com.adisgrace.games.util.ScreenListener;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -19,6 +20,8 @@ public class FreeHim extends Game implements ScreenListener {
 	private MainMenu mainmenu;
 	/** Primary game controller for the game (CONTROLLER CLASS) */
 	private GameController game;
+	/** AssetManager to load game assets (textures, sounds, etc.) */
+	AssetDirectory directory;
 	
 	@Override
 	public void create () {
@@ -33,7 +36,17 @@ public class FreeHim extends Game implements ScreenListener {
 
 	@Override
 	public void dispose () {
+		setScreen(null);
+		game.dispose();
+		mainmenu.dispose();
 
+		// Unload all of the resources
+		if (directory != null) {
+			directory.unloadAssets();
+			directory.dispose();
+			directory = null;
+		}
+		super.dispose();
 	}
 
 	/**
@@ -48,7 +61,8 @@ public class FreeHim extends Game implements ScreenListener {
 		// If the current screen is the main menu and exitScreen is
 		// called, start the game
 		if(screen == loading) {
-			mainmenu = new MainMenu();
+			directory = loading.getAssets();
+			mainmenu = new MainMenu(directory);
 			mainmenu.setScreenListener(this);
 			setScreen(mainmenu);
 
@@ -57,7 +71,7 @@ public class FreeHim extends Game implements ScreenListener {
 		}
 		if (screen == mainmenu) {
 			// Create primary game controller
-			game = new GameController();
+			game = new GameController(directory);
 			setScreen(game);
 
 			mainmenu.dispose();

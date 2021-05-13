@@ -27,11 +27,42 @@
     "Skills:HarassSelect": "skills/harass_select.png",
     "Skills:HarassUp": "skills/harass_up.png",
 
+    "Skills:OtherJobsDown": "skills/otherjobs_down.png",
+    "Skills:OtherJobsSelect": "skills/otherjobs_select.png",
+    "Skills:OtherJobsUp": "skills/otherjobs_up.png",
+
+    "Skills:OverworkDown": "skills/overwork_down.png",
+    "Skills:OverworkSelect": "skills/overwork_select.png",
+    "Skills:OverworkUp": "skills/overwork_up.png",
+
+    "Skills:RelaxDown": "skills/relax_down.png",
+    "Skills:RelaxSelect": "skills/relax_select.png",
+    "Skills:RelaxUp": "skills/relax_up.png",
+
+    "Skills:ThreatenDown": "skills/threaten_down.png",
+    "Skills:ThreatenSelect": "skills/threaten_select.png",
+    "Skills:ThreatenUp": "skills/threaten_up.png",
+
+    "Node:Locked": "node/N_LockedNode_1.png",
+    "Node:Base": "node/N_NodeBase_1.png",
+    "Node:ScannedHigh": "node/N_ScannedNodeHigh_1.png",
+    "Node:ScannedLow": "node/N_ScannedNodeLow_1.png",
+    "Node:UnscannedHigh": "node/N_UnscannedNodeHigh_1.png",
+    "Node:UnscannedLow": "node/N_UnscannedNodeLow_1.png",
+    "Node:TargetBase": "node/N_TargetBase_1.png",
+    "Node:TargetBoss": "node/N_TargetBoss_1.png",
+    "Node:TargetFemale": "node/N_TargetFemale_1.png",
+    "Node:TargetMale": "node/N_TargetMale_1.png",
+
+    "MainMenu:Credits": "mainmenu/MM_Credits_1.jpg",
+    "MainMenu:Play": "mainmenu/MM_Play_1.jpg",
+    "MainMenu:Settings": "mainmenu/MM_Settings_1.jpg",
+    "MainMenu:Title": "mainmenu/MM_Title_1.png",
+
+    "Background:Gradient": "background/B_Gradient_2.png",
+    "Background:MapTile": "background/B_MapTileBG_4.png"
   },
   "sounds" : {
-  },
-  "music" : {
-    "music:game" : "music/Moonlit_Skyline.mp3"
   },
   "fonts": {
 
