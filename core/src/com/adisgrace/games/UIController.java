@@ -1,6 +1,7 @@
 package com.adisgrace.games;
 
 import com.adisgrace.games.models.TargetModel;
+import com.adisgrace.games.util.AssetDirectory;
 import com.adisgrace.games.util.ButtonFactory;
 import com.adisgrace.games.util.GameConstants;
 import com.badlogic.gdx.Game;
@@ -39,11 +40,13 @@ public class UIController {
     /** The ImageButton for relax, to be initialized with given texture */
     private ImageButton relax;
 
+    private AssetDirectory directory;
 
 
 
-    public UIController(Skin skin) {
+    public UIController(Skin skin, AssetDirectory directory) {
         this.skin = skin;
+        this.directory = directory;
     }
 
     /**
@@ -55,7 +58,7 @@ public class UIController {
         Table skillBar = new Table();
         skillBar.setSize(toolbar.getWidth()*.60f, toolbar.getHeight()*.3f);
         skillBar.setBackground(new TextureRegionDrawable(new TextureRegion(
-                new Texture(Gdx.files.internal("UI/SkillBar_2.png")))));
+                directory.getEntry("UI:SkillBar", Texture.class))));
 
         // numSkills is equal to the number of skill buttons + 1
         int numSkills = 7+1;
@@ -396,9 +399,9 @@ public class UIController {
      */
     public ImageButton createHarass(InputController ic, final Runnable confirmFunction){
         harass = ButtonFactory.makeImageButton(
-                "skills/harass_up.png",
-                "skills/harass_down.png",
-                "skills/harass_select.png");
+                directory.getEntry("Skills:HarassDown", Texture.class),
+                directory.getEntry("Skills:HarassUp", Texture.class),
+                directory.getEntry("Skills:HarassSelect", Texture.class));
         final Label  harassLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.HARASS));
         final String s = "harass";
         harass.addListener(ic.getButtonListener(
@@ -430,9 +433,9 @@ public class UIController {
      */
     public ImageButton createExpose(InputController ic, final Runnable confirmFunction){
         expose = ButtonFactory.makeImageButton(
-                "skills/expose_up.png",
-                "skills/expose_down.png",
-                "skills/expose_select.png");
+                directory.getEntry("Skills:ExposeDown", Texture.class),
+                directory.getEntry("Skills:ExposeUp", Texture.class),
+                directory.getEntry("Skills:ExposeSelect", Texture.class));
         final Label exposeLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.EXPOSE));
         final String s = "expose";
         expose.addListener(ic.getButtonListener(
@@ -464,9 +467,9 @@ public class UIController {
      */
     public ImageButton createDistract(InputController ic, final Runnable confirmFunction){
         distract = ButtonFactory.makeImageButton( //TODO
-                "skills/distract_up.png",
-                "skills/distract_down.png",
-                "skills/distract_select.png");
+                directory.getEntry("Skills:DistractDown", Texture.class),
+                directory.getEntry("Skills:DistractUp", Texture.class),
+                directory.getEntry("Skills:DistractSelect", Texture.class));
         final Label distractLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.DISTRACT));
         final String s = "distract";
         distract.addListener(ic.getButtonListener(
@@ -498,9 +501,9 @@ public class UIController {
      */
     public ImageButton createGaslight(InputController ic, final Runnable confirmFunction){
         gaslight = ButtonFactory.makeImageButton( //TODO
-                "skills/gaslight_up.png",
-                "skills/gaslight_down.png",
-                "skills/gaslight_select.png");
+                directory.getEntry("Skills:GaslightDown", Texture.class),
+                directory.getEntry("Skills:GaslightUp", Texture.class),
+                directory.getEntry("Skills:GaslightSelect", Texture.class));
         final Label gaslightLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.GASLIGHT));
         final String s = "gaslight";
         gaslight.addListener(ic.getButtonListener(
@@ -532,9 +535,9 @@ public class UIController {
      */
     public ImageButton createOverwork(InputController ic, final Runnable confirmFunction){
         overwork = ButtonFactory.makeImageButton(
-                "skills/overwork_up.png",
-                "skills/overwork_down.png",
-                "skills/overwork_select.png");
+                directory.getEntry("Skills:OverworkDown", Texture.class),
+                directory.getEntry("Skills:OverworkUp", Texture.class),
+                directory.getEntry("Skills:OverworkSelect", Texture.class));
         final Label overworkLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.OVERWORK));
         final String s = "overwork";
         overwork.addListener(ic.getButtonListener(
@@ -566,9 +569,9 @@ public class UIController {
      */
     public ImageButton createOtherJobs(InputController ic, final Runnable confirmFunction){
         otherJobs = ButtonFactory.makeImageButton(
-                "skills/otherjobs_up.png",
-                "skills/otherjobs_down.png",
-                "skills/otherjobs_select.png");
+                directory.getEntry("Skills:OtherJobsDown", Texture.class),
+                directory.getEntry("Skills:OtherJobsUp", Texture.class),
+                directory.getEntry("Skills:OtherJobsSelect", Texture.class));
         final Label otherJobLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.OTHER_JOBS));
         final String s = "other jobs";
         otherJobs.addListener(ic.getButtonListener(
@@ -607,9 +610,9 @@ public class UIController {
      */
     public ImageButton createRelax(InputController ic, final Runnable confirmFunction){
         relax = ButtonFactory.makeImageButton(
-                "skills/relax_up.png",
-                "skills/relax_down.png",
-                "skills/relax_select.png");
+                directory.getEntry("Skills:RelaxDown", Texture.class),
+                directory.getEntry("Skills:RelaxUp", Texture.class),
+                directory.getEntry("Skills:RelaxSelect", Texture.class));
         final Label  relaxLabel = createHoverLabel(GameController.getHoverText(GameController.ActiveVerb.RELAX));
         final String s = "relax";
         relax.addListener(ic.getButtonListener(

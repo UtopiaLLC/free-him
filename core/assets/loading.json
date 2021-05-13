@@ -1,0 +1,8 @@
+{
+  "textures": {
+    "background": "background/B_BlackBoxBorder.png",
+    "play": "mainmenu/MM_Play_1.jpg",
+    "torch": "loading/L_TorchlightLoading_1.png"
+    }
+}
+

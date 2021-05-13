@@ -1,5 +1,6 @@
 package com.adisgrace.games;
 
+import com.adisgrace.games.util.AssetDirectory;
 import com.adisgrace.games.leveleditor.LevelEditorConstants;
 import com.adisgrace.games.util.GameConstants;
 import com.adisgrace.games.util.ScreenListener;
@@ -35,14 +36,14 @@ public class MainMenu implements Screen {
     /** Back button for when in a submenu and need to go back */
     ImageButton back;
 
+    AssetDirectory directory;
+
     /** Assets for the main menu */
-    private static final TextureRegionDrawable TRD_BACK_BUTTON = new TextureRegionDrawable(
-            new Texture(Gdx.files.internal("mainmenu/MM_Back_1.png")));
-    private static final Texture TITLE_ASSET = new Texture(Gdx.files.internal("mainmenu/MM_Title_1.png"));
-    private static final Texture[] MENU_BUTTON_ASSETS = new Texture[]{
-            new Texture(Gdx.files.internal("mainmenu/MM_Play_1.jpg")),
-            new Texture(Gdx.files.internal("mainmenu/MM_Settings_1.jpg")),
-            new Texture(Gdx.files.internal("mainmenu/MM_Credits_1.jpg"))
+    private static final String TITLE_ASSET = "MainMenu:Title";
+    private static final String[] MENU_BUTTON_ASSETS = new String[]{
+            "MainMenu:Play",
+            "MainMenu:Settings",
+            "MainMenu:Credits"
     };
     private static final Texture CREDITS_SCREEN = new Texture(Gdx.files.internal("mainmenu/MM_CreditsScreen_1.png"));
 
@@ -50,10 +51,14 @@ public class MainMenu implements Screen {
     /**
      * Constructor for a main menu.
      */
-    public MainMenu() {
-        // Initialize background to be main menu title
-        background = TITLE_ASSET;
-        // Set up camera for canvas
+  
+    public MainMenu(AssetDirectory directory) {
+        // Create canvas and set view and zoom
+        canvas = new GameCanvas();
+
+        this.directory = directory;
+        // Set up camera
+  
         ExtendViewport viewport = new ExtendViewport(canvas.getWidth(), canvas.getHeight());
 
         // Create stage for grid and tile with isometric grid
@@ -192,10 +197,10 @@ public class MainMenu implements Screen {
         float height = GameConstants.MENU_HEIGHT;
 
         // Go through array of assets for menu buttons and create a button for each
-        for (Texture buttonTex : MENU_BUTTON_ASSETS) {
-            button = new ImageButton(new TextureRegionDrawable(buttonTex));
+        for (String buttonString : MENU_BUTTON_ASSETS) {
+            button = new ImageButton(new TextureRegionDrawable(directory.getEntry(buttonString, Texture.class)));
             // Set button position to be halfway across the screen horizontally
-            button.setPosition(0.5f * canvas.getWidth() - (buttonTex.getWidth() * GameConstants.BUTTON_SCALE/ 2),
+            button.setPosition(0.5f * canvas.getWidth() - (button.getWidth() * GameConstants.BUTTON_SCALE/ 2),
                     height * canvas.getHeight());
             button.setTransform(true);
             button.setScale(GameConstants.BUTTON_SCALE);
@@ -263,7 +268,8 @@ public class MainMenu implements Screen {
 
         // Draw background image
         canvas.begin();
-        canvas.draw(background, 0, 0, 1280, 720);
+      
+        canvas.draw(directory.getEntry(TITLE_ASSET, Texture.class), 0, 0, 1280, 720);
         canvas.end();
 
         // Draw buttons
