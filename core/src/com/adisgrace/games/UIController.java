@@ -191,6 +191,7 @@ public class UIController {
     public void confirmDialog(String s, final Runnable confirmFunction) {
         Dialog dialog = new Dialog("", skin) {
             public void result(Object obj) {
+                GameConstants.CLICK_ON.play();
                 if((boolean)obj) {
                     confirmFunction.run();
                 }
@@ -223,6 +224,7 @@ public class UIController {
         Dialog dialog = new Dialog("", skin) {
             public void result(Object obj) {
                 GameController.nodeFreeze = false;
+                GameConstants.CLICK_ON.play();
             }
         };
         TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
@@ -261,6 +263,7 @@ public class UIController {
         Dialog dialog = new Dialog("", skin) {
             public void result(Object obj) {
                 GameController.nodeFreeze = false;
+                GameConstants.CLICK_ON.play();
             }
         };
         TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
@@ -300,6 +303,7 @@ public class UIController {
         Dialog dialog = new Dialog("", skin) {
             public void result(Object obj) {
                 GameController.nodeFreeze = false;
+                GameConstants.CLICK_ON.play();
             }
         };
         TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
@@ -901,6 +905,8 @@ public class UIController {
         GameController.toolbarStage.addActor(buttonLabel);
 
         node.changeColor(colorState-1);
+
+        GameConstants.NODE_HOVER.play();
     }
 
     public void nodeOnExit(int colorState, Label buttonLabel, Node node) {
