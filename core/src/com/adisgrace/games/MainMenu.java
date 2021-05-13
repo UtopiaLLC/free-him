@@ -38,6 +38,8 @@ public class MainMenu implements Screen {
 
     AssetDirectory directory;
 
+    private static final TextureRegionDrawable TRD_BACK_BUTTON = new TextureRegionDrawable(
+            new Texture(Gdx.files.internal("mainmenu/MM_Back_1.png")));
     /** Assets for the main menu */
     private static final String TITLE_ASSET = "MainMenu:Title";
     private static final String[] MENU_BUTTON_ASSETS = new String[]{
@@ -51,14 +53,14 @@ public class MainMenu implements Screen {
     /**
      * Constructor for a main menu.
      */
-  
+
     public MainMenu(AssetDirectory directory) {
         // Create canvas and set view and zoom
         canvas = new GameCanvas();
 
         this.directory = directory;
         // Set up camera
-  
+
         ExtendViewport viewport = new ExtendViewport(canvas.getWidth(), canvas.getHeight());
 
         // Create stage for grid and tile with isometric grid
@@ -164,7 +166,7 @@ public class MainMenu implements Screen {
         float height = (GameConstants.MENU_HEIGHT + 0.3f) * canvas.getHeight();
 
         // Place Settings title above just to make it clear what the page is
-        Image settingsTitle = new Image(MENU_BUTTON_ASSETS[1]);
+        Image settingsTitle = new Image(directory.getEntry(MENU_BUTTON_ASSETS[1], Texture.class));
         settingsTitle.setScale(1.7f);
         settingsTitle.setPosition(canvas.getWidth() / 2f - settingsTitle.getWidth() * settingsTitle.getScaleX() / 2f, height);
         settings.addActor(settingsTitle);
@@ -230,7 +232,7 @@ public class MainMenu implements Screen {
                 // Show main menu
                 menuButtons.setVisible(true);
                 // Show title screen as background
-                background = TITLE_ASSET;
+                background = directory.getEntry(TITLE_ASSET, Texture.class);
                 // Hide back button
                 back.setVisible(false);
                 // Hide settings if they aren't already hidden
@@ -268,7 +270,7 @@ public class MainMenu implements Screen {
 
         // Draw background image
         canvas.begin();
-      
+
         canvas.draw(directory.getEntry(TITLE_ASSET, Texture.class), 0, 0, 1280, 720);
         canvas.end();
 

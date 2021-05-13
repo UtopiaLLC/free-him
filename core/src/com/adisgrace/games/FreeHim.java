@@ -16,7 +16,7 @@ public class FreeHim extends Game implements ScreenListener {
 	/** Player mode for the loading screen (CONTROLLER CLASS) */
 	private LoadingMode loading;
 	/** Player mode for the main menu screen (CONTROLLER CLASS) */
-//	private MainMenu mainmenu;
+	private MainMenu mainmenu;
 	/** Primary game controller for the game (CONTROLLER CLASS) */
 	private GameController game;
 	/** Primary game controller for the game (CONTROLLER CLASS) */
@@ -61,23 +61,23 @@ public class FreeHim extends Game implements ScreenListener {
 	public void exitScreen(Screen screen, int exitCode) {
 		// If the current screen is the main menu and exitScreen is
 		// called, start the game
-		//TEST IMPLEMENTATION
 		if(screen == loading) {
 			directory = loading.getAssets();
-//			mainmenu = new MainMenu(directory);
-//			mainmenu.setScreenListener(this);
-//			setScreen(mainmenu);
+			mainmenu = new MainMenu(directory);
+			mainmenu.setScreenListener(this);
+			setScreen(mainmenu);
 
-
-//		}
-//		else if (screen == mainmenu) {
+			loading.dispose();
+			loading = null;
+		}
+		else if (screen == mainmenu) {
 			// Create primary game controller
 			levelSelection = new LevelSelection();
 			levelSelection.setScreenListener(this);
 			setScreen(levelSelection);
 
-			loading.dispose();
-			loading = null;
+			mainmenu.dispose();
+			mainmenu = null;
 		}
 		else if (screen == levelSelection) {
 			// Create primary game controller
@@ -97,43 +97,5 @@ public class FreeHim extends Game implements ScreenListener {
 
 			}
 		}
-
-
-		//TRUE IMPLEMENTATION
-//		if(screen == loading) {
-//			directory = loading.getAssets();
-//			mainmenu = new MainMenu(directory);
-//			mainmenu.setScreenListener(this);
-//			setScreen(mainmenu);
-//
-//			loading.dispose();
-//			loading = null;
-//		}
-//		else if (screen == mainmenu) {
-//			// Create primary game controller
-//			levelSelection = new LevelSelection();
-//			setScreen(levelSelection);
-//
-//			mainmenu.dispose();
-//			mainmenu = null;
-//		}
-//		else if (screen == levelSelection) {
-//			// Create primary game controller
-//			game = new GameController(directory);
-//			if (exitCode > 0) {
-//				game.loadLevel(exitCode);
-//			}
-//
-//			setScreen(game);
-//			levelSelection.dispose();
-//			levelSelection = null;
-//		}
-//		else if (screen == game) {
-//			if(exitCode == 1) {
-//
-//			} else if(exitCode == 2){
-//
-//			}
-//		}
 	}
 }

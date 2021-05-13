@@ -58,8 +58,8 @@ public class LevelSelection implements Screen {
 //        Label label = FormFactory.newLabel("(THE LEVEL EDITOR)", 465f);
 //        label.setX((GameConstants.SCREEN_WIDTH / 2f) - (label.getWidth() / 2));
 //        stage.addActor(label);
-
-        // New Level button
+//
+////         New Level button
 //        TextButton newLevel = new TextButton("CREATE NEW LEVEL", GameConstants.SELECTION_SKIN);
 //        newLevel.setWidth(200);
 //        newLevel.setPosition((GameConstants.SCREEN_WIDTH / 2f) - (3 * newLevel.getWidth() / 2), 300);
@@ -76,6 +76,8 @@ public class LevelSelection implements Screen {
         TextButton loadLevel = new TextButton("LOAD SAVED LEVEL", GameConstants.SELECTION_SKIN);
         loadLevel.setWidth(200);
         loadLevel.setPosition((GameConstants.SCREEN_WIDTH / 2f) + (loadLevel.getWidth() / 2), 300);
+
+        System.out.println(GameConstants.SELECTION_SKIN);
 
         // Create list (lets you select one of a list of options) with the levels as options
         // Must be final so can be used in the load level listener
@@ -113,6 +115,7 @@ public class LevelSelection implements Screen {
                 // Store level that is to be loaded, then exit
                 levelToLoad = (String) levelsList.getSelected();
                 int level = levelsList.getSelectedIndex()+1;
+                System.out.println(levelToLoad + " , " +level);
                 exit(level);
 
             }
@@ -143,6 +146,7 @@ public class LevelSelection implements Screen {
      * @param exitCode  Exit code that denotes what to do after exiting.
      */
     private void exit(int exitCode) {
+
         listener.exitScreen(this,exitCode);
     }
 
