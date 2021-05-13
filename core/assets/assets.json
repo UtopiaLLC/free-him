@@ -58,6 +58,8 @@
     "MainMenu:Play": "mainmenu/MM_Play_1.jpg",
     "MainMenu:Settings": "mainmenu/MM_Settings_1.jpg",
     "MainMenu:Title": "mainmenu/MM_Title_1.png",
+    "MainMenu:CreditsScreen": "mainmenu/MM_CreditsScreen_1.png",
+    "MainMenu:Back": "mainmenu/MM_Back_1.png",
 
     "Background:Gradient": "background/B_Gradient_2.png",
     "Background:MapTile": "background/B_MapTileBG_4.png"

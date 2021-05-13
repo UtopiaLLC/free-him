@@ -38,23 +38,23 @@ public class MainMenu implements Screen {
 
     AssetDirectory directory;
 
-    private static final TextureRegionDrawable TRD_BACK_BUTTON = new TextureRegionDrawable(
-            new Texture(Gdx.files.internal("mainmenu/MM_Back_1.png")));
+    private static final String TRD_BACK_BUTTON = "MainMenu:Back";
     /** Assets for the main menu */
     private static final String TITLE_ASSET = "MainMenu:Title";
+    /** Assets for the main menu */
+    private static final String CREDIT_ASSET = "MainMenu:CreditsScreen";
     private static final String[] MENU_BUTTON_ASSETS = new String[]{
             "MainMenu:Play",
             "MainMenu:Settings",
             "MainMenu:Credits"
     };
-    private static final Texture CREDITS_SCREEN = new Texture(Gdx.files.internal("mainmenu/MM_CreditsScreen_1.png"));
 
     /*********************************************** CONSTRUCTOR ***********************************************/
     /**
      * Constructor for a main menu.
      */
 
-    public MainMenu(AssetDirectory directory) {
+    public MainMenu(final AssetDirectory directory) {
         // Create canvas and set view and zoom
         canvas = new GameCanvas();
 
@@ -74,6 +74,8 @@ public class MainMenu implements Screen {
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(inputMultiplexer);
+
+        background = directory.getEntry(TITLE_ASSET, Texture.class);
 
         // Create and place back button, initialized as hidden
         createBackButton();
@@ -116,7 +118,7 @@ public class MainMenu implements Screen {
                 // Hide main menu
                 menuButtons.setVisible(false);
                 // Show credits as background
-                background = CREDITS_SCREEN;
+                background = directory.getEntry(CREDIT_ASSET, Texture.class);
                 // Show back button
                 back.setVisible(true);
             }
@@ -218,7 +220,7 @@ public class MainMenu implements Screen {
      */
     private void createBackButton() {
         // Create and place back button for when in a submenu, but don't show it yet
-        back = new ImageButton(TRD_BACK_BUTTON);
+        back = new ImageButton(new TextureRegionDrawable(directory.getEntry(TRD_BACK_BUTTON, Texture.class)));
         back.setTransform(true);
         back.setScale(0.7f);
         back.setPosition(35,GameConstants.SCREEN_HEIGHT - 70);
@@ -271,7 +273,7 @@ public class MainMenu implements Screen {
         // Draw background image
         canvas.begin();
 
-        canvas.draw(directory.getEntry(TITLE_ASSET, Texture.class), 0, 0, 1280, 720);
+        canvas.draw(background, 0, 0, 1280, 720);
         canvas.end();
 
         // Draw buttons
