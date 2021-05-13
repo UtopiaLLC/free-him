@@ -1,5 +1,6 @@
 package com.adisgrace.games;
 
+import com.adisgrace.games.util.AssetDirectory;
 import com.adisgrace.games.leveleditor.LevelEditorConstants;
 import com.adisgrace.games.util.GameConstants;
 import com.adisgrace.games.util.ScreenListener;
@@ -23,7 +24,7 @@ public class MainMenu implements Screen {
     /** Listener that will update the player mode when we are done */
     private ScreenListener listener;
     /** Canvas is the primary view class of the game */
-    private final GameCanvas canvas = new GameCanvas();
+    private GameCanvas canvas = new GameCanvas();
     /** Stage to set up main menu UI */
     Stage stage;
     /** Table for main menu buttons */
@@ -35,25 +36,31 @@ public class MainMenu implements Screen {
     /** Back button for when in a submenu and need to go back */
     ImageButton back;
 
+    AssetDirectory directory;
+
+    private static final String TRD_BACK_BUTTON = "MainMenu:Back";
     /** Assets for the main menu */
-    private static final TextureRegionDrawable TRD_BACK_BUTTON = new TextureRegionDrawable(
-            new Texture(Gdx.files.internal("mainmenu/MM_Back_1.png")));
-    private static final Texture TITLE_ASSET = new Texture(Gdx.files.internal("mainmenu/MM_Title_1.png"));
-    private static final Texture[] MENU_BUTTON_ASSETS = new Texture[]{
-            new Texture(Gdx.files.internal("mainmenu/MM_Play_1.jpg")),
-            new Texture(Gdx.files.internal("mainmenu/MM_Settings_1.jpg")),
-            new Texture(Gdx.files.internal("mainmenu/MM_Credits_1.jpg"))
+    private static final String TITLE_ASSET = "MainMenu:Title";
+    /** Assets for the main menu */
+    private static final String CREDIT_ASSET = "MainMenu:CreditsScreen";
+    private static final String[] MENU_BUTTON_ASSETS = new String[]{
+            "MainMenu:Play",
+            "MainMenu:Settings",
+            "MainMenu:Credits"
     };
-    private static final Texture CREDITS_SCREEN = new Texture(Gdx.files.internal("mainmenu/MM_CreditsScreen_1.png"));
 
     /*********************************************** CONSTRUCTOR ***********************************************/
     /**
      * Constructor for a main menu.
      */
-    public MainMenu() {
-        // Initialize background to be main menu title
-        background = TITLE_ASSET;
-        // Set up camera for canvas
+
+    public MainMenu(final AssetDirectory directory) {
+        // Create canvas and set view and zoom
+        canvas = new GameCanvas();
+
+        this.directory = directory;
+        // Set up camera
+
         ExtendViewport viewport = new ExtendViewport(canvas.getWidth(), canvas.getHeight());
 
         // Create stage for grid and tile with isometric grid
@@ -67,6 +74,8 @@ public class MainMenu implements Screen {
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(inputMultiplexer);
+
+        background = directory.getEntry(TITLE_ASSET, Texture.class);
 
         // Create and place back button, initialized as hidden
         createBackButton();
@@ -109,7 +118,7 @@ public class MainMenu implements Screen {
                 // Hide main menu
                 menuButtons.setVisible(false);
                 // Show credits as background
-                background = CREDITS_SCREEN;
+                background = directory.getEntry(CREDIT_ASSET, Texture.class);
                 // Show back button
                 back.setVisible(true);
             }
@@ -159,7 +168,7 @@ public class MainMenu implements Screen {
         float height = (GameConstants.MENU_HEIGHT + 0.3f) * canvas.getHeight();
 
         // Place Settings title above just to make it clear what the page is
-        Image settingsTitle = new Image(MENU_BUTTON_ASSETS[1]);
+        Image settingsTitle = new Image(directory.getEntry(MENU_BUTTON_ASSETS[1], Texture.class));
         settingsTitle.setScale(1.7f);
         settingsTitle.setPosition(canvas.getWidth() / 2f - settingsTitle.getWidth() * settingsTitle.getScaleX() / 2f, height);
         settings.addActor(settingsTitle);
@@ -192,10 +201,10 @@ public class MainMenu implements Screen {
         float height = GameConstants.MENU_HEIGHT;
 
         // Go through array of assets for menu buttons and create a button for each
-        for (Texture buttonTex : MENU_BUTTON_ASSETS) {
-            button = new ImageButton(new TextureRegionDrawable(buttonTex));
+        for (String buttonString : MENU_BUTTON_ASSETS) {
+            button = new ImageButton(new TextureRegionDrawable(directory.getEntry(buttonString, Texture.class)));
             // Set button position to be halfway across the screen horizontally
-            button.setPosition(0.5f * canvas.getWidth() - (buttonTex.getWidth() * GameConstants.BUTTON_SCALE/ 2),
+            button.setPosition(0.5f * canvas.getWidth() - (button.getWidth() * GameConstants.BUTTON_SCALE/ 2),
                     height * canvas.getHeight());
             button.setTransform(true);
             button.setScale(GameConstants.BUTTON_SCALE);
@@ -211,7 +220,7 @@ public class MainMenu implements Screen {
      */
     private void createBackButton() {
         // Create and place back button for when in a submenu, but don't show it yet
-        back = new ImageButton(TRD_BACK_BUTTON);
+        back = new ImageButton(new TextureRegionDrawable(directory.getEntry(TRD_BACK_BUTTON, Texture.class)));
         back.setTransform(true);
         back.setScale(0.7f);
         back.setPosition(35,GameConstants.SCREEN_HEIGHT - 70);
@@ -225,7 +234,7 @@ public class MainMenu implements Screen {
                 // Show main menu
                 menuButtons.setVisible(true);
                 // Show title screen as background
-                background = TITLE_ASSET;
+                background = directory.getEntry(TITLE_ASSET, Texture.class);
                 // Hide back button
                 back.setVisible(false);
                 // Hide settings if they aren't already hidden
@@ -263,6 +272,7 @@ public class MainMenu implements Screen {
 
         // Draw background image
         canvas.begin();
+
         canvas.draw(background, 0, 0, 1280, 720);
         canvas.end();
 

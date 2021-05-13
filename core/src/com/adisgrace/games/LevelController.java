@@ -458,6 +458,21 @@ public class LevelController {
         return levelModel.getStressRatings(target, fact);
     }
 
+    public boolean isMale(String target) {
+        return levelModel.getTarget(target).isMale();
+    }
+
+    public int getDaysLeft() {
+        return levelModel.getDaysLeft();
+    }
+
+    public String getTutorialText() {
+        return levelModel.getTutorialText();
+    }
+
+    public String getDefeatMessage(String target) {
+        return levelModel.getTarget(target).getDefeatMessage();
+    }
 
 
 

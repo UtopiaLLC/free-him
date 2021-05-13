@@ -1,8 +1,10 @@
 package com.adisgrace.games;
 
 import com.adisgrace.games.models.*;
+import com.adisgrace.games.util.AssetDirectory;
 import com.adisgrace.games.util.Connector;
 import com.adisgrace.games.util.GameConstants;
+import com.adisgrace.games.util.ScreenListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
@@ -22,9 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import org.w3c.dom.ls.LSOutput;
 
@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-public class GameController implements Screen {
+public class GameController implements Screen{
 
     /** Enumeration representing the active verb applied via toolbar */
     public enum ActiveVerb {
@@ -85,6 +85,7 @@ public class GameController implements Screen {
     }
 
     private Array<String> levelJsons;
+    private AssetDirectory directory;
     //private Array<LevelController> levelControllers;
 
     /** canvas is the primary view class of the game */
@@ -160,12 +161,13 @@ public class GameController implements Screen {
     /** controller for input operations*/
     private InputController ic;
 
+    private Vector2 gridSize;
+
     private Image menuBack;
 
     private Music music;
 
-
-
+    private ScreenListener listener;
     public int currentLevel;
 
     private Animation<TextureRegion> NorthConnectorAnimation;
@@ -178,64 +180,101 @@ public class GameController implements Screen {
     //private Image north, east, south, west;
 
     /** Assets for use in game */
-    private static final Texture TX_END_DAY_LOW = new Texture(Gdx.files.internal("UI/UI_EndDayLow_1.png")),
-            TX_NOTEBOOK_LOW = new Texture(Gdx.files.internal("UI/UI_NotebookLow_1.png")),
-            TX_SETTINGS_LOW = new Texture(Gdx.files.internal("UI/UI_SettingsLow_1.png")),
-            TX_MENU_BACK = new Texture(Gdx.files.internal("UI/MenuBack.png"));
+    private static Texture TX_END_DAY_LOW;
+    private static Texture TX_NOTEBOOK_LOW;
+    private static Texture TX_SETTINGS_LOW;
+    private static Texture TX_MENU_BACK;
     /** Constants for dimensions of screen */
 
+    /** Used for the loading of levels */
+    private String tutorialText;
+    private boolean init;
+
+    /** Used to clear the toolbar after a Win or Loss */
+    private boolean cleared;
 
 
-
-    public GameController() {
+    public GameController(AssetDirectory directory) {
         canvas = new GameCanvas();
+        this.directory = directory;
         ExtendViewport viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         viewport.setCamera(canvas.getCamera());
         currentZoom = canvas.getCamera().zoom;
         stage = new Stage(viewport);
         canvas.getCamera().zoom = 1.5f;
 
-        //TODO: write function to parse folder of level jsons
-        levelJsons = new Array<>();
-        levelJsons.add("levels/Tutorial1/Tutorial1.json");
-        levelJsons.add("levels/Tutorial2/Tutorial2.json");
-        levelJsons.add("levels/Tutorial3/Tutorial3.json");
-        levelJsons.add("levels/Tutorial4/Tutorial4.json");
-        levelJsons.add("levels/GenericLevel_001/GenericLevel_001.json");
-        levelJsons.add("levels/Trial_Level_7_targets/Trial_Level_7_targets.json");
+//        levelJsons = new Array<>();
+//        levelJsons.add("levels/1_Tutorial1/Tutorial1.json");
+//        levelJsons.add("levels/Tutorial2/Tutorial2.json");
+//        levelJsons.add("levels/Tutorial3/Tutorial3.json");
+//        levelJsons.add("levels/Tutorial4/Tutorial4.json");
+//        levelJsons.add("levels/GenericTutorial1/GenericTutorial1.json");
+//        levelJsons.add("levels/GenericLevel_001/GenericLevel_001.json");
+//        levelJsons.add("levels/Twins/Twins.json");
+//        levelJsons.add("levels/Trial_Level_5_Targets/Trial_Level_5_Targets.json");
+//        levelJsons.add("levels/Trial_Level_7_targets/Trial_Level_7_targets.json");
+
+        levelJsons = readJson();
+
 //        levelControllers = new Array<>();
 
 //        for(String s : levelJsons) {
 //            levelControllers.add(new LevelController(s));
 //        }
 
-        skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
-        uiController = new UIController(skin);
-        NodeView.loadAnimations();
+        skin = GameConstants.SELECTION_SKIN;
+        uiController = new UIController(skin, directory);
+//        NodeView.loadAnimations();
         ic = new InputController();
-
-        loadLevel(0);
-
-        cameraController = new CameraController(ic, canvas);
-        createToolbar();
-        shapeRenderer = new ShapeRenderer();
 
         music = Gdx.audio.newMusic(Gdx.files.internal("music/Moonlit_Skyline.mp3"));
         music.setLooping(true);
         setVolume(0.05f);
-        playMusic();
+
+        init = true;
+
+        loadLevel(0);
+
+        cameraController = new CameraController(ic, canvas);
+
+
+        TX_END_DAY_LOW = directory.getEntry("UI:EndDayLow", Texture.class);
+        TX_MENU_BACK = directory.getEntry("UI:MenuBack", Texture.class);
+        TX_NOTEBOOK_LOW = directory.getEntry("UI:NotebookLow", Texture.class);
+        TX_SETTINGS_LOW = directory.getEntry("UI:SettingsLow", Texture.class);
+
+        createToolbar();
+        shapeRenderer = new ShapeRenderer();
+
+        //playMusic();
 
         NorthConnectorAnimation = connectorAnimation(Connector.TX_NORTH);
         SouthConnectorAnimation = connectorAnimation(Connector.TX_SOUTH);
         EastConnectorAnimation = connectorAnimation(Connector.TX_EAST);
         WestConnectorAnimation = connectorAnimation(Connector.TX_WEST);
 
-        
+
+    }
+
+    public Array<String> readJson() {
+        JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/level_order.json"));
+
+        Array<String> temp = new Array<String>();
+        JsonValue levelsArr = json.get("levels");
+        JsonValue.JsonIterator itr = levelsArr.iterator();
+        while (itr.hasNext()){temp.add(itr.next().asString());}
+
+        for(int i = 0; i < temp.size; i++) {
+            String level = temp.get(i);
+            temp.set(i, "levels/" + level + "/" + level + ".json");
+        }
+
+        return temp;
     }
 
     @Override
     public void show() {
-
+        playMusic();
     }
 
     @Override
@@ -252,17 +291,20 @@ public class GameController implements Screen {
             uiController.unCheck();
         }
 
-        if(!ended) {
-            cameraController.moveCamera();
-            toolbarStage.act(delta);
-            if(!nodeFreeze) {
-                stage.act(delta);
-            }
+        if(levelController.getLevelState() != LevelModel.LevelState.ONGOING && !cleared) {
+            toolbarStage.clear();
+            createToolbar();
+            cleared = true;
+        }
+        cameraController.moveCamera();
+        toolbarStage.act(delta);
+        if(!nodeFreeze) {
+            stage.act(delta);
         }
         updateNodeColors();
         updateStats();
 
-        canvas.drawIsometricGrid(GameConstants.NODE_WORLD_WIDTH,GameConstants.NODE_WORLD_HEIGHT);
+        canvas.drawIsometricGrid((int)gridSize.x, (int)gridSize.y);
         stage.getViewport().apply();
         stage.draw();
         toolbarStage.getViewport().apply();
@@ -272,24 +314,24 @@ public class GameController implements Screen {
 
         if(levelController.getLevelState() == LevelModel.LevelState.LOSE && !ended) {
             uiController.createDialogBox("YOU LOSE!");
-            //ended = true;
-            uiController.createDialogBox("You must now restart!");
-            loadLevel(currentLevel);
+            ended = true;
+            //uiController.createDialogBox("You must now restart!");
+            //loadLevel(currentLevel);
 
         } else if (levelController.getLevelState() == LevelModel.LevelState.TIMEOUT && !ended){
-            uiController.createDialogBox("You must now restart!");
-            //ended = true;
+            //uiController.createDialogBox("You must now restart!");
+            ended = true;
             uiController.createDialogBox("YOU RAN OUT OF TIME!");
-            loadLevel(currentLevel);
+            //loadLevel(currentLevel);
         } else if (levelController.getLevelState() == LevelModel.LevelState.WIN && !ended) {
             uiController.createDialogBox("You Win!");
-            //ended = true;
-            if(currentLevel+1 > levelJsons.size-1) {
-                uiController.createDialogBox("You beat all our levels!");
-            } else {
-                currentLevel = currentLevel+1;
-                loadLevel(currentLevel);
-            }
+            ended = true;
+//            if(currentLevel+1 > levelJsons.size-1) {
+//                uiController.createDialogBox("You beat all our levels!");
+//            } else {
+//                currentLevel = currentLevel+1;
+//                loadLevel(currentLevel);
+//            }
         }
 
 
@@ -336,7 +378,9 @@ public class GameController implements Screen {
                 }
                 imageNodes.get(target.getName()).changeColor(colorState);
                 targetStates.set(i, state);
-
+                if(state == TargetModel.TargetState.DEFEATED) {
+                    uiController.createDialogBox(target.getDefeatMessage());
+                }
 //                System.out.println("CHANGE STATE");
 //                System.out.println(state);
 
@@ -483,11 +527,20 @@ public class GameController implements Screen {
     public void loadLevel(int newLevel) {
         //levelController = levelControllers.get(newLevel);
         levelController = new LevelController(levelJsons.get(newLevel));
+        tutorialText = levelController.getTutorialText();
 
-//        System.out.println("NEW LEVEL: " + newLevel);
+        if(!init) {
+            exit(2);
+        } else {
+            init = !init;
+        }
+
+
+
         stage.clear();
         targetStates = new Array<>();
         activeVerb = ActiveVerb.NONE;
+        cleared = false;
 
         targets = new Array<>();
         for (TargetModel t: levelController.getTargetModels().values()){
@@ -499,7 +552,8 @@ public class GameController implements Screen {
         threatenedFacts = new Array<>();
         exposedFacts = new Array<>();
         canvas.beginDebug();
-        canvas.drawIsometricGrid(GameConstants.NODE_WORLD_WIDTH, GameConstants.NODE_WORLD_HEIGHT);
+        gridSize = new Vector2(levelController.getWidth(), levelController.getHeight());
+        canvas.drawIsometricGrid((int)gridSize.x, (int)gridSize.y);
         canvas.endDebug();
 
         // Creating Nodes
@@ -559,6 +613,17 @@ public class GameController implements Screen {
             }
             stage.addActor(imageNodes.get(target.getName()));
         }
+    }
+    
+    public String getTutorialText() {
+        return tutorialText;
+    }
+
+    public void resetInputProcessor() {
+        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(toolbarStage);
+        inputMultiplexer.addProcessor(stage);
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     /**
@@ -632,7 +697,7 @@ public class GameController implements Screen {
      * @return Array of images representing how much AP the player has
      */
     private Image[] createAP(){
-        Texture apTexture = new Texture(Gdx.files.internal("UI/APCounter.png"));
+        Texture apTexture = directory.getEntry("UI:AP", Texture.class);
         TextureRegion[][] apSplitTextures = new TextureRegion(apTexture).split(apTexture.getWidth()/9, apTexture.getHeight());
         Image[] ap = new Image[apSplitTextures[0].length];
         for(int i = 0; i < ap.length; i++){
@@ -676,8 +741,8 @@ public class GameController implements Screen {
 
 //        stressBar = new ProgressBar(0f, 100f, 1f, true, skin, "synthwave");
         stressBar = new FillBar(
-                new Texture(Gdx.files.internal("UI/UI_StressBar_2.png")),
-                new Texture(Gdx.files.internal("UI/StressBarFill.png")),
+                directory.getEntry("UI:StressBar", Texture.class),
+                directory.getEntry("UI:StressBarFill", Texture.class),
                 true, 7, 7
         );
 //        stressBar.setValue(levelController.getPlayerStress());
@@ -1186,5 +1251,23 @@ public class GameController implements Screen {
 
     public void setVolume(float volume) {
         music.setVolume(volume);
+    }
+
+    public void setScreenListener(ScreenListener listener) {
+        this.listener = listener;
+    }
+
+    /**
+     * Exits the screen
+     * 1 is to main menu, 2 is to level screen.
+     * @param exitcode refer to above
+     */
+    public void exit(int exitcode) {
+        stopMusic();
+        if(exitcode == 1) {
+            listener.exitScreen(this, 1);
+        } else if(exitcode == 2) {
+            listener.exitScreen(this, 2);
+        }
     }
 }

@@ -1,0 +1,8 @@
+{
+	"name": "Tutorial3",
+	"dims": [25, 25],
+	"targets": ["JamieHolloday.json"],
+	"targetLocs": [[0, -2]],
+	"timeLimit": 20,
+	"tutorialText": "Stuff"
+}

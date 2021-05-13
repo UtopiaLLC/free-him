@@ -1208,9 +1208,14 @@ public class GameCanvas {
 
 		if(fill_map) {
 
-			int grad_width = width * twidth;
-			int grad_height = height * theight;
-			draw(gradient, Color.WHITE, 0, 0, -grad_width / 2, -grad_height / 2, grad_width, grad_height);
+			//int grad_width_init = width * twidth/2;
+			int grad_width_init = (-twidth/2) + twidth*(-width/4);
+			int grad_width_final = (-twidth/2) + twidth*((width / 4) + (width % 4) / 2);
+			//int grad_height_init = height * theight/2;
+			int grad_height_init = (-theight/2) + theight*(-width/4);
+			int grad_height_final = (-theight/2) + theight*((height / 4) + (height % 4) / 2);
+
+			draw(gradient, Color.WHITE, 0, 0, grad_width_init, grad_height_init, grad_width_final*2, grad_height_final*2);
 		} else {
 
 			//draw(gradient, Color.WHITE, 0, 0, float x, float y, float angle, float sx, float sy);

@@ -1,7 +1,0 @@
-{
-	"name": "GenericTutorial1",
-	"dims": [40, 40],
-	"targets": ["HarveyTennison.json", "CarolineTennison.json"],
-	"targetLocs": [[-5, -3], [0, -2]],
-	"timeLimit": 20
-}

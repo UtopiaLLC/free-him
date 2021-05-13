@@ -1,5 +1,8 @@
 {
 com.badlogic.gdx.graphics.g2d.BitmapFont: {
+	BitcoinNumbersfont: {
+		file: BitcoinNumbersfont.fnt
+	}
 	font: {
 		file: font-export.fnt
 	}
@@ -9,27 +12,63 @@ com.badlogic.gdx.graphics.g2d.BitmapFont: {
 	font-pressed: {
 		file: font-pressed-export.fnt
 	}
+	VCR_Big: {
+		file: VCR_OSD_MONO_1.001.fnt
+	}
+	VT323-Regular: {
+		file: VT323-Regular.fnt
+	}
+	VT323-Regular_White: {
+		file: VT323-Regular_White.fnt
+	}
+	VT323-Regular_White_2: {
+		file: VT323-Regular.fnt
+	}
 }
 com.badlogic.gdx.graphics.Color: {
-	color: {
+	Black: {
 		r: 0
+		g: 0
+		b: 0
+		a: 1
+	}
+	Blu: {
+		r: 0.42000002
+		g: 0.98169786
+		b: 1
+		a: 1
+	}
+	color: {
+		r: 0.14117648
 		g: 1
+		b: 0.09019608
+		a: 1
+	}
+	Neon_purple: {
+		r: 0.9953241
+		g: 0.6633333
 		b: 1
 		a: 1
 	}
 	selected: {
-		r: 0
-		g: .4
-		b: .4
+		r: 0.07058824
+		g: 0.49019608
+		b: 0.039215688
 		a: 1
 	}
 	text: {
-		r: .580392156
+		r: 0.47058824
 		g: 1
-		b: 1
+		b: 0.4509804
 		a: 1
 	}
 	text-selected: {
+		r: 0.76862746
+		g: 1
+		b: 0.7490196
+		a: 1
+	}
+	White: {
 		r: 1
 		g: 1
 		b: 1
@@ -214,6 +253,14 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 		color: color
 	}
 }
+com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable: {
+	UI_StressBarFill_1_tiled: {
+		region: UI_StressBarFill_1
+		color: White
+		minWidth: 75
+		minHeight: 0
+	}
+}
 com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
 	default: {
 		up: button-c
@@ -283,7 +330,7 @@ com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton$ImageTextButtonStyle: {
 com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	default: {
 		font: font
-		fontColor: text
+		fontColor: Blu
 	}
 	over: {
 		font: font-over
@@ -292,6 +339,41 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	pressed: {
 		font: font-pressed
 		fontColor: text
+	}
+	bitcoin: {
+		font: BitcoinNumbersfont
+		fontColor: Neon_purple
+	}
+	win-95: {
+		font: VT323-Regular
+		fontColor: Black
+		background: Label_1
+	}
+	win-95-2: {
+		font: VT323-Regular
+		fontColor: Black
+		background: Label_2
+	}
+	dialog-box: {
+		font: VT323-Regular
+		fontColor: Black
+	}
+	hover-gray: {
+		font: VT323-Regular_White
+		fontColor: White
+		background: UI_HoverBox
+	}
+	hover-text: {
+		font: VT323-Regular_White
+		fontColor: White
+	}
+	tutorial-text: {
+		font: VT323-Regular_White_2
+		fontColor: White
+	}
+	VCR: {
+		font: VCR_Big
+		fontColor: White
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
@@ -315,6 +397,10 @@ com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
 	big: {
 		background: progress-bar-big-c
 		knobBefore: progress-bar-big-knob-c
+	}
+	synthwave: {
+		background: UI_StressBar_1
+		knobBefore: UI_StressBarFill_1_tiled
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
@@ -416,7 +502,6 @@ com.badlogic.gdx.scenes.scene2d.ui.Tree$TreeStyle: {
 com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
 	default: {
 		background: window-c
-		titleFont: font
 		titleFont: font
 	}
 }

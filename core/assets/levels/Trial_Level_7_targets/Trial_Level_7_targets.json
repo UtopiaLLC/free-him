@@ -1,7 +1,0 @@
-{
-	"name": "Trial_Level_7_targets",
-	"dims": [70, 70],
-	"targets": ["CharlieCooper.json", "FredderChia.json", "SatoshiHaywood.json", "RamseyFlemming.json", "AlexGorden.json", "ZimaGrey.json", "EvilBoss1.json"],
-	"targetLocs": [[6, -1], [1, -6], [-4, -4], [4, 4], [-1, 6], [-6, 1], [0, 0]],
-	"timeLimit": 100
-}
