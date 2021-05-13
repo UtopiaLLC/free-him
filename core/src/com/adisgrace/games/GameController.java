@@ -5,6 +5,7 @@ import com.adisgrace.games.util.AssetDirectory;
 import com.adisgrace.games.util.Connector;
 import com.adisgrace.games.util.GameConstants;
 import com.adisgrace.games.util.ScreenListener;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
@@ -329,7 +330,19 @@ public class GameController implements Screen{
 
 
         if(levelController.getLevelState() == LevelModel.LevelState.LOSE && !ended) {
-            uiController.createDialogBox("YOU LOSE!");
+//            uiController.createDialogBox("YOU LOSE!");
+            uiController.createSettingsSelector("YOU LOSE!", new Runnable() {
+                @Override
+                public void run() {
+                    exitScreen(1);
+                }
+            }, new Runnable() {
+                @Override
+                public void run() {
+                    loadLevel(currentLevel);
+                }
+            });
+
             ended = true;
             //uiController.createDialogBox("You must now restart!");
             //loadLevel(currentLevel);
@@ -337,10 +350,53 @@ public class GameController implements Screen{
         } else if (levelController.getLevelState() == LevelModel.LevelState.TIMEOUT && !ended){
             //uiController.createDialogBox("You must now restart!");
             ended = true;
-            uiController.createDialogBox("YOU RAN OUT OF TIME!");
+//            uiController.createDialogBox("YOU RAN OUT OF TIME!");
+            uiController.createSettingsSelector("YOU RAN OUT OF TIME!", new Runnable() {
+                @Override
+                public void run() {
+                    exitScreen(1);
+                }
+            }, new Runnable() {
+                @Override
+                public void run() {
+                    loadLevel(currentLevel);
+                }
+            });
             //loadLevel(currentLevel);
         } else if (levelController.getLevelState() == LevelModel.LevelState.WIN && !ended) {
-            uiController.createDialogBox("You Win!");
+            if (isLastLevel(currentLevel)){
+                uiController.createSettingsSelector("YOU WON THE LAST LEVEL!", new Runnable() {
+                    @Override
+                    public void run() {
+                        exitScreen(1);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        loadLevel(currentLevel);
+                    }
+                });
+            } else {
+                uiController.createWinLevelSelector("YOU WIN!", new Runnable() {
+                    @Override
+                    public void run() {
+                        exitScreen(1);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        loadLevel(currentLevel);
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        currentLevel= currentLevel + 1;
+                        loadLevel(currentLevel);
+                    }
+                });
+
+            }
+
             ended = true;
 //            if(currentLevel+1 > levelJsons.size-1) {
 //                uiController.createDialogBox("You beat all our levels!");
@@ -400,6 +456,7 @@ public class GameController implements Screen{
                 targetStates.set(i, state);
                 if(state == TargetModel.TargetState.DEFEATED) {
                     uiController.createDialogBox(target.getDefeatMessage());
+                    GameConstants.ELIMINATED.play();
                 }
 //                System.out.println("CHANGE STATE");
 //                System.out.println(state);
@@ -540,6 +597,13 @@ public class GameController implements Screen{
         }
     }
 
+    public boolean isLastLevel(int level){
+        if (level+1 > levelJsons.size-1) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * This method switches the level based on the number inputted
      * @param newLevel the level that the game needs to be switched to
@@ -556,7 +620,7 @@ public class GameController implements Screen{
         }
 
 
-
+        ended = false;
         stage.clear();
         targetStates = new Array<>();
         activeVerb = ActiveVerb.NONE;
@@ -700,6 +764,7 @@ public class GameController implements Screen{
             {
                 uiController.createDialogBox("You end the day after a long battle of psychological warfare.");
                 levelController.endDay();
+                GameConstants.END_DAY.play();
             }
         });
         return end;
@@ -1091,6 +1156,7 @@ public class GameController implements Screen{
                 if(hack == 1) {
                     button.changeState(Node.NodeState.UNSCANNED);
                     uiController.createDialogBox("You hacked the node successfully!");
+                    GameConstants.HACK.play();
                 } else if(hack == -3) {
                     uiController.createDialogBox("Insufficient AP to hack this node.");
                 } else if(hack == -4) {
@@ -1102,6 +1168,7 @@ public class GameController implements Screen{
                 if(success) {
                     button.changeState(Node.NodeState.SCANNED);
                     addConnections(nodeInfo[0], nodeInfo[1]);
+                    GameConstants.SCAN.play();
                     uiController.createDialogBoxFact(
                             levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]),
                             levelController.viewFact(nodeInfo[0], nodeInfo[1]));
@@ -1278,6 +1345,7 @@ public class GameController implements Screen{
             case "overwork":
                 success = levelController.overwork();
                 if(success) {
+                    GameConstants.OVERWORK.play();
                     uiController.createDialogBox("You chug an energy drink and work yourself late into the night.");
                 } else {
                     uiController.createDialogBox("You cannot overwork anymore today!");
@@ -1295,6 +1363,7 @@ public class GameController implements Screen{
             case "otherJobs":
                 float money = levelController.otherJobs();
                 if(money != -1f) {
+                    GameConstants.DO_OTHER_JOBS.play();
                     uiController.createDialogBox("You did some other jobs and earned some " + Integer.toString((int)money) +  " bitecoin for yourself!");
                 } else {
                     uiController.createDialogBox("Insufficient AP to do other jobs");

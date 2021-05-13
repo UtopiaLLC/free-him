@@ -1,6 +1,7 @@
 package com.adisgrace.games.util;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import java.io.File;
@@ -105,6 +106,23 @@ public final class GameConstants {
 
     public static final int SCREEN_WIDTH = 1280, SCREEN_HEIGHT = 720;
     public static final int RIGHT_SIDE_HEIGHT = 199;
+
+    public static final Sound CLICK_OFF = Gdx.audio.newSound(Gdx.files.internal("sounds/Click_Off.ogg"));
+    public static final Sound CLICK_ON = Gdx.audio.newSound(Gdx.files.internal("sounds/Click_On.ogg"));
+    public static final Sound DAMAGE = Gdx.audio.newSound(Gdx.files.internal("sounds/damage.ogg"));
+    public static final Sound DO_OTHER_JOBS = Gdx.audio.newSound(Gdx.files.internal("sounds/Do_Other_Jobs.ogg"));
+    public static final Sound ELIMINATED = Gdx.audio.newSound(Gdx.files.internal("sounds/eliminated.ogg"));
+    public static final Sound END_DAY = Gdx.audio.newSound(Gdx.files.internal("sounds/EndDay.ogg"));
+    public static final Sound HACK = Gdx.audio.newSound(Gdx.files.internal("sounds/Hack.ogg"));
+    public static final Sound NODE_HOVER = Gdx.audio.newSound(Gdx.files.internal("sounds/Node_Hover.ogg"));
+    public static final Sound OVERWORK = Gdx.audio.newSound(Gdx.files.internal("sounds/Overwork.ogg"));
+    public static final Sound SCAN = Gdx.audio.newSound(Gdx.files.internal("sounds/Scan.ogg"));
+    public static final Sound SKILL_ACTIVE = Gdx.audio.newSound(Gdx.files.internal("sounds/Skill_Active.ogg"));
+    public static final Sound SKILL_CANCELED = Gdx.audio.newSound(Gdx.files.internal("sounds/Skill_Canceled.ogg"));
+    public static final Sound TARGET_SKILL = Gdx.audio.newSound(Gdx.files.internal("sounds/Target_Skill.ogg"));
+    public static final Sound TARGET_STATE_CHANGE = Gdx.audio.newSound(Gdx.files.internal("sounds/Target_State_Change.ogg"));
+    public static final Sound TARGET_CLICKED = Gdx.audio.newSound(Gdx.files.internal("sounds/TargetClicked.ogg"));
+
 
     /************************************************* STRESS RATING **************************************************/
 
