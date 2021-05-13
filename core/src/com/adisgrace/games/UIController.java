@@ -363,7 +363,7 @@ public class UIController {
                 createNotebookDialog("Notebook:", targets.get((int)obj).getName(), levelController);
             }
         };
-
+        
         TextureRegion tRegion = new TextureRegion(new Texture(Gdx.files.internal("skins/win-95.png")));
         TextureRegionDrawable drawable = new TextureRegionDrawable(tRegion);
         dialog.setBackground(drawable);
