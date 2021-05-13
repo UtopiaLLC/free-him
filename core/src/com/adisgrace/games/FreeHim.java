@@ -81,8 +81,11 @@ public class FreeHim extends Game implements ScreenListener {
 		else if (screen == levelSelection) {
 			// Create primary game controller
 			game = new GameController(directory);
-			setScreen(game);
+			if (exitCode > 0) {
+				game.loadLevel(exitCode);
+			}
 
+			setScreen(game);
 			levelSelection.dispose();
 			levelSelection = null;
 		}
