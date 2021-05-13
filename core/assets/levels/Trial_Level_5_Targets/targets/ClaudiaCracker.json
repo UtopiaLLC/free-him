@@ -1,0 +1,92 @@
+{
+	"targetName": "Claudia Cracker",
+	"isMale": true,
+	"isGeneric": true,
+	"paranoia": 1,
+	"maxStress": 50,
+	"traits": ["rich"],
+	"firstNodes": ["2Node15", "2Node14", "2Node20"],
+	"firstConnectors": [[[0,0], [1,0], [2,0]], [[0,0], [-1,0], [-2,0]], [[0,0], [0,-1], [0,-2]]],
+	"firstConnectorTypes": [["E", "WE", "W"], ["W", "EW", "E"], ["S", "NS", "N"]],
+	"pod": 	[
+		{
+			"nodeName": "2Node15",
+			"title": "Generic Node",
+			"coords": [2.0,0.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret 1",
+			"children": [],
+			"targetStressDamage": 5,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node14",
+			"title": "Generic Node",
+			"coords": [-2.0,0.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret 2",
+			"children": [],
+			"targetStressDamage": 5,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node20",
+			"title": "Generic Node",
+			"coords": [0.0,-2.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret 3",
+			"children": ["1Node109"],
+			"targetStressDamage": 5,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[0,-2], [0,-3], [0,-4]]],
+			"connectorTypes": [["S", "NS", "N"]]
+		},
+		{
+			"nodeName": "1Node109",
+			"title": "Generic Node",
+			"coords": [0.0,-4.0],
+			"locked": false,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 1",
+			"children": ["2Node101", "2Node103"],
+			"targetStressDamage": 10,
+			"playerStressDamage": 20,
+			"connectorCoords": [[[0,-4], [1,-4], [2,-4], [2,-3], [2,-2]], [[0,-4], [-1,-4], [-2,-4], [-2,-3], [-2,-2]]],
+			"connectorTypes": [["E", "WE", "WN", "SN", "S"], ["W", "EW", "EN", "SN", "S"]]
+		},
+		{
+			"nodeName": "2Node101",
+			"title": "Generic Node",
+			"coords": [2.0,-2.0],
+			"locked": true,
+			"content": "You find a bombshell that you're certain was meant to stay secret. You can definitely use this.",
+			"summary": "Major Secret 1",
+			"children": [],
+			"targetStressDamage": 20,
+			"playerStressDamage": 5,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node103",
+			"title": "Generic Node",
+			"coords": [-2.0,-2.0],
+			"locked": true,
+			"content": "You find a bombshell that you're certain was meant to stay secret. You can definitely use this.",
+			"summary": "Major Secret 2",
+			"children": [],
+			"targetStressDamage": 20,
+			"playerStressDamage": 5,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}

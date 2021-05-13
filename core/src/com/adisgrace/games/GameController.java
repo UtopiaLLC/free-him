@@ -1,8 +1,10 @@
 package com.adisgrace.games;
 
 import com.adisgrace.games.models.*;
+import com.adisgrace.games.util.AssetDirectory;
 import com.adisgrace.games.util.Connector;
 import com.adisgrace.games.util.GameConstants;
+import com.adisgrace.games.util.ScreenListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
@@ -33,7 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-public class GameController implements Screen {
+public class GameController implements Screen{
 
     /** Enumeration representing the active verb applied via toolbar */
     public enum ActiveVerb {
@@ -85,6 +87,7 @@ public class GameController implements Screen {
     }
 
     private Array<String> levelJsons;
+    private AssetDirectory directory;
     //private Array<LevelController> levelControllers;
 
     /** canvas is the primary view class of the game */
@@ -166,8 +169,7 @@ public class GameController implements Screen {
 
     private Music music;
 
-
-
+    private ScreenListener listener;
     public int currentLevel;
 
     private Animation<TextureRegion> NorthConnectorAnimation;
@@ -180,17 +182,18 @@ public class GameController implements Screen {
     //private Image north, east, south, west;
 
     /** Assets for use in game */
-    private static final Texture TX_END_DAY_LOW = new Texture(Gdx.files.internal("UI/UI_EndDayLow_1.png")),
-            TX_NOTEBOOK_LOW = new Texture(Gdx.files.internal("UI/UI_NotebookLow_1.png")),
-            TX_SETTINGS_LOW = new Texture(Gdx.files.internal("UI/UI_SettingsLow_1.png")),
-            TX_MENU_BACK = new Texture(Gdx.files.internal("UI/MenuBack.png"));
+    private static Texture TX_END_DAY_LOW;
+    private static Texture TX_NOTEBOOK_LOW;
+    private static Texture TX_SETTINGS_LOW;
+    private static Texture TX_MENU_BACK;
     /** Constants for dimensions of screen */
 
 
 
 
-    public GameController() {
+    public GameController(AssetDirectory directory) {
         canvas = new GameCanvas();
+        this.directory = directory;
         ExtendViewport viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         viewport.setCamera(canvas.getCamera());
         currentZoom = canvas.getCamera().zoom;
@@ -212,13 +215,20 @@ public class GameController implements Screen {
 //        }
 
         skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
-        uiController = new UIController(skin);
+        uiController = new UIController(skin, directory);
         NodeView.loadAnimations();
         ic = new InputController();
 
         loadLevel(0);
 
         cameraController = new CameraController(ic, canvas);
+
+
+        TX_END_DAY_LOW = directory.getEntry("UI:EndDayLow", Texture.class);
+        TX_MENU_BACK = directory.getEntry("UI:MenuBack", Texture.class);
+        TX_NOTEBOOK_LOW = directory.getEntry("UI:NotebookLow", Texture.class);
+        TX_SETTINGS_LOW = directory.getEntry("UI:SettingsLow", Texture.class);
+
         createToolbar();
         shapeRenderer = new ShapeRenderer();
 
@@ -232,7 +242,7 @@ public class GameController implements Screen {
         EastConnectorAnimation = connectorAnimation(Connector.TX_EAST);
         WestConnectorAnimation = connectorAnimation(Connector.TX_WEST);
 
-        
+
     }
 
     @Override
@@ -635,7 +645,7 @@ public class GameController implements Screen {
      * @return Array of images representing how much AP the player has
      */
     private Image[] createAP(){
-        Texture apTexture = new Texture(Gdx.files.internal("UI/APCounter.png"));
+        Texture apTexture = directory.getEntry("UI:AP", Texture.class);
         TextureRegion[][] apSplitTextures = new TextureRegion(apTexture).split(apTexture.getWidth()/9, apTexture.getHeight());
         Image[] ap = new Image[apSplitTextures[0].length];
         for(int i = 0; i < ap.length; i++){
@@ -679,8 +689,8 @@ public class GameController implements Screen {
 
 //        stressBar = new ProgressBar(0f, 100f, 1f, true, skin, "synthwave");
         stressBar = new FillBar(
-                new Texture(Gdx.files.internal("UI/UI_StressBar_2.png")),
-                new Texture(Gdx.files.internal("UI/StressBarFill.png")),
+                directory.getEntry("UI:StressBar", Texture.class),
+                directory.getEntry("UI:StressBarFill", Texture.class),
                 true, 7, 7
         );
 //        stressBar.setValue(levelController.getPlayerStress());
@@ -1189,5 +1199,23 @@ public class GameController implements Screen {
 
     public void setVolume(float volume) {
         music.setVolume(volume);
+    }
+
+    public void setScreenListener(ScreenListener listener) {
+        this.listener = listener;
+    }
+
+    /**
+     * Exits the screen
+     * 1 is to main menu, 2 is to next level screen.
+     * @param exitcode refer to above
+     */
+    public void exit(int exitcode) {
+        stopMusic();
+        if(exitcode == 1) {
+
+        } else if(exitcode == 2) {
+
+        }
     }
 }
