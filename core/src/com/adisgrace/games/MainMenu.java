@@ -24,7 +24,7 @@ public class MainMenu implements Screen {
     /** Listener that will update the player mode when we are done */
     private ScreenListener listener;
     /** Canvas is the primary view class of the game */
-    private final GameCanvas canvas = new GameCanvas();
+    private GameCanvas canvas = new GameCanvas();
     /** Stage to set up main menu UI */
     Stage stage;
     /** Table for main menu buttons */
@@ -38,27 +38,29 @@ public class MainMenu implements Screen {
 
     AssetDirectory directory;
 
+    private static final String TRD_BACK_BUTTON = "MainMenu:Back";
     /** Assets for the main menu */
     private static final String TITLE_ASSET = "MainMenu:Title";
+    /** Assets for the main menu */
+    private static final String CREDIT_ASSET = "MainMenu:CreditsScreen";
     private static final String[] MENU_BUTTON_ASSETS = new String[]{
             "MainMenu:Play",
             "MainMenu:Settings",
             "MainMenu:Credits"
     };
-    private static final Texture CREDITS_SCREEN = new Texture(Gdx.files.internal("mainmenu/MM_CreditsScreen_1.png"));
 
     /*********************************************** CONSTRUCTOR ***********************************************/
     /**
      * Constructor for a main menu.
      */
-  
-    public MainMenu(AssetDirectory directory) {
+
+    public MainMenu(final AssetDirectory directory) {
         // Create canvas and set view and zoom
         canvas = new GameCanvas();
 
         this.directory = directory;
         // Set up camera
-  
+
         ExtendViewport viewport = new ExtendViewport(canvas.getWidth(), canvas.getHeight());
 
         // Create stage for grid and tile with isometric grid
@@ -72,6 +74,8 @@ public class MainMenu implements Screen {
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(inputMultiplexer);
+
+        background = directory.getEntry(TITLE_ASSET, Texture.class);
 
         // Create and place back button, initialized as hidden
         createBackButton();
@@ -114,7 +118,7 @@ public class MainMenu implements Screen {
                 // Hide main menu
                 menuButtons.setVisible(false);
                 // Show credits as background
-                background = CREDITS_SCREEN;
+                background = directory.getEntry(CREDIT_ASSET, Texture.class);
                 // Show back button
                 back.setVisible(true);
             }
@@ -164,7 +168,7 @@ public class MainMenu implements Screen {
         float height = (GameConstants.MENU_HEIGHT + 0.3f) * canvas.getHeight();
 
         // Place Settings title above just to make it clear what the page is
-        Image settingsTitle = new Image(MENU_BUTTON_ASSETS[1]);
+        Image settingsTitle = new Image(directory.getEntry(MENU_BUTTON_ASSETS[1], Texture.class));
         settingsTitle.setScale(1.7f);
         settingsTitle.setPosition(canvas.getWidth() / 2f - settingsTitle.getWidth() * settingsTitle.getScaleX() / 2f, height);
         settings.addActor(settingsTitle);
@@ -216,7 +220,7 @@ public class MainMenu implements Screen {
      */
     private void createBackButton() {
         // Create and place back button for when in a submenu, but don't show it yet
-        back = new ImageButton(TRD_BACK_BUTTON);
+        back = new ImageButton(new TextureRegionDrawable(directory.getEntry(TRD_BACK_BUTTON, Texture.class)));
         back.setTransform(true);
         back.setScale(0.7f);
         back.setPosition(35,GameConstants.SCREEN_HEIGHT - 70);
@@ -230,7 +234,7 @@ public class MainMenu implements Screen {
                 // Show main menu
                 menuButtons.setVisible(true);
                 // Show title screen as background
-                background = TITLE_ASSET;
+                background = directory.getEntry(TITLE_ASSET, Texture.class);
                 // Hide back button
                 back.setVisible(false);
                 // Hide settings if they aren't already hidden
@@ -268,8 +272,8 @@ public class MainMenu implements Screen {
 
         // Draw background image
         canvas.begin();
-      
-        canvas.draw(directory.getEntry(TITLE_ASSET, Texture.class), 0, 0, 1280, 720);
+
+        canvas.draw(background, 0, 0, 1280, 720);
         canvas.end();
 
         // Draw buttons

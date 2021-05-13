@@ -1,6 +1,18 @@
 package com.adisgrace.games.util;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+
+import java.io.File;
+
 public final class GameConstants {
+    /************************************************* LevelSelection **************************************************/
+    /** Directory where levels are stored */
+    public static final File LEVEL_DIRECTORY = new File("levels/");
+    /** Skin for Scene2D elements */
+    public static final Skin SELECTION_SKIN = new Skin(Gdx.files.internal("skins/neon-ui.json"));
+    /** How far the form entries should be spaced apart vertically */
+    public static final int GC_FORM_GAP = 30;
     /************************************************* LevelModel **************************************************/
 
     public static final int DEFAULT_LEVEL_DIM = 20;

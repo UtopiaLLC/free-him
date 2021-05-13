@@ -24,9 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import org.w3c.dom.ls.LSOutput;
 
@@ -201,13 +199,19 @@ public class GameController implements Screen{
         canvas.getCamera().zoom = 1.5f;
 
         //TODO: write function to parse folder of level jsons
-        levelJsons = new Array<>();
-        levelJsons.add("levels/Tutorial1/Tutorial1.json");
-        levelJsons.add("levels/Tutorial2/Tutorial2.json");
-        levelJsons.add("levels/Tutorial3/Tutorial3.json");
-        levelJsons.add("levels/Tutorial4/Tutorial4.json");
-        levelJsons.add("levels/GenericLevel_001/GenericLevel_001.json");
-        levelJsons.add("levels/Trial_Level_7_targets/Trial_Level_7_targets.json");
+//        levelJsons = new Array<>();
+//        levelJsons.add("levels/1_Tutorial1/Tutorial1.json");
+//        levelJsons.add("levels/Tutorial2/Tutorial2.json");
+//        levelJsons.add("levels/Tutorial3/Tutorial3.json");
+//        levelJsons.add("levels/Tutorial4/Tutorial4.json");
+//        levelJsons.add("levels/GenericTutorial1/GenericTutorial1.json");
+//        levelJsons.add("levels/GenericLevel_001/GenericLevel_001.json");
+//        levelJsons.add("levels/Twins/Twins.json");
+//        levelJsons.add("levels/Trial_Level_5_Targets/Trial_Level_5_Targets.json");
+//        levelJsons.add("levels/Trial_Level_7_targets/Trial_Level_7_targets.json");
+
+        levelJsons = readJson();
+
 //        levelControllers = new Array<>();
 
 //        for(String s : levelJsons) {
@@ -235,7 +239,7 @@ public class GameController implements Screen{
         music = Gdx.audio.newMusic(Gdx.files.internal("music/Moonlit_Skyline.mp3"));
         music.setLooping(true);
         setVolume(0.05f);
-        playMusic();
+        //playMusic();
 
         NorthConnectorAnimation = connectorAnimation(Connector.TX_NORTH);
         SouthConnectorAnimation = connectorAnimation(Connector.TX_SOUTH);
@@ -245,9 +249,25 @@ public class GameController implements Screen{
 
     }
 
+    public Array<String> readJson() {
+        JsonValue json = new JsonReader().parse(Gdx.files.internal("levels/level_order.json"));
+
+        Array<String> temp = new Array<String>();
+        JsonValue levelsArr = json.get("levels");
+        JsonValue.JsonIterator itr = levelsArr.iterator();
+        while (itr.hasNext()){temp.add(itr.next().asString());}
+
+        for(int i = 0; i < temp.size; i++) {
+            String level = temp.get(i);
+            temp.set(i, "levels/" + level + "/" + level + ".json");
+        }
+
+        return temp;
+    }
+
     @Override
     public void show() {
-
+        playMusic();
     }
 
     @Override

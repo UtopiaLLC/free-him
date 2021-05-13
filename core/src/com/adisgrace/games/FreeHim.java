@@ -15,11 +15,12 @@ public class FreeHim extends Game implements ScreenListener {
 
 	/** Player mode for the loading screen (CONTROLLER CLASS) */
 	private LoadingMode loading;
-
 	/** Player mode for the main menu screen (CONTROLLER CLASS) */
 	private MainMenu mainmenu;
 	/** Primary game controller for the game (CONTROLLER CLASS) */
 	private GameController game;
+	/** Primary game controller for the game (CONTROLLER CLASS) */
+	private LevelSelection levelSelection;
 	/** AssetManager to load game assets (textures, sounds, etc.) */
 	AssetDirectory directory;
 	
@@ -38,7 +39,7 @@ public class FreeHim extends Game implements ScreenListener {
 	public void dispose () {
 		setScreen(null);
 		game.dispose();
-		mainmenu.dispose();
+//		mainmenu.dispose();
 
 		// Unload all of the resources
 		if (directory != null) {
@@ -69,15 +70,27 @@ public class FreeHim extends Game implements ScreenListener {
 			loading.dispose();
 			loading = null;
 		}
-		if (screen == mainmenu) {
+		else if (screen == mainmenu) {
 			// Create primary game controller
-			game = new GameController(directory);
-			setScreen(game);
+			levelSelection = new LevelSelection();
+			levelSelection.setScreenListener(this);
+			setScreen(levelSelection);
 
 			mainmenu.dispose();
 			mainmenu = null;
 		}
-		if (screen == game) {
+		else if (screen == levelSelection) {
+			// Create primary game controller
+			game = new GameController(directory);
+			if (exitCode > 0) {
+				game.loadLevel(exitCode-1);
+			}
+
+			setScreen(game);
+			levelSelection.dispose();
+			levelSelection = null;
+		}
+		else if (screen == game) {
 			if(exitCode == 1) {
 
 			} else if(exitCode == 2){
