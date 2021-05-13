@@ -186,7 +186,8 @@ public class GameController implements Screen{
     private static Texture TX_MENU_BACK;
     /** Constants for dimensions of screen */
 
-
+    private String tutorialText;
+    private boolean init;
 
 
     public GameController(AssetDirectory directory) {
@@ -198,7 +199,6 @@ public class GameController implements Screen{
         stage = new Stage(viewport);
         canvas.getCamera().zoom = 1.5f;
 
-        //TODO: write function to parse folder of level jsons
 //        levelJsons = new Array<>();
 //        levelJsons.add("levels/1_Tutorial1/Tutorial1.json");
 //        levelJsons.add("levels/Tutorial2/Tutorial2.json");
@@ -218,10 +218,16 @@ public class GameController implements Screen{
 //            levelControllers.add(new LevelController(s));
 //        }
 
-        skin = new Skin(Gdx.files.internal("skins/neon-ui-updated.json"));
+        skin = GameConstants.SELECTION_SKIN;
         uiController = new UIController(skin, directory);
-        NodeView.loadAnimations();
+//        NodeView.loadAnimations();
         ic = new InputController();
+
+        music = Gdx.audio.newMusic(Gdx.files.internal("music/Moonlit_Skyline.mp3"));
+        music.setLooping(true);
+        setVolume(0.05f);
+
+        init = true;
 
         loadLevel(0);
 
@@ -236,9 +242,6 @@ public class GameController implements Screen{
         createToolbar();
         shapeRenderer = new ShapeRenderer();
 
-        music = Gdx.audio.newMusic(Gdx.files.internal("music/Moonlit_Skyline.mp3"));
-        music.setLooping(true);
-        setVolume(0.05f);
         //playMusic();
 
         NorthConnectorAnimation = connectorAnimation(Connector.TX_NORTH);
@@ -515,8 +518,14 @@ public class GameController implements Screen{
     public void loadLevel(int newLevel) {
         //levelController = levelControllers.get(newLevel);
         levelController = new LevelController(levelJsons.get(newLevel));
+        tutorialText = levelController.getTutorialText();
 
-//        System.out.println("NEW LEVEL: " + newLevel);
+        if(!init) {
+            exit(2);
+        } else {
+            init = !init;
+        }
+
         stage.clear();
         targetStates = new Array<>();
         activeVerb = ActiveVerb.NONE;
@@ -592,6 +601,10 @@ public class GameController implements Screen{
             }
             stage.addActor(imageNodes.get(target.getName()));
         }
+    }
+    
+    public String getTutorialText() {
+        return tutorialText;
     }
 
     /**
@@ -1227,15 +1240,15 @@ public class GameController implements Screen{
 
     /**
      * Exits the screen
-     * 1 is to main menu, 2 is to next level screen.
+     * 1 is to main menu, 2 is to level screen.
      * @param exitcode refer to above
      */
     public void exit(int exitcode) {
         stopMusic();
         if(exitcode == 1) {
-
+            listener.exitScreen(this, 1);
         } else if(exitcode == 2) {
-
+            listener.exitScreen(this, 2);
         }
     }
 }

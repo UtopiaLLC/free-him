@@ -448,6 +448,13 @@ public class LevelController {
         return levelModel.getStressRatings(target, fact);
     }
 
+    public int getDaysLeft() {
+        return levelModel.getDaysLeft();
+    }
+
+    public String getTutorialText() {
+        return levelModel.getTutorialText();
+    }
 
 
 

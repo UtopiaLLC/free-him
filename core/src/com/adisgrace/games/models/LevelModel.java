@@ -32,6 +32,9 @@ public class LevelModel {
     /** How many days can this level last, loses the game if days run out */
     private int daysLeft = 10; // needs to be properly initialized
 
+    /** String of text show when switching levels */
+    private String tutorialText;
+
     // Player object
     private PlayerModel player;
 
@@ -119,6 +122,7 @@ public class LevelModel {
         name = json.get("name").asString();
 
         daysLeft = json.get("timeLimit").asInt();
+        tutorialText = json.get("tutorialText").asString();
 
         if (json.get("dims") != null) {
             int[] dims = json.get("dims").asIntArray();
@@ -337,6 +341,14 @@ public class LevelModel {
      */
     public Set<String> getExposableFacts(String targetName){
         return exposableFacts.keySet();
+    }
+
+    public int getDaysLeft() {
+        return daysLeft;
+    }
+
+    public String getTutorialText() {
+        return tutorialText;
     }
 
 

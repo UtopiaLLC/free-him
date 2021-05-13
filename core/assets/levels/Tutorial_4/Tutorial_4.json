@@ -3,5 +3,6 @@
 	"dims": [30, 40],
 	"targets": ["DarrellRivera.json", "WilliamMacintyre.json"],
 	"targetLocs": [[4, -1], [-4, -1]],
-	"timeLimit": 20
+	"timeLimit": 20,
+	"tutorialText": "Stuff"
 }

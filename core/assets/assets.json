@@ -62,7 +62,10 @@
     "MainMenu:Back": "mainmenu/MM_Back_1.png",
 
     "Background:Gradient": "background/B_Gradient_2.png",
-    "Background:MapTile": "background/B_MapTileBG_4.png"
+    "Background:MapTile": "background/B_MapTileBG_4.png",
+
+    "background": "loading/L_Background_1.png",
+    "torch": "loading/L_TorchlightLoading_2.png"
   },
   "sounds" : {
   },
