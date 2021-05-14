@@ -4,5 +4,5 @@
 	"targets": ["B.json", "A.json", "C.json"],
 	"targetLocs": [[-2, 1], [-2, -2], [1, 1]],
 	"timeLimit": 23,
-	"tutorialText": "Stuff"
+	"tutorialText": "Office"
 }

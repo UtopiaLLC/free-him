@@ -4,5 +4,5 @@
 	"targets": ["JamieHolloday.json"],
 	"targetLocs": [[0, -2]],
 	"timeLimit": 20,
-	"tutorialText": "Well done. You should have received your payment for this assignment this morning. \n\nYour next target is Jamie Holloday. He's a new hire and a bit of a thug--and one of my replacements. He's been acting strange recently, so there's surely something he'd hiding. \n\nOne of the nodes in this level holds a nasty surprise. Don't worry too much about this one, but be careful going forward."
+	"tutorialText": "One of the nodes in this level holds a nasty surprise. Don't worry too much about this one, but be careful going forward."
 }

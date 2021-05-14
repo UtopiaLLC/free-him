@@ -11,11 +11,11 @@
 	"pod": 	[
 		{
 			"nodeName": "1Node25",
-			"title": "",
+			"title": "Marriage",
 			"coords": [0.0,-2.0],
 			"locked": false,
-			"content": "",
-			"summary": "",
+			"content": "Jonas has been married to Daisy for 7 years. They have a daughter enrolled in a local elementary school, and according to their social media, two dogs and cat.",
+			"summary": "Jonas is married to Daisy",
 			"children": ["1Node45", "2Node34"],
 			"targetStressDamage": 0,
 			"playerStressDamage": 0,

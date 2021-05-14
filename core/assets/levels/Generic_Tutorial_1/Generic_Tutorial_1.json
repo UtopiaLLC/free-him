@@ -4,5 +4,5 @@
 	"targets": ["HarveyTennison.json", "CarolineTennison.json"],
 	"targetLocs": [[-5, -3], [0, -2]],
 	"timeLimit": 20,
-	"tutorialText": "Well done. Your payment has been deposited. Your next target is Harvey Tennison. I'm not sure what dirt you can find on him, but he has a wife."
+	"tutorialText": "Some targets are marked as generic. These targets have ordinary faces. Defeating a generic target deals sanity damage to the main targets."
 }
