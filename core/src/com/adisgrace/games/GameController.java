@@ -568,7 +568,12 @@ public class GameController implements Screen{
                                         "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n"+
                                         "Target Traits: " + traitString+ "\n";
                             } else {
-                                labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
+                                labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]) + "\n[";
+                                int[] ratings = lc.getTargetModels().get(nodeInfo[0]).getStressRatings(nodeInfo[1]);
+                                for(int i = 0; i < ratings.length; i++){
+                                    labelS += ratings[i] + " ";
+                                }
+                                labelS += "]";
                             }
                             nodeLabel.setText(labelS);
                             uiController.nodeOnEnter(

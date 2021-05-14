@@ -1,0 +1,8 @@
+{
+	"name": "Twins",
+	"dims": [22, 22],
+	"targets": ["ChrisMcCandless.json", "AdamMcCandless.json"],
+	"targetLocs": [[1, 0], [-1, -2]],
+	"timeLimit": 25,
+	"tutorialText": "Stuff"
+}
