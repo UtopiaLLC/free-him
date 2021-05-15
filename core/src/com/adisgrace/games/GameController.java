@@ -323,7 +323,7 @@ public class GameController implements Screen{
         updateNodeColors();
         updateStats();
 
-        canvas.drawIsometricGrid(nodeWorldWidth,nodeWorldHeight);
+        //canvas.drawIsometricGrid(nodeWorldWidth,nodeWorldHeight);
         canvas.drawIsometricGrid((int)gridSize.x, (int)gridSize.y);
         stage.getViewport().apply();
         stage.draw();
@@ -932,6 +932,20 @@ public class GameController implements Screen{
 
         Table leftSide = createLeftsideTable(toolbar);
         Table skillBar = uiController.createSkillBarTable(toolbar);
+
+        // Add menu back
+        menuBack = new Image(TX_MENU_BACK);
+        toolbarStage.addActor(menuBack);
+        menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
+
+        menuBack = new Image(TX_MENU_BACK);
+        toolbarStage.addActor(menuBack);
+        menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
+
+        menuBack = new Image(TX_MENU_BACK);
+        toolbarStage.addActor(menuBack);
+        menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
+
         Table rightSide = createRightsideTable(toolbar, end, notebook, settings);
 
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
@@ -942,11 +956,6 @@ public class GameController implements Screen{
         displayedAP.setPosition(SCREEN_WIDTH - displayedAP.getWidth(), RIGHT_SIDE_HEIGHT);
         toolbarStage.addActor(displayedAP);
 
-
-        // Add menu back
-        menuBack = new Image(TX_MENU_BACK);
-        toolbarStage.addActor(menuBack);
-        menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
 
         return toolbar;
     }

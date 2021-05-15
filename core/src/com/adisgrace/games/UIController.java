@@ -910,7 +910,7 @@ public class UIController {
         GameController.toolbarStage.addActor(buttonLabel);
 
         node.changeColor(colorState-1);
-
+        GameConstants.NODE_HOVER.stop();
         GameConstants.NODE_HOVER.play(.25f);
     }
 
