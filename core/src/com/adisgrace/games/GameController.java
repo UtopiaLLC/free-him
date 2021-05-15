@@ -938,13 +938,16 @@ public class GameController implements Screen{
         toolbarStage.addActor(menuBack);
         menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
 
-        menuBack = new Image(TX_MENU_BACK);
-        toolbarStage.addActor(menuBack);
-        menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
+        toolbarStage.addActor(end);
+        end.setPosition(SCREEN_WIDTH - menuBack.getWidth()+20, RIGHT_SIDE_HEIGHT);
 
-        menuBack = new Image(TX_MENU_BACK);
-        toolbarStage.addActor(menuBack);
-        menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
+        toolbarStage.addActor(notebook);
+        notebook.setPosition(SCREEN_WIDTH - menuBack.getWidth()+20, RIGHT_SIDE_HEIGHT-95);
+
+        toolbarStage.addActor(settings);
+        settings.setPosition(SCREEN_WIDTH - menuBack.getWidth()+25, 0);
+
+        Table rightSide = new Table();
 
         Table rightSide = createRightsideTable(toolbar, end, notebook, settings);
 
