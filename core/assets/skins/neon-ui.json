@@ -379,6 +379,16 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 		font: VT323-Regular_White_2
 		fontColor: Neon_purple
 	}
+	dialog-box-border: {
+		font: VT323-Regular
+		fontColor: Black
+		background: Dialog_Label_Back
+	}
+	dialog-box-border-hover: {
+		font: VT323-Regular
+		fontColor: White
+		background: Dialog_Label_Back_Hover
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
 	default: {
