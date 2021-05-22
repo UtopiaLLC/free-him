@@ -949,7 +949,7 @@ public class GameController implements Screen{
 
         Table rightSide = new Table();
 
-        Table rightSide = createRightsideTable(toolbar, end, notebook, settings);
+        //Table rightSide = createRightsideTable(toolbar, end, notebook, settings);
 
         toolbar.add(leftSide).left().width(.25f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.top);
         toolbar.add(skillBar).width(.67f*toolbar.getWidth()).height(.10f*toolbar.getWidth()).align(Align.bottom);
