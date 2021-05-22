@@ -333,12 +333,18 @@ public class UIController {
                 scannedFacts.add(factSummaries.get(fact_));
         }
 
+        int lines = 1;
         for (int i = 0; i < scannedFacts.size; i++) {
-            Label k = new Label(scannedFacts.get(i), skin, "dialog-box");
-            k.setWrap(true);
-            k.setWidth(GameConstants.DIALOG_WIDTH-125);
-            k.setPosition(75, GameConstants.DIALOG_HEIGHT-90-(50*(i+1)));
-            dialog.addActor(k);
+            if(scannedFacts.get(i).length() > 0) {
+                lines += ((scannedFacts.get(i).length() + 64 + 1) / 64);
+                Label k = new Label(scannedFacts.get(i), skin, "dialog-box-border");
+                k.setWrap(true);
+                k.setWidth(GameConstants.DIALOG_WIDTH - 125);
+                k.setPosition(75, GameConstants.DIALOG_HEIGHT - 90 - (25 * lines));
+                k.setHeight(((scannedFacts.get(i).length() + 64 + 1) / 64) * 25f);
+                lines++;
+                dialog.addActor(k);
+            }
         }
 //        ScrollPane scrollPane = new ScrollPane(dialog, skin);
 //        dialog.addActor(scrollPane);
@@ -477,7 +483,7 @@ public class UIController {
         dialog.getBackground().setMinWidth(GameConstants.DIALOG_WIDTH);
         dialog.getBackground().setMinHeight(GameConstants.DIALOG_HEIGHT);
         Label l = new Label( s, skin, "dialog-box");
-        l.setColor(Color.BLACK);
+        //l.setColor(Color.BLACK);
         if(s.length() > 50) {
             l.setFontScale(1.5f);
         }else {
