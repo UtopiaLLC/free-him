@@ -3,5 +3,5 @@
 	"dims": [40, 40],
 	"targets": ["GilbertCeleste.json", "AnnieVladan.json", "GabrielCramer.json"],
 	"targetLocs": [[-4, -2], [-1, 1], [0, -3]],
-	"timeLimit": 20
+	"timeLimit": 50
 }

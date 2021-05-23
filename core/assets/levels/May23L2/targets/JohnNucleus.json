@@ -1,0 +1,53 @@
+{
+	"targetName": "John Nucleus",
+	"isMale": true,
+	"isGeneric": false,
+	"paranoia": 3,
+	"maxStress": 150,
+	"traits": ["gossip", "rich", "sensitive"],
+	"firstNodes": ["1Node23", "1Node24", "1Node22"],
+	"firstConnectors": [[[0,0], [0,1]], [[0,0], [-1,0]], [[0,0], [0,-1], [1,-1]]],
+	"firstConnectorTypes": [["N", "S"], ["W", "E"], ["S", "NE", "W"]],
+	"pod": 	[
+		{
+			"nodeName": "1Node23",
+			"title": "Generic Node",
+			"coords": [0.0,1.0],
+			"locked": false,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 1",
+			"children": [],
+			"targetStressDamage": 10,
+			"playerStressDamage": 10,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "1Node24",
+			"title": "Generic Node",
+			"coords": [-1.0,0.0],
+			"locked": false,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 2",
+			"children": [],
+			"targetStressDamage": 10,
+			"playerStressDamage": 10,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "1Node22",
+			"title": "Generic Node",
+			"coords": [1.0,-1.0],
+			"locked": false,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 3",
+			"children": [],
+			"targetStressDamage": 10,
+			"playerStressDamage": 10,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}
