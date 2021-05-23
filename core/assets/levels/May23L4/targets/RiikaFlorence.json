@@ -1,0 +1,79 @@
+{
+	"targetName": "Riika Florence",
+	"isMale": true,
+	"isGeneric": true,
+	"paranoia": 3,
+	"maxStress": 100,
+	"traits": ["therapist"],
+	"firstNodes": ["2Node30"],
+	"firstConnectors": [[[0,0], [0,1], [0,2], [0,3], [0,4], [0,5]]],
+	"firstConnectorTypes": [["N", "SN", "SN", "SN", "SN", "S"]],
+	"pod": 	[
+		{
+			"nodeName": "2Node30",
+			"title": "Generic Node",
+			"coords": [0.0,5.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret 1",
+			"children": ["2Node33"],
+			"targetStressDamage": 5,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[0,5], [1,5], [2,5], [3,5], [3,4], [3,3]]],
+			"connectorTypes": [["E", "WE", "WE", "WS", "NS", "N"]]
+		},
+		{
+			"nodeName": "2Node33",
+			"title": "Generic Node",
+			"coords": [3.0,3.0],
+			"locked": true,
+			"content": "You find a bombshell that you're certain was meant to stay secret. You can definitely use this.",
+			"summary": "Major Secret 1",
+			"children": ["2Node34"],
+			"targetStressDamage": 20,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[3,3], [3,2], [3,1], [3,0], [4,0], [5,0], [6,0]]],
+			"connectorTypes": [["S", "NS", "NS", "NE", "WE", "WE", "W"]]
+		},
+		{
+			"nodeName": "2Node34",
+			"title": "Generic Node",
+			"coords": [6.0,0.0],
+			"locked": true,
+			"content": "There's nothing of use here... you'll have to keep digging.",
+			"summary": "Useless Fact 1",
+			"children": ["2Node36"],
+			"targetStressDamage": 0,
+			"playerStressDamage": 20,
+			"connectorCoords": [[[6,0], [7,0], [8,0], [8,-1], [8,-2], [8,-3]]],
+			"connectorTypes": [["E", "WE", "WS", "NS", "NS", "N"]]
+		},
+		{
+			"nodeName": "2Node36",
+			"title": "Generic Node",
+			"coords": [8.0,-3.0],
+			"locked": true,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 2",
+			"children": ["2Node37"],
+			"targetStressDamage": 10,
+			"playerStressDamage": 20,
+			"connectorCoords": [[[8,-3], [8,-4], [8,-5], [8,-6], [8,-7]]],
+			"connectorTypes": [["S", "NS", "NS", "NS", "N"]]
+		},
+		{
+			"nodeName": "2Node37",
+			"title": "Generic Node",
+			"coords": [8.0,-7.0],
+			"locked": true,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 1",
+			"children": [],
+			"targetStressDamage": 10,
+			"playerStressDamage": 20,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}
