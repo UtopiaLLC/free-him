@@ -1,0 +1,40 @@
+{
+	"targetName": "Baoguo Ma",
+	"isMale": true,
+	"isGeneric": false,
+	"paranoia": 3,
+	"maxStress": 150,
+	"traits": ["gossip"],
+	"firstNodes": ["2Node4", "2Node3"],
+	"firstConnectors": [[[0,0], [-1,0], [-2,0]], [[0,0], [1,0], [2,0]]],
+	"firstConnectorTypes": [["W", "EW", "E"], ["E", "WE", "W"]],
+	"pod": 	[
+		{
+			"nodeName": "2Node4",
+			"title": "Generic Node",
+			"coords": [-2.0,0.0],
+			"locked": true,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 2",
+			"children": [],
+			"targetStressDamage": 10,
+			"playerStressDamage": 10,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node3",
+			"title": "Generic Node",
+			"coords": [2.0,0.0],
+			"locked": true,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 1",
+			"children": [],
+			"targetStressDamage": 10,
+			"playerStressDamage": 10,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}
