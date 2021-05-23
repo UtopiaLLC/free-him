@@ -7,6 +7,7 @@ import com.adisgrace.games.models.PlayerModel;
 import com.adisgrace.games.models.TargetModel;
 import com.adisgrace.games.models.TraitModel;
 import com.adisgrace.games.util.Connector;
+import com.adisgrace.games.util.GameConstants;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
