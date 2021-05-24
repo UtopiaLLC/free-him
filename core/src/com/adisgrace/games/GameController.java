@@ -452,7 +452,7 @@ public class GameController implements Screen{
             targetBars.get(name).get(1).setFillAmount(target.getSuspicion()/100f);
             if(targets.get(i).getState() != targetStates.get(i)) {
                 TargetModel.TargetState state = target.getState();
-                int colorState = getColorTypeFromState(state);
+                int colorState = target.getColorState();
 
                 for(String fact : target.getNodes()){
                     Node node = imageNodes.get(target.getName()+","+fact);
@@ -471,31 +471,6 @@ public class GameController implements Screen{
 
             }
         }
-    }
-
-    private int getColorTypeFromState(TargetModel.TargetState state ) {
-        int colorState;
-        switch (state) {
-            case UNAWARE:
-                colorState = 1;
-                break;
-            case SUSPICIOUS:
-                colorState = 3;
-                break;
-            case PARANOID:
-                colorState = 5;
-                break;
-            case THREATENED:
-                colorState = 7;
-                break;
-            case DEFEATED:
-                colorState = 11;
-                break;
-            default:
-                colorState = 9;
-                break;
-        }
-        return colorState;
     }
 
     /**
@@ -522,9 +497,8 @@ public class GameController implements Screen{
                 } else {
                     traitString = "None";
                 }
-                s =  "\nTarget Name: " + b.getName() + "\n" +
-                        "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n"+
-                        "Target Traits: " + traitString+ "\n";
+                s =  b.getName() + "\n" +
+                        "Traits: " + traitString+ "\n";
             } else {
                 s = levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
             }
@@ -580,21 +554,20 @@ public class GameController implements Screen{
                                     labelS += ratings[i] + " ";
                                 }
                                 labelS += "]";
+
                             } else {
                                 labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
+                                // Set subtree info of node
+                                b.setSubtreeInfo(lc.getTargetModels().get(nodeInfo[0]).getStressRatings(nodeInfo[1]));
                             }
                             nodeLabel.setText(labelS);
-                            uiController.nodeOnEnter(
-                                    getColorTypeFromState(lc.getTargetModels().get(nodeInfo[0]).getState()),
-                                    nodeLabel, b);
+                            uiController.nodeOnEnter(lc.getTargetModels().get(nodeInfo[0]), nodeLabel, b);
                         }
                     },
                     new Runnable() {
                         @Override
                         public void run() {
-                            uiController.nodeOnExit(
-                                    getColorTypeFromState(lc.getTargetModels().get(nodeInfo[0]).getState()),
-                                    nodeLabel, b);
+                            uiController.nodeOnExit(lc.getTargetModels().get(nodeInfo[0]), nodeLabel, b);
                         }
                     }));
             //Adds enter and exit listeners to each node button
@@ -1446,22 +1419,10 @@ public class GameController implements Screen{
         menuBack.setTouchable(Touchable.disabled);
         toolbarStage.addActor(menuBack);
         menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
+        end.toFront();
+        settings.toFront();
+        notebook.toFront();
 
-//        end.remove();
-//        end = createEndDay();
-//        end.setTouchable(Touchable.disabled);
-//        toolbarStage.addActor(end);
-//        end.setPosition(SCREEN_WIDTH - menuBack.getWidth()+20, RIGHT_SIDE_HEIGHT);
-//
-//        notebook.remove();
-//        notebook = createNotebook();
-//        toolbarStage.addActor(notebook);
-//        notebook.setPosition(SCREEN_WIDTH - menuBack.getWidth()+20, RIGHT_SIDE_HEIGHT-95);
-//
-//        settings.remove();
-//        settings = createSettings();
-//        toolbarStage.addActor(settings);
-//        settings.setPosition(SCREEN_WIDTH - menuBack.getWidth()+25, 10);
 
         daysLeft.setText(Integer.toString((int)levelController.getDaysLeft()));
 

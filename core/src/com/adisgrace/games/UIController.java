@@ -202,9 +202,8 @@ public class UIController {
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(300);
         dialog.getBackground().setMinHeight(300);
-//        Label l = new Label( s, skin );
         Label l = new Label(s, skin, "dialog-box");
-        l.setFontScale(2);
+        l.setFontScale(1);
         l.setWrap( true );
         l.setColor(Color.BLACK);
         dialog.getContentTable().add( l ).prefWidth( 250 );
@@ -282,7 +281,8 @@ public class UIController {
         Label k = new Label(fact, skin, "dialog-box");
         k.setWrap(true);
         k.setWidth(GameConstants.DIALOG_WIDTH-125);
-        k.setPosition(75, GameConstants.DIALOG_HEIGHT-90-(100));
+//        k.setPosition(75,75,Align.topLeft);
+        k.setPosition(75, GameConstants.DIALOG_HEIGHT-90-(100), Align.topLeft);
         dialog.addActor(k);
 
 
@@ -919,21 +919,41 @@ public class UIController {
         };
     }
 
-    public void nodeOnEnter(int colorState, Label buttonLabel, Node node) {
-
-//        Vector2 zeroLoc = node.localToStageCoordinates(new Vector2(0, node.getHeight()));
-//        buttonLabel.setX(zeroLoc.x);
-//        buttonLabel.setY(zeroLoc.y);
+    /**
+     * Called when a node is hovered over.
+     *
+     * @param target        Target that the node belongs to
+     * @param buttonLabel   I assume the label with the name of the node?
+     * @param node          Node that is being hovered over
+     */
+    public void nodeOnEnter(TargetModel target, Label buttonLabel, Node node) {
+        // Add label with name of node? to stage
         GameController.toolbarStage.addActor(buttonLabel);
 
-        node.changeColor(colorState-1);
+        // Change node to lit up version
+        node.changeColor(target.getColorState()-1);
+
+        // Indicate that node is being hovered over
+        node.setHover(true);
+
+        // Play sound
         GameConstants.NODE_HOVER.stop();
         GameConstants.NODE_HOVER.play(.25f);
     }
 
-    public void nodeOnExit(int colorState, Label buttonLabel, Node node) {
+    /**
+     * Called when a hover over a node stops.
+     *
+     * @param target        Target that the node belongs to
+     * @param buttonLabel   I assume the label with the name of the node?
+     * @param node          Node that is being hovered over
+     */
+    public void nodeOnExit(TargetModel target, Label buttonLabel, Node node) {
         buttonLabel.remove();
-        node.changeColor(colorState);
+        node.changeColor(target.getColorState());
+
+        // Indicate that node is no longer being hovered over
+        node.setHover(false);
     }
 
     private float getDialogButtonBottomPadding(int wh) {
