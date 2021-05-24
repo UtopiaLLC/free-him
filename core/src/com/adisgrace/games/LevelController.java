@@ -7,6 +7,7 @@ import com.adisgrace.games.models.PlayerModel;
 import com.adisgrace.games.models.TargetModel;
 import com.adisgrace.games.models.TraitModel;
 import com.adisgrace.games.util.Connector;
+import com.adisgrace.games.util.GameConstants;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
@@ -22,6 +23,13 @@ import java.util.logging.Level;
 public class LevelController {
 
     public static double MINION_DAMAGE = 0.2;
+
+    public enum CauseOfDeath{
+        STRESS,
+        BITECOIN,
+        TARGET,
+        NONE
+    }
 
     private LevelModel levelModel;
     private PlayerModel player;
@@ -62,6 +70,20 @@ public class LevelController {
     public LevelModel.LevelState getLevelState(){
         if(!player.isLiving()) return LevelModel.LevelState.LOSE;
         return levelModel.getLevelState();
+    }
+
+    /**
+     * Returns the reason the player lost the game, or NONE if the game is won or ongoing
+     * @return CauseOfDeath.NONE, CauseOfDeath.BITECOIN, CauseOfDeath.STRESS, or CauseOfDeath.TARGET
+     */
+    public CauseOfDeath getCauseOfDeath(){
+        if(getLevelState() != LevelModel.LevelState.LOSE)
+            return CauseOfDeath.NONE;
+        if(player.getBitecoin() <= 0)
+            return CauseOfDeath.BITECOIN;
+        if(player.getStress() >= GameConstants.MAX_STRESS)
+            return CauseOfDeath.STRESS;
+        return CauseOfDeath.TARGET;
     }
 
     /**

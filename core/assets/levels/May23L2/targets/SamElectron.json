@@ -1,0 +1,92 @@
+{
+	"targetName": "Sam Electron",
+	"isMale": true,
+	"isGeneric": true,
+	"paranoia": 3,
+	"maxStress": 80,
+	"traits": ["naturally_suspicious"],
+	"firstNodes": ["2Node5", "2Node4", "2Node7", "2Node6", "2Node9", "2Node8"],
+	"firstConnectors": [[[0,0], [0,1], [0,2], [0,3], [1,3], [2,3]], [[0,0], [0,1], [0,2], [0,3], [0,4], [0,5], [0,6], [0,7], [1,7]], [[0,0], [0,1], [0,2], [0,3], [0,4], [0,5], [0,6], [0,7], [-1,7], [-2,7]], [[0,0], [0,1], [0,2], [0,3], [0,4], [0,5], [0,6], [1,6], [2,6], [3,6], [4,6]], [[0,0], [0,1], [0,2], [0,3], [0,4], [0,5], [0,6], [-1,6], [-2,6], [-3,6], [-4,6]], [[0,0], [0,1], [0,2], [0,3], [-1,3], [-2,3]]],
+	"firstConnectorTypes": [["N", "SN", "SN", "SE", "WE", "W"], ["N", "SN", "SN", "SN", "SN", "SN", "SN", "SE", "W"], ["N", "SN", "SN", "SN", "SN", "SN", "SN", "SW", "EW", "E"], ["N", "SN", "SN", "SN", "SN", "SN", "SE", "WE", "WE", "WE", "W"], ["N", "SN", "SN", "SN", "SN", "SN", "SW", "EW", "EW", "EW", "E"], ["N", "SN", "SN", "SW", "EW", "E"]],
+	"pod": 	[
+		{
+			"nodeName": "2Node5",
+			"title": "Generic Node",
+			"coords": [2.0,3.0],
+			"locked": true,
+			"content": "There's nothing of use here... you'll have to keep digging.",
+			"summary": "Useless Fact 1",
+			"children": [],
+			"targetStressDamage": 0,
+			"playerStressDamage": 5,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node4",
+			"title": "Generic Node",
+			"coords": [1.0,7.0],
+			"locked": true,
+			"content": "You find a bombshell that you're certain was meant to stay secret. You can definitely use this.",
+			"summary": "Major Secret 2",
+			"children": [],
+			"targetStressDamage": 20,
+			"playerStressDamage": 20,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node7",
+			"title": "Generic Node",
+			"coords": [-2.0,7.0],
+			"locked": true,
+			"content": "You find a bombshell that you're certain was meant to stay secret. You can definitely use this.",
+			"summary": "Major Secret 1",
+			"children": [],
+			"targetStressDamage": 20,
+			"playerStressDamage": 20,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node6",
+			"title": "Generic Node",
+			"coords": [4.0,6.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret 2",
+			"children": [],
+			"targetStressDamage": 5,
+			"playerStressDamage": 10,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node9",
+			"title": "Generic Node",
+			"coords": [-4.0,6.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret 1",
+			"children": [],
+			"targetStressDamage": 5,
+			"playerStressDamage": 10,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node8",
+			"title": "Generic Node",
+			"coords": [-2.0,3.0],
+			"locked": true,
+			"content": "There's nothing of use here... you'll have to keep digging.",
+			"summary": "Useless Fact 2",
+			"children": [],
+			"targetStressDamage": 0,
+			"playerStressDamage": 5,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}

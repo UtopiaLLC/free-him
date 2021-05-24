@@ -1,0 +1,66 @@
+{
+	"targetName": "Gabriel Cramer",
+	"isMale": true,
+	"isGeneric": false,
+	"paranoia": 5,
+	"maxStress": 130,
+	"traits": ["gossip", "rich"],
+	"firstNodes": ["2Node13", "2Node14"],
+	"firstConnectors": [[[0,0], [0,-1], [0,-2], [0,-3]], [[0,0], [1,0], [2,0], [3,0]]],
+	"firstConnectorTypes": [["S", "NS", "NS", "N"], ["E", "WE", "WE", "W"]],
+	"pod": 	[
+		{
+			"nodeName": "2Node13",
+			"title": "Generic Node",
+			"coords": [0.0,-3.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret 1",
+			"children": ["1Node15"],
+			"targetStressDamage": 5,
+			"playerStressDamage": 20,
+			"connectorCoords": [[[0,-3], [0,-4], [0,-5]]],
+			"connectorTypes": [["S", "NS", "N"]]
+		},
+		{
+			"nodeName": "2Node14",
+			"title": "Generic Node",
+			"coords": [3.0,0.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret 2",
+			"children": ["1Node16"],
+			"targetStressDamage": 5,
+			"playerStressDamage": 20,
+			"connectorCoords": [[[3,0], [4,0], [5,0]]],
+			"connectorTypes": [["E", "WE", "W"]]
+		},
+		{
+			"nodeName": "1Node16",
+			"title": "Generic Node",
+			"coords": [5.0,0.0],
+			"locked": false,
+			"content": "You find a bombshell that you're certain was meant to stay secret. You can definitely use this.",
+			"summary": "Major Secret 2",
+			"children": [],
+			"targetStressDamage": 20,
+			"playerStressDamage": 5,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "1Node15",
+			"title": "Generic Node",
+			"coords": [0.0,-5.0],
+			"locked": false,
+			"content": "You find a bombshell that you're certain was meant to stay secret. You can definitely use this.",
+			"summary": "Major Secret 1",
+			"children": [],
+			"targetStressDamage": 20,
+			"playerStressDamage": 5,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}

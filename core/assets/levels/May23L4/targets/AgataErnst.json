@@ -1,0 +1,53 @@
+{
+	"targetName": "Agata Ernst",
+	"isMale": true,
+	"isGeneric": false,
+	"paranoia": 3,
+	"maxStress": 200,
+	"traits": [],
+	"firstNodes": ["2Node25", "2Node41", "2Node42"],
+	"firstConnectors": [[[0,0], [0,1], [-1,1], [-2,1], [-2,2]], [[0,0], [1,0], [2,0], [3,0]], [[0,0], [0,-1], [0,-2], [0,-3]]],
+	"firstConnectorTypes": [["N", "SW", "EW", "EN", "S"], ["E", "WE", "WE", "W"], ["S", "NS", "NS", "N"]],
+	"pod": 	[
+		{
+			"nodeName": "2Node25",
+			"title": "Generic Node",
+			"coords": [-2.0,2.0],
+			"locked": true,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 3",
+			"children": [],
+			"targetStressDamage": 10,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node41",
+			"title": "Generic Node",
+			"coords": [3.0,0.0],
+			"locked": true,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 2",
+			"children": [],
+			"targetStressDamage": 10,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node42",
+			"title": "Generic Node",
+			"coords": [0.0,-3.0],
+			"locked": true,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 1",
+			"children": [],
+			"targetStressDamage": 10,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}

@@ -1,0 +1,92 @@
+{
+	"targetName": "Gilbert Celeste",
+	"isMale": true,
+	"isGeneric": true,
+	"paranoia": 3,
+	"maxStress": 50,
+	"traits": ["gossip"],
+	"firstNodes": ["2Node4", "2Node9", "2Node12"],
+	"firstConnectors": [[[0,0], [-1,0], [-2,0], [-3,0], [-4,0], [-5,0], [-6,0]], [[0,0], [0,-1], [0,-2], [0,-3]], [[0,0], [-1,0], [-2,0], [-3,0], [-4,0], [-4,1], [-4,2]]],
+	"firstConnectorTypes": [["W", "EW", "EW", "EW", "EW", "EW", "E"], ["S", "NS", "NS", "N"], ["W", "EW", "EW", "EW", "EN", "SN", "S"]],
+	"pod": 	[
+		{
+			"nodeName": "2Node4",
+			"title": "Generic Node",
+			"coords": [-6.0,0.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret 1",
+			"children": [],
+			"targetStressDamage": 5,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node9",
+			"title": "Generic Node",
+			"coords": [0.0,-3.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret 2",
+			"children": ["2Node11", "2Node10"],
+			"targetStressDamage": 5,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[0,-3], [0,-4], [-1,-4], [-2,-4], [-3,-4], [-4,-4]], [[0,-3], [0,-4], [0,-5], [0,-6]]],
+			"connectorTypes": [["S", "NW", "EW", "EW", "EW", "E"], ["S", "NS", "NS", "N"]]
+		},
+		{
+			"nodeName": "2Node12",
+			"title": "Generic Node",
+			"coords": [-4.0,2.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret 3",
+			"children": ["1Node17"],
+			"targetStressDamage": 5,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[-4,2], [-4,3], [-4,4], [-4,5]]],
+			"connectorTypes": [["N", "SN", "SN", "S"]]
+		},
+		{
+			"nodeName": "1Node17",
+			"title": "Generic Node",
+			"coords": [-4.0,5.0],
+			"locked": false,
+			"content": "You find a bombshell that you're certain was meant to stay secret. You can definitely use this.",
+			"summary": "Major Secret 1",
+			"children": [],
+			"targetStressDamage": 20,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node11",
+			"title": "Generic Node",
+			"coords": [-4.0,-4.0],
+			"locked": true,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 1",
+			"children": [],
+			"targetStressDamage": 10,
+			"playerStressDamage": 5,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node10",
+			"title": "Generic Node",
+			"coords": [0.0,-6.0],
+			"locked": true,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 2",
+			"children": [],
+			"targetStressDamage": 10,
+			"playerStressDamage": 5,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}

@@ -34,7 +34,7 @@ public class FactNode {
 	private int nodeY;
 
 	/** stress rating of this specific fact node*/
-	private GameConstants.StressRating stressRating;
+	public GameConstants.StressRating stressRating;
 
 	/** represents the amount of {NONE, LOW, MED, HIGH} stress ratings that belong in a subtree where this node is the top*/
 	private int[] stressRatingsInSubTree = {0, 0, 0, 0};
@@ -236,9 +236,7 @@ public class FactNode {
 	 * Returns the number of each stress rating that exists within this subtree
 	 * @return {NONE, LOW, MED, HIGH}
 	 */
-	public int[] getSubTreeStressRatings(){
-		return stressRatingsInSubTree;
-	}
+	public int[] getSubTreeStressRatings(){ return stressRatingsInSubTree;}
 
 	/**
 	 * Returns whether this subtree of nodes has been processed to have the correct set of stress ratings

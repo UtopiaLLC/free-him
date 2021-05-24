@@ -396,6 +396,36 @@ public class TargetModel {
 	}
 
 	/**
+	 * Returns an integer that represents the color of the current target's state.
+	 *
+	 * @return	Integer that represents the color of the current target's state
+	 */
+	public int getColorState() {
+		int colorState;
+		switch (state) {
+			case UNAWARE:
+				colorState = 1;
+				break;
+			case SUSPICIOUS:
+				colorState = 3;
+				break;
+			case PARANOID:
+				colorState = 5;
+				break;
+			case THREATENED:
+				colorState = 7;
+				break;
+			case DEFEATED:
+				colorState = 11;
+				break;
+			default:
+				colorState = 9;
+				break;
+		}
+		return colorState;
+	}
+
+	/**
 	 * Returns whether the target is male or not
 	 * @return true if target is male, false if target is female
 	 */
@@ -872,7 +902,24 @@ public class TargetModel {
 	 * @return {NONE, LOW, MED, HIGH}
 	 */
 	public int[] getStressRatings(String fact) {
-		return podDict.get(fact).getSubTreeStressRatings();
+		int[] temp = podDict.get(fact).getSubTreeStressRatings().clone();
+
+		switch (podDict.get(fact).stressRating){
+			case NONE:
+				temp[0]--;
+				break;
+			case LOW:
+				temp[1]--;
+				break;
+			case MED:
+				temp[2]--;
+				break;
+			case HIGH:
+				temp[3]--;
+				break;
+		}
+
+		return temp;
 	}
 
 	/************************************************* COMBO METHODS *************************************************/

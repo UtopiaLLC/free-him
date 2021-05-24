@@ -1,0 +1,7 @@
+{
+	"name": "May23L2",
+	"dims": [50, 50],
+	"targets": ["MaryNeutron.json", "SamElectron.json", "SmithProton.json", "JohnNucleus.json"],
+	"targetLocs": [[-3, 0], [0, 3], [3, -3], [0, 0]],
+	"timeLimit": 50
+}

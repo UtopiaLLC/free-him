@@ -166,6 +166,9 @@ public class GameController implements Screen{
     private Vector2 gridSize;
 
     private Image menuBack;
+    private ImageButton end;
+    private ImageButton settings;
+    private ImageButton notebook;
 
     private Music music;
 
@@ -449,7 +452,7 @@ public class GameController implements Screen{
             targetBars.get(name).get(1).setFillAmount(target.getSuspicion()/100f);
             if(targets.get(i).getState() != targetStates.get(i)) {
                 TargetModel.TargetState state = target.getState();
-                int colorState = getColorTypeFromState(state);
+                int colorState = target.getColorState();
 
                 for(String fact : target.getNodes()){
                     Node node = imageNodes.get(target.getName()+","+fact);
@@ -468,31 +471,6 @@ public class GameController implements Screen{
 
             }
         }
-    }
-
-    private int getColorTypeFromState(TargetModel.TargetState state ) {
-        int colorState;
-        switch (state) {
-            case UNAWARE:
-                colorState = 1;
-                break;
-            case SUSPICIOUS:
-                colorState = 3;
-                break;
-            case PARANOID:
-                colorState = 5;
-                break;
-            case THREATENED:
-                colorState = 7;
-                break;
-            case DEFEATED:
-                colorState = 11;
-                break;
-            default:
-                colorState = 9;
-                break;
-        }
-        return colorState;
     }
 
     /**
@@ -519,9 +497,8 @@ public class GameController implements Screen{
                 } else {
                     traitString = "None";
                 }
-                s =  "\nTarget Name: " + b.getName() + "\n" +
-                        "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n"+
-                        "Target Traits: " + traitString+ "\n";
+                s =  b.getName() + "\n" +
+                        "Traits: " + traitString+ "\n";
             } else {
                 s = levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
             }
@@ -551,7 +528,7 @@ public class GameController implements Screen{
                     }, new Runnable() {
                         @Override
                         public void run() {
-                            String labelS;
+                            String labelS = "";
                             if(nodeInfo.length == 1) {
                                 ArrayList<TraitModel.Trait> traits = levelController.getTargetTraits(b.getName());
                                 String traitString = "";
@@ -567,26 +544,30 @@ public class GameController implements Screen{
                                 labelS =  "\nTarget Name: " + b.getName() + "\n" +
                                         "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n"+
                                         "Target Traits: " + traitString+ "\n";
-                            } else {
+                            } else if(lc.getCurrentNodeState(nodeInfo[0], nodeInfo[1]) == 1){ // only when fact is VIEWABLE
                                 labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]) + "\n[";
                                 int[] ratings = lc.getTargetModels().get(nodeInfo[0]).getStressRatings(nodeInfo[1]);
+
+
+
                                 for(int i = 0; i < ratings.length; i++){
                                     labelS += ratings[i] + " ";
                                 }
                                 labelS += "]";
+
+                            } else {
+                                labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
+                                // Set subtree info of node
+                                b.setSubtreeInfo(lc.getTargetModels().get(nodeInfo[0]).getStressRatings(nodeInfo[1]));
                             }
                             nodeLabel.setText(labelS);
-                            uiController.nodeOnEnter(
-                                    getColorTypeFromState(lc.getTargetModels().get(nodeInfo[0]).getState()),
-                                    nodeLabel, b);
+                            uiController.nodeOnEnter(lc.getTargetModels().get(nodeInfo[0]), nodeLabel, b);
                         }
                     },
                     new Runnable() {
                         @Override
                         public void run() {
-                            uiController.nodeOnExit(
-                                    getColorTypeFromState(lc.getTargetModels().get(nodeInfo[0]).getState()),
-                                    nodeLabel, b);
+                            uiController.nodeOnExit(lc.getTargetModels().get(nodeInfo[0]), nodeLabel, b);
                         }
                     }));
             //Adds enter and exit listeners to each node button
@@ -900,9 +881,9 @@ public class GameController implements Screen{
         uiController.createDistract(ic, createConfirmRunnable("distract"));
         uiController.createGaslight(ic, createConfirmRunnable("gaslight"));
 
-        ImageButton end = createEndDay();
-        ImageButton settings = createSettings();
-        ImageButton notebook = createNotebook();
+        end = createEndDay();
+        settings = createSettings();
+        notebook = createNotebook();
         apImages = createAP();
 
         Table toolbar = createToolbarTable(end, settings, notebook);
@@ -1421,6 +1402,9 @@ public class GameController implements Screen{
         if(bitecoinNum < 0) {
             bitecoinNum = 0;
         }
+
+
+
         String bitecoinAmt = Integer.toString((int) bitecoinNum);
         bitecoinAmount.setText(bitecoinAmt);
 //        ap.setText("AP: " + Integer.toString(levelController.getAP()));
@@ -1435,6 +1419,11 @@ public class GameController implements Screen{
         menuBack.setTouchable(Touchable.disabled);
         toolbarStage.addActor(menuBack);
         menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
+        end.toFront();
+        settings.toFront();
+        notebook.toFront();
+
+
         daysLeft.setText(Integer.toString((int)levelController.getDaysLeft()));
 
 //        displayedAP.add(apImages[levelController.getAP()]).width(displayedAP.getWidth()).height(/*rightSide.getHeight*/70f).align(Align.center);

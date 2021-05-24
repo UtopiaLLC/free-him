@@ -1,0 +1,79 @@
+{
+	"targetName": "Marzell Marnix",
+	"isMale": true,
+	"isGeneric": true,
+	"paranoia": 3,
+	"maxStress": 100,
+	"traits": ["gossip"],
+	"firstNodes": ["2Node40"],
+	"firstConnectors": [[[0,0], [1,0], [2,0], [3,0], [3,-1], [3,-2], [3,-3]]],
+	"firstConnectorTypes": [["E", "WE", "WE", "WS", "NS", "NS", "N"]],
+	"pod": 	[
+		{
+			"nodeName": "2Node40",
+			"title": "Generic Node",
+			"coords": [3.0,-3.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret 1",
+			"children": ["2Node39"],
+			"targetStressDamage": 5,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[3,-3], [3,-4], [3,-5], [2,-5], [1,-5], [0,-5]]],
+			"connectorTypes": [["S", "NS", "NW", "EW", "EW", "E"]]
+		},
+		{
+			"nodeName": "2Node39",
+			"title": "Generic Node",
+			"coords": [0.0,-5.0],
+			"locked": true,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 2",
+			"children": ["2Node38"],
+			"targetStressDamage": 10,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[0,-5], [-1,-5], [-2,-5], [-3,-5], [-4,-5]]],
+			"connectorTypes": [["W", "EW", "EW", "EW", "E"]]
+		},
+		{
+			"nodeName": "2Node38",
+			"title": "Generic Node",
+			"coords": [-4.0,-5.0],
+			"locked": true,
+			"content": "You find some information that you think will be relatively useful.",
+			"summary": "Medium Secret 1",
+			"children": ["2Node35"],
+			"targetStressDamage": 10,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[-4,-5], [-5,-5], [-6,-5], [-6,-4], [-6,-3], [-7,-3]]],
+			"connectorTypes": [["W", "EW", "EN", "SN", "SW", "E"]]
+		},
+		{
+			"nodeName": "2Node35",
+			"title": "Generic Node",
+			"coords": [-7.0,-3.0],
+			"locked": true,
+			"content": "You find a bombshell that you're certain was meant to stay secret. You can definitely use this.",
+			"summary": "Major Secret 2",
+			"children": ["2Node32"],
+			"targetStressDamage": 20,
+			"playerStressDamage": 20,
+			"connectorCoords": [[[-7,-3], [-8,-3], [-9,-3], [-10,-3], [-10,-2], [-10,-1], [-10,0]]],
+			"connectorTypes": [["W", "EW", "EW", "EN", "SN", "SN", "S"]]
+		},
+		{
+			"nodeName": "2Node32",
+			"title": "Generic Node",
+			"coords": [-10.0,0.0],
+			"locked": true,
+			"content": "You find a bombshell that you're certain was meant to stay secret. You can definitely use this.",
+			"summary": "Major Secret 1",
+			"children": [],
+			"targetStressDamage": 20,
+			"playerStressDamage": 10,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}
