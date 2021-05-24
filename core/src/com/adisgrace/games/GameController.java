@@ -551,7 +551,7 @@ public class GameController implements Screen{
                     }, new Runnable() {
                         @Override
                         public void run() {
-                            String labelS;
+                            String labelS = "";
                             if(nodeInfo.length == 1) {
                                 ArrayList<TraitModel.Trait> traits = levelController.getTargetTraits(b.getName());
                                 String traitString = "";
@@ -567,13 +567,15 @@ public class GameController implements Screen{
                                 labelS =  "\nTarget Name: " + b.getName() + "\n" +
                                         "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n"+
                                         "Target Traits: " + traitString+ "\n";
-                            } else {
+                            } else if(lc.getCurrentNodeState(nodeInfo[0], nodeInfo[1]) == 1){ // only when fact is VIEWABLE
                                 labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]) + "\n[";
                                 int[] ratings = lc.getTargetModels().get(nodeInfo[0]).getStressRatings(nodeInfo[1]);
                                 for(int i = 0; i < ratings.length; i++){
                                     labelS += ratings[i] + " ";
                                 }
                                 labelS += "]";
+                            } else {
+                                labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
                             }
                             nodeLabel.setText(labelS);
                             uiController.nodeOnEnter(
