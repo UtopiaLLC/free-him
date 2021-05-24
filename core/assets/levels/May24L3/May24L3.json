@@ -1,0 +1,7 @@
+{
+	"name": "May24L3",
+	"dims": [40, 40],
+	"targets": ["NoortjeJuhani.json", "GertrudeFerdinand.json"],
+	"targetLocs": [[-6, -1], [9, -1]],
+	"timeLimit": 50
+}
