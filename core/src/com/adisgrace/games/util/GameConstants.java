@@ -2,6 +2,8 @@ package com.adisgrace.games.util;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import java.io.File;
@@ -198,4 +200,21 @@ public final class GameConstants {
         // Anything else as long as it's not out of range, so stress rating of HIGH
         else {return StressRating.HIGH;}
     }
+
+    /********************************************** SUBTREE ICON ASSETS ***********************************************/
+    /** Texture that contains node subtree icons */
+    private static final Texture SUBTREE_ICONS = new Texture(Gdx.files.internal("node/N_SubtreeIcons_1.png"));
+    /** Array of textures for node subtree icons */
+    public static final TextureRegion[][] SUBTREE_ICON_TEXTURES = new TextureRegion(SUBTREE_ICONS).split(
+            SUBTREE_ICONS.getWidth() / 6, SUBTREE_ICONS.getHeight() / 2);
+    /** Texture that contains node subtree text */
+    private static final Texture SUBTREE_TEXT = new Texture(Gdx.files.internal("node/N_SubtreeIconsText_1.png"));
+    /** Array of textures for node subtree text */
+    public static final TextureRegion[][] SUBTREE_TEXT_TEXTURES = new TextureRegion(SUBTREE_TEXT).split(
+            SUBTREE_TEXT.getWidth() / 10, SUBTREE_TEXT.getHeight());
+    /** Width and height of each node subtree digit */
+    public static final int SUBTREE_TEXT_WIDTH = 30;
+    public static final int SUBTREE_TEXT_HEIGHT = 60;
+    /** Locations of where the numbers should go on the subtree info display */
+    public static final int LOW_X = 110, LOW_Y = 245, MED_X = 230, MED_Y = 360, HIGH_X = 350, HIGH_Y = 245;
 }

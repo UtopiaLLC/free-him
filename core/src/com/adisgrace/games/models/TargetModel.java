@@ -396,6 +396,36 @@ public class TargetModel {
 	}
 
 	/**
+	 * Returns an integer that represents the color of the current target's state.
+	 *
+	 * @return	Integer that represents the color of the current target's state
+	 */
+	public int getColorState() {
+		int colorState;
+		switch (state) {
+			case UNAWARE:
+				colorState = 1;
+				break;
+			case SUSPICIOUS:
+				colorState = 3;
+				break;
+			case PARANOID:
+				colorState = 5;
+				break;
+			case THREATENED:
+				colorState = 7;
+				break;
+			case DEFEATED:
+				colorState = 11;
+				break;
+			default:
+				colorState = 9;
+				break;
+		}
+		return colorState;
+	}
+
+	/**
 	 * Returns whether the target is male or not
 	 * @return true if target is male, false if target is female
 	 */

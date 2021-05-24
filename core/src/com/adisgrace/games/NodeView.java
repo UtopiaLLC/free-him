@@ -125,8 +125,13 @@ public class NodeView {
             } else {
                 state = Node.NodeState.UNSCANNED;
             }
-            Node node = new Node(pos.x, pos.y, target.getName()+","+targetNodes.get(i), 1, state);
-            imageNodes.put(target.getName()+","+targetNodes.get(i), node);
+            // Name of target
+            String targetName = target.getName();
+            // Name of node
+            String nodeName = targetNodes.get(i);
+
+            Node node = new Node(pos.x, pos.y, targetName, nodeName, 1, state);
+            imageNodes.put(targetName+","+nodeName, node);
 
             
             stage.addActor(node);
