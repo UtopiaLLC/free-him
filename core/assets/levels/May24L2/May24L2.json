@@ -1,0 +1,7 @@
+{
+	"name": "May24L2",
+	"dims": [60, 60],
+	"targets": ["GojkoClia.json"],
+	"targetLocs": [[2, -1]],
+	"timeLimit": 40
+}
