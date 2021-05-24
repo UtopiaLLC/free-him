@@ -4,5 +4,5 @@
 	"targets": ["AlexanderSmith.json"],
 	"targetLocs": [[0, -1]],
 	"timeLimit": 20,
-	"tutorialText": "\nYou will see your target, surrounded with two bars. The left bar represents his sanity. The right bar represents his suspicions and how aware he is that he is being targeted. You will also see a node representing one of his devices. Click the node to scan its contents, and click the 'Harass' button and again on him to use it."
+	"tutorialImages": ["Tutorial:Sigma_Email"]
 }

@@ -8,6 +8,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Array;
 
 
 //THIS IS GDXROOT
@@ -97,8 +98,8 @@ public class FreeHim extends Game implements ScreenListener {
 			if(exitCode == 1) {
 				setScreen(mainmenu);
 			} else if(exitCode == 2){
-				String tutorialText = game.getTutorialText();
-				tutorialMode = new TutorialMode(directory, tutorialText);
+				Array<String> tutorialPaths = game.getTutorialPaths();
+				tutorialMode = new TutorialMode(directory, tutorialPaths);
 				tutorialMode.setScreenListener(this);
 				setScreen(tutorialMode);
 

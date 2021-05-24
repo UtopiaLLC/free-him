@@ -4,5 +4,5 @@
 	"targets": ["RamseyGreyjoy.json", "AdaGram.json", "AdamNestrov.json"],
 	"targetLocs": [[-4, 0], [4, 0], [0, -2]],
 	"timeLimit": 20,
-	"tutorialText": "\nT for Threes"
+	"tutorialImages": []
 }

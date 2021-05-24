@@ -204,7 +204,7 @@ public class GameController implements Screen{
 
     private Map<String, Array<FillBar>> targetBars;
     /** Used for the loading of levels */
-    private String tutorialText;
+    private Array<String> tutorialPaths;
     private boolean init;
 
     /** Used to clear the toolbar after a Win or Loss */
@@ -621,7 +621,7 @@ public class GameController implements Screen{
     public void loadLevel(int newLevel) {
         //levelController = levelControllers.get(newLevel);
         levelController = new LevelController(levelJsons.get(newLevel));
-        tutorialText = levelController.getTutorialText();
+        tutorialPaths = levelController.getTutorialPaths();
 
         if(!init) {
             exitScreen(2);
@@ -746,8 +746,8 @@ public class GameController implements Screen{
         }
     }
     
-    public String getTutorialText() {
-        return tutorialText;
+    public Array<String> getTutorialPaths() {
+        return tutorialPaths;
     }
 
     public void resetInputProcessor() {

@@ -4,5 +4,5 @@
 	"targets": ["DarrellRivera.json", "WilliamMacintyre.json"],
 	"targetLocs": [[4, -1], [-4, -1]],
 	"timeLimit": 20,
-	"tutorialText": "Your next targets are a pair of old friends, Darrell and William. Darrell has the gossip trait, meaning that if you make Darrell suspicious, he will spread his suspicion to other characters."
+	"tutorialImages": []
 }

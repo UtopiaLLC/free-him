@@ -3,5 +3,6 @@
 	"dims": [20, 20],
 	"targets": ["JonasFullerton.json", "DaisyFullerton.json"],
 	"targetLocs": [[0, 0], [2, 1]],
-	"timeLimit": 20
+	"timeLimit": 20,
+	"tutorialImages": []
 }
