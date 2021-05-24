@@ -1441,22 +1441,10 @@ public class GameController implements Screen{
         menuBack.setTouchable(Touchable.disabled);
         toolbarStage.addActor(menuBack);
         menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
+        end.toFront();
+        settings.toFront();
+        notebook.toFront();
 
-//        end.remove();
-//        end = createEndDay();
-//        end.setTouchable(Touchable.disabled);
-//        toolbarStage.addActor(end);
-//        end.setPosition(SCREEN_WIDTH - menuBack.getWidth()+20, RIGHT_SIDE_HEIGHT);
-//
-//        notebook.remove();
-//        notebook = createNotebook();
-//        toolbarStage.addActor(notebook);
-//        notebook.setPosition(SCREEN_WIDTH - menuBack.getWidth()+20, RIGHT_SIDE_HEIGHT-95);
-//
-//        settings.remove();
-//        settings = createSettings();
-//        toolbarStage.addActor(settings);
-//        settings.setPosition(SCREEN_WIDTH - menuBack.getWidth()+25, 10);
 
         daysLeft.setText(Integer.toString((int)levelController.getDaysLeft()));
 
