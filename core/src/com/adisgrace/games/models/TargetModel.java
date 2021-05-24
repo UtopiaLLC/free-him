@@ -872,7 +872,24 @@ public class TargetModel {
 	 * @return {NONE, LOW, MED, HIGH}
 	 */
 	public int[] getStressRatings(String fact) {
-		return podDict.get(fact).getSubTreeStressRatings();
+		int[] temp = podDict.get(fact).getSubTreeStressRatings().clone();
+
+		switch (podDict.get(fact).stressRating){
+			case NONE:
+				temp[0]--;
+				break;
+			case LOW:
+				temp[1]--;
+				break;
+			case MED:
+				temp[2]--;
+				break;
+			case HIGH:
+				temp[3]--;
+				break;
+		}
+
+		return temp;
 	}
 
 	/************************************************* COMBO METHODS *************************************************/

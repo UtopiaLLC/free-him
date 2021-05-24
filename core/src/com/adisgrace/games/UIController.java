@@ -905,6 +905,17 @@ public class UIController {
                 }
                 GameController.blackmailDialog.hide();
             }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor){
+
+            }
+
         };
     }
 
