@@ -528,9 +528,6 @@ public class GameController implements Screen{
                     }, new Runnable() {
                         @Override
                         public void run() {
-                            // Set subtree info of node
-                            b.setSubtreeInfo(lc.getTargetModels().get(nodeInfo[0]).getStressRatings(nodeInfo[1]));
-
                             String labelS = "";
                             if(nodeInfo.length == 1) {
                                 ArrayList<TraitModel.Trait> traits = levelController.getTargetTraits(b.getName());
@@ -548,6 +545,8 @@ public class GameController implements Screen{
                                         "Traits: " + traitString+ "\n";
                             } else {
                                 labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
+                                // Set subtree info of node
+                                b.setSubtreeInfo(lc.getTargetModels().get(nodeInfo[0]).getStressRatings(nodeInfo[1]));
                             }
                             nodeLabel.setText(labelS);
                             uiController.nodeOnEnter(lc.getTargetModels().get(nodeInfo[0]), nodeLabel, b);
