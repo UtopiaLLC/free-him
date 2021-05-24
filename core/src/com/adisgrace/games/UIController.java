@@ -202,7 +202,6 @@ public class UIController {
         dialog.setBackground(drawable);
         dialog.getBackground().setMinWidth(300);
         dialog.getBackground().setMinHeight(300);
-//        Label l = new Label( s, skin );
         Label l = new Label(s, skin, "dialog-box");
         l.setFontScale(1);
         l.setWrap( true );
@@ -282,7 +281,8 @@ public class UIController {
         Label k = new Label(fact, skin, "dialog-box");
         k.setWrap(true);
         k.setWidth(GameConstants.DIALOG_WIDTH-125);
-        k.setPosition(75, GameConstants.DIALOG_HEIGHT-90-(100));
+//        k.setPosition(75,75,Align.topLeft);
+        k.setPosition(75, GameConstants.DIALOG_HEIGHT-90-(100), Align.topLeft);
         dialog.addActor(k);
 
 
