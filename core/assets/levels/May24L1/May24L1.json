@@ -1,0 +1,7 @@
+{
+	"name": "May24L1",
+	"dims": [50, 50],
+	"targets": ["RoelDora.json"],
+	"targetLocs": [[0, 0]],
+	"timeLimit": 35
+}
