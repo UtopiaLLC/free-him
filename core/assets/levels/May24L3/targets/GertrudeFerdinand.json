@@ -3,7 +3,7 @@
 	"isMale": true,
 	"isGeneric": false,
 	"paranoia": 3,
-	"maxStress": 100,
+	"maxStress": 99,
 	"traits": ["therapist"],
 	"firstNodes": ["1Node14", "1Node1"],
 	"firstConnectors": [[[0,0], [-1,0], [-2,0], [-2,-1], [-2,-2]], [[0,0], [-1,0], [-2,0], [-2,1], [-2,2]]],
