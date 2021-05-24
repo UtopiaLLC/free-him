@@ -204,7 +204,7 @@ public class UIController {
         dialog.getBackground().setMinHeight(300);
 //        Label l = new Label( s, skin );
         Label l = new Label(s, skin, "dialog-box");
-        l.setFontScale(2);
+        l.setFontScale(1);
         l.setWrap( true );
         l.setColor(Color.BLACK);
         dialog.getContentTable().add( l ).prefWidth( 250 );
