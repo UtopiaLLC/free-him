@@ -128,6 +128,9 @@ public class TutorialMode implements Screen {
                 stage.addActor(tutorialImage);
             }
 
+        } else {
+            stage.addActor(playButton);
+            
         }
 
 
@@ -268,7 +271,7 @@ public class TutorialMode implements Screen {
 
     @Override
     public void resize(int i, int i1) {
-
+        stage.getViewport().update(i,i1, true);
     }
 
     @Override

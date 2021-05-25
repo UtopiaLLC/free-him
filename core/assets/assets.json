@@ -1,6 +1,6 @@
 {
   "textures": {
-    "UI:AP": "UI/APCounter.png",
+    "UI:AP": "UI/UI_APCenter_1.png",
     "UI:BitcoinCounter": "UI/BitecoinCounter.png",
     "UI:MenuBack": "UI/MenuBack.png",
     "UI:SkillBar": "UI/SkillBar_2.png",
@@ -10,6 +10,8 @@
     "UI:NotebookLow": "UI/UI_NotebookLow_1.png",
     "UI:SettingsLow": "UI/UI_SettingsLow_1.png",
     "UI:StressBar": "UI/UI_StressBar_2.png",
+    "UI:DaysLeft": "UI/UI_DaysLeft_1.png",
+    "UI:APCounter": "UI/S_APCounter_2.png",
 
     "Skills:DistractDown": "skills/distract_down.png",
     "Skills:DistractSelect": "skills/distract_select.png",
