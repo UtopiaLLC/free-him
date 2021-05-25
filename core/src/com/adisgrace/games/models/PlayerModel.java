@@ -150,9 +150,9 @@ public class PlayerModel {
 
 		this.action_points = Math.max(GameConstants.DAILY_AP, action_points);
 		this.decrementBitecoin(GameConstants.DAILY_BITECOIN_COST);
-		this.incrementStress((float)rng.nextGaussian() * GameConstants.DREAM_STRESS_STDEV);
+//		this.incrementStress((float)rng.nextGaussian() * GameConstants.DREAM_STRESS_STDEV);
 
-		this.stress = Math.max(0f, this.stress);
+//		this.stress = Math.max(0f, this.stress);
 		return this.isLiving();
 	}
 
