@@ -541,20 +541,8 @@ public class GameController implements Screen{
                                     traitString = "None";
                                 }
 
-                                labelS =  "\nTarget Name: " + b.getName() + "\n" +
-                                        "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n"+
-                                        "Target Traits: " + traitString+ "\n";
-                            } else if(lc.getCurrentNodeState(nodeInfo[0], nodeInfo[1]) == 1){ // only when fact is VIEWABLE
-                                labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]) + "\n[";
-                                int[] ratings = lc.getTargetModels().get(nodeInfo[0]).getStressRatings(nodeInfo[1]);
-
-
-
-                                for(int i = 0; i < ratings.length; i++){
-                                    labelS += ratings[i] + " ";
-                                }
-                                labelS += "]";
-
+                                labelS =  b.getName() + "\n" +
+                                        "Traits: " + traitString+ "\n";
                             } else {
                                 labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
                                 // Set subtree info of node

@@ -250,6 +250,7 @@ public class Node extends Group {
 
         // If node is scanned and is currently being hovered over, draw node subtree info icons
         if (nodeState == NodeState.SCANNED && hover) {
+            System.out.println(nodeType);
             batch.draw(SUBTREE_ICON_TEXTURES[0][(nodeType / 2) - (nodeType % 2)], getX(), getY(), getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
             // Display numbers for subtree info
             // Low
