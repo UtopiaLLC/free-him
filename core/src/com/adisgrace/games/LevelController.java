@@ -157,6 +157,8 @@ public class LevelController {
 
         // Increase target suspicion accordingly
         levelModel.getTargets().get(target).scan();
+
+        System.out.println(levelModel.getContents().get(target).keySet());
         return true;
     }
 
@@ -253,6 +255,7 @@ public class LevelController {
      * @return amount of stress increase on target
      */
     public int harass(String target, String fact){
+        System.out.println("Harassing with target " + target + " and fact " + fact);
         if(!levelModel.getTargets().containsKey(target))
             throw new RuntimeException("Invalid target");
         if(!levelModel.getContents().get(target).containsKey(fact))

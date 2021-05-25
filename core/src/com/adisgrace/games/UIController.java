@@ -802,7 +802,8 @@ public class UIController {
                     scannedFacts.add(factSummaries.get(fact_) + " " +
                             GameConstants.stressRatingToIndicator(levelController.getTargetModels().get(targetName).getStressRating(fact_)));
             //Add to both scannedFacts and summaryToFacts
-            summaryToFacts.put(factSummaries.get(fact_), fact_);
+            summaryToFacts.put(factSummaries.get(fact_) + " " +
+                    GameConstants.stressRatingToIndicator(levelController.getTargetModels().get(targetName).getStressRating(fact_)), fact_);
         }
 
 
