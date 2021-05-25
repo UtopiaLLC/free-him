@@ -117,6 +117,8 @@ public class TutorialMode implements Screen {
         //stage.addActor(playButton);
 
         tutorialImages = new Array<>();
+        background = directory.getEntry("background", Texture.class);
+
         if(tutorialPaths.size > 0) {
             for(int i = 0; i < tutorialPaths.size; i++) {
                 tutorialImage = new Image(directory.getEntry(tutorialPaths.get(i), Texture.class));
@@ -198,7 +200,6 @@ public class TutorialMode implements Screen {
             });
             stage.addActor(prevButton);
 
-            background = directory.getEntry("background", Texture.class);
 
             numPic = new Label("1/"+tutorialImages.size, GameConstants.SELECTION_SKIN, "tutorial-text");
             numPic.setPosition(Gdx.graphics.getWidth()*.5f - numPic.getWidth()/2,
@@ -207,8 +208,8 @@ public class TutorialMode implements Screen {
 
 
         } else {
-            stage.addActor(playButton);
-
+            //stage.addActor(playButton);
+            //exitLoad();
         }
 
 
@@ -268,6 +269,9 @@ public class TutorialMode implements Screen {
 
     @Override
     public void render(float v) {
+        if(tutorialImages.size == 0) {
+            exitLoad();
+        }
         draw();
     }
 
