@@ -60,7 +60,7 @@ public class FillBar extends Group {
     }
 
     public void setFillAmount(float fill_amount) {
-        this.fill_amount = fill_amount;
+        this.fill_amount = Math.min(Math.max(fill_amount,0.f),1.f);
         int empty = full_border + (int)((1 - this.fill_amount) * (fill.getHeight() - this.full_border - this.empty_border));
         fill_asset.getRegion().setRegion(0, empty, (int)fill.getWidth(), (int)fill.getHeight());
 //        this.fill.setDrawable(fill_asset);
