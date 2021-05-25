@@ -45,6 +45,8 @@ public class LevelController {
         player = new PlayerModel();
 
         rng = new Random();
+
+//        System.out.println("Bosses: " + levelModel.getBosses());
     }
 
     /**

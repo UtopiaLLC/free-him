@@ -159,9 +159,17 @@ public class LevelModel {
             }
         }
 
-        if(json.get("bosses") != null && json.get("bosses").asStringArray().length > 0)
-            bosses = new HashSet<>(Arrays.asList(json.get("bosses").asStringArray()));
-        else bosses = new HashSet<>(targets.keySet());
+//        System.out.println("Bosses in level file " + json.get("bosses"));
+//        if(json.get("bosses") != null && json.get("bosses").asStringArray().length > 0)
+//            bosses = new HashSet<>(Arrays.asList(json.get("bosses").asStringArray()));
+//        else bosses = new HashSet<>(targets.keySet());
+        bosses = new HashSet<>();
+        for (String targetname : targets.keySet())
+            if(!targets.get(targetname).isGeneric())
+                bosses.add(targetname);
+        if (bosses.size() == 0)
+            for (String targetname : targets.keySet())
+                bosses.add(targetname);
 
         n_days = 0;
         rng = new Random();
