@@ -527,7 +527,7 @@ public class GameController implements Screen{
                 nodeLabel.setX(zeroLoc.x);
                 nodeLabel.setY(zeroLoc.y);
                 nodeLabel.setWidth(450f);
-                nodeLabel.setHeight(300f);
+                nodeLabel.setHeight(150f);
             } else {
                 Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth() * .02f, Gdx.graphics.getHeight() * .85f);
                 nodeLabel.setX(zeroLoc.x);
