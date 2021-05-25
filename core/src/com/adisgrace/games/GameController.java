@@ -207,7 +207,7 @@ public class GameController implements Screen{
 
     private Map<String, Array<FillBar>> targetBars;
     /** Used for the loading of levels */
-    private String tutorialText;
+    private Array<String> tutorialPaths;
     private boolean init;
 
     /** Used to clear the toolbar after a Win or Loss */
@@ -541,8 +541,20 @@ public class GameController implements Screen{
                                     traitString = "None";
                                 }
 
-                                labelS =  b.getName() + "\n" +
-                                        "Traits: " + traitString+ "\n";
+                                labelS =  "\nTarget Name: " + b.getName() + "\n" +
+                                        "Target Stress: " + levelController.getTargetStress(b.getName()) + "\n"+
+                                        "Target Traits: " + traitString+ "\n";
+                            } else if(lc.getCurrentNodeState(nodeInfo[0], nodeInfo[1]) == 1){ // only when fact is VIEWABLE
+                                labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]) + "\n[";
+                                int[] ratings = lc.getTargetModels().get(nodeInfo[0]).getStressRatings(nodeInfo[1]);
+
+
+
+                                for(int i = 0; i < ratings.length; i++){
+                                    labelS += ratings[i] + " ";
+                                }
+                                labelS += "]";
+
                             } else {
                                 labelS = lc.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]);
                                 // Set subtree info of node
@@ -590,7 +602,7 @@ public class GameController implements Screen{
     public void loadLevel(int newLevel) {
         //levelController = levelControllers.get(newLevel);
         levelController = new LevelController(levelJsons.get(newLevel));
-        tutorialText = levelController.getTutorialText();
+        tutorialPaths = levelController.getTutorialPaths();
 
         if(!init) {
             exitScreen(2);
@@ -715,8 +727,8 @@ public class GameController implements Screen{
         }
     }
     
-    public String getTutorialText() {
-        return tutorialText;
+    public Array<String> getTutorialPaths() {
+        return tutorialPaths;
     }
 
     public void resetInputProcessor() {

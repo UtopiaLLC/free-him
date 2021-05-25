@@ -13,11 +13,13 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 public class TutorialMode implements Screen {
@@ -49,7 +51,7 @@ public class TutorialMode implements Screen {
     private boolean buttonAdded;
 
 
-    public TutorialMode(AssetDirectory directory, String tutorialText) {
+    public TutorialMode(AssetDirectory directory, Array<String> tutorialPaths) {
 
         canvas = new GameCanvas();
         this.directory = directory;
@@ -76,7 +78,7 @@ public class TutorialMode implements Screen {
 
         playButton = new Label("Start", GameConstants.SELECTION_SKIN, "VCR");
         playButton.setPosition(Gdx.graphics.getWidth()/2 - playButton.getWidth()/2,
-                Gdx.graphics.getHeight()*.2f- playButton.getHeight()/2);
+                Gdx.graphics.getHeight()*.1f- playButton.getHeight()/2);
 
         playButton.addListener(new ClickListener() {
             @Override
@@ -100,14 +102,23 @@ public class TutorialMode implements Screen {
         stage.addActor(playButton);
         background = directory.getEntry("background", Texture.class);
 
-        Label tutorialTex = new Label(tutorialText, GameConstants.SELECTION_SKIN, "tutorial-text");
-        if(tutorialText.length() > 30) {
-            tutorialTex.setWidth(600);
-        }
-        tutorialTex.setWrap(true);
-        tutorialTex.setPosition(Gdx.graphics.getWidth() / 2 - tutorialTex.getWidth()/2, Gdx.graphics.getHeight()*.5f - tutorialTex.getHeight());
-        stage.addActor(tutorialTex);
+
+
+        //Label tutorialTex = new Label(tutorialText, GameConstants.SELECTION_SKIN, "tutorial-text");
+//        if(tutorialText.length() > 30) {
+//            tutorialTex.setWidth(600);
+//        }
+//        tutorialTex.setWrap(true);
+//        tutorialTex.setPosition(Gdx.graphics.getWidth() / 2 - tutorialTex.getWidth()/2, Gdx.graphics.getHeight()*.5f - tutorialTex.getHeight());
+//        stage.addActor(tutorialTex);
         //Gdx.input.setInputProcessor();
+
+        if(tutorialPaths.size > 0) {
+            Image tutorialImage = new Image(directory.getEntry(tutorialPaths.get(0), Texture.class));
+            tutorialImage.setPosition(Gdx.graphics.getWidth() / 2 - tutorialImage.getWidth() / 2,
+                    Gdx.graphics.getHeight() * .1f + playButton.getHeight() / 2 + 50f);
+            stage.addActor(tutorialImage);
+        }
 
     }
 
@@ -150,7 +161,7 @@ public class TutorialMode implements Screen {
 //                reg.getWidth()/2, reg.getHeight()/2,
 //                , 0, 1, 1, 0);
         canvas.getSpriteBatch().draw(reg,Gdx.graphics.getWidth()/2 - reg.getRegionWidth()/2,
-                Gdx.graphics.getHeight() * .75f - reg.getRegionHeight()/2, reg.getRegionWidth()/2,
+                Gdx.graphics.getHeight() * .80f - reg.getRegionHeight()/2, reg.getRegionWidth()/2,
                 reg.getRegionHeight() / 2, reg.getRegionWidth(), reg.getRegionHeight(), .75f, .75f, 0);
     }
 

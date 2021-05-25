@@ -333,6 +333,7 @@ public class UIController {
                 scannedFacts.add(factSummaries.get(fact_));
         }
 
+
         int lines = 1;
         for (int i = 0; i < scannedFacts.size; i++) {
             if(scannedFacts.get(i).length() > 0) {
@@ -827,10 +828,14 @@ public class UIController {
     private void addEligibleBlackmailFacts(Array<String> scannedFacts, Map<String, String> summaryToFacts,String targetName,
                                            LevelController levelController, Map<String, String> factSummaries) {
         //Now, parse through all scannedFacts to see which are eligible for display
+
+        int lines = 2;
         for (int i = 0; i < scannedFacts.size; i++) {
             final int temp_i = i;
             //this should ALWAYS be overwritten in the code underneath
-            Label k = new Label("No facts", skin, "dialog-box");
+            Label k = new Label("No facts", skin, "dialog-box-border");
+            lines += ((scannedFacts.get(i).length() + 64 + 1) / 64);
+
             String factIDAndSummaryKey = summaryToFacts.get(scannedFacts.get(temp_i)) + scannedFacts.get(temp_i);
 //            System.out.println("here: " + factIDAndSummaryKey);
             if(GameController.activeVerb == GameController.ActiveVerb.EXPOSE ){
@@ -839,7 +844,7 @@ public class UIController {
                     continue;
                 } else {
                     //Else we can display it
-                    k = new Label(scannedFacts.get(i), skin);
+                    k = new Label(scannedFacts.get(i), skin, "dialog-box-border");
                 }
             } else if(GameController.activeVerb == GameController.ActiveVerb.HARASS){
 
@@ -848,15 +853,19 @@ public class UIController {
                     continue;
                 } else {
                     //Else we can display it
-                    k = new Label(scannedFacts.get(i), skin);
+                    k = new Label(scannedFacts.get(i), skin, "dialog-box-border");
                 }
             }
             //Add a listener that can be reachable via the name format "target_name,fact_id"
             if(factSummaries.keySet().size() != 0) {
+                k.setWidth(GameConstants.DIALOG_WIDTH - 125);
+                k.setPosition(75, GameConstants.DIALOG_HEIGHT - 90 - (25 * lines));
+                k.setHeight(((scannedFacts.get(i).length() + 64 + 1) / 64) * 25f);
+                lines++;
                 k.setName(targetName + "," + summaryToFacts.get(scannedFacts.get(i)));
                 k.addListener(getBlackmailFactListener(levelController, factIDAndSummaryKey));
             }
-            k.setColor(Color.BLACK);
+            //k.setColor(Color.BLACK);
             k.setWrap(true);
             k.setWidth(GameConstants.DIALOG_WIDTH-125);
             k.setPosition(75, GameConstants.DIALOG_HEIGHT-90-(50*(temp_i+1)));
@@ -905,6 +914,17 @@ public class UIController {
                 }
                 GameController.blackmailDialog.hide();
             }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor){
+
+            }
+
         };
     }
 

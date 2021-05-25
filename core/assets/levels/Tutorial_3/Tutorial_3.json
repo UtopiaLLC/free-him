@@ -4,5 +4,5 @@
 	"targets": ["JamieHolloday.json"],
 	"targetLocs": [[0, -2]],
 	"timeLimit": 20,
-	"tutorialText": "One of the nodes in this level holds a nasty surprise. Don't worry too much about this one, but be careful going forward."
+	"tutorialImages": []
 }

@@ -32,8 +32,8 @@ public class LevelModel {
     /** How many days can this level last, loses the game if days run out */
     private int daysLeft = 10; // needs to be properly initialized
 
-    /** String of text show when switching levels */
-    private String tutorialText;
+    /** Paths to images to show when switching levels */
+    private Array<String> tutorialPaths;
 
     // Player object
     private PlayerModel player;
@@ -122,7 +122,12 @@ public class LevelModel {
         name = json.get("name").asString();
 
         daysLeft = json.get("timeLimit").asInt();
-        tutorialText = json.get("tutorialText").asString();
+
+        Array<String> temp = new Array<String>();
+        JsonValue traitsArr = json.get("tutorialImages");
+        JsonValue.JsonIterator itr = traitsArr.iterator();
+        while (itr.hasNext()){temp.add(itr.next().asString());}
+        tutorialPaths = temp;
 
         if (json.get("dims") != null) {
             int[] dims = json.get("dims").asIntArray();
@@ -135,7 +140,7 @@ public class LevelModel {
 
         //binds each target string to a location in the level
         JsonValue locations = json.get("targetLocs");
-        JsonValue.JsonIterator itr = locations.iterator();
+        itr = locations.iterator();
         targetLocs = new HashMap<>();
 
         //binds each target string to a targetModel
@@ -347,8 +352,8 @@ public class LevelModel {
         return daysLeft;
     }
 
-    public String getTutorialText() {
-        return tutorialText;
+    public Array<String> getTutorialPaths() {
+        return tutorialPaths;
     }
 
 

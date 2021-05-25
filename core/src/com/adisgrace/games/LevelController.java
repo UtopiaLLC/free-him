@@ -488,8 +488,8 @@ public class LevelController {
         return levelModel.getDaysLeft();
     }
 
-    public String getTutorialText() {
-        return levelModel.getTutorialText();
+    public Array<String> getTutorialPaths() {
+        return levelModel.getTutorialPaths();
     }
 
     public String getDefeatMessage(String target) {
