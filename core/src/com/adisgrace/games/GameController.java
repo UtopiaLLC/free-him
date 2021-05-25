@@ -447,7 +447,7 @@ public class GameController implements Screen{
         for(int i = 0; i < targets.size; i++) {
             TargetModel target = targets.get(i);
             String name = targets.get(i).getName();
-            targetBars.get(name).get(0).setFillAmount(((float)target.getStress())/target.getMaxStress());
+            targetBars.get(name).get(0).setFillAmount(1f - ((float)target.getStress())/target.getMaxStress());
 //            System.out.println("Stress fill amount " + (target.getStress()/target.getMaxStress()));
             targetBars.get(name).get(1).setFillAmount(target.getSuspicion()/100f);
             if(targets.get(i).getState() != targetStates.get(i)) {
