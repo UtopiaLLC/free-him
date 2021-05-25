@@ -827,7 +827,7 @@ public class TargetModel {
 			state = TargetState.PARANOID;
 			countdown = paranoia;
 		}
-		addSuspicion(randInRange(GameConstants.SUSPICION_LOW , 50));
+		addSuspicion(randInRange(GameConstants.SUSPICION_MED , 50));
 	}
 
 	/**
@@ -882,13 +882,15 @@ public class TargetModel {
 		// Increase target's suspicion by a medium amount
 		addSuspicion(randInRange(GameConstants.SUSPICION_MED, 25));
 		naturallySuspiciousCheck = true;
+
+		// Move target to Paranoid
+		//TODO: match to action outcomes
+		state = TargetState.THREATENED;
+
 		// If exposing deals nonzero damage
 		if (stressDmg != 0) {
 			// Deal damage to target
 			addStress(stressDmg);
-			// Move target to Paranoid
-			//TODO: match to action outcomes
-			state = TargetState.THREATENED;
 			// Reset countdown to next Paranoia check
 			countdown = paranoia;
 		}
