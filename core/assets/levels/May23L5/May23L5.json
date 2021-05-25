@@ -4,5 +4,5 @@
 	"targets": ["EilidhYiannis.json", "EffrosyniEsther.json", "NestPeigi.json"],
 	"targetLocs": [[-3, -2], [2, 3], [-6, 6]],
 	"timeLimit": 60,
-	"tutorialText": ""
+	"tutorialImages": []
 }

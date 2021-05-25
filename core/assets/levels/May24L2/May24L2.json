@@ -4,5 +4,5 @@
 	"targets": ["GojkoClia.json"],
 	"targetLocs": [[2, -1]],
 	"timeLimit": 40,
-	"tutorialText": ""
+	"tutorialImages": []
 }
