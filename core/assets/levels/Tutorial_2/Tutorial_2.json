@@ -3,6 +3,6 @@
 	"dims": [20, 20],
 	"targets": ["JasonHolger.json"],
 	"targetLocs": [[0, -2]],
-	"timeLimit": 20,
+	"timeLimit": 10,
 	"tutorialImages": ["Tutorial:2.1", "Tutorial:2.2", "Tutorial:2.3", "Tutorial:2.4", "Tutorial:2.5", "Tutorial:2.6", "Tutorial:2.7", "Tutorial:2.8"]
 }
