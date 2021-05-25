@@ -4,5 +4,5 @@
 	"targets": ["HarveyTennison.json", "CarolineTennison.json"],
 	"targetLocs": [[-5, -3], [0, -2]],
 	"timeLimit": 20,
-	"tutorialImages": []
+	"tutorialImages": ["Tutorial:5.1", "Tutorial:5.2", "Tutorial:5.3", "Tutorial:5.4"]
 }
