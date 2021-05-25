@@ -771,6 +771,14 @@ public class TargetModel {
 		return getFactNode(name).getPlayerStressDmg();
 	}
 
+	/**
+	 * Returns the target stress damage rating of the node with the given name
+	 * @param name  Name of the node whose summary we want
+	 * @return StressRating
+	 */
+	public GameConstants.StressRating getStressRating(String name){
+		return getFactNode(name).getStressRating();
+	}
 
 	/**
 	 * Returns hashmap of names of child nodes for the given node, mapped to the paths from the given

@@ -55,13 +55,12 @@ public class GameController implements Screen{
     public static String getHoverText(ActiveVerb activeVerb){
         switch (activeVerb) {
             //case HARASS: return "Harass: Harass your target to slightly increase their stress for 2 AP";
-            case HARASS: return "Harass: Harass your target with a \n fact to blackmail to increase their stress " +
-                    "for 2 AP";
-            case EXPOSE: return "Expose: Expose your target's fact to the public\n for large stress damage" +
+            case HARASS: return "Harass: Blackmail your target with their\nsecrets to lower their sanity for 2 AP";
+            case EXPOSE: return "Expose: Release blackmail material to the public\nto drive your targets mad" +
                     " for 3 AP";
-            case OVERWORK: return "Overwork: Gains 2 AP, but Increases Stress";
-            case OTHER_JOBS: return "Other Jobs: Make Money with 3 AP";
-            case RELAX: return "Relax: Decreases Stress for 1 AP";
+            case OVERWORK: return "Overwork: Gain 2 AP, but eat at your sanity.";
+            case OTHER_JOBS: return "Other Jobs: Make money with 3 AP";
+            case RELAX: return "Relax: Take some time off and recover your sanity for 1 AP";
             case GASLIGHT: return "Gaslight: Plant seeds of doubt in your target's mind, making\n them less sure of themselves" +
                     " for 2 AP";
             case DISTRACT: return "Distract: For 2 AP, divert your target's attention, \nletting you work free of their interference.";
@@ -337,7 +336,21 @@ public class GameController implements Screen{
 
         if(levelController.getLevelState() == LevelModel.LevelState.LOSE && !ended) {
 //            uiController.createDialogBox("YOU LOSE!");
-            uiController.createSettingsSelector("YOU LOSE!", new Runnable() {
+            String message;
+            switch(levelController.getCauseOfDeath()){
+                case STRESS:
+                    message = "\n\nYou depleted your sanity and needed to drop the job for your health.\n\nGame over!";
+                    break;
+                case TARGET:
+                    message = "\n\nYou were reported to the police and arrested.\n\nGame over!";
+                    break;
+                case BITECOIN:
+                    message = "\n\nYour money ran out, and you needed to drop the job for a part time position or three.\n\nGame over!";
+                    break;
+                default:
+                    message = "Game over!";
+            }
+            uiController.createSettingsSelector(message, new Runnable() {
                 @Override
                 public void run() {
                     exitScreen(1);
@@ -1161,7 +1174,8 @@ public class GameController implements Screen{
                     addConnections(nodeInfo[0], nodeInfo[1]);
                     GameConstants.SCAN.play();
                     uiController.createDialogBoxFact(
-                            levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]),
+                            levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]) + " " +
+                                    GameConstants.stressRatingToIndicator(levelController.getTargetModels().get(nodeInfo[0]).getStressRating(nodeInfo[1])),
                             levelController.viewFact(nodeInfo[0], nodeInfo[1]));
 
 //                    uiController.createDialogBox(

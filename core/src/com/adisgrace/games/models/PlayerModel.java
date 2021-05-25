@@ -148,7 +148,7 @@ public class PlayerModel {
 	public boolean nextTurn() {
 		this.overworked_today = false;
 
-		this.action_points = Math.max(GameConstants.DAILY_AP, action_points);
+		this.action_points = GameConstants.DAILY_AP;
 		this.decrementBitecoin(GameConstants.DAILY_BITECOIN_COST);
 //		this.incrementStress((float)rng.nextGaussian() * GameConstants.DREAM_STRESS_STDEV);
 
