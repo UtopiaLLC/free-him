@@ -336,7 +336,21 @@ public class GameController implements Screen{
 
         if(levelController.getLevelState() == LevelModel.LevelState.LOSE && !ended) {
 //            uiController.createDialogBox("YOU LOSE!");
-            uiController.createSettingsSelector("YOU LOSE!", new Runnable() {
+            String message;
+            switch(levelController.getCauseOfDeath()){
+                case STRESS:
+                    message = "\n\nYou depleted your sanity and needed to drop the job for your health.\n\nGame over!";
+                    break;
+                case TARGET:
+                    message = "\n\nYou were reported to the police and arrested.\n\nGame over!";
+                    break;
+                case BITECOIN:
+                    message = "\n\nYour money ran out, and you needed to drop the job for a part time position or three.\n\nGame over!";
+                    break;
+                default:
+                    message = "Game over!";
+            }
+            uiController.createSettingsSelector(message, new Runnable() {
                 @Override
                 public void run() {
                     exitScreen(1);
