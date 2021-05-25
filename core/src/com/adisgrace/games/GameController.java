@@ -1160,7 +1160,8 @@ public class GameController implements Screen{
                     addConnections(nodeInfo[0], nodeInfo[1]);
                     GameConstants.SCAN.play();
                     uiController.createDialogBoxFact(
-                            levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]),
+                            levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]) + " " +
+                                    GameConstants.stressRatingToIndicator(levelController.getTargetModels().get(nodeInfo[0]).getStressRating(nodeInfo[1])),
                             levelController.viewFact(nodeInfo[0], nodeInfo[1]));
 
 //                    uiController.createDialogBox(

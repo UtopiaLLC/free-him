@@ -116,8 +116,8 @@ public class LevelController {
         levelModel.getTarget(target).unlock();
         levelModel.getHackedFacts().get(target).add(fact);
 
-        // Increase target suspicion accordingly
-        levelModel.getTargets().get(target).unlock();
+//        // Increase target suspicion accordingly
+//        levelModel.getTargets().get(target).unlock();
         return 1;
     }
 
