@@ -798,7 +798,10 @@ public class UIController {
         }
         for (String fact_ : factSummaries.keySet()) {
             if (factSummaries.containsKey(fact_))
-                scannedFacts.add(factSummaries.get(fact_));
+                if (levelController.getTargetModels().get(targetName).getStressRating(fact_) != GameConstants.StressRating.NONE
+                    || factSummaries.get(fact_).length() > 0)
+                    scannedFacts.add(factSummaries.get(fact_) + " " +
+                            GameConstants.stressRatingToIndicator(levelController.getTargetModels().get(targetName).getStressRating(fact_)));
             //Add to both scannedFacts and summaryToFacts
             summaryToFacts.put(factSummaries.get(fact_), fact_);
         }
