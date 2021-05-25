@@ -479,12 +479,12 @@ public class GameController implements Screen{
                 targetStates.set(i, state);
                 if(state == TargetModel.TargetState.DEFEATED) {
                     uiController.createDialogBox(target.getDefeatMessage());
-                    GameConstants.ELIMINATED.play();
+                    GameConstants.ELIMINATED.play(GameConstants.global_sound);
                 }
 //                System.out.println("CHANGE STATE");
 //                System.out.println(state);
 
-                GameConstants.TARGET_STATE_CHANGE.play(.5f);
+                GameConstants.TARGET_STATE_CHANGE.play(.5f * GameConstants.global_sound);
 
             }
         }
@@ -760,7 +760,7 @@ public class GameController implements Screen{
             {
                 uiController.createDialogBox("You end the day after a long battle of psychological warfare.");
                 levelController.endDay();
-                GameConstants.END_DAY.play(.5f);
+                GameConstants.END_DAY.play(.2f * GameConstants.global_sound);
             }
         });
         return end;
@@ -1170,7 +1170,7 @@ public class GameController implements Screen{
                 if(hack == 1) {
                     button.changeState(Node.NodeState.UNSCANNED);
                     uiController.createDialogBox("You hacked the node successfully!");
-                    GameConstants.HACK.play();
+                    GameConstants.HACK.play(GameConstants.global_sound);
                 } else if(hack == -3) {
                     uiController.createDialogBox("Insufficient AP to hack this node.");
                 } else if(hack == -4) {
@@ -1182,7 +1182,7 @@ public class GameController implements Screen{
                 if(success) {
                     button.changeState(Node.NodeState.SCANNED);
                     addConnections(nodeInfo[0], nodeInfo[1]);
-                    GameConstants.SCAN.play();
+                    GameConstants.SCAN.play(GameConstants.global_sound);
                     uiController.createDialogBoxFact(
                             levelController.getTargetModels().get(nodeInfo[0]).getTitle(nodeInfo[1]) + " " +
                                     GameConstants.stressRatingToIndicator(levelController.getTargetModels().get(nodeInfo[0]).getStressRating(nodeInfo[1])),
@@ -1216,7 +1216,7 @@ public class GameController implements Screen{
         if(levelController.canHarass(targetName)) {
             uiController.getBlackmailFact("Select a fact to threaten the target with.", targetName,
                     levelController);
-            GameConstants.TARGET_CLICKED.play(0.5f);
+            GameConstants.TARGET_CLICKED.play(0.1f * GameConstants.global_sound);
         }
         else {
             uiController.createDialogBox("Insufficient AP to threaten the target.");
@@ -1232,7 +1232,7 @@ public class GameController implements Screen{
         if(levelController.canExpose(targetName)) {
             uiController.getBlackmailFact("Select a fact to expose the target with.", targetName,
                     levelController);
-            GameConstants.TARGET_CLICKED.play(0.5f);
+            GameConstants.TARGET_CLICKED.play(0.1f * GameConstants.global_sound);
         }
         else {
             uiController.createDialogBox("Insufficient AP to expose the target.");
@@ -1248,12 +1248,12 @@ public class GameController implements Screen{
         if(levelController.canGaslight(targetName)) {
             if(levelController.gaslight(targetName)){
                 uiController.createDialogBox("You manage to convince them that you're a figment of their imagination.");
-                GameConstants.TARGET_CLICKED.play(0.5f);
+                GameConstants.TARGET_CLICKED.play(0.1f * GameConstants.global_sound);
             }
 
             else {
                 uiController.createDialogBox("You fail to gaslight them, and only further arouse their suspicions.");
-                GameConstants.TARGET_CLICKED.play(0.5f);
+                GameConstants.TARGET_CLICKED.play(0.1f * GameConstants.global_sound);
             }
         }
         else {
@@ -1270,7 +1270,7 @@ public class GameController implements Screen{
         if(levelController.canDistract(targetName)){
             if(levelController.distract(targetName)){
                 uiController.createDialogBox("You manage to distract your target. They won't have time to deal with you for a while.");
-                GameConstants.TARGET_CLICKED.play(0.5f);
+                GameConstants.TARGET_CLICKED.play(0.1f * GameConstants.global_sound);
             }else{
                 uiController.createDialogBox("You fail to distract them, and only further arouse their suspicions.");
             }
@@ -1368,7 +1368,7 @@ public class GameController implements Screen{
             case "overwork":
                 success = levelController.overwork();
                 if(success) {
-                    GameConstants.OVERWORK.play();
+                    GameConstants.OVERWORK.play(GameConstants.global_sound);
                     uiController.createDialogBox("You chug an energy drink and work yourself late into the night.");
                 } else {
                     uiController.createDialogBox("You cannot overwork anymore today!");
@@ -1386,7 +1386,7 @@ public class GameController implements Screen{
             case "otherJobs":
                 float money = levelController.otherJobs();
                 if(money != -1f) {
-                    GameConstants.DO_OTHER_JOBS.play();
+                    GameConstants.DO_OTHER_JOBS.play(GameConstants.global_sound);
                     uiController.createDialogBox("You did some other jobs and earned some " + Integer.toString((int)money) +  " bitecoin for yourself!");
                 } else {
                     uiController.createDialogBox("Insufficient AP to do other jobs");
@@ -1443,6 +1443,7 @@ public class GameController implements Screen{
 
     public void playMusic() {
         music.play();
+        music.setVolume(GameConstants.global_music);
     }
 
     public void stopMusic() {

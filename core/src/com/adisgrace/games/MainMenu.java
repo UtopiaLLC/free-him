@@ -155,12 +155,14 @@ public class MainMenu implements Screen {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 musicValLabel.setText((int) (musicVolume.getVisualPercent() * 100));
+                GameConstants.global_music = musicVolume.getVisualPercent();
             }
         });
         sfxVolume.addListener(new ChangeListener() {
             @Override
             public void changed (ChangeEvent event, Actor actor) {
                 sfxValLabel.setText((int) (sfxVolume.getVisualPercent() * 100));
+                GameConstants.global_sound = sfxVolume.getVisualPercent();
             }
         });
 
