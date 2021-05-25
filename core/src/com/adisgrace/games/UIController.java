@@ -454,7 +454,6 @@ public class UIController {
 
         dialog.button("Main Menu", 1).pad(0f,0f,bottomPad,0f);
         dialog.button("Restart Level", 2).pad(0f,0f,bottomPad,0f);
-        dialog.button("Cancel", true).pad(0f,0f,bottomPad,0f); //sends "true" as the result
         dialog.show(GameController.toolbarStage);
     }
 
