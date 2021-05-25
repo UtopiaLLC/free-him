@@ -3,5 +3,6 @@
 	"dims": [60, 60],
 	"targets": ["GojkoClia.json"],
 	"targetLocs": [[2, -1]],
-	"timeLimit": 40
+	"timeLimit": 40,
+	"tutorialText": ""
 }

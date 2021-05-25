@@ -3,5 +3,6 @@
 	"dims": [60, 60],
 	"targets": ["AgataErnst.json", "MarzellMarnix.json", "LuisellaReinhild.json", "RiikaFlorence.json"],
 	"targetLocs": [[-1, -2], [2, -5], [-5, -2], [-1, 2]],
-	"timeLimit": 70
+	"timeLimit": 70,
+	"tutorialText": ""
 }

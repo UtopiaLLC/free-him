@@ -3,5 +3,6 @@
 	"dims": [50, 50],
 	"targets": ["RoelDora.json"],
 	"targetLocs": [[0, 0]],
-	"timeLimit": 35
+	"timeLimit": 35,
+	"tutorialText": ""
 }
