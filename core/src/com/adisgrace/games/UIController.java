@@ -329,7 +329,7 @@ public class UIController {
             scannedFacts.add("No facts scanned yet!");
         }
         for (String fact_ : factSummaries.keySet()) {
-            if (factSummaries.containsKey(fact_))
+            if (factSummaries.containsKey(fact_) && levelController.getTargetModels().get(targetName).getStressRating(fact_) != GameConstants.StressRating.NONE)
                 scannedFacts.add(factSummaries.get(fact_) + " " +
                         GameConstants.stressRatingToIndicator(levelController.getTargetModels().get(targetName).getStressRating(fact_)));
         }
