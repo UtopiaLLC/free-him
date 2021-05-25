@@ -1,0 +1,8 @@
+{
+	"name": "May24L5",
+	"dims": [60, 60],
+	"targets": ["NatasaCvijeta.json", "AonghusGilroy.json", "MalouScot.json"],
+	"targetLocs": [[2, 1], [-2, 1], [6, 1]],
+	"timeLimit": 30,
+	"tutorialText": ""
+}

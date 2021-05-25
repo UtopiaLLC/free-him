@@ -1,0 +1,66 @@
+{
+	"targetName": "Aonghus Gilroy",
+	"isMale": true,
+	"isGeneric": true,
+	"paranoia": 3,
+	"maxStress": 80,
+	"traits": ["rich"],
+	"firstNodes": ["2Node7", "2Node12"],
+	"firstConnectors": [[[0,0], [0,-1], [0,-2], [1,-2]], [[0,0], [0,1], [0,2], [0,3]]],
+	"firstConnectorTypes": [["S", "NS", "NE", "W"], ["N", "SN", "SN", "S"]],
+	"pod": 	[
+		{
+			"nodeName": "2Node7",
+			"title": "Generic Node",
+			"coords": [1.0,-2.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret 1",
+			"children": [],
+			"targetStressDamage": 5,
+			"playerStressDamage": 10,
+			"connectorCoords": [],
+			"connectorTypes": []
+		},
+		{
+			"nodeName": "2Node12",
+			"title": "Generic Node",
+			"coords": [0.0,3.0],
+			"locked": true,
+			"content": "You find a bombshell that you're certain was meant to stay secret. You can definitely use this.",
+			"summary": "Major Secret 1",
+			"children": ["2Node13"],
+			"targetStressDamage": 20,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[0,3], [0,4], [0,5], [0,6]]],
+			"connectorTypes": [["N", "SN", "SN", "S"]]
+		},
+		{
+			"nodeName": "2Node13",
+			"title": "Generic Node",
+			"coords": [0.0,6.0],
+			"locked": true,
+			"content": "You find some information that might be a little bit useful.",
+			"summary": "Minor Secret 2",
+			"children": ["2Node14"],
+			"targetStressDamage": 5,
+			"playerStressDamage": 0,
+			"connectorCoords": [[[0,6], [0,7], [0,8], [0,9]]],
+			"connectorTypes": [["N", "SN", "SN", "S"]]
+		},
+		{
+			"nodeName": "2Node14",
+			"title": "Generic Node",
+			"coords": [0.0,9.0],
+			"locked": true,
+			"content": "You find a bombshell that you're certain was meant to stay secret. You can definitely use this.",
+			"summary": "Major Secret 2",
+			"children": [],
+			"targetStressDamage": 20,
+			"playerStressDamage": 0,
+			"connectorCoords": [],
+			"connectorTypes": []
+		}
+	],
+	"combos": []
+}
