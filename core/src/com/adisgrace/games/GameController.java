@@ -25,6 +25,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import java.lang.annotation.Target;
 import java.util.ArrayList;
@@ -434,6 +435,9 @@ public class GameController implements Screen{
         toolbarStage.getViewport().update(width,height);
         stage.getViewport().update(width,height, true);
 
+        toolbarStage.clear();
+        createToolbar();
+
     }
 
     @Override
@@ -822,11 +826,14 @@ public class GameController implements Screen{
      * @return Array of images representing how much AP the player has
      */
     private Image[] createAP(){
-        Texture apTexture = directory.getEntry("UI:AP", Texture.class);
+
+        Texture apBack = directory.getEntry("UI:AP", Texture.class);
+
+        Texture apTexture = directory.getEntry("UI:APCounter", Texture.class);
         TextureRegion[][] apSplitTextures = new TextureRegion(apTexture).split(apTexture.getWidth()/9, apTexture.getHeight());
         Image[] ap = new Image[apSplitTextures[0].length];
         for(int i = 0; i < ap.length; i++){
-            ap[i] = new Image(apSplitTextures[0][i]);
+            ap[i] = new Image(GameCanvas.combineTextures(new TextureRegion(apBack), apSplitTextures[0][i]));
         }
 
         return ap;
@@ -856,7 +863,7 @@ public class GameController implements Screen{
      *
      */
     public void createToolbar() {
-        ExtendViewport toolbarViewPort = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        FitViewport toolbarViewPort = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         toolbarStage = new Stage(toolbarViewPort);
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
@@ -917,17 +924,18 @@ public class GameController implements Screen{
 
         // Add menu back
         menuBack = new Image(TX_MENU_BACK);
+        menuBack.setPosition(Gdx.graphics.getWidth() - menuBack.getWidth(), 0);
         toolbarStage.addActor(menuBack);
-        menuBack.setPosition(SCREEN_WIDTH - menuBack.getWidth(), 0);
+
 
         toolbarStage.addActor(end);
-        end.setPosition(SCREEN_WIDTH - menuBack.getWidth()+20, RIGHT_SIDE_HEIGHT);
+        end.setPosition(Gdx.graphics.getWidth() - menuBack.getWidth()+20, RIGHT_SIDE_HEIGHT);
 
         toolbarStage.addActor(notebook);
-        notebook.setPosition(SCREEN_WIDTH - menuBack.getWidth()+20, RIGHT_SIDE_HEIGHT-95);
+        notebook.setPosition(Gdx.graphics.getWidth() - menuBack.getWidth()+20, RIGHT_SIDE_HEIGHT-95);
 
         toolbarStage.addActor(settings);
-        settings.setPosition(SCREEN_WIDTH - menuBack.getWidth()+25, 0);
+        settings.setPosition(Gdx.graphics.getWidth() - menuBack.getWidth()+25, 0);
 
         Table rightSide = new Table();
 
@@ -938,7 +946,7 @@ public class GameController implements Screen{
         toolbar.add(rightSide).right().width(.10f*toolbar.getWidth()).height(.10f*toolbar.getHeight()).align(Align.topRight);
 
         displayedAP = apImages[levelController.getAP()];
-        displayedAP.setPosition(SCREEN_WIDTH - displayedAP.getWidth(), RIGHT_SIDE_HEIGHT);
+        displayedAP.setPosition(Gdx.graphics.getWidth() - displayedAP.getWidth(), RIGHT_SIDE_HEIGHT);
         toolbarStage.addActor(displayedAP);
 
 
@@ -1005,16 +1013,18 @@ public class GameController implements Screen{
     private void createDayGroup() {
 
         daysGroup = new Group();
-        Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth() * .80f, Gdx.graphics.getHeight() * .90f);
+
+        //Label daysText = new Label("Days Left: ", skin, "pink");
+        Image daysSign = new Image(directory.getEntry("UI:DaysLeft", Texture.class));
+        daysGroup.addActor(daysSign);
+
+        Vector2 zeroLoc = new Vector2(Gdx.graphics.getWidth() -daysSign.getWidth() - 20, Gdx.graphics.getHeight() - daysSign.getHeight() - 20);
         daysGroup.setPosition(zeroLoc.x, zeroLoc.y);
 
-        Label daysText = new Label("Days Left: ", skin, "pink");
-
-        daysGroup.addActor(daysText);
         daysLeft = new Label(Integer.toString((int)levelController.getDaysLeft()), skin, "bitcoin");
 
         daysGroup.addActor(daysLeft);
-        daysLeft.setPosition(daysText.getWidth()-10, -20);
+        daysLeft.setPosition(daysSign.getWidth()/2 - daysLeft.getWidth()/2, daysSign.getHeight()*.45f- daysLeft.getHeight()/2);
 
 
 

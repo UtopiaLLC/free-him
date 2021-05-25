@@ -190,7 +190,7 @@ public class LoadingMode implements Screen {
 
     @Override
     public void resize(int i, int i1) {
-
+        stage.getViewport().update(i,i1, true);
     }
 
     @Override
