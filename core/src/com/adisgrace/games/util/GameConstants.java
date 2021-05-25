@@ -108,6 +108,8 @@ public final class GameConstants {
 
     public static final int SCREEN_WIDTH = 1280, SCREEN_HEIGHT = 720;
     public static final int RIGHT_SIDE_HEIGHT = 199;
+    public static float global_music = 1f;
+    public static float global_sound = 1f;
 
     public static final Sound CLICK_OFF = Gdx.audio.newSound(Gdx.files.internal("sounds/Click_Off.ogg"));
     public static final Sound CLICK_ON = Gdx.audio.newSound(Gdx.files.internal("sounds/Click_On.ogg"));
