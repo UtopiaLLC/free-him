@@ -128,87 +128,89 @@ public class TutorialMode implements Screen {
                 stage.addActor(tutorialImage);
             }
 
+
+            nextButton = new Image(directory.getEntry("Tutorial:Next", Texture.class));
+            nextButton.setPosition(Gdx.graphics.getWidth()*.67f - nextButton.getWidth()/2,
+                    Gdx.graphics.getHeight()*.15f- nextButton.getHeight()/2);
+
+            nextButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    super.clicked(event, x, y);
+                    System.out.println("Clicked");
+                    if(currentImage+1 < tutorialImages.size) {
+                        currentImage++;
+                        numPic.setText(currentImage+1+"/"+tutorialImages.size);
+                        tutorialImage.remove();
+                        tutorialImage = tutorialImages.get(currentImage);
+                        stage.addActor(tutorialImage);
+                    } else {
+                        if(!canStart) {
+                            canStart = true;
+                            stage.addActor(playButton);
+                        }
+                    }
+
+                }
+
+                @Override
+                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                    super.enter(event, x, y, pointer, fromActor);
+                    System.out.println("Hovered");
+                }
+
+                @Override
+                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                    super.exit(event, x, y, pointer, toActor);
+                }
+            });
+            stage.addActor(nextButton);
+
+            prevButton = new Image(directory.getEntry("Tutorial:Prev", Texture.class));
+            prevButton.setPosition(Gdx.graphics.getWidth()*.33f - prevButton.getWidth()/2,
+                    Gdx.graphics.getHeight()*.15f- prevButton.getHeight()/2);
+
+            prevButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    super.clicked(event, x, y);
+                    System.out.println("Clicked");
+                    if(currentImage > 0) {
+                        currentImage--;
+                        numPic.setText(currentImage+1+"/"+tutorialImages.size);
+                        tutorialImage.remove();
+                        tutorialImage = tutorialImages.get(currentImage);
+                        stage.addActor(tutorialImage);
+                    }
+
+                }
+
+                @Override
+                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                    super.enter(event, x, y, pointer, fromActor);
+                    System.out.println("Hovered");
+                }
+
+                @Override
+                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                    super.exit(event, x, y, pointer, toActor);
+                }
+            });
+            stage.addActor(prevButton);
+
+            background = directory.getEntry("background", Texture.class);
+
+            numPic = new Label("1/"+tutorialImages.size, GameConstants.SELECTION_SKIN, "tutorial-text");
+            numPic.setPosition(Gdx.graphics.getWidth()*.5f - numPic.getWidth()/2,
+                    Gdx.graphics.getHeight()*.17f- numPic.getHeight()/2);
+            stage.addActor(numPic);
+
+
         } else {
             stage.addActor(playButton);
-            
+
         }
 
-
-        nextButton = new Image(directory.getEntry("Tutorial:Next", Texture.class));
-        nextButton.setPosition(Gdx.graphics.getWidth()*.67f - nextButton.getWidth()/2,
-                Gdx.graphics.getHeight()*.15f- nextButton.getHeight()/2);
-
-        nextButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                System.out.println("Clicked");
-                if(currentImage+1 < tutorialImages.size) {
-                    currentImage++;
-                    numPic.setText(currentImage+1+"/"+tutorialImages.size);
-                    tutorialImage.remove();
-                    tutorialImage = tutorialImages.get(currentImage);
-                    stage.addActor(tutorialImage);
-                } else {
-                    if(!canStart) {
-                        canStart = true;
-                        stage.addActor(playButton);
-                    }
-                }
-
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                super.enter(event, x, y, pointer, fromActor);
-                System.out.println("Hovered");
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                super.exit(event, x, y, pointer, toActor);
-            }
-        });
-        stage.addActor(nextButton);
-
-        prevButton = new Image(directory.getEntry("Tutorial:Prev", Texture.class));
-        prevButton.setPosition(Gdx.graphics.getWidth()*.33f - prevButton.getWidth()/2,
-                Gdx.graphics.getHeight()*.15f- prevButton.getHeight()/2);
-
-        prevButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                System.out.println("Clicked");
-                if(currentImage > 0) {
-                    currentImage--;
-                    numPic.setText(currentImage+1+"/"+tutorialImages.size);
-                    tutorialImage.remove();
-                    tutorialImage = tutorialImages.get(currentImage);
-                    stage.addActor(tutorialImage);
-                }
-
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                super.enter(event, x, y, pointer, fromActor);
-                System.out.println("Hovered");
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                super.exit(event, x, y, pointer, toActor);
-            }
-        });
-        stage.addActor(prevButton);
-
-        background = directory.getEntry("background", Texture.class);
-
-        numPic = new Label("1/"+tutorialImages.size, GameConstants.SELECTION_SKIN, "tutorial-text");
-        numPic.setPosition(Gdx.graphics.getWidth()*.5f - numPic.getWidth()/2,
-                Gdx.graphics.getHeight()*.17f- numPic.getHeight()/2);
-        stage.addActor(numPic);
 
         //Label tutorialTex = new Label(tutorialText, GameConstants.SELECTION_SKIN, "tutorial-text");
 //        if(tutorialText.length() > 30) {
